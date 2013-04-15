@@ -1,0 +1,55 @@
+#pragma once
+#ifndef SOUNDMANAGER_H
+#define SOUNDMANAGER_H
+
+#include "../stdafx.h"
+#include <fmod.hpp>
+#include <fmod_errors.h>
+using namespace std;
+
+const	float	DISTANCEFACTOR			=	1.0f;	// Units per meter.  I.e feet would = 3.28.  centimeters would = 100.
+
+class SoundManager
+{
+private:
+	static	SoundManager*	gInstance;
+	SoundManager(void);
+
+	//	System fields
+	FMOD::System	*gSystem;
+	FMOD::Channel	*gChannel;
+
+
+	//	Fields for loaded sounds
+	typedef pair<string, FMOD::Sound*>		SoundEntry;
+	map <const int, SoundEntry>				gLoadedSounds;
+	map <const int, SoundEntry>::iterator	gSoundIterator;
+
+	//	Settings
+	float		gMasterVolume;
+	float		gEffectVolume;
+	float		gMusicVolume;
+	float		gTimeToUpdate;
+	FMOD_VECTOR	gListenerPosition;
+
+
+	//	Fields for error handling
+	FMOD_RESULT	gResult;
+	void	ErrorCheck(FMOD_RESULT Result);
+	bool	Exists(string Name);
+public:
+	static SoundManager* GetInstance();
+	~SoundManager(void);
+
+	void	Update(float DeltaTime);
+	void	Load(string Name, string Path, FMOD_MODE Flags);
+
+	void	Play(string Name);
+	void	Play(string Name, bool Loop);
+	void	Play3D(string Name, XMFLOAT3 Position);
+	void	Play3D(string Name, XMFLOAT3 Position, bool Loop);
+
+	void	SetListenerPosition(float X, float Y, float Z);
+};
+
+#endif;
