@@ -1,9 +1,8 @@
 #pragma once
 #ifndef SCREENMANAGER_H
 #define SCREENMANAGER_H
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "Screen.h"
-#include "DebugScreen.h"
 #include "MainMenuScreen.h"
 using namespace std;
 
@@ -12,7 +11,6 @@ using namespace std;
 class ScreenManager
 {
 private:
-	DebugScreen*		gDebugScreen;
 	ScreenData*			gScreenData;
 
 	vector<Screen*>*	gLoadedScreens;

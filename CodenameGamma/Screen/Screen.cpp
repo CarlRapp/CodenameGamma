@@ -80,7 +80,7 @@ float Screen::GetTextWidth(string Text, float TextSize)
 {
 	float	tWidth	=	0.0f;
 
-	for(int i = 0; i < Text.size(); ++i)
+	for(unsigned int i = 0; i < Text.size(); ++i)
 	{
 		char	tC	=	Text[i];
 

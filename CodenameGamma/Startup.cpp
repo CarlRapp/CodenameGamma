@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include "Controller.h"
-#include "ScreenManager.h"
-#include "SoundManager.h"
+#include "Input/Controller.h"
+#include "Screen/ScreenManager.h"
+#include "Sound/SoundManager.h"
 #include <ctime> 
 #include <iostream>
 #include <stdio.h>
@@ -95,13 +95,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	FW1CreateFactory(FW1_VERSION, &pFW1Factory);
 	pFW1Factory->CreateFontWrapper(g_Device, L"Courier", &ScreenSetupData->TEXT_INSTANCE);
 	pFW1Factory->Release();
+
+	DebugScreen::Initialize(ScreenSetupData);
+
+	SoundManager::GetInstance();
+	InputManager::Initialize(&hInstance, &g_hWndMain, WINDOW_WIDTH, WINDOW_HEIGHT);
+	
 	
 	ScreenM	=	new ScreenManager(ScreenSetupData);
 
 	ScreenM->ChangeScreen(MAIN_MENU_SCREEN);
-
-	SoundManager::GetInstance();
-	InputManager::Initialize(&hInstance, &g_hWndMain, WINDOW_WIDTH, WINDOW_HEIGHT);
 
 	return Run();
 }

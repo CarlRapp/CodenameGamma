@@ -1,4 +1,5 @@
 #include "SoundManager.h"
+#include "../Screen/ScreenEnums.h"
 
 SoundManager* SoundManager::gInstance	=	0;
 SoundManager* SoundManager::GetInstance()
@@ -88,6 +89,8 @@ SoundManager::SoundManager()
 	*/
 	gResult = gSystem->set3DSettings(1.0, DISTANCEFACTOR, 1.0f);
 	ErrorCheck(gResult);
+
+	DebugScreen::GetInstance()->AddLogMessage("Sound Manager: Initialized!", Green);
 }
 
 SoundManager::~SoundManager()
@@ -129,7 +132,10 @@ void SoundManager::Play(string Name)
 void SoundManager::Play(string Name, bool Loop)
 {
 	if(!Exists(Name))
+	{
+		DebugScreen::GetInstance()->AddLogMessage("Sound: \"" + Name + "\" does not exist.", Red);
 		return;
+	}
 	if(Loop)
 		gSoundIterator->second.second->setMode(FMOD_LOOP_NORMAL);
 
@@ -151,7 +157,10 @@ void SoundManager::Play3D(string Name, XMFLOAT3 Position)
 void SoundManager::Play3D(string Name, XMFLOAT3 Position, bool Loop)
 {
 	if(!Exists(Name))
+	{
+		DebugScreen::GetInstance()->AddLogMessage("Sound: \"" + Name + "\" does not exist.", Red);
 		return;
+	}
 	if(Loop)
 		gSoundIterator->second.second->setMode(FMOD_LOOP_NORMAL);
 
@@ -177,9 +186,7 @@ void SoundManager::ErrorCheck(FMOD_RESULT Result)
 {
 	//	Implement write to debug screen here.
 	if (Result != FMOD_OK )
-		int a = 2;
-		
-
+		DebugScreen::GetInstance()->AddLogMessage("Sound Error: " + Result, Red);
 }
 
 

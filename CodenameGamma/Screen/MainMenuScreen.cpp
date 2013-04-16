@@ -1,5 +1,5 @@
 #include "MainMenuScreen.h"
-
+DebugData*	FPS_COUNTER;
 MainMenuScreen::MainMenuScreen(ScreenData* Setup)
 {
 	LoadScreenData(Setup);
@@ -21,6 +21,12 @@ MainMenuScreen::MainMenuScreen(ScreenData* Setup)
 	SoundManager::GetInstance()->Load("Theme", "DATA/Sounds/Theme.mp3", FMOD_SOFTWARE | FMOD_2D);
 	SoundManager::GetInstance()->Load("MenuPick", "DATA/Sounds/MenuPick.wav", FMOD_SOFTWARE | FMOD_2D);
 	SoundManager::GetInstance()->Play("Theme", true);
+	SoundManager::GetInstance()->Play("Derpaderp");
+
+	FPS_COUNTER	=	DebugScreen::GetInstance()->AddDebugData("");
+	FPS_COUNTER->Value	=	" FPS";
+	FPS_COUNTER->ValueColor	=	Green;
+	FPS_COUNTER->TitleColor	=	White;
 }
 
 bool MainMenuScreen::Load()
@@ -61,6 +67,8 @@ void MainMenuScreen::Update(float DeltaTime)
 	
 
 	gTextSizeActive			=	(gTextSize	+	cos(10 * gTextSizeActiveTicker));
+
+	FPS_COUNTER->Title	=	to_string((long double)((int)(1/DeltaTime)));
 }
 
 

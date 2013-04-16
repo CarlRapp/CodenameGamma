@@ -5,8 +5,6 @@ ScreenManager::ScreenManager()
 	gLoadedScreens	=	new vector<Screen*>();
 	gCurrentScreen	=	NULL;
 }
-DebugData*	TEST, *TEST2, *TEST3;
-int	scroll = 0;
 ScreenManager::ScreenManager(ScreenData* Setup)
 {
 	gScreenData	=	Setup;
@@ -14,18 +12,12 @@ ScreenManager::ScreenManager(ScreenData* Setup)
 	gLoadedScreens	=	new vector<Screen*>();
 	gCurrentScreen	=	NULL;
 
-	gDebugScreen	=	new DebugScreen(Setup);
-	gDebugScreen->Initialize();
-	TEST	=	gDebugScreen->AddDebugData("");
-	TEST->Value	=	"    FPS (SUCKS ASS IN DEBUG SO PLZ NO HATE)";
-	TEST->ValueColor	=	Red;
-
-	TEST2	=	gDebugScreen->AddDebugData("Mouse Position");
-
-	TEST3	=	gDebugScreen->AddDebugData("Left M3 Right M4 (Scroll) -> (Total Value)");
+	
 
 	gExit	=	false;
 	gShowDebug	=	false;
+
+	DebugScreen::GetInstance()->AddLogMessage("Screen Manager: Initialized!", Green);
 }
 
 void ScreenManager::Update(float DeltaTime)
@@ -33,30 +25,17 @@ void ScreenManager::Update(float DeltaTime)
 	SoundManager::GetInstance()->Update(DeltaTime);
 	InputManager::GetInstance()->Update();
 
-	if( InputManager::GetInstance()->GetKeyboard()->GetKeyState(VK_F1) == PRESSED)
+	if ( InputManager::GetInstance()->GetKeyboard()->GetKeyState(VK_F1) == PRESSED )
 		ToggleDebug();
+	if ( gShowDebug )
+		DebugScreen::GetInstance()->Update(DeltaTime);
+
 
 	if( !gCurrentScreen )
 		return;
 
+
 	gCurrentScreen->Update(DeltaTime);
-
-	TEST->Title			=	to_string((long double)((int)(1/DeltaTime)));
-
-
-	XMFLOAT2	tVec	=	InputManager::GetInstance()->GetMouse()->GetPosition(true);
-	TEST2->Value	=	to_string((long double)tVec.x) + ", " + to_string((long double)tVec.y);
-
-
-	TEST3->Value	=	to_string((long double)InputManager::GetInstance()->GetMouse()->GetButtonState(M_LEFT)) + " | ";
-	TEST3->Value	+=	to_string((long double)InputManager::GetInstance()->GetMouse()->GetButtonState(M_MIDDLE)) + " | ";
-	TEST3->Value	+=	to_string((long double)InputManager::GetInstance()->GetMouse()->GetButtonState(M_RIGHT)) + " | ";
-	TEST3->Value	+=	to_string((long double)InputManager::GetInstance()->GetMouse()->GetButtonState(M_MOUSE4)) + " (";
-	TEST3->Value	+=	to_string((long double)InputManager::GetInstance()->GetMouse()->GetScrollValue()) + ") -> ";
-	scroll	+=	InputManager::GetInstance()->GetMouse()->GetScrollValue();
-
-	TEST3->Value	+=	to_string((long double)scroll);
-
 	ChangeScreen(gCurrentScreen->SwapToThisNextFrame());
 }
 
@@ -71,21 +50,8 @@ void ScreenManager::Render()
 	gCurrentScreen->Render();
 
 	if( gShowDebug )
-		gDebugScreen->Render();
+		DebugScreen::GetInstance()->Render();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 bool ScreenManager::CloseGame()
 {
@@ -188,4 +154,7 @@ ScreenManager::~ScreenManager()
 void ScreenManager::ToggleDebug()
 {
 	gShowDebug	=	!gShowDebug;
+
+	if ( !DebugScreen::GetInstance() )
+		gShowDebug	=	false;
 }
