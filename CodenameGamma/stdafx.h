@@ -21,6 +21,9 @@
 #define SAFE_DELETE_ARRAY(x) if( x ) { delete[](x); (x) = NULL; }
 #define PI (3.14159265358979323846f)
 
+#include "FW1FontWrapper.h"
+#pragma comment (lib, "FW1FontWrapper.lib")
+
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment (lib,"dxerr.lib")
