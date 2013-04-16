@@ -24,6 +24,8 @@ void Keyboard::Update()
 		gOldFrameKeyboard[i]	=	gNewFrameKeyboard[i];
 		gNewFrameKeyboard[i]	=	GetAsyncKeyState(i) ? true : false;
 	}
+
+
 }
 
 
