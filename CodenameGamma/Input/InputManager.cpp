@@ -1,4 +1,5 @@
 #include "InputManager.h"
+#include "../Screen/ScreenEnums.h"
 
 InputManager* InputManager::gInstance	=	0;
 InputManager* InputManager::GetInstance()
@@ -30,6 +31,8 @@ InputManager::InputManager(HINSTANCE* HInstance, HWND* Hwnd, int ScreenWidth, in
 	gMouse		=	new Mouse(HInstance, Hwnd, ScreenWidth, ScreenHeight);
 
 	gWindow	=	Hwnd;
+
+	DebugScreen::GetInstance()->AddLogMessage("Input Manager: Initialized!", Green);
 }
 
 InputManager::~InputManager()
@@ -80,73 +83,3 @@ Mouse* InputManager::GetMouse()
 {
 	return gMouse;
 }
-
-
-/*
-InputManager::InputManager(HWND* Window)
-{
-	inputWindow			=	Window;
-
-	totalKeys			=	255;
-	keyStateLastUpdate	=	new bool[totalKeys];
-	keyStateThisUpdate	=	new bool[totalKeys];
-}
-
-InputManager::~InputManager()
-{
-	keyStateLastUpdate	=	0;
-	keyStateThisUpdate	=	0;
-}
-
-void InputManager::Update()
-{
-	if(GetActiveWindow() != *inputWindow)
-	{
-		mouseMovement	=	D3DXVECTOR2(0, 0);
-		return;
-	}
-
-	for(int i = 0; i < totalKeys; ++i)
-	{
-		keyStateLastUpdate[i]	=	keyStateThisUpdate[i];
-
-		keyStateThisUpdate[i]	=	GetAsyncKeyState(i) ? true : false;
-	}
-
-	UpdateMouse();
-}
-
-void InputManager::UpdateMouse()
-{
-	LPRECT Rect = new RECT();
-	GetWindowRect(*inputWindow, Rect);
-
-	LPPOINT mousePos = new POINT();
-	GetCursorPos(mousePos);
-
-	int centerX		=	(int)((Rect->left + Rect->right) * 0.5f);
-	int centerY		=	(int)((Rect->top + Rect->bottom) * 0.5f);
-	mouseMovement	=	D3DXVECTOR2((float)(mousePos->x - centerX), (float)(centerY - mousePos->y));
-	SetCursorPos(centerX, centerY);
-}
-
-D3DXVECTOR2 InputManager::GetMouseMovement()
-{
-	return mouseMovement;
-}
-
-bool InputManager::IsKeyDown(char Key)
-{
-	return keyStateThisUpdate[Key];
-}
-
-bool InputManager::IsKeyPressed(char Key)
-{
-	return (keyStateThisUpdate[Key] && !keyStateLastUpdate[Key]);
-}
-
-bool InputManager::IsKeyReleased(char Key)
-{
-	return (!keyStateThisUpdate[Key] && keyStateLastUpdate[Key]);
-}
-*/
