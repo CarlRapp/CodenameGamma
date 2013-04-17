@@ -25,6 +25,8 @@ build/
 *.ilk
 *.meta
 *.obj
+*.cod
+*.fxo
 *.pch
 *.pdb
 *.pgc

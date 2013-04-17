@@ -127,7 +127,7 @@ Screen* ScreenManager::LoadScreen(ScreenType Type)
 
 	//	Play Screen
 	else if(Type == PLAY_SCREEN)
-		return	NULL;
+		return	new PlayScreen(gScreenData);
 
 	//	Credits
 	else if(Type == CREDITS_SCREEN)
