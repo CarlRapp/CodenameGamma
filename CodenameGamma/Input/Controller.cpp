@@ -121,30 +121,31 @@ XMFLOAT2 Controller::GetStickDirection(Xbox_Direction Stick)
 	if(GetStickLength(Stick) ==	0)
 		return XMFLOAT2(0, 0);
 
-	XMVECTOR	vec;
+	XMFLOAT2 direction = XMFLOAT2(0, 0);
 
 	if(Stick == LEFT)
 	{
-		XMVectorSetX(vec, gInputState.Gamepad.sThumbLX);
-		XMVectorSetY(vec, gInputState.Gamepad.sThumbLY);
+		direction.x = gInputState.Gamepad.sThumbLX;
+		direction.y = gInputState.Gamepad.sThumbLY;
 	}
 	else
 	{
-		XMVectorSetX(vec, gInputState.Gamepad.sThumbRX);
-		XMVectorSetY(vec, gInputState.Gamepad.sThumbRY);
+		direction.x = gInputState.Gamepad.sThumbRX;
+		direction.y = gInputState.Gamepad.sThumbRY;
 	}
-	vec	/=	32767;
 
-	XMFLOAT2 tVec;
-	XMStoreFloat2(&tVec, vec);
+	XMVECTOR temp = XMLoadFloat2(&direction);
+	temp / 32767.0f;
 
-	tVec.x	=	(tVec.x < -1) ? -1 : tVec.x;
-	tVec.x	=	(tVec.x > 1) ? 1 : tVec.x;
+	XMStoreFloat2(&direction, temp);
 
-	tVec.y	=	(tVec.y < -1) ? -1 : tVec.y;
-	tVec.y	=	(tVec.y > 1) ? 1 : tVec.y;
+	direction.x	=	(direction.x < -1) ? -1 : direction.x;
+	direction.x	=	(direction.x > 1) ? 1 : direction.x;
+
+	direction.y	=	(direction.y < -1) ? -1 : direction.y;
+	direction.y	=	(direction.y > 1) ? 1 : direction.y;
 	
-	return tVec;
+	return direction;
 }
 
 float Controller::GetStickLength(Xbox_Direction Stick)
