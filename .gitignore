@@ -149,3 +149,4 @@ $RECYCLE.BIN/
 .DS_Store
 CodenameGamma/CodenameGamma.vcxproj
 CodenameGamma/CodenameGamma.vcxproj.filters
+!CodenameGamma/DATA/Models/obj/*.obj
