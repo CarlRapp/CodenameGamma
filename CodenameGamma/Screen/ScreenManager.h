@@ -4,6 +4,7 @@
 #include "../stdafx.h"
 #include "Screen.h"
 #include "MainMenuScreen.h"
+#include "PlayScreen\PlayScreen.h"
 using namespace std;
 
 
