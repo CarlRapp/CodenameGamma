@@ -40,7 +40,7 @@ void Controller::Update()
 	gNewButtonState[Y]	=	(gInputState.Gamepad.wButtons & XINPUT_GAMEPAD_Y)	==	XINPUT_GAMEPAD_Y;
 
 	gNewButtonState[START]	=	(gInputState.Gamepad.wButtons & XINPUT_GAMEPAD_START)	==	XINPUT_GAMEPAD_START;
-	gNewButtonState[BACK]	=	(gInputState.Gamepad.wButtons & XINPUT_GAMEPAD_BACK)	==	XINPUT_GAMEPAD_BACK;
+	gNewButtonState[Xbox_Button::BACK]	=	(gInputState.Gamepad.wButtons & XINPUT_GAMEPAD_BACK)	==	XINPUT_GAMEPAD_BACK;
 
 	gNewButtonState[D_UP]		=	(gInputState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP)		==	XINPUT_GAMEPAD_DPAD_UP;
 	gNewButtonState[D_DOWN]		=	(gInputState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN)	==	XINPUT_GAMEPAD_DPAD_DOWN;
@@ -116,24 +116,27 @@ void Controller::Vibrate(float Left, float Right)
     XInputSetState(gIndex, &Vibration);
 }
 
-D3DXVECTOR2 Controller::GetStickDirection(Xbox_Direction Stick)
+XMFLOAT2 Controller::GetStickDirection(Xbox_Direction Stick)
 {
 	if(GetStickLength(Stick) ==	0)
-		return D3DXVECTOR2(0, 0);
+		return XMFLOAT2(0, 0);
 
-	D3DXVECTOR2	tVec;
+	XMVECTOR	vec;
 
 	if(Stick == LEFT)
 	{
-		tVec.x	=	gInputState.Gamepad.sThumbLX;
-		tVec.y	=	gInputState.Gamepad.sThumbLY;
+		XMVectorSetX(vec, gInputState.Gamepad.sThumbLX);
+		XMVectorSetY(vec, gInputState.Gamepad.sThumbLY);
 	}
 	else
 	{
-		tVec.x	=	gInputState.Gamepad.sThumbRX;
-		tVec.y	=	gInputState.Gamepad.sThumbRY;
+		XMVectorSetX(vec, gInputState.Gamepad.sThumbRX);
+		XMVectorSetY(vec, gInputState.Gamepad.sThumbRY);
 	}
-	tVec	/=	32767;
+	vec	/=	32767;
+
+	XMFLOAT2 tVec;
+	XMStoreFloat2(&tVec, vec);
 
 	tVec.x	=	(tVec.x < -1) ? -1 : tVec.x;
 	tVec.x	=	(tVec.x > 1) ? 1 : tVec.x;
