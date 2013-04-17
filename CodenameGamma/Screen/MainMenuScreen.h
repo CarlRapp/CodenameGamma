@@ -16,7 +16,6 @@ protected:
 
 	bool	Load();
 	bool	Unload();
-
 public:
 	MainMenuScreen(ScreenData* Setup);
 
