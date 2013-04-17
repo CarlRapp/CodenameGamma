@@ -74,7 +74,7 @@ void MainMenuScreen::Update(float DeltaTime)
 
 void MainMenuScreen::Render()
 {
-	D3DXVECTOR2	tPos	=	D3DXVECTOR2(gScreenWidth * 0.5f, gScreenHeight * 0.1f);
+	XMFLOAT2	tPos	=	XMFLOAT2(gScreenWidth * 0.5f, gScreenHeight * 0.1f);
 	DrawString(*gTextInstance, "Codename: Gamma", tPos.x, tPos.y, 72, Red, Black, 2, FW1_CENTER);
 	
 	int	i	=	0;
@@ -84,7 +84,7 @@ void MainMenuScreen::Render()
 		TextColor	tColor		=	(i == gCurrentIndex) ? Orange : White;
 		string		tText		=	(i == gCurrentIndex) ? ".: " + tMenuEntry.first + " :." : tMenuEntry.first;
 
-		D3DXVECTOR2	tPosition	=	D3DXVECTOR2(gScreenWidth * 0.5f, gScreenHeight * 0.3f + i * (gTextSize + gTextSize * 0.1f));
+		XMFLOAT2	tPosition	=	XMFLOAT2(gScreenWidth * 0.5f, gScreenHeight * 0.3f + i * (gTextSize + gTextSize * 0.1f));
 
 		float		tTextSize	=	(i == gCurrentIndex) ? gTextSizeActive : gTextSize;
 
