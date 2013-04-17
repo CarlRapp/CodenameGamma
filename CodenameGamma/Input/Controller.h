@@ -25,7 +25,7 @@ public:
 
 	float			GetTriggerValue(Xbox_Direction Trigger);
 	InputState		GetButtonState(Xbox_Button Button);
-	D3DXVECTOR2		GetStickDirection(Xbox_Direction Stick);
+	XMFLOAT2		GetStickDirection(Xbox_Direction Stick);
 	float			GetStickLength(Xbox_Direction Stick);
 
 	void	Vibrate(float Left, float Right);

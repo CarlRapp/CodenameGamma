@@ -4,12 +4,11 @@
 #include <windows.h>
 #include <D3D11.h>
 #include <D3DX11.h>
-#include <D3DX10math.h>
 #include <d3dx11effect.h>
 #include <d3dCompiler.h>
 #include <XInput.h>
 #include <fmod.h>
-#include <xnamath.h>
+#include "MathHelper.h"
 
 #include <string>
 #include <vector>
