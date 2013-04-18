@@ -134,10 +134,8 @@ XMFLOAT2 Controller::GetStickDirection(Xbox_Direction Stick)
 		direction.y = gInputState.Gamepad.sThumbRY;
 	}
 
-	XMVECTOR temp = XMLoadFloat2(&direction);
-	temp / 32767.0f;
-
-	XMStoreFloat2(&direction, temp);
+	direction.x = direction.x / 32767.0f;
+	direction.y = direction.y / 32767.0f;
 
 	direction.x	=	(direction.x < -1) ? -1 : direction.x;
 	direction.x	=	(direction.x > 1) ? 1 : direction.x;
