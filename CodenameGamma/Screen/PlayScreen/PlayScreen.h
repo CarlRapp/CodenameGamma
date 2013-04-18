@@ -21,9 +21,11 @@ private:
 	Model								*gModel;
 
 	GraphicsManager						*gGraphicsManager;
-	vector<GameObject*>					g_GameObjects;
+	vector<GameObject*>					gGameObjects;
 	Terrain								*gTerrain;
 	StructuredBuffer<DirectionalLight>	*gDirLightBuffer;
+
+	void AddInstance(float x, float y, float z, Model *model);
 
 protected:
 	bool	Load();
