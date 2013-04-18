@@ -37,7 +37,7 @@ public:
 
 		bool HasChildren()
 		{
-			return m_NW;
+			return ( m_NW != NULL);
 		}
 	};
 
