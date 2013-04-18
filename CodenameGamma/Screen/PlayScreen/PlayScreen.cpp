@@ -13,10 +13,57 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 	gTerrain = new Terrain(gDevice, gDeviceContext);
 	gTerrain->LoadMap("DATA\\Maps\\TestMap");
 
+
 	gGraphicsManager = new GraphicsManager(gDevice, gDeviceContext, gRenderTargetView, gDepthStencilView, gScreenWidth, gScreenHeight);
 	gGraphicsManager->SetTerrain(gTerrain);
-	SetNumberOfPlayers(2);
 
+	
+	gModel = new Model(gDevice, gTexMgr, "DATA\\Models\\obj\\pacman.obj", "DATA\\Models\\Textures\\");
+
+	for (int i = 0; i < 10; ++i)
+	{
+		float x = MathHelper::RandF(0, 4000);
+		float y = 12;
+		float z = MathHelper::RandF(0, 4000);
+
+		AddInstance(x, y, z, gModel);
+	}
+
+	SetNumberOfPlayers(4);
+
+}
+
+void PlayScreen::AddInstance(float x, float y, float z, Model *model)
+{
+	XMMATRIX scale, rot, trans, world;
+	scale	= XMMatrixScaling(10.0f, 10.0f, 10.0f);
+
+	y += gTerrain->GetHeight(x, z);
+
+	rot		= XMMatrixRotationX(0);
+	//rot		= XMMatrixRotationX(-PI/2);
+	trans	= XMMatrixTranslation(x, y, z);
+
+	ModelInstance *instance = new ModelInstance();
+	instance->m_Model = model;	
+	//instance->m_World = scale * rot * trans;
+	world = XMMatrixMultiply(scale, rot);
+	world = XMMatrixMultiply(world, trans);
+	XMStoreFloat4x4(&instance->m_World, world);
+	instance->m_OldBoundingSphere = instance->GetBoundingSphere();
+
+	gGraphicsManager->AddModelInstance(instance);
+
+
+	GameObject *go = new GameObject();
+	go->m_Position = DirectX::XMFLOAT3(x, y, z);
+	go->m_ModelInstance = instance;
+	
+	float speed = 80;
+
+	if (MathHelper::RandF(0, 1) > 0.0f)
+		go->m_Velocity = DirectX::XMFLOAT3(MathHelper::RandF(-speed, speed), 0, MathHelper::RandF(-speed, speed));
+	gGameObjects.push_back(go);
 }
 
 bool PlayScreen::Load()
@@ -31,10 +78,41 @@ bool PlayScreen::Unload()
 
 void PlayScreen::Update(float DeltaTime)
 {
+	//Updaterar gameobjects
+	vector<ModelInstance*>	updatedInstances;	
+	for each (GameObject *go in gGameObjects)
+	{
+		//go->Update(deltaTime);
+		if (go->Update(DeltaTime, gTerrain))
+			updatedInstances.push_back(go->m_ModelInstance);
+	}
+	gGraphicsManager->Update(updatedInstances);
+
 	for each (Player *p in gPlayers)
 	{
 		p->Update(DeltaTime);
 	}
+
+
+	Controller* controller = InputManager::GetInstance()->GetController(0);
+	if (controller->GetButtonState(Xbox_Button::B) == InputState::DOWN)
+	//if (GetAsyncKeyState('L'))
+	{
+		if (!gGameObjects.empty())
+		{
+			ModelInstance *instance = gGameObjects.back()->m_ModelInstance;
+			gGraphicsManager->RemoveModelInstance(instance);
+			gGameObjects.pop_back();
+		}
+	}
+	if (controller->GetButtonState(Xbox_Button::A) == InputState::DOWN)
+	//if (GetAsyncKeyState('K'))
+		AddInstance(MathHelper::RandF(0, 4000), 12, MathHelper::RandF(0, 4000), gModel);
+
+	if (controller->GetButtonState(Xbox_Button::START) == InputState::DOWN)
+		gGotoNextFrame = MAIN_MENU_SCREEN;
+
+	
 }
 
 void PlayScreen::Render()
