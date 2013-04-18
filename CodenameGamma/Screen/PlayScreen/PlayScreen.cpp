@@ -15,7 +15,7 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 
 	gGraphicsManager = new GraphicsManager(gDevice, gDeviceContext, gRenderTargetView, gDepthStencilView, gScreenWidth, gScreenHeight);
 	gGraphicsManager->SetTerrain(gTerrain);
-	SetNumberOfPlayers(1);
+	SetNumberOfPlayers(2);
 
 }
 

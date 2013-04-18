@@ -14,8 +14,9 @@ Effect::Effect(ID3D11Device* device, const std::wstring& filename)
 
 	fin.read(&compiledShader[0], size);
 	fin.close();
-	
-	D3DX11CreateEffectFromMemory(&compiledShader[0], size, 0, device, &mFX);
+
+	HRESULT(D3DX11CreateEffectFromMemory(&compiledShader[0], size, 
+		0, device, &mFX));
 }
 
 Effect::~Effect()
