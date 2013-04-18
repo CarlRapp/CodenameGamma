@@ -93,7 +93,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	
 	IFW1Factory				*pFW1Factory = 0;
 	FW1CreateFactory(FW1_VERSION, &pFW1Factory);
-	pFW1Factory->CreateFontWrapper(g_Device, L"Courier", &ScreenSetupData->TEXT_INSTANCE);
+	pFW1Factory->CreateFontWrapper(g_Device, L"Verdana", &ScreenSetupData->TEXT_INSTANCE);
 	pFW1Factory->Release();
 
 	DebugScreen::Initialize(ScreenSetupData);
