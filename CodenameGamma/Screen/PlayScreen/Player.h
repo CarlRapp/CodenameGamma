@@ -2,7 +2,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "..\..\Input\Controller.h"
+#include "../../Input/InputManager.h"
 #include "Camera.h"
 
 class Player

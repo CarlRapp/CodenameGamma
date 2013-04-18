@@ -3,14 +3,14 @@
 
 Player::Player(void)
 {
-	m_Controller = new Controller(0);
+	m_Controller = InputManager::GetInstance()->GetController(0);
 	m_Camera = new Camera();		
 	m_Camera->SetPosition(2000, 100, 500);
 }
 
 Player::Player(int index)
 {
-	m_Controller = new Controller(index);
+	m_Controller = InputManager::GetInstance()->GetController(index);
 	m_Camera = new Camera();
 	m_Camera->SetPosition(2000, 100, 500);
 }
