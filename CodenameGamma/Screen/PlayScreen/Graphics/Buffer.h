@@ -37,6 +37,7 @@ public:
     // TODO: Support NOOVERWRITE ring buffer?
     T* MapDiscard(ID3D11DeviceContext* d3dDeviceContext);
     void Unmap(ID3D11DeviceContext* d3dDeviceContext);
+	
 
 private:
     // Not implemented
@@ -47,6 +48,8 @@ private:
     ID3D11Buffer* mBuffer;
     ID3D11ShaderResourceView* mShaderResource;
     ID3D11UnorderedAccessView* mUnorderedAccess;
+public:
+	int Size(){ return mElements; }
 };
 
 
@@ -76,9 +79,9 @@ StructuredBuffer<T>::StructuredBuffer(ID3D11Device* d3dDevice, int elements,
 template <typename T>
 StructuredBuffer<T>::~StructuredBuffer()
 {
-    if (mUnorderedAccess) mUnorderedAccess->Release();
-    if (mShaderResource) mShaderResource->Release();
-    mBuffer->Release();
+    if (mUnorderedAccess)	mUnorderedAccess->Release();
+    if (mShaderResource)	mShaderResource->Release();
+    if (mBuffer)			mBuffer->Release();
 }
 
 
