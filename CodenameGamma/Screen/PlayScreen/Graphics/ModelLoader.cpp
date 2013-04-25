@@ -337,17 +337,14 @@ void  ModelLoader::GetVerts(const aiScene* scene,
 	scene->mMaterials[mesh->mMaterialIndex]->Get<float>(AI_MATKEY_SHININESS, shininess);
 
 	MaterialLoader material;
-	material.Mat.Ambient	= aiColor3DToXMFLOAT4(amb);
-	material.Mat.Diffuse	= aiColor3DToXMFLOAT4(diff);
-	material.Mat.Specular	= aiColor3DToXMFLOAT4(spec);
-	material.Mat.Specular.w	= shininess;
+	material.Mat.SpecIntensity	= (aiColor3DToXMFLOAT4(spec).x + aiColor3DToXMFLOAT4(spec).y + aiColor3DToXMFLOAT4(spec).z) / 3;
+	material.Mat.SpecPower		= shininess;
 	/*
 	material.Mat.Ambient = D3DXVECTOR4(1,1,1,0);
 	material.Mat.Diffuse = D3DXVECTOR4(1,1,1,0);
 	material.Mat.Specular = D3DXVECTOR4(1,1,1,3);
 
 	*/
-	material.Mat.Reflect = XMFLOAT4(0,0,0,0);
 	material.AlphaClip = 0;
 	material.EffectTypeName = "Basic";
 	

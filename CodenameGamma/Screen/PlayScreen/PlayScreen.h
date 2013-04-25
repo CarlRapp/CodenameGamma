@@ -23,9 +23,20 @@ private:
 	GraphicsManager						*gGraphicsManager;
 	vector<GameObject*>					gGameObjects;
 	Terrain								*gTerrain;
-	StructuredBuffer<DirectionalLight>	*gDirLightBuffer;
+
+	vector<DirectionalLight*>			gDirLights;
+	vector<PointLight*>					gPointLights;
+	vector<SpotLight*>					gSpotLights;
+
+	//TEST
+	vector<XMFLOAT3> rotpos;
+	vector<float>	 angle;
+	vector<float>	 anglespot;
 
 	void AddInstance(float x, float y, float z, Model *model);
+	void AddDirectionalLight();
+	void AddPointLight();
+	void AddSpotLight();
 
 protected:
 	bool	Load();
