@@ -48,10 +48,9 @@ struct Material
 {
 	Material() { ZeroMemory(this, sizeof(this)); }
 
-	XMFLOAT4 Ambient;
-	XMFLOAT4 Diffuse;
-	XMFLOAT4 Specular; // w = SpecPower
-	XMFLOAT4 Reflect;
+	float SpecIntensity;
+	float SpecPower;
+	XMFLOAT2 pad;
 };
 
 

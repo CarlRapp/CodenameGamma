@@ -19,6 +19,9 @@ Terrain::Terrain(ID3D11Device *Device, ID3D11DeviceContext *DeviceContext)
 	m_QuadWidth		= 0;
 	m_QuadHeight	= 0;
 
+	mat.SpecIntensity = 0.0f;
+	mat.SpecPower = 1;
+
 	XMStoreFloat4x4(&m_TexTransform, XMMatrixScaling(1, 1, 1));
 }
 

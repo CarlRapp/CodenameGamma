@@ -2,8 +2,8 @@
 
 cbuffer cbPerObject
 {
-	float4x4 gWorldView;
-	float4x4 gWorldViewInvTranspose;
+	float4x4 gWorld;
+	float4x4 gWorldInvTranspose;
 	float4x4 gWorldViewProj;
 	float4x4 gTexTransform;
 	Material gMaterial;
@@ -39,8 +39,8 @@ struct VertexIn
 struct VertexOut
 {
 	float4 PosH       : SV_POSITION;
-    float3 NormalV    : NORMAL;
-	float4 TangentV   : TANGENT;
+    float3 NormalW    : NORMAL;
+	float4 TangentW   : TANGENT;
 	float2 Tex        : TEXCOORD0;
 	float4 BlendData  : BLENDDATA;
 };
@@ -56,8 +56,8 @@ VertexOut VS(VertexIn vin)
 	VertexOut vout;
 	
 	// Transform to world space space.
-	vout.NormalV  = mul(vin.NormalL, (float3x3)gWorldViewInvTranspose);
-	vout.TangentV = mul(vin.TangentL, gWorldView);
+	vout.NormalW  = mul(vin.NormalL, (float3x3)gWorldInvTranspose);
+	vout.TangentW = mul(vin.TangentL, gWorld);
 
 	// Transform to homogeneous clip space.
 	vout.PosH = mul(float4(vin.PosL, 1.0f), gWorldViewProj);
@@ -82,7 +82,7 @@ PsOut PS(VertexOut pin,
 	return pout;
 	*/
 	// Interpolating normal can unnormalize it, so normalize it.
-	pin.NormalV = normalize(pin.NormalV);
+	pin.NormalW = normalize(pin.NormalW);
 
     // Default to multiplicative identity.
     pout.Albedo = float4(1, 1, 1, 1);
@@ -104,7 +104,7 @@ PsOut PS(VertexOut pin,
 	//
 	// Normal mapping
 	//
-	float3 NormalV = pin.NormalV;
+	float3 NormalW = pin.NormalW;
 	if (gUseNormalMap)
 	{
 		float3 normal1, normal2, normal3, normal4;
@@ -116,13 +116,13 @@ PsOut PS(VertexOut pin,
 	
 		
 		float3 normalMapSample = normal1 + normal2 + normal3 + normal4;
-		NormalV = NormalSampleToWorldSpace(normalMapSample, pin.NormalV, pin.TangentV);
+		NormalW = NormalSampleToWorldSpace(normalMapSample, pin.NormalW, pin.TangentW);
 	}
-	pout.NormalSpec.x 	= (NormalV.x + 1.0f) * 0.5f;
-	pout.NormalSpec.y 	= (NormalV.y + 1.0f) * 0.5f;
-	pout.NormalSpec.z  	= gMaterial.Specular.x;
-	pout.NormalSpec.w  	= gMaterial.Specular.w;
-	
+
+	pout.NormalSpec.xyz = (NormalW + float3(1.0f, 1.0f, 1.0f)) * 0.5f;
+	pout.NormalSpec.w  	= gMaterial.SpecPower / 1000.0f;
+	pout.Albedo.w  		= gMaterial.SpecIntensity;
+
 	//pout.NormalSpec = float4(1,0,0,1);
 	
 	return pout;

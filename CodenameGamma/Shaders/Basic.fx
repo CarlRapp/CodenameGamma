@@ -167,7 +167,7 @@ float4 PS(VertexOut pin,
 			float3 reflectionVector = reflect(incident, pin.NormalW);
 			float4 reflectionColor  = gCubeMap.Sample(samLinear, reflectionVector);
 
-			litColor += gMaterial.Reflect*reflectionColor;
+			//litColor += gMaterial.Reflect*reflectionColor;
 		}
 	}
  
@@ -184,7 +184,7 @@ float4 PS(VertexOut pin,
 	}
 
 	// Common to take alpha from diffuse material and texture.
-	litColor.a = gMaterial.Diffuse.a * texColor.a;
+	//litColor.a = gMaterial.Diffuse.a * texColor.a;
 
     return litColor;
 }

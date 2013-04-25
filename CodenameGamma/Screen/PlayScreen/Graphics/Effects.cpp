@@ -108,7 +108,6 @@ BasicEffect::~BasicEffect()
 }
 #pragma endregion
 
-
 #pragma region ObjectDeferredEffect
 ObjectDeferredEffect::ObjectDeferredEffect(ID3D11Device* device, const std::wstring& filename)
 	: Effect(device, filename)
@@ -120,10 +119,9 @@ ObjectDeferredEffect::ObjectDeferredEffect(ID3D11Device* device, const std::wstr
 	TexNormalAlphaClipTech	= mFX->GetTechniqueByName("TexNormalAlphaClipTech");
 	NormalTech				= mFX->GetTechniqueByName("NormalTech");
 
-
 	WorldViewProj			= mFX->GetVariableByName("gWorldViewProj")->AsMatrix();
-	WorldView				= mFX->GetVariableByName("gWorldView")->AsMatrix();
-	WorldViewInvTranspose	= mFX->GetVariableByName("gWorldViewInvTranspose")->AsMatrix();
+	World					= mFX->GetVariableByName("gWorld")->AsMatrix();
+	WorldInvTranspose		= mFX->GetVariableByName("gWorldInvTranspose")->AsMatrix();
 	TexTransform			= mFX->GetVariableByName("gTexTransform")->AsMatrix();
 
 	Mat						= mFX->GetVariableByName("gMaterial");
@@ -137,7 +135,6 @@ ObjectDeferredEffect::~ObjectDeferredEffect()
 }
 #pragma endregion
 
-
 #pragma region TerrainDeferredEffect
 TerrainDeferredEffect::TerrainDeferredEffect(ID3D11Device* device, const std::wstring& filename)
 	: Effect(device, filename)
@@ -148,8 +145,8 @@ TerrainDeferredEffect::TerrainDeferredEffect(ID3D11Device* device, const std::ws
 	NormalTech				= mFX->GetTechniqueByName("NormalTech");
 
 	WorldViewProj			= mFX->GetVariableByName("gWorldViewProj")->AsMatrix();
-	WorldView				= mFX->GetVariableByName("gWorldView")->AsMatrix();
-	WorldViewInvTranspose	= mFX->GetVariableByName("gWorldViewInvTranspose")->AsMatrix();
+	World					= mFX->GetVariableByName("gWorld")->AsMatrix();
+	WorldInvTranspose		= mFX->GetVariableByName("gWorldInvTranspose")->AsMatrix();
 	TexTransform			= mFX->GetVariableByName("gTexTransform")->AsMatrix();
 
 	Mat						= mFX->GetVariableByName("gMaterial");
@@ -170,6 +167,33 @@ TerrainDeferredEffect::~TerrainDeferredEffect()
 }
 #pragma endregion
 
+#pragma region TiledLightningEffect
+TiledLightningEffect::TiledLightningEffect(ID3D11Device* device, const std::wstring& filename)
+	: Effect(device, filename)
+{
+	Viewport1		= mFX->GetTechniqueByName("Viewport1");
+	Viewport2		= mFX->GetTechniqueByName("Viewport2");
+	Viewport3		= mFX->GetTechniqueByName("Viewport3");
+	Viewport4		= mFX->GetTechniqueByName("Viewport4");
+
+	InvViewProjs    = mFX->GetVariableByName("gInvViewProjs")->AsMatrix();	
+	CamPositions	= mFX->GetVariableByName("gCamPositions")->AsVector();
+	Resolution		= mFX->GetVariableByName("gResolution")->AsVector();
+
+	AlbedoMap		= mFX->GetVariableByName("gAlbedoMap")->AsShaderResource();
+	NormalSpecMap   = mFX->GetVariableByName("gNormalSpecMap")->AsShaderResource();
+	DepthMap		= mFX->GetVariableByName("gDepthMap")->AsShaderResource();
+	OutputMap		= mFX->GetVariableByName("gOutput")->AsUnorderedAccessView();
+
+	DirLightMap     = mFX->GetVariableByName("gDirLightBuffer")->AsShaderResource();
+	PointLightMap   = mFX->GetVariableByName("gPointLightBuffer")->AsShaderResource();
+	SpotLightMap    = mFX->GetVariableByName("gSpotLightBuffer")->AsShaderResource();
+}
+
+TiledLightningEffect::~TiledLightningEffect()
+{
+}
+#pragma endregion
 
 #pragma region NormalMapEffect
 NormalMapEffect::NormalMapEffect(ID3D11Device* device, const std::wstring& filename)
@@ -459,7 +483,6 @@ ClearGBufferEffect::~ClearGBufferEffect()
 }
 #pragma endregion
 
-
 #pragma region CombineFinalEffect
 CombineFinalEffect::CombineFinalEffect(ID3D11Device* device, const std::wstring& filename)
 	: Effect(device, filename)
@@ -476,7 +499,6 @@ CombineFinalEffect::~CombineFinalEffect()
 }
 #pragma endregion
 
-
 #pragma region Effects
 
 BasicEffect*           Effects::BasicFX           = 0;
@@ -490,7 +512,8 @@ DebugTexEffect*        Effects::DebugTexFX        = 0;
 ClearGBufferEffect*    Effects::ClearGBufferFX    = 0;
 CombineFinalEffect*	   Effects::CombineFinalFX    = 0;
 ObjectDeferredEffect*  Effects::ObjectDeferredFX  = 0;
-TerrainDeferredEffect* Effects::TerrainDeferredFX  = 0;
+TerrainDeferredEffect* Effects::TerrainDeferredFX = 0;
+TiledLightningEffect*  Effects::TiledLightningFX  = 0;
 
 void Effects::InitAll(ID3D11Device* device)
 {
@@ -506,6 +529,7 @@ void Effects::InitAll(ID3D11Device* device)
 	CombineFinalFX    = new CombineFinalEffect(device, L"Shaders/CombineFinal.fxo");
 	ObjectDeferredFX  = new ObjectDeferredEffect(device, L"Shaders/ObjectDeferred.fxo");
 	TerrainDeferredFX = new TerrainDeferredEffect(device, L"Shaders/TerrainDeferred.fxo");
+	TiledLightningFX  = new TiledLightningEffect(device, L"Shaders/TiledLightning.fxo");
 }
 
 void Effects::DestroyAll()
@@ -522,6 +546,7 @@ void Effects::DestroyAll()
 	SafeDelete(CombineFinalFX);
 	SafeDelete(ObjectDeferredFX);
 	SafeDelete(TerrainDeferredFX);
+	SafeDelete(TiledLightningFX);
 }
 
 #pragma endregion

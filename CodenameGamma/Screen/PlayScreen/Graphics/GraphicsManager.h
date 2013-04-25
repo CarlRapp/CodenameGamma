@@ -8,6 +8,7 @@
 #include "..\Camera.h"
 #include "..\Player.h"
 #include "..\Terrain\Terrain.h"
+#include "Buffer.h"
 
 using namespace std;
 using namespace DirectX;
@@ -18,34 +19,45 @@ class GraphicsManager
 	ID3D11Device			*m_Device; 
 	ID3D11DeviceContext		*m_DeviceContext;
 	ID3D11RenderTargetView	*m_RenderTargetView;
-	ID3D11DepthStencilView	*m_DepthStencilView;
+
+	int						m_Width, m_Height;
 
 	ID3D11Buffer			*m_FullSceenQuad;
 
-	ID3D11DepthStencilView		*m_DepthSV;
-	ID3D11RenderTargetView		*m_AlbedoRTV, *m_NormalSpecRTV, *m_DiffuseLightRTV, *m_SpecularLightRTV;
-	ID3D11ShaderResourceView	*m_AlbedoSRV, *m_NormalSpecSRV, *m_DiffuseLightSRV, *m_SpecularLightSRV, *m_DepthSRV;
+	ID3D11DepthStencilView		*m_DepthStencilView;
+	ID3D11RenderTargetView		*m_AlbedoRTV, *m_NormalSpecRTV;
+	ID3D11ShaderResourceView	*m_AlbedoSRV, *m_NormalSpecSRV, *m_DepthSRV, *m_FinalSRV;
 
+	ID3D11UnorderedAccessView	*m_FinalUAV;
 
 	ID3D11RenderTargetView* GBuffer[2];
-	ID3D11RenderTargetView* LBuffer[2];
 
 	QuadTree				*m_InstanceTree;
 	vector<ModelInstance*>	m_modelInstances;
 
 	Terrain					*m_Terrain;
 
+	vector<DirectionalLight*>			*m_DirLights;
+	vector<PointLight*>					*m_PointLights;
+	vector<SpotLight*>					*m_SpotLights;
+
+	StructuredBuffer<DirectionalLight>	*m_DirLightBuffer;
+	StructuredBuffer<PointLight>		*m_PointLightBuffer;
+	StructuredBuffer<SpotLight>			*m_SpotLightBuffer;
+
 private:
 
 	void InitFullScreenQuad();
-	void InitBuffers(int width, int height);
+	void InitBuffers();
 
+	void UpdateLights();
 	void ClearBuffers();
 	void FillGBuffer(vector<Player*>& players);
+	void ComputeLight(vector<Player*>& players);
 	void CombineFinal();
 
 public:
-	GraphicsManager(ID3D11Device *device, ID3D11DeviceContext *deviceContext, ID3D11RenderTargetView *renderTargetView, ID3D11DepthStencilView *depthStencilView, int width, int height);
+	GraphicsManager(ID3D11Device *device, ID3D11DeviceContext *deviceContext, ID3D11RenderTargetView *renderTargetView, int width, int height);
 	~GraphicsManager(void);
 
 	void AddModelInstance(ModelInstance* instance) 
@@ -67,6 +79,14 @@ public:
 	void SetQuadTree(QuadTree *instanceTree);
 
 	void SetTerrain(Terrain *terrain) { m_Terrain = terrain; }
+	void SetLights(	vector<DirectionalLight*>			*DirLights,
+					vector<PointLight*>					*PointLights,
+					vector<SpotLight*>					*SpotLights)
+	{
+		m_DirLights		= DirLights;
+		m_PointLights	= PointLights;
+		m_SpotLights	= SpotLights;
+	}
 
 	void Update(vector<ModelInstance*>	&modelInstances)
 	{

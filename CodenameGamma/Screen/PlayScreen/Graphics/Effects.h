@@ -122,7 +122,6 @@ public:
 };
 #pragma endregion
 
-
 #pragma region ObjectDeferredEffect
 class ObjectDeferredEffect : public Effect
 {
@@ -131,8 +130,8 @@ public:
 	~ObjectDeferredEffect();
 
 	void SetWorldViewProj(CXMMATRIX M)					{ WorldViewProj->SetMatrix(reinterpret_cast<const float*>(&M)); }
-	void SetWorldView(CXMMATRIX M)						{ WorldView->SetMatrix(reinterpret_cast<const float*>(&M)); }
-	void SetWorldInvTranspose(CXMMATRIX M)				{ WorldViewInvTranspose->SetMatrix(reinterpret_cast<const float*>(&M)); }
+	void SetWorld(CXMMATRIX M)							{ World->SetMatrix(reinterpret_cast<const float*>(&M)); }
+	void SetWorldInvTranspose(CXMMATRIX M)				{ WorldInvTranspose->SetMatrix(reinterpret_cast<const float*>(&M)); }
 	void SetTexTransform(CXMMATRIX M)					{ TexTransform->SetMatrix(reinterpret_cast<const float*>(&M)); }
 
 	void SetMaterial(const Material& mat)               { Mat->SetRawValue(&mat, 0, sizeof(Material)); }
@@ -148,8 +147,8 @@ public:
 	ID3DX11EffectTechnique* NormalTech;
 
 	ID3DX11EffectMatrixVariable* WorldViewProj;
-	ID3DX11EffectMatrixVariable* WorldView;
-	ID3DX11EffectMatrixVariable* WorldViewInvTranspose;
+	ID3DX11EffectMatrixVariable* World;
+	ID3DX11EffectMatrixVariable* WorldInvTranspose;
 	ID3DX11EffectMatrixVariable* TexTransform;
 
 	ID3DX11EffectVariable* Mat;
@@ -159,7 +158,6 @@ public:
 };
 #pragma endregion
 
-
 #pragma region TerrainDeferredEffect
 class TerrainDeferredEffect : public Effect
 {
@@ -168,8 +166,8 @@ public:
 	~TerrainDeferredEffect();
 
 	void SetWorldViewProj(CXMMATRIX M)					{ WorldViewProj->SetMatrix(reinterpret_cast<const float*>(&M)); }
-	void SetWorldView(CXMMATRIX M)						{ WorldView->SetMatrix(reinterpret_cast<const float*>(&M)); }
-	void SetWorldInvTranspose(CXMMATRIX M)				{ WorldViewInvTranspose->SetMatrix(reinterpret_cast<const float*>(&M)); }
+	void SetWorld(CXMMATRIX M)							{ World->SetMatrix(reinterpret_cast<const float*>(&M)); }
+	void SetWorldInvTranspose(CXMMATRIX M)				{ WorldInvTranspose->SetMatrix(reinterpret_cast<const float*>(&M)); }
 	void SetTexTransform(CXMMATRIX M)					{ TexTransform->SetMatrix(reinterpret_cast<const float*>(&M)); }
 
 	void SetMaterial(const Material& mat)               { Mat->SetRawValue(&mat, 0, sizeof(Material)); }
@@ -190,8 +188,8 @@ public:
 	ID3DX11EffectTechnique* NormalTech;
 
 	ID3DX11EffectMatrixVariable* WorldViewProj;
-	ID3DX11EffectMatrixVariable* WorldView;
-	ID3DX11EffectMatrixVariable* WorldViewInvTranspose;
+	ID3DX11EffectMatrixVariable* World;
+	ID3DX11EffectMatrixVariable* WorldInvTranspose;
 	ID3DX11EffectMatrixVariable* TexTransform;
 
 	ID3DX11EffectVariable* Mat;
@@ -205,6 +203,45 @@ public:
 	ID3DX11EffectShaderResourceVariable* Normal2Map;
 	ID3DX11EffectShaderResourceVariable* Normal3Map;
 	ID3DX11EffectShaderResourceVariable* Normal4Map;
+};
+#pragma endregion
+
+#pragma region TiledLightningEffect
+class TiledLightningEffect : public Effect
+{
+public:
+	TiledLightningEffect(ID3D11Device* device, const std::wstring& filename);
+	~TiledLightningEffect();
+
+	void SetInvViewProjs(const XMFLOAT4X4* M, int cnt)		{ InvViewProjs->SetMatrixArray(reinterpret_cast<const float*>(M), 0, cnt); }
+	void SetCamPositions(const XMFLOAT4* V, int cnt)		{ CamPositions->SetFloatVectorArray(reinterpret_cast<const float*>(V), 0, cnt); }
+	void SetResolution(const XMFLOAT2 v)					{ Resolution->SetRawValue(&v, 0, sizeof(XMFLOAT2)); }
+
+	void SetAlbedoMap(ID3D11ShaderResourceView* tex)		{ AlbedoMap->SetResource(tex); }
+	void SetNormalSpecMap(ID3D11ShaderResourceView* tex)    { NormalSpecMap->SetResource(tex); }
+	void SetDepthMap(ID3D11ShaderResourceView* tex)			{ DepthMap->SetResource(tex); }
+	void SetOutputMap(ID3D11UnorderedAccessView* tex)		{ OutputMap->SetUnorderedAccessView(tex); }
+	void SetDirLightMap(ID3D11ShaderResourceView* tex)		{ DirLightMap->SetResource(tex); }
+	void SetPointLightMap(ID3D11ShaderResourceView* tex)	{ PointLightMap->SetResource(tex); }
+	void SetSpotLightMap(ID3D11ShaderResourceView* tex)		{ SpotLightMap->SetResource(tex); }
+
+	ID3DX11EffectTechnique* Viewport1;
+	ID3DX11EffectTechnique* Viewport2;
+	ID3DX11EffectTechnique* Viewport3;
+	ID3DX11EffectTechnique* Viewport4;
+
+	ID3DX11EffectMatrixVariable* InvViewProjs;	
+	ID3DX11EffectVectorVariable* CamPositions;
+	ID3DX11EffectVectorVariable* Resolution;
+
+	ID3DX11EffectShaderResourceVariable* AlbedoMap;
+	ID3DX11EffectShaderResourceVariable* NormalSpecMap;
+	ID3DX11EffectShaderResourceVariable* DepthMap;
+	ID3DX11EffectUnorderedAccessViewVariable* OutputMap;
+
+	ID3DX11EffectShaderResourceVariable* DirLightMap;
+	ID3DX11EffectShaderResourceVariable* PointLightMap;
+	ID3DX11EffectShaderResourceVariable* SpotLightMap;
 };
 #pragma endregion
 
@@ -596,6 +633,7 @@ public:
 	static CombineFinalEffect* CombineFinalFX;
 	static ObjectDeferredEffect* ObjectDeferredFX;
 	static TerrainDeferredEffect* TerrainDeferredFX;
+	static TiledLightningEffect* TiledLightningFX;
 };
 #pragma endregion
 

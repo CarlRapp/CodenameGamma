@@ -3,12 +3,14 @@
 #include "Effects.h"
 
 
-GraphicsManager::GraphicsManager(ID3D11Device *device, ID3D11DeviceContext *deviceContext, ID3D11RenderTargetView *renderTargetView, ID3D11DepthStencilView *depthStencilView, int width, int height)
+GraphicsManager::GraphicsManager(ID3D11Device *device, ID3D11DeviceContext *deviceContext, ID3D11RenderTargetView *renderTargetView, int width, int height)
 {
 	m_Device			= device;
 	m_DeviceContext		= deviceContext;
 	m_RenderTargetView	= renderTargetView;
-	m_DepthStencilView	= depthStencilView;
+
+	m_Width = width;
+	m_Height = height;
 
 	m_ViewPort.MinDepth = 0.0f;
 	m_ViewPort.MaxDepth = 1.0f;
@@ -23,9 +25,15 @@ GraphicsManager::GraphicsManager(ID3D11Device *device, ID3D11DeviceContext *devi
 
 
 	InitFullScreenQuad();
-	InitBuffers(width, height);
+	InitBuffers();
 
+	m_DirLightBuffer = new StructuredBuffer<DirectionalLight>(m_Device, 0, D3D11_BIND_SHADER_RESOURCE, true);
+	m_PointLightBuffer = new StructuredBuffer<PointLight>(m_Device, 0, D3D11_BIND_SHADER_RESOURCE, true);
+	m_SpotLightBuffer = new StructuredBuffer<SpotLight>(m_Device, 0, D3D11_BIND_SHADER_RESOURCE, true);
 
+	m_DirLights		= NULL;
+	m_PointLights	= NULL;
+	m_SpotLights		= NULL;
 }
 
 
@@ -88,15 +96,15 @@ void GraphicsManager::InitFullScreenQuad()
 	m_Device->CreateBuffer(&vbd, &vinitData, &m_FullSceenQuad);
 }
 
-void GraphicsManager::InitBuffers(int width, int height)
+void GraphicsManager::InitBuffers()
 {
 	D3D11_TEXTURE2D_DESC texDesc;
 	ZeroMemory(&texDesc, sizeof(texDesc));
-	texDesc.Width = width;
-	texDesc.Height = height;
+	texDesc.Width = m_Width;
+	texDesc.Height = m_Height;
 	texDesc.MipLevels = 1;
 	texDesc.ArraySize = 1;
-	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	texDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	texDesc.SampleDesc.Count = 1;
 	texDesc.Usage = D3D11_USAGE_DEFAULT;
 	texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
@@ -107,19 +115,23 @@ void GraphicsManager::InitBuffers(int width, int height)
 	ID3D11Texture2D* albedoTex		= NULL;
 	ID3D11Texture2D* depthTex		= NULL;
 	ID3D11Texture2D* normalSpecTex	= NULL;
-	ID3D11Texture2D* diffuseTex		= NULL;
-	ID3D11Texture2D* specularTex	= NULL;
+	ID3D11Texture2D* finalTex		= NULL;
 
-	//R8G8B8A8_UNORM
-	m_Device->CreateTexture2D(&texDesc, NULL, &albedoTex);
-	m_Device->CreateTexture2D(&texDesc, NULL, &diffuseTex);
-	m_Device->CreateTexture2D(&texDesc, NULL, &specularTex);
 	
 	//R16G16B16A16_UNORM
-	texDesc.Format = DXGI_FORMAT_R16G16B16A16_UNORM;
+	//texDesc.Format = DXGI_FORMAT_R16G16B16A16_UNORM;
 	m_Device->CreateTexture2D(&texDesc, NULL, &normalSpecTex);
 
-	//R24G8_TYPELESS
+	//R8G8B8A8_UNORM
+	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	m_Device->CreateTexture2D(&texDesc, NULL, &albedoTex);
+
+	//D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS
+	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	m_Device->CreateTexture2D(&texDesc, NULL, &finalTex);
+
+	//R24G8_TYPELESS & D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE
 	texDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
 	texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 	m_Device->CreateTexture2D(&texDesc, NULL, &depthTex);
@@ -127,16 +139,11 @@ void GraphicsManager::InitBuffers(int width, int height)
 
 	//RENDER TARGETS
 	m_Device->CreateRenderTargetView( albedoTex,		NULL, &m_AlbedoRTV );
-	m_Device->CreateRenderTargetView( normalSpecTex,	NULL, &m_NormalSpecRTV );	
-	m_Device->CreateRenderTargetView( diffuseTex,		NULL, &m_DiffuseLightRTV );
-	m_Device->CreateRenderTargetView( specularTex,		NULL, &m_SpecularLightRTV );
+	m_Device->CreateRenderTargetView( normalSpecTex,	NULL, &m_NormalSpecRTV );
 	
 	//GBUFFER
 	GBuffer[0] = m_AlbedoRTV;
 	GBuffer[1] = m_NormalSpecRTV;
-	//LIGHTBUFFER
-	LBuffer[0] = m_DiffuseLightRTV;
-	LBuffer[1] = m_SpecularLightRTV;
 
 	//SHADERRESOURCEVIEWS
 	D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc;
@@ -147,8 +154,7 @@ void GraphicsManager::InitBuffers(int width, int height)
 	
 	//R8G8B8A8_UNORM
 	m_Device->CreateShaderResourceView(albedoTex, &SRVDesc, &m_AlbedoSRV);
-	m_Device->CreateShaderResourceView(diffuseTex, &SRVDesc, &m_DiffuseLightSRV);
-	m_Device->CreateShaderResourceView(specularTex, &SRVDesc, &m_SpecularLightSRV);
+	m_Device->CreateShaderResourceView(finalTex, 0, &m_FinalSRV);
 
 	//DXGI_FORMAT_R24_UNORM_X8_TYPELESS
 	SRVDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
@@ -156,7 +162,7 @@ void GraphicsManager::InitBuffers(int width, int height)
 
 	//DXGI_FORMAT_R16G16B16A16_UNORM
 	SRVDesc.Format = DXGI_FORMAT_R16G16B16A16_UNORM;
-	m_Device->CreateShaderResourceView(normalSpecTex, &SRVDesc, &m_NormalSpecSRV);
+	m_Device->CreateShaderResourceView(normalSpecTex, 0, &m_NormalSpecSRV);
 
 	// Create the depth stencil view
 	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
@@ -164,30 +170,123 @@ void GraphicsManager::InitBuffers(int width, int height)
 	descDSV.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	descDSV.Texture2D.MipSlice = 0;
-	m_Device->CreateDepthStencilView( depthTex, &descDSV, &m_DepthSV );
+	m_Device->CreateDepthStencilView( depthTex, &descDSV, &m_DepthStencilView );
+
+	//Create the UnorderedAccessView
+	D3D11_UNORDERED_ACCESS_VIEW_DESC UAVDesc;
+	UAVDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	UAVDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+	m_Device->CreateUnorderedAccessView(finalTex, 0, &m_FinalUAV);
 
 
 	//RELEASE
 	albedoTex->Release();
 	normalSpecTex->Release();	
 	depthTex->Release();
-	diffuseTex->Release();	
-	specularTex->Release();
+	finalTex->Release();
 }
 
+void GraphicsManager::UpdateLights()
+{
+	//Update DirecionalLights.
+	if (m_DirLights != NULL)
+	{
+		if (m_DirLightBuffer->Size() != m_DirLights->size())
+		{
+			delete m_DirLightBuffer;
+			m_DirLightBuffer = new StructuredBuffer<DirectionalLight>(m_Device, m_DirLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
+		}
+		if (m_DirLightBuffer->Size() > 0)
+		{
+			DirectionalLight* dirLight = m_DirLightBuffer->MapDiscard(m_DeviceContext);
+			for (unsigned int i = 0; i < m_DirLights->size(); ++i) 
+			{
+				dirLight[i] = *m_DirLights->at(i);
+				//dirLight[i]->Direction TRANSFORM TO VIEWSPACE
+			}
+			m_DirLightBuffer->Unmap(m_DeviceContext);
+		}
+	}
+	else if (m_DirLightBuffer->Size() != 0)
+	{
+		delete m_DirLightBuffer;
+		m_DirLightBuffer = new StructuredBuffer<DirectionalLight>(m_Device, 0, D3D11_BIND_SHADER_RESOURCE, true);
+	}
+
+	//Update PointLights.
+	if (m_PointLights != NULL)
+	{
+		if (m_PointLightBuffer->Size() != m_PointLights->size())
+		{
+			delete m_PointLightBuffer;
+			m_PointLightBuffer = new StructuredBuffer<PointLight>(m_Device, m_PointLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
+		}
+		if (m_PointLightBuffer->Size() > 0)
+		{
+			PointLight* pointLight = m_PointLightBuffer->MapDiscard(m_DeviceContext);
+			for (unsigned int i = 0; i < m_PointLights->size(); ++i) 
+			{
+				pointLight[i] = *m_PointLights->at(i);
+				//pointLight[i].Position TRANSFORM TO VIEWSPACE
+			}
+			m_PointLightBuffer->Unmap(m_DeviceContext);
+		}
+	}
+	else if (m_PointLightBuffer->Size() != 0)
+	{
+		delete m_PointLightBuffer;
+		m_PointLightBuffer = new StructuredBuffer<PointLight>(m_Device, 0, D3D11_BIND_SHADER_RESOURCE, true);
+	}
+
+	//Update SpotLights.
+	if (m_SpotLights != NULL)
+	{
+		if (m_SpotLightBuffer->Size() != m_SpotLights->size())
+		{
+			delete m_SpotLightBuffer;
+			m_SpotLightBuffer = new StructuredBuffer<SpotLight>(m_Device, m_SpotLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
+		}
+		if (m_SpotLightBuffer->Size() > 0)
+		{
+			SpotLight* spotLight = m_SpotLightBuffer->MapDiscard(m_DeviceContext);
+			for (unsigned int i = 0; i < m_SpotLights->size(); ++i) 
+			{
+				spotLight[i] = *m_SpotLights->at(i);			
+				//spotLight[i].Position TRANSFORM TO VIEWSPACE
+				//spotLight[i].Direction TRANSFORM TO VIEWSPACE
+			}
+			m_SpotLightBuffer->Unmap(m_DeviceContext);
+		}
+	}
+	else if (m_SpotLightBuffer->Size() != 0)
+	{
+		delete m_SpotLightBuffer;
+		m_SpotLightBuffer = new StructuredBuffer<SpotLight>(m_Device, 0, D3D11_BIND_SHADER_RESOURCE, true);
+	}
+
+
+
+	/*
+	DirectionalLight* dirLight = gDirLightBuffer->MapDiscard(gDeviceContext);
+        for (unsigned int i = 0; i < gDirLights.size(); ++i) 
+		{
+            dirLight[i] = *gDirLights[i];
+			dirLight->Direction
+        }
+        mLightBuffer->Unmap(d3dDeviceContext);
+		*/
+}
 
 void GraphicsManager::ClearBuffers()
 {
 	m_DeviceContext->RSSetViewports( 1, &m_ViewPort );
-	m_DeviceContext->ClearDepthStencilView( m_DepthSV, D3D11_CLEAR_DEPTH, 1.0f, 0 );
+	m_DeviceContext->ClearDepthStencilView( m_DepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
 	float AlbedoClearColor[4] = {0.1f,  0.1f, 0.1f, 0.0f};
 	float ClearColor[4] = {0.0f,  0.0f, 0.0f, 0.0f};
 	m_DeviceContext->ClearRenderTargetView( m_RenderTargetView, ClearColor );
 	m_DeviceContext->ClearRenderTargetView( m_AlbedoRTV,		AlbedoClearColor );
 	m_DeviceContext->ClearRenderTargetView( m_NormalSpecRTV,	ClearColor );
-	m_DeviceContext->ClearRenderTargetView( m_DiffuseLightRTV,	ClearColor );
-	m_DeviceContext->ClearRenderTargetView( m_SpecularLightRTV,	ClearColor );
-
+	m_DeviceContext->ClearUnorderedAccessViewFloat( m_FinalUAV, ClearColor );
 	/*
 	m_DeviceContext->OMSetRenderTargets( 2, GBuffer, NULL );
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);	
@@ -213,7 +312,7 @@ void GraphicsManager::ClearBuffers()
 
 void GraphicsManager::FillGBuffer(vector<Player*>& players)
 {
-	m_DeviceContext->OMSetRenderTargets( 2, GBuffer, m_DepthSV );
+	m_DeviceContext->OMSetRenderTargets( 2, GBuffer, m_DepthStencilView );
 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -259,46 +358,8 @@ void GraphicsManager::FillGBuffer(vector<Player*>& players)
 		}
 	}
 	cout << endl;
+	m_DeviceContext->OMSetRenderTargets( 0, 0, 0 );
 }
-
-void GraphicsManager::CombineFinal()
-{
-	m_DeviceContext->RSSetState(RenderStates::NoCullRS);
-	m_DeviceContext->RSSetViewports( 1, &m_ViewPort );
-	m_DeviceContext->OMSetRenderTargets( 1, &m_RenderTargetView, NULL );
-	m_DeviceContext->IASetInputLayout(InputLayouts::Quad);
-	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);	
-
-	ID3DX11EffectTechnique* tech;
-	D3DX11_TECHNIQUE_DESC techDesc;
-
-	tech = Effects::CombineFinalFX->CombineTech;
-	tech->GetDesc( &techDesc );
-
-	Effects::CombineFinalFX->SetAlbedo(m_AlbedoSRV);
-	Effects::CombineFinalFX->SetDiffuse(m_DiffuseLightSRV);
-	Effects::CombineFinalFX->SetSpecular(m_SpecularLightSRV);
-
-
-	for(UINT p = 0; p < techDesc.Passes; ++p)
-    {
-		tech->GetPassByIndex(p)->Apply(0, m_DeviceContext);
-
-		UINT offset = 0;
-		UINT vertexStride = sizeof(Vertex::Quad);
-		m_DeviceContext->IASetVertexBuffers(0, 1, &m_FullSceenQuad, &vertexStride, &offset);
-		m_DeviceContext->Draw(4, 0);
-	}
-
-	Effects::CombineFinalFX->SetAlbedo(NULL);
-	Effects::CombineFinalFX->SetDiffuse(NULL);
-	Effects::CombineFinalFX->SetSpecular(NULL);
-	tech->GetPassByIndex(0)->Apply(0, m_DeviceContext);
-}
-
-
-
-
 
 void GraphicsManager::SetQuadTree(QuadTree *instanceTree)
 {
@@ -308,7 +369,7 @@ void GraphicsManager::SetQuadTree(QuadTree *instanceTree)
 void GraphicsManager::RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMATRIX proj, ID3DX11EffectTechnique* tech, UINT pass)
 {
 	XMMATRIX world;
-	XMMATRIX worldViewInvTranspose;
+	XMMATRIX worldInvTranspose;
 	XMMATRIX worldView;
 	XMMATRIX worldInvTransposeView;
 	XMMATRIX worldViewProj;
@@ -319,20 +380,20 @@ void GraphicsManager::RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMA
 	
 	
 	worldView     = XMMatrixMultiply(world, view);
-	worldViewInvTranspose = MathHelper::InverseTranspose(worldView);
+	worldInvTranspose = MathHelper::InverseTranspose(world);
 	
 	//worldInvTransposeView = worldInvTranspose*view;
 	worldViewProj = XMMatrixMultiply(worldView, proj);
 
-	Effects::ObjectDeferredFX->SetWorldView(worldView);
-	Effects::ObjectDeferredFX->SetWorldInvTranspose(worldViewInvTranspose);
+	Effects::ObjectDeferredFX->SetWorld(world);
+	Effects::ObjectDeferredFX->SetWorldInvTranspose(worldInvTranspose);
 	Effects::ObjectDeferredFX->SetTexTransform(tex);
 	Effects::ObjectDeferredFX->SetWorldViewProj(worldViewProj);
 
 	for(UINT subset = 0; subset < instance.m_Model->SubsetCount; ++subset)
 	{
 		//UINT subset = 6;
-		Effects::NormalMapFX->SetMaterial(instance.m_Model->Mat[subset]);
+		Effects::ObjectDeferredFX->SetMaterial(instance.m_Model->Mat[subset]);
 
 		Effects::ObjectDeferredFX->SetDiffuseMap(instance.m_Model->DiffuseMapSRV[subset]);
 		Effects::ObjectDeferredFX->SetNormalMap(instance.m_Model->NormalMapSRV[subset]);
@@ -365,7 +426,7 @@ void GraphicsManager::RenderTerrain(Player* player)
 		XMMATRIX world;
 
 		XMMATRIX worldView;
-		XMMATRIX worldViewInvTranspose;
+		XMMATRIX worldInvTranspose;
 		XMMATRIX worldViewProj;
 		XMMATRIX tex = m_Terrain->GetTexTransform();
 
@@ -374,13 +435,13 @@ void GraphicsManager::RenderTerrain(Player* player)
 	
 	
 		worldView     = XMMatrixMultiply(world, view);
-		worldViewInvTranspose = MathHelper::InverseTranspose(worldView);
+		worldInvTranspose = MathHelper::InverseTranspose(world);
 	
 		//worldInvTransposeView = worldInvTranspose*view;
 		worldViewProj = XMMatrixMultiply(worldView, proj);
 
-		Effects::TerrainDeferredFX->SetWorldView(worldView);
-		Effects::TerrainDeferredFX->SetWorldInvTranspose(worldViewInvTranspose);
+		Effects::TerrainDeferredFX->SetWorld(world);
+		Effects::TerrainDeferredFX->SetWorldInvTranspose(worldInvTranspose);
 		Effects::TerrainDeferredFX->SetTexTransform(tex);
 		Effects::TerrainDeferredFX->SetWorldViewProj(worldViewProj);
 
@@ -403,9 +464,139 @@ void GraphicsManager::RenderTerrain(Player* player)
 	}
 }
 
+void GraphicsManager::ComputeLight(vector<Player*>& players)
+{
+	std::vector<XMFLOAT4>	camPositions;
+	std::vector<XMFLOAT4X4> invViewProjs;
+	for each (Player* player in players)
+	{
+		XMFLOAT3 temp	= player->GetCamera()->GetPosition();
+		XMFLOAT4 camPos = XMFLOAT4(temp.x, temp.y, temp.z, 1);
+		camPositions.push_back(camPos);
+
+		XMMATRIX	viewMatrix;
+		XMMATRIX	projMatrix;
+		XMMATRIX	invViewProjMatrix;
+		XMFLOAT4X4	invViewProj;
+
+		viewMatrix = XMLoadFloat4x4(&player->GetCamera()->GetView());
+		projMatrix = XMLoadFloat4x4(&player->GetCamera()->GetProjection());
+
+		invViewProjMatrix = XMMatrixMultiply(viewMatrix, projMatrix);
+
+		XMVECTOR det		= XMMatrixDeterminant(invViewProjMatrix);
+		invViewProjMatrix	= XMMatrixInverse(&det, invViewProjMatrix);
+
+		XMStoreFloat4x4(&invViewProj, invViewProjMatrix);
+		invViewProjs.push_back(invViewProj);
+	}
+
+
+	D3DX11_TECHNIQUE_DESC	techDesc;
+	ID3DX11EffectTechnique* tech;
+	int numViewports = players.size();
+
+	switch (numViewports)
+	{
+	case 1:
+		tech = Effects::TiledLightningFX->Viewport1;
+		break;
+	case 2:
+		tech = Effects::TiledLightningFX->Viewport2;
+		break;
+	case 3:
+		tech = Effects::TiledLightningFX->Viewport3;
+		break;
+	case 4:
+		tech = Effects::TiledLightningFX->Viewport4;
+		break;
+	default:
+		return;
+	}
+	
+	tech->GetDesc( &techDesc );
+
+	for(UINT p = 0; p < techDesc.Passes; ++p)
+	{
+		Effects::TiledLightningFX->SetInvViewProjs(&invViewProjs[0], invViewProjs.size());
+		Effects::TiledLightningFX->SetCamPositions(&camPositions[0], camPositions.size());
+		Effects::TiledLightningFX->SetResolution(XMFLOAT2(m_Width, m_Height));
+
+		Effects::TiledLightningFX->SetAlbedoMap(m_AlbedoSRV);
+		Effects::TiledLightningFX->SetNormalSpecMap(m_NormalSpecSRV);
+		Effects::TiledLightningFX->SetDepthMap(m_DepthSRV);
+		Effects::TiledLightningFX->SetOutputMap(m_FinalUAV);
+
+		Effects::TiledLightningFX->SetDirLightMap(m_DirLightBuffer->GetShaderResource());
+		Effects::TiledLightningFX->SetPointLightMap(m_PointLightBuffer->GetShaderResource());
+		Effects::TiledLightningFX->SetSpotLightMap(m_SpotLightBuffer->GetShaderResource());
+
+		tech->GetPassByIndex(p)->Apply(0, m_DeviceContext);
+
+		// How many groups do we need to dispatch to cover a row of pixels, where each
+		// group covers 256 pixels (the 256 is defined in the ComputeShader).
+		UINT numGroupsX = (UINT)ceilf(m_Width / 16.0f);
+		UINT numGroupsY = (UINT)ceilf(m_Height / 16.0f);
+		m_DeviceContext->Dispatch(numGroupsX, numGroupsY, 1);
+	}
+
+
+	// Unbind the input texture from the CS for good housekeeping.
+	ID3D11ShaderResourceView* nullSRV[1] = { 0 };
+	m_DeviceContext->CSSetShaderResources( 0, 1, nullSRV );
+
+	// Unbind output from compute shader (we are going to use this output as an input in the next pass, 
+	// and a resource cannot be both an output and input at the same time.
+	ID3D11UnorderedAccessView* nullUAV[1] = { 0 };
+	m_DeviceContext->CSSetUnorderedAccessViews( 0, 1, nullUAV, 0 );
+
+	
+	Effects::TiledLightningFX->SetAlbedoMap(NULL);
+	Effects::TiledLightningFX->SetNormalSpecMap(NULL);
+	Effects::TiledLightningFX->SetDepthMap(NULL);
+	Effects::TiledLightningFX->SetOutputMap(NULL);
+	
+	m_DeviceContext->CSSetShader(0, 0, 0);
+}
+
+void GraphicsManager::CombineFinal()
+{
+	m_DeviceContext->RSSetState(RenderStates::NoCullRS);
+	m_DeviceContext->RSSetViewports( 1, &m_ViewPort );
+	m_DeviceContext->OMSetRenderTargets( 1, &m_RenderTargetView, NULL );
+	m_DeviceContext->IASetInputLayout(InputLayouts::Quad);
+	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);	
+
+	ID3DX11EffectTechnique* tech;
+	D3DX11_TECHNIQUE_DESC techDesc;
+
+	tech = Effects::CombineFinalFX->CombineTech;
+	tech->GetDesc( &techDesc );
+
+	Effects::CombineFinalFX->SetAlbedo(m_FinalSRV);
+
+	for(UINT p = 0; p < techDesc.Passes; ++p)
+    {
+		tech->GetPassByIndex(p)->Apply(0, m_DeviceContext);
+
+		UINT offset = 0;
+		UINT vertexStride = sizeof(Vertex::Quad);
+		m_DeviceContext->IASetVertexBuffers(0, 1, &m_FullSceenQuad, &vertexStride, &offset);
+		m_DeviceContext->Draw(4, 0);
+	}
+
+	Effects::CombineFinalFX->SetAlbedo(NULL);
+	Effects::CombineFinalFX->SetDiffuse(NULL);
+	Effects::CombineFinalFX->SetSpecular(NULL);
+	tech->GetPassByIndex(0)->Apply(0, m_DeviceContext);
+}
+
+
 void GraphicsManager::Render(vector<Player*>& players)
 {
+	UpdateLights();
 	ClearBuffers();
 	FillGBuffer(players);	
+	ComputeLight(players);
 	CombineFinal();
 }
