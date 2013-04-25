@@ -270,16 +270,17 @@ void PlayScreen::Update(float DeltaTime)
 		AddSpotLight();
 
 
-	if (controller->GetButtonState(Xbox_Button::D_DOWN) == InputState::DOWN)
+	if (controller->GetButtonState(Xbox_Button::D_DOWN) == InputState::PRESSED)
 	{
-		gDirLights.clear();
+		if (!gDirLights.empty())
+		{
+			gDirLights.pop_back();
+		}
 	}
 
-	if (controller->GetButtonState(Xbox_Button::D_UP) == InputState::DOWN)
-		if (gDirLights.empty())
-		{
+	if (controller->GetButtonState(Xbox_Button::D_UP) == InputState::PRESSED)
 			AddDirectionalLight();
-		}
+		
 
 	/*
 	if (controller->GetButtonState(Xbox_Button::START) == InputState::DOWN)

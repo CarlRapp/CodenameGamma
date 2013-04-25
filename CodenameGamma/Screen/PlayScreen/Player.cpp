@@ -4,7 +4,7 @@
 Player::Player(void)
 {
 	m_Controller = InputManager::GetInstance()->GetController(0);
-	m_Camera = new Camera();		
+	m_Camera = new Camera();	
 	m_Camera->SetPosition(2000, 100, 500);
 }
 
@@ -12,6 +12,7 @@ Player::Player(int index)
 {
 	m_Controller = InputManager::GetInstance()->GetController(index);
 	m_Camera = new Camera();
+	//m_Camera->SetForward(0,-1,0);
 	m_Camera->SetPosition(2000, 100, 500);
 }
 
@@ -31,7 +32,6 @@ void Player::UpdateCamera(float deltaTime)
 	XMVECTOR cameraFor = XMLoadFloat3(&m_Camera->GetForward());
 	XMVECTOR cameraRig = XMLoadFloat3(&m_Camera->GetRight());
 
-	m_Controller->Update();
 	XMFLOAT2 stickleft = m_Controller->GetStickDirection(Xbox_Direction::LEFT);
 
 	cameraPosV += stickleft.y * cameraFor * deltaTime * 300;
