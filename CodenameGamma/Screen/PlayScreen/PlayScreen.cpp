@@ -108,10 +108,10 @@ void PlayScreen::Update(float DeltaTime)
 	if (controller->GetButtonState(Xbox_Button::A) == InputState::DOWN)
 	//if (GetAsyncKeyState('K'))
 		AddInstance(MathHelper::RandF(0, 4000), 12, MathHelper::RandF(0, 4000), gModel);
-
+	/*
 	if (controller->GetButtonState(Xbox_Button::START) == InputState::DOWN)
 		gGotoNextFrame = MAIN_MENU_SCREEN;
-
+		*/
 	
 }
 
