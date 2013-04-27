@@ -98,8 +98,9 @@ protected:
 	int		gLogIndex, gLogMaxRows;
 
 	float	GetTextWidth(string Text, float TextSize);
-	void	DrawString(IFW1FontWrapper& Instance, string Text, float x, float y, float Size, TextColor Color, UINT Flags);
-	void	DrawString(IFW1FontWrapper& Instance, string Text, float x, float y, float Size, TextColor Color, TextColor BorderColor, float BorderSize, UINT Flags);
+
+	void	DrawString(string Text, int x, int y, float Size, TextColor Color, UINT Flags);
+	void	DrawString(string Text, int x, int y, float Size, TextColor Color, TextColor BorderColor, int BorderSize, UINT Flags);
 
 public:
 	~DebugScreen(void);
