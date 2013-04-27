@@ -8,6 +8,11 @@ struct DirectionalLight
 {
 	float4 Color;
 	float4 Direction;
+
+	//shadow info
+	float2 Resolution;
+	uint   ShadowIndex;
+	bool   HasShadow;
 };
 
 struct PointLight
@@ -16,6 +21,11 @@ struct PointLight
 	
 	float3 Position;
 	float Range;
+
+	//shadow info
+	float2 Resolution;
+	uint   ShadowIndex;
+	bool   HasShadow;
 };
 
 struct SpotLight
@@ -27,6 +37,11 @@ struct SpotLight
 
 	float3 	Direction;
 	float 	Angle;
+
+	//shadow info
+	float2 Resolution;
+	uint   ShadowIndex;
+	bool   HasShadow;
 };
 
 struct Material

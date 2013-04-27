@@ -3,30 +3,39 @@
 
 #include "LightHelper.fx"
 #define MAX_LIGHTS 1024
+#define MAX_SHADOWMAPS 10
 
 cbuffer perFrame
 {
+	float4x4    gLightViewProjTex[MAX_SHADOWMAPS];
 	float4x4	gInvViewProjs[4];
 	float4		gCamPositions[4];
 	float2		gResolution;
 };
 
+//Lights
 StructuredBuffer<DirectionalLight>	gDirLightBuffer;
 StructuredBuffer<PointLight>		gPointLightBuffer;
 StructuredBuffer<SpotLight>			gSpotLightBuffer;
 
+//GBuffer
 Texture2D gAlbedoMap;
 Texture2D gNormalSpecMap;
 Texture2D gDepthMap;
+
+//Shadowmap
+Texture2D gShadowMap;
+
+//Output
 RWTexture2D<float4> gOutput;
 
+//Group Variables
 groupshared int sMinX;
 groupshared int sMaxX;
 groupshared int sMinY;
 groupshared int sMaxY;
 groupshared int sMinZ;
 groupshared int sMaxZ;
-
 
 groupshared uint sTilePointLightIndices[MAX_LIGHTS];
 groupshared uint sTileSpotLightIndices[MAX_LIGHTS];
@@ -71,6 +80,42 @@ bool AABBvsSphere(float3 min, float3 max, float3 c, float r)
 		return true;
 	}
 	return false;
+}
+
+
+
+float CalcualteShadowFactor(DirectionalLight light, float4 posW)
+{
+	if (light.HasShadow)
+		{
+			float4x4 VPT = gLightViewProjTex[light.ShadowIndex];
+			float4 posT = mul(posW, VPT);
+			float shadowDepth = gShadowMap[posT.xy * gResolution].x;
+			
+			if (posT.z > shadowDepth)
+				return 0;
+
+			return 1;
+		}
+	else
+		return 1;
+}
+
+float CalcualteShadowFactor(SpotLight light, float4 posW)
+{
+	if (light.HasShadow)
+		{
+			float4x4 VPT = gLightViewProjTex[light.ShadowIndex];
+			float4 posT = mul(posW, VPT);
+			float shadowDepth = gShadowMap[posT.xy * gResolution].x;
+			
+			if (posT.z > shadowDepth)
+				return 0;
+
+			return 1;
+		}
+	else
+		return 1;
 }
 
 [numthreads(COMPUTE_SHADER_TILE_GROUP_DIM, COMPUTE_SHADER_TILE_GROUP_DIM, 1)]	//Antal trådar per grupp x,y,z
@@ -272,12 +317,15 @@ void TiledLightningCS(	uniform int gViewportCount,
 	{
 		for(int i = 0; i < totalDirLights; ++i)
 		{
+			DirectionalLight light = gDirLightBuffer[i];			
+			float shadowFactor = CalcualteShadowFactor(light, posW);
+
 			float4 A, D, S;
-			ComputeDirectionalLight(mat, gDirLightBuffer[i], normalW, toEye, A, D, S);
+			ComputeDirectionalLight(mat, light, normalW, toEye, A, D, S);
 
 			ambient += A;    
-			diffuse += D;
-			spec    += S;
+			diffuse += D * shadowFactor;
+			spec    += S * shadowFactor;
 		}
 	}
 	
@@ -286,6 +334,8 @@ void TiledLightningCS(	uniform int gViewportCount,
 	for (uint tileLightIndex = 0; tileLightIndex < sTileNumPointLights; ++tileLightIndex) 
 	{
 		PointLight light = gPointLightBuffer[sTilePointLightIndices[tileLightIndex]]; //hämtar pointlight
+
+		//float shadowFactor = CalcualteShadowFactor(light, posW);
 
 		float4 A, D, S;
 		ComputePointLight(mat, light, posW, normalW, toEye, A, D, S);
@@ -316,12 +366,15 @@ void TiledLightningCS(	uniform int gViewportCount,
 		
 		SpotLight light = gSpotLightBuffer[sTileSpotLightIndices[tileLightIndex]]; //hämtar pointlight
 		
+		
+		float shadowFactor = CalcualteShadowFactor(light, posW);
+
 		float4 A, D, S;
 		ComputeSpotLight(mat, light, posW, normalW, toEye, A, D, S);
 
 		ambient += A;    
-		diffuse += D;
-		spec    += S;
+		diffuse += shadowFactor * D;
+		spec    += shadowFactor * S;
 		
 	}
 	

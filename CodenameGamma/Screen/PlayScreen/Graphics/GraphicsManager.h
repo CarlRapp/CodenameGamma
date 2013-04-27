@@ -24,9 +24,9 @@ class GraphicsManager
 
 	ID3D11Buffer			*m_FullSceenQuad;
 
-	ID3D11DepthStencilView		*m_DepthStencilView;
+	ID3D11DepthStencilView		*m_DepthStencilView, *m_ShadowMapDSV;
 	ID3D11RenderTargetView		*m_AlbedoRTV, *m_NormalSpecRTV;
-	ID3D11ShaderResourceView	*m_AlbedoSRV, *m_NormalSpecSRV, *m_DepthSRV, *m_FinalSRV;
+	ID3D11ShaderResourceView	*m_AlbedoSRV, *m_NormalSpecSRV, *m_DepthSRV, *m_FinalSRV, *m_ShadowMapSRV;
 
 	ID3D11UnorderedAccessView	*m_FinalUAV;
 
@@ -49,6 +49,7 @@ private:
 
 	void InitFullScreenQuad();
 	void InitBuffers();
+	void InitShadowMap(int width, int height);
 
 	void UpdateLights();
 	void ClearBuffers();
@@ -76,7 +77,6 @@ public:
 			//return instance;
 		} 
 	}
-	void SetQuadTree(QuadTree *instanceTree);
 
 	void SetTerrain(Terrain *terrain) { m_Terrain = terrain; }
 	void SetLights(	vector<DirectionalLight*>			*DirLights,
