@@ -27,9 +27,9 @@ GraphicsManager::GraphicsManager(ID3D11Device *device, ID3D11DeviceContext *devi
 	InitFullScreenQuad();
 	InitBuffers();
 
-	m_DirLightBuffer = new StructuredBuffer<DirectionalLight>(m_Device, 1, D3D11_BIND_SHADER_RESOURCE, true);
-	m_PointLightBuffer = new StructuredBuffer<PointLight>(m_Device, 1, D3D11_BIND_SHADER_RESOURCE, true);
-	m_SpotLightBuffer = new StructuredBuffer<SpotLight>(m_Device, 1, D3D11_BIND_SHADER_RESOURCE, true);
+	m_DirLightBuffer = NULL;
+	m_PointLightBuffer = NULL;
+	m_SpotLightBuffer = NULL;
 
 	m_DirLights		= NULL;
 	m_PointLights	= NULL;
@@ -237,79 +237,121 @@ void GraphicsManager::UpdateLights()
 	//Update DirecionalLights.
 	if (m_DirLights != NULL)
 	{
-		if (m_DirLightBuffer->Size() != m_DirLights->size())
+		//Update size of m_DirLightBuffer
+		if (m_DirLightBuffer != NULL)
 		{
-			delete m_DirLightBuffer;
-			m_DirLightBuffer = new StructuredBuffer<DirectionalLight>(m_Device, m_DirLights->size() == 0 ? 1 : m_DirLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
-		}
-		if (m_DirLightBuffer->Size() > 0)
-		{
-			DirectionalLight* dirLight = m_DirLightBuffer->MapDiscard(m_DeviceContext);
-			for (unsigned int i = 0; i < m_DirLights->size(); ++i) 
+
+			if (m_DirLightBuffer->Size() != m_DirLights->size())
 			{
-				dirLight[i] = *m_DirLights->at(i);
-				//dirLight[i]->Direction TRANSFORM TO VIEWSPACE
+				delete m_DirLightBuffer;
+
+				if (m_DirLights->size() > 0)
+					m_DirLightBuffer = new StructuredBuffer<DirectionalLight>(m_Device, m_DirLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
+				else
+					m_DirLightBuffer = NULL;
 			}
-			m_DirLightBuffer->Unmap(m_DeviceContext);
+		}
+		else if (m_DirLights->size() > 0)
+			m_DirLightBuffer = new StructuredBuffer<DirectionalLight>(m_Device, m_DirLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
+
+		//Update lights in m_DirLightBuffer
+		if (m_DirLightBuffer != NULL)
+		{
+			if (m_DirLightBuffer->Size() > 0)
+			{
+				DirectionalLight* dirLight = m_DirLightBuffer->MapDiscard(m_DeviceContext);
+				for (unsigned int i = 0; i < m_DirLights->size(); ++i) 
+				{
+					dirLight[i] = *m_DirLights->at(i);
+				}
+				m_DirLightBuffer->Unmap(m_DeviceContext);
+			}
 		}
 	}
-	else if (m_DirLightBuffer->Size() != 0)
+	else if (m_DirLightBuffer != NULL)
 	{
 		delete m_DirLightBuffer;
-		m_DirLightBuffer = new StructuredBuffer<DirectionalLight>(m_Device, 1, D3D11_BIND_SHADER_RESOURCE, true);
+		m_DirLightBuffer = NULL;
 	}
 
 	//Update PointLights.
 	if (m_PointLights != NULL)
 	{
-		if (m_PointLightBuffer->Size() != m_PointLights->size())
+		//Update size of m_PointLightBuffer
+		if (m_PointLightBuffer != NULL)
 		{
-			delete m_PointLightBuffer;
-			m_PointLightBuffer = new StructuredBuffer<PointLight>(m_Device, m_PointLights->size() == 0 ? 1 : m_PointLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
-		}
-		if (m_PointLightBuffer->Size() > 0)
-		{
-			PointLight* pointLight = m_PointLightBuffer->MapDiscard(m_DeviceContext);
-			for (unsigned int i = 0; i < m_PointLights->size(); ++i) 
+			if (m_PointLightBuffer->Size() != m_PointLights->size())
 			{
-				pointLight[i] = *m_PointLights->at(i);
-				//pointLight[i].Position TRANSFORM TO VIEWSPACE
+				delete m_PointLightBuffer;
+
+				if (m_PointLights->size() > 0)
+					m_PointLightBuffer = new StructuredBuffer<PointLight>(m_Device, m_PointLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
+				else
+					m_PointLightBuffer = NULL;
 			}
-			m_PointLightBuffer->Unmap(m_DeviceContext);
+		}
+		else if (m_PointLights->size() > 0)
+			m_PointLightBuffer = new StructuredBuffer<PointLight>(m_Device, m_PointLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
+
+
+		//Update lights in m_PointLightBuffer
+		if (m_PointLightBuffer != NULL)
+		{
+			if (m_PointLightBuffer->Size() > 0)
+			{
+				PointLight* pointLight = m_PointLightBuffer->MapDiscard(m_DeviceContext);
+				for (unsigned int i = 0; i < m_PointLights->size(); ++i) 
+				{
+					pointLight[i] = *m_PointLights->at(i);
+				}
+				m_PointLightBuffer->Unmap(m_DeviceContext);
+			}
 		}
 	}
-	else if (m_PointLightBuffer->Size() != 0)
+	else if (m_PointLightBuffer != NULL)
 	{
 		delete m_PointLightBuffer;
-		m_PointLightBuffer = new StructuredBuffer<PointLight>(m_Device, 1, D3D11_BIND_SHADER_RESOURCE, true);
+		m_PointLightBuffer = NULL;
 	}
 
 	//Update SpotLights.
 	if (m_SpotLights != NULL)
 	{
-		if (m_SpotLightBuffer->Size() != m_SpotLights->size())
+		//Update size of m_SpotLightBuffer
+		if (m_SpotLightBuffer != NULL)
 		{
-			delete m_SpotLightBuffer;
-			m_SpotLightBuffer = new StructuredBuffer<SpotLight>(m_Device, m_SpotLights->size() == 0 ? 1 : m_SpotLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
-		}
-		if (m_SpotLightBuffer->Size() > 0)
-		{
-			SpotLight* spotLight = m_SpotLightBuffer->MapDiscard(m_DeviceContext);
-			for (unsigned int i = 0; i < m_SpotLights->size(); ++i) 
+			if (m_SpotLightBuffer->Size() != m_SpotLights->size())
 			{
-				spotLight[i] = *m_SpotLights->at(i);			
-				//spotLight[i].Position TRANSFORM TO VIEWSPACE
-				//spotLight[i].Direction TRANSFORM TO VIEWSPACE
+				delete m_SpotLightBuffer;
+
+				if (m_SpotLights->size() > 0)
+					m_SpotLightBuffer = new StructuredBuffer<SpotLight>(m_Device, m_SpotLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
+				else
+					m_SpotLightBuffer = NULL;
 			}
-			m_SpotLightBuffer->Unmap(m_DeviceContext);
+		}
+		else if (m_SpotLights->size() > 0)
+			m_SpotLightBuffer = new StructuredBuffer<SpotLight>(m_Device, m_SpotLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
+
+		//Update lights in m_SpotLightBuffer
+		if (m_SpotLightBuffer != NULL)
+		{
+			if (m_SpotLightBuffer->Size() > 0)
+			{
+				SpotLight* spotLight = m_SpotLightBuffer->MapDiscard(m_DeviceContext);
+				for (unsigned int i = 0; i < m_SpotLights->size(); ++i) 
+				{
+					spotLight[i] = *m_SpotLights->at(i);
+				}
+				m_SpotLightBuffer->Unmap(m_DeviceContext);
+			}
 		}
 	}
-	else if (m_SpotLightBuffer->Size() != 0)
+	else if (m_SpotLightBuffer != NULL)
 	{
 		delete m_SpotLightBuffer;
-		m_SpotLightBuffer = new StructuredBuffer<SpotLight>(m_Device, 1, D3D11_BIND_SHADER_RESOURCE, true);
+		m_SpotLightBuffer = NULL;
 	}
-
 
 
 	/*
@@ -569,9 +611,15 @@ void GraphicsManager::ComputeLight(vector<Player*>& players)
 		Effects::TiledLightningFX->SetDepthMap(m_DepthSRV);
 		Effects::TiledLightningFX->SetOutputMap(m_FinalUAV);
 
-		Effects::TiledLightningFX->SetDirLightMap(m_DirLightBuffer->GetShaderResource());
-		Effects::TiledLightningFX->SetPointLightMap(m_PointLightBuffer->GetShaderResource());
-		Effects::TiledLightningFX->SetSpotLightMap(m_SpotLightBuffer->GetShaderResource());
+
+		ID3D11ShaderResourceView* dirLightMap = m_DirLightBuffer == NULL ? NULL : m_DirLightBuffer->GetShaderResource();
+		ID3D11ShaderResourceView* pointLightMap = m_PointLightBuffer == NULL ? NULL : m_PointLightBuffer->GetShaderResource();
+		ID3D11ShaderResourceView* spotLightMap = m_SpotLightBuffer == NULL ? NULL : m_SpotLightBuffer->GetShaderResource();
+
+
+		Effects::TiledLightningFX->SetDirLightMap(dirLightMap);
+		Effects::TiledLightningFX->SetPointLightMap(pointLightMap);
+		Effects::TiledLightningFX->SetSpotLightMap(spotLightMap);
 
 		tech->GetPassByIndex(p)->Apply(0, m_DeviceContext);
 
