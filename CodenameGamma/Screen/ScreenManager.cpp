@@ -17,16 +17,24 @@ ScreenManager::ScreenManager(ScreenData* Setup)
 	gExit	=	false;
 	gShowDebug	=	false;
 
+	gFpsCounter	=	DebugScreen::GetInstance()->AddDebugData("");
+	gFpsCounter->Value	=	"FPS";
+	gFpsCounter->ValueColor	=	Green;
+	gFpsCounter->TitleColor	=	White;
+	
+
 	DebugScreen::GetInstance()->AddLogMessage("Screen Manager: Initialized!", Green);
 }
 
 void ScreenManager::Update(float DeltaTime)
 {
+	gFpsCounter->Title	=	to_string((long double)((int)(1/DeltaTime)));
 	SoundManager::GetInstance()->Update(DeltaTime);
 	InputManager::GetInstance()->Update();
 
 	if ( InputManager::GetInstance()->GetKeyboard()->GetKeyState(VK_F1) == PRESSED )
 		ToggleDebug();
+
 	if ( gShowDebug )
 		DebugScreen::GetInstance()->Update(DeltaTime);
 
@@ -36,6 +44,7 @@ void ScreenManager::Update(float DeltaTime)
 
 
 	gCurrentScreen->Update(DeltaTime);
+
 	ChangeScreen(gCurrentScreen->SwapToThisNextFrame());
 }
 

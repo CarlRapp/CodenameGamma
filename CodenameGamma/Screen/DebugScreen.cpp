@@ -76,6 +76,9 @@ void DebugScreen::RemoveDebugData(DebugData* Instance, bool DeletePointer)
 void DebugScreen::AddLogMessage(string Message, TextColor Color)
 {
 	gDebugLog->push_back( new LogData(Message, Color) );
+
+	gLogIndex	+=	1;
+	gLogIndex	=	( gLogIndex + gLogMaxRows > (int)gDebugLog->size() ) ? gLogIndex - 1 : gLogIndex;
 }
 
 void DebugScreen::Update(float DeltaTime)
@@ -85,20 +88,20 @@ void DebugScreen::Update(float DeltaTime)
 	{
 		//	Only if there are more messages
 		//	than the total shown
-		if ( gLogMaxRows < gDebugLog->size() )
+		if ( gLogMaxRows < (int)gDebugLog->size() )
 		{
 			int Direction	=	( InputManager::GetInstance()->GetKeyboard()->GetKeyState( VK_PRIOR ) == PRESSED ) ? -1 : 1;
 
 			gLogIndex	+=	Direction;
 
-			gLogIndex	=	( gLogIndex + gLogMaxRows > gDebugLog->size() ) ? gLogIndex - 1 : gLogIndex;
+			gLogIndex	=	( gLogIndex + gLogMaxRows > (int)gDebugLog->size() ) ? gLogIndex - 1 : gLogIndex;
 			gLogIndex	=	( gLogIndex < 0 ) ? 0 : gLogIndex;
 		}
 	}
 
 	//	Increase the number of messages shown
 	if ( InputManager::GetInstance()->GetKeyboard()->GetKeyState( VK_DOWN ) == PRESSED )
-		gLogMaxRows	=	( gLogMaxRows + 1 > gDebugLog->size() ) ? gLogMaxRows : gLogMaxRows + 1;
+		gLogMaxRows	=	( gLogMaxRows + 1 > (int)gDebugLog->size() ) ? gLogMaxRows : gLogMaxRows + 1;
 
 	//	Decrease the number of messages shown
 	else if ( InputManager::GetInstance()->GetKeyboard()->GetKeyState( VK_UP ) == PRESSED )
@@ -107,17 +110,32 @@ void DebugScreen::Update(float DeltaTime)
 
 void DebugScreen::Render()
 {
-	for(UINT32 i = gLogIndex; i <= (gLogIndex + gLogMaxRows); ++i)
+	for(int i = gLogIndex; i <= (gLogIndex + gLogMaxRows); ++i)
 	{
-		if ( i >= gDebugLog->size() || i == (gLogIndex + gLogMaxRows) )
+		if ( i >= (int)gDebugLog->size() || i == (gLogIndex + gLogMaxRows) )
 		{
-			DrawString(*gTextInstance, "Displaying " + to_string((long double)((gLogMaxRows > gDebugLog->size() ? gDebugLog->size() : gLogMaxRows))) + " of " + to_string((long double)gDebugLog->size()) + " messages.", gMarginX, gMarginY + (i - gLogIndex) * (gTextSize + gTextSize * 0.1f), gTextSize, White, 0);
+			DrawString(
+				"Displaying " + to_string((long double)((gLogMaxRows > (int)gDebugLog->size() ? (int)gDebugLog->size() : gLogMaxRows))) + " of " + to_string((long double)gDebugLog->size()) + " messages.", 
+				gMarginX, 
+				(int)(gMarginY + (i - gLogIndex) * (gTextSize + gTextSize * 0.1f)), 
+				(float)gTextSize,
+				White, 
+				0
+			);
+			
 			break;
 		}
 
 		LogData*	tData	=	gDebugLog->at( i );
 
-		DrawString(*gTextInstance, tData->MESSAGE, gMarginX, gMarginY + (i - gLogIndex) * (gTextSize + gTextSize * 0.1f), gTextSize, tData->COLOR, 0);
+		DrawString(
+			tData->MESSAGE, 
+			gMarginX, 
+			(int)(gMarginY + (i - gLogIndex) * (gTextSize + gTextSize * 0.1f)), 
+			(float)gTextSize, 
+			tData->COLOR, 
+			0
+		);
 	}
 	
 	
@@ -130,37 +148,57 @@ void DebugScreen::Render()
 		//	If the colors are the same
 		//	only make one DrawString call
 		if(tData->TitleColor == tData->ValueColor)
-			DrawString(*gTextInstance, Title + Value, gScreenWidth - gMarginX, 5.0f + i * (gTextSize + gTextSize * 0.1f), gTextSize, tData->TitleColor, FW1_RIGHT);
+			DrawString(
+				Title + Value, 
+				gScreenWidth - gMarginX, 
+				(int)(5 + i * (gTextSize + gTextSize * 0.1f)), 
+				(float)gTextSize, 
+				tData->TitleColor, 
+				FW1_RIGHT
+			);
 		else
 		{
-			DrawString(*gTextInstance, Title, gScreenWidth - gMarginX - GetTextWidth(Value, gTextSize), gMarginY + i * (gTextSize + gTextSize * 0.1f), gTextSize, tData->TitleColor, FW1_RIGHT);
-			DrawString(*gTextInstance, Value, gScreenWidth - gMarginX, gMarginY + i * (gTextSize + gTextSize * 0.1f), gTextSize, tData->ValueColor, FW1_RIGHT);
+			DrawString(
+				Title,
+				(int)(gScreenWidth - gMarginX - GetTextWidth(Value, (float)gTextSize)), 
+				(int)(gMarginY + i * (gTextSize + gTextSize * 0.1f)), 
+				(float)gTextSize,
+				tData->TitleColor, 
+				FW1_RIGHT
+			);
+
+			DrawString(
+				Value, 
+				gScreenWidth - gMarginX,
+				(int)(gMarginY + i * (gTextSize + gTextSize * 0.1f)), 
+				(float)gTextSize, 
+				tData->ValueColor, 
+				FW1_RIGHT
+			);
 		}
 	}
 }
 
-
-void DebugScreen::DrawString(IFW1FontWrapper& Instance, string Text, float x, float y, float Size, TextColor Color, UINT Flags)
+void DebugScreen::DrawString(string Text, int x, int y, float Size, TextColor Color, UINT Flags)
 {
-	Instance.DrawString(
+	(*gTextInstance).DrawString(
 		gDeviceContext, 
 		wstring(Text.begin(), Text.end()).c_str(), 
-		floorf(Size * 100 + 0.5) * 0.01f, 
-		floorf(x * 100 + 0.5) * 0.01f, 
-		floorf(y * 100 + 0.5) * 0.01f, 
+		(float)floorf(Size * 100 + 0.5f) * 0.01f, 
+		(float)floorf(x * 100 + 0.5f) * 0.01f, 
+		(float)floorf(y * 100 + 0.5f) * 0.01f, 
 		Color, 
 		Flags
 	);
 }
-
-void DebugScreen::DrawString(IFW1FontWrapper& Instance, string Text, float x, float y, float Size, TextColor Color, TextColor BorderColor, float BorderSize, UINT Flags)
+void DebugScreen::DrawString(string Text, int x, int y, float Size, TextColor Color, TextColor BorderColor, int BorderSize, UINT Flags)
 {
-	DrawString(Instance, Text, x-BorderSize, y, Size, BorderColor, Flags);
-	DrawString(Instance, Text, x+BorderSize, y, Size, BorderColor, Flags);
-	DrawString(Instance, Text, x, y-BorderSize, Size, BorderColor, Flags);
-	DrawString(Instance, Text, x, y+BorderSize, Size, BorderColor, Flags);
+	DrawString(Text, x-BorderSize, y, Size, BorderColor, Flags);
+	DrawString(Text, x+BorderSize, y, Size, BorderColor, Flags);
+	DrawString(Text, x, y-BorderSize, Size, BorderColor, Flags);
+	DrawString(Text, x, y+BorderSize, Size, BorderColor, Flags);
 
-	DrawString(Instance, Text, x, y, Size, Color, Flags);
+	DrawString(Text, x, y, Size, Color, Flags);
 }
 
 float DebugScreen::GetTextWidth(string Text, float TextSize)

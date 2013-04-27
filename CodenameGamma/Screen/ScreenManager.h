@@ -23,6 +23,8 @@ private:
 	bool	gExit, gShowDebug;
 	void	ToggleDebug();
 
+	DebugData*			gFpsCounter;
+
 public:
 	ScreenManager(void);
 	ScreenManager(ScreenData* Setup);

@@ -1,5 +1,4 @@
 #include "MainMenuScreen.h"
-DebugData*	FPS_COUNTER;
 MainMenuScreen::MainMenuScreen(ScreenData* Setup)
 {
 	LoadScreenData(Setup);
@@ -20,13 +19,7 @@ MainMenuScreen::MainMenuScreen(ScreenData* Setup)
 
 	SoundManager::GetInstance()->Load("Theme", "DATA/Sounds/Theme.mp3", FMOD_SOFTWARE | FMOD_2D);
 	SoundManager::GetInstance()->Load("MenuPick", "DATA/Sounds/MenuPick.wav", FMOD_SOFTWARE | FMOD_2D);
-	SoundManager::GetInstance()->Play("Theme", true);
-	SoundManager::GetInstance()->Play("Derpaderp");
-
-	FPS_COUNTER	=	DebugScreen::GetInstance()->AddDebugData("");
-	FPS_COUNTER->Value	=	" FPS";
-	FPS_COUNTER->ValueColor	=	Green;
-	FPS_COUNTER->TitleColor	=	White;
+	//SoundManager::GetInstance()->Play("Theme", true);
 }
 
 bool MainMenuScreen::Load()
@@ -47,7 +40,7 @@ void MainMenuScreen::Update(float DeltaTime)
 	{
 		gTextSizeActiveTicker	=	0;
 
-		gCurrentIndex	=	(gCurrentIndex + 1 >= gMenuEntries.size()) ? 0 : gCurrentIndex + 1;
+		gCurrentIndex	=	(gCurrentIndex + 1 >= (int)gMenuEntries.size()) ? 0 : gCurrentIndex + 1;
 		SoundManager::GetInstance()->Play("MenuPick");
 	}
 	if(gController->GetButtonState(D_UP) == PRESSED)
@@ -63,12 +56,11 @@ void MainMenuScreen::Update(float DeltaTime)
 
 		gGotoNextFrame	=	tMenuEntry.second;
 		SoundManager::GetInstance()->Play("MenuPick");
+		SoundManager::GetInstance()->Stop("Theme");
 	}
 	
 
 	gTextSizeActive			=	(gTextSize	+	cos(10 * gTextSizeActiveTicker));
-
-	FPS_COUNTER->Title	=	to_string((long double)((int)(1/DeltaTime)));
 }
 
 

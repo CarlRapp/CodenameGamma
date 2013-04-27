@@ -19,7 +19,7 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 	gGraphicsManager->SetLights(&gDirLights, &gPointLights, &gSpotLights);
 
 	
-	gModel = new Model(gDevice, gTexMgr, "DATA\\Models\\obj\\pacman.obj", "DATA\\Models\\Textures\\");
+	gModel = new Model(gDevice, gTexMgr, "DATA\\Models\\obj\\pacman.obj", "DATA/Models/Textures/");
 
 	for (int i = 0; i < 10; ++i)
 	{
@@ -31,6 +31,8 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 	}
 
 	AddDirectionalLight();
+	AddPointLight();
+	AddSpotLight();
 
 	SetNumberOfPlayers(1);
 }
@@ -180,7 +182,7 @@ void PlayScreen::Update(float DeltaTime)
 	}
 
 	
-	for (int i = 0; i < gPointLights.size(); ++i)
+	for (int i = 0; i < (int)gPointLights.size(); ++i)
 	{
 		PointLight *pLight = gPointLights[i];
 
@@ -209,7 +211,7 @@ void PlayScreen::Update(float DeltaTime)
 		pLight->Position.y = gTerrain->GetHeight(pLight->Position.x, pLight->Position.z) + 50;
 	}
 
-	for (int i = 0; i < gSpotLights.size(); ++i)
+	for (int i = 0; i < (int)gSpotLights.size(); ++i)
 	{
 		SpotLight *sLight = gSpotLights[i];
 
@@ -282,10 +284,10 @@ void PlayScreen::Update(float DeltaTime)
 			AddDirectionalLight();
 		
 
-	/*
-	if (controller->GetButtonState(Xbox_Button::START) == InputState::DOWN)
+	
+	if (controller->GetButtonState(Xbox_Button::START) == InputState::PRESSED)
 		gGotoNextFrame = MAIN_MENU_SCREEN;
-		*/
+		
 	
 }
 
