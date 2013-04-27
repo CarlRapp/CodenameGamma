@@ -26,7 +26,6 @@ GraphicsManager::GraphicsManager(ID3D11Device *device, ID3D11DeviceContext *devi
 
 	InitFullScreenQuad();
 	InitBuffers();
-	int a = 2;
 
 	m_DirLightBuffer = new StructuredBuffer<DirectionalLight>(m_Device, 1, D3D11_BIND_SHADER_RESOURCE, true);
 	m_PointLightBuffer = new StructuredBuffer<PointLight>(m_Device, 1, D3D11_BIND_SHADER_RESOURCE, true);
@@ -35,8 +34,10 @@ GraphicsManager::GraphicsManager(ID3D11Device *device, ID3D11DeviceContext *devi
 	m_DirLights		= NULL;
 	m_PointLights	= NULL;
 	m_SpotLights	= NULL;
-}
+	m_ShadowMapSRV	= NULL;
+	m_ShadowMapDSV	= NULL;
 
+}
 
 GraphicsManager::~GraphicsManager(void)
 {
@@ -187,6 +188,50 @@ void GraphicsManager::InitBuffers()
 	finalTex->Release();
 }
 
+void GraphicsManager::InitShadowMap(int width, int height)
+{
+	SAFE_RELEASE(m_ShadowMapSRV);
+	SAFE_RELEASE(m_ShadowMapDSV);
+	//Texture desc
+	D3D11_TEXTURE2D_DESC texDesc;
+	ZeroMemory(&texDesc, sizeof(texDesc));
+	texDesc.Width = width;
+	texDesc.Height = height;
+	texDesc.MipLevels = 1;
+	texDesc.ArraySize = 1;
+	texDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
+	texDesc.SampleDesc.Count = 1;
+	texDesc.Usage = D3D11_USAGE_DEFAULT;
+	texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+	texDesc.CPUAccessFlags = 0;
+	texDesc.MiscFlags = 0;
+
+	//Create texture
+	ID3D11Texture2D* texture = NULL;
+	m_Device->CreateTexture2D(&texDesc, NULL, &texture);
+
+	//SRV desc
+	D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc;
+	SRVDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+	SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	SRVDesc.Texture2D.MostDetailedMip = 0;
+	SRVDesc.Texture2D.MipLevels = 1;
+
+	//Create SRV
+	m_Device->CreateShaderResourceView(texture, &SRVDesc, &m_ShadowMapSRV);
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC DSVdesc;
+	ZeroMemory(&DSVdesc, sizeof(DSVdesc));
+	DSVdesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	DSVdesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	DSVdesc.Texture2D.MipSlice = 0;
+
+	m_Device->CreateDepthStencilView( texture, &DSVdesc, &m_ShadowMapDSV );
+
+	//Release texture
+	texture->Release();
+}
+
 void GraphicsManager::UpdateLights()
 {
 	//Update DirecionalLights.
@@ -314,6 +359,7 @@ void GraphicsManager::ClearBuffers()
 void GraphicsManager::FillGBuffer(vector<Player*>& players)
 {
 	m_DeviceContext->OMSetRenderTargets( 2, GBuffer, m_DepthStencilView );
+
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	m_DeviceContext->OMSetDepthStencilState(RenderStates::LessDDS, 0);
@@ -360,11 +406,6 @@ void GraphicsManager::FillGBuffer(vector<Player*>& players)
 	cout << endl;
 
 	m_DeviceContext->OMSetRenderTargets( 0, 0, 0 );
-}
-
-void GraphicsManager::SetQuadTree(QuadTree *instanceTree)
-{
-	m_InstanceTree = instanceTree;
 }
 
 void GraphicsManager::RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMATRIX proj, ID3DX11EffectTechnique* tech, UINT pass)
@@ -592,7 +633,6 @@ void GraphicsManager::CombineFinal()
 	Effects::CombineFinalFX->SetSpecular(NULL);
 	tech->GetPassByIndex(0)->Apply(0, m_DeviceContext);
 }
-
 
 void GraphicsManager::Render(vector<Player*>& players)
 {
