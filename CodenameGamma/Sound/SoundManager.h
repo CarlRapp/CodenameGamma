@@ -22,8 +22,11 @@ private:
 
 	//	Fields for loaded sounds
 	typedef pair<string, FMOD::Sound*>		SoundEntry;
+	typedef	pair<string, FMOD::Channel*>	PlayingSound;
+
 	map <const int, SoundEntry>				gLoadedSounds;
 	map <const int, SoundEntry>::iterator	gSoundIterator;
+	vector<PlayingSound*>*					gPlayingSounds;
 
 	//	Settings
 	float		gMasterVolume;
@@ -48,6 +51,8 @@ public:
 	void	Play(string Name, bool Loop);
 	void	Play3D(string Name, XMFLOAT3 Position);
 	void	Play3D(string Name, XMFLOAT3 Position, bool Loop);
+
+	void	Stop(string Name);
 
 	void	SetListenerPosition(float X, float Y, float Z);
 };

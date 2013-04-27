@@ -90,12 +90,13 @@ SoundManager::SoundManager()
 	gResult = gSystem->set3DSettings(1.0, DISTANCEFACTOR, 1.0f);
 	ErrorCheck(gResult);
 
+	gPlayingSounds	=	new vector<PlayingSound*>();
+
 	DebugScreen::GetInstance()->AddLogMessage("Sound Manager: Initialized!", Green);
 }
 
 SoundManager::~SoundManager()
 {
-
 }
 
 bool SoundManager::Exists(string Name)
@@ -113,7 +114,10 @@ bool SoundManager::Exists(string Name)
 void SoundManager::Load(string Name, string Path, FMOD_MODE Flags)
 {
 	if(Exists(Name))
+	{
+		DebugScreen::GetInstance()->AddLogMessage("Sound: \"" + Name + "\" is already loaded.", Red);
 		return;
+	}
 
 	FMOD::Sound*	tSound;
 
@@ -136,6 +140,7 @@ void SoundManager::Play(string Name, bool Loop)
 		DebugScreen::GetInstance()->AddLogMessage("Sound: \"" + Name + "\" does not exist.", Red);
 		return;
 	}
+
 	if(Loop)
 		gSoundIterator->second.second->setMode(FMOD_LOOP_NORMAL);
 
@@ -145,7 +150,7 @@ void SoundManager::Play(string Name, bool Loop)
 	ErrorCheck(gResult);
 	gChannel->setVolume(gMasterVolume);
 
-	
+	gPlayingSounds->push_back(new PlayingSound(Name, gChannel));
 }
 
 void SoundManager::Play3D(string Name, XMFLOAT3 Position)
@@ -161,6 +166,7 @@ void SoundManager::Play3D(string Name, XMFLOAT3 Position, bool Loop)
 		DebugScreen::GetInstance()->AddLogMessage("Sound: \"" + Name + "\" does not exist.", Red);
 		return;
 	}
+
 	if(Loop)
 		gSoundIterator->second.second->setMode(FMOD_LOOP_NORMAL);
 
@@ -173,11 +179,42 @@ void SoundManager::Play3D(string Name, XMFLOAT3 Position, bool Loop)
 	FMOD_VECTOR	tVelocity	=	{0, 0, 0};
 	gResult	=	gChannel->set3DAttributes(&gListenerPosition, &tVelocity);
 	ErrorCheck(gResult);
-	
+
+	gPlayingSounds->push_back(new PlayingSound(Name, gChannel));
 }
 
+void SoundManager::Stop(string Name)
+{
+	if(!Exists(Name))
+	{
+		DebugScreen::GetInstance()->AddLogMessage("Sound: \"" + Name + "\" does not exist.", Red);
+		return;
+	}
+	
+	for(int i = gPlayingSounds->size() - 1; i >= 0; --i)
+	{
+		PlayingSound*	tSound	=	gPlayingSounds->at(i);
+		bool	tPlaying	=	false;
+		if ( tSound->first == Name)
+		{
+			ErrorCheck( tSound->second->isPlaying( &tPlaying ) );
 
+			if(tPlaying)
+			{
+				gPlayingSounds->erase(gPlayingSounds->begin() + i);
+				tSound->second->stop();
+				delete tSound;
+				return;
+			}
+			else
+			{
+				gPlayingSounds->erase(gPlayingSounds->begin() + i);
+			}
+		}
+	}
 
+	DebugScreen::GetInstance()->AddLogMessage("Sound: Trying to stop \"" + Name + "\", but it is not playing.", Red);
+}
 
 
 
@@ -185,8 +222,10 @@ void SoundManager::Play3D(string Name, XMFLOAT3 Position, bool Loop)
 void SoundManager::ErrorCheck(FMOD_RESULT Result)
 {
 	//	Implement write to debug screen here.
-	if (Result != FMOD_OK )
-		DebugScreen::GetInstance()->AddLogMessage("Sound Error: " + Result, Red);
+	if ( Result != FMOD_OK && Result != FMOD_ERR_INVALID_HANDLE && Result != FMOD_ERR_CHANNEL_STOLEN )
+	{
+		DebugScreen::GetInstance()->AddLogMessage("Sound Error: " + (string)FMOD_ErrorString(Result), Red);
+	}
 }
 
 
@@ -201,45 +240,37 @@ void SoundManager::Update(float DeltaTime)
 	if(gTimeToUpdate > 0.1f)
 	{
 		gSystem->update();
-        unsigned int ms = 0;
-        unsigned int lenms = 0;
-        bool         playing = false;
-        bool         paused = false;
-        int          channelsplaying = 0;
-            if (gChannel)
-            {
-                FMOD::Sound *currentsound = 0;
+		unsigned int ms = 0;
+		unsigned int lenms = 0;
+		bool         playing = false;
+		bool         paused = false;
+		int          channelsplaying = 0;
 
-                gResult = gChannel->isPlaying(&playing);
-                if ((gResult != FMOD_OK) && (gResult != FMOD_ERR_INVALID_HANDLE) && (gResult != FMOD_ERR_CHANNEL_STOLEN))
-                {
-                    ErrorCheck(gResult);
-                }
+		if (gChannel)
+		{
+			FMOD::Sound *currentsound = 0;
 
-                gResult = gChannel->getPaused(&paused);
-                if ((gResult != FMOD_OK) && (gResult != FMOD_ERR_INVALID_HANDLE) && (gResult != FMOD_ERR_CHANNEL_STOLEN))
-                {
-                    ErrorCheck(gResult);
-                }
-
-                gResult = gChannel->getPosition(&ms, FMOD_TIMEUNIT_MS);
-                if ((gResult != FMOD_OK) && (gResult != FMOD_ERR_INVALID_HANDLE) && (gResult != FMOD_ERR_CHANNEL_STOLEN))
-                {
-                    ErrorCheck(gResult);
-                }
+			ErrorCheck(gChannel->isPlaying(&playing));
+			ErrorCheck(gChannel->getPaused(&paused));
+			ErrorCheck(gChannel->getPosition(&ms, FMOD_TIMEUNIT_MS));
                
-                gChannel->getCurrentSound(&currentsound);
-                if (currentsound)
-                {
-                    gResult = currentsound->getLength(&lenms, FMOD_TIMEUNIT_MS);
-                    if ((gResult != FMOD_OK) && (gResult != FMOD_ERR_INVALID_HANDLE) && (gResult != FMOD_ERR_CHANNEL_STOLEN))
-                    {
-                        ErrorCheck(gResult);
-                    }
-                }
-            }
+			gChannel->getCurrentSound(&currentsound);
 
+			if (currentsound)
+			{
+				ErrorCheck(currentsound->getLength(&lenms, FMOD_TIMEUNIT_MS));
+			}
+		}
+		
+		for(int i = gPlayingSounds->size() - 1; i >= 0; --i)
+		{
+			PlayingSound*	tSound	=	gPlayingSounds->at(i);
+			ErrorCheck( tSound->second->isPlaying( &playing ) );
 
+			if(!playing)
+				gPlayingSounds->erase(gPlayingSounds->begin() + i);
+		}
+		
 		gTimeToUpdate	=	0;
 	}
 }
