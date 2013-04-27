@@ -15,7 +15,11 @@ struct DirectionalLight
 
 	XMFLOAT4 Color;
 	XMFLOAT4 Direction;
-	//float Pad; // Pad the last float so we can set an array of lights if we wanted.
+
+	//shadow info
+	XMFLOAT2 Resolution;
+	UINT	 ShadowIndex;
+	bool	 HasShadow;
 };
 
 struct PointLight
@@ -27,6 +31,11 @@ struct PointLight
 	// Packed into 4D vector: (Position, Range)
 	XMFLOAT3 Position;
 	float Range;
+
+	//shadow info
+	XMFLOAT2 Resolution;
+	UINT	 ShadowIndex;
+	bool	 HasShadow;
 };
 
 struct SpotLight
@@ -42,6 +51,11 @@ struct SpotLight
 	// Packed into 4D vector: (Direction, Spot)
 	XMFLOAT3 Direction;
 	float angle;
+
+	//shadow info
+	XMFLOAT2 Resolution;
+	UINT	 ShadowIndex;
+	bool	 HasShadow;
 };
 
 struct Material
