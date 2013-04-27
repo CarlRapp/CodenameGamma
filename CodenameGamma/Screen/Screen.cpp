@@ -67,7 +67,14 @@ bool Screen::Unload()
 
 ScreenType Screen::SwapToThisNextFrame()
 {
-	return ( gGotoNextFrame );
+	//	Save the selected screen
+	ScreenType	tScreen	=	gGotoNextFrame;
+
+	//	Null the current screen so it won't
+	//	keep flashing between the screens.
+	gGotoNextFrame	=	UNDEFINED_SCREEN;
+
+	return tScreen;
 }
 
 void Screen::Reset(){}
@@ -102,9 +109,9 @@ void Screen::DrawString(IFW1FontWrapper& Instance, string Text, float x, float y
 	Instance.DrawString(
 		gDeviceContext, 
 		wstring(Text.begin(), Text.end()).c_str(), 
-		floorf(Size * 100 + 0.5) * 0.01f, 
-		floorf(x * 100 + 0.5) * 0.01f, 
-		floorf(y * 100 + 0.5) * 0.01f, 
+		floorf(Size * 100 + 0.5f) * 0.01f, 
+		floorf(x * 100 + 0.5f) * 0.01f, 
+		floorf(y * 100 + 0.5f) * 0.01f, 
 		Color, 
 		Flags
 	);
