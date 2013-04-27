@@ -26,14 +26,15 @@ GraphicsManager::GraphicsManager(ID3D11Device *device, ID3D11DeviceContext *devi
 
 	InitFullScreenQuad();
 	InitBuffers();
+	int a = 2;
 
-	m_DirLightBuffer = new StructuredBuffer<DirectionalLight>(m_Device, 0, D3D11_BIND_SHADER_RESOURCE, true);
-	m_PointLightBuffer = new StructuredBuffer<PointLight>(m_Device, 0, D3D11_BIND_SHADER_RESOURCE, true);
-	m_SpotLightBuffer = new StructuredBuffer<SpotLight>(m_Device, 0, D3D11_BIND_SHADER_RESOURCE, true);
+	m_DirLightBuffer = new StructuredBuffer<DirectionalLight>(m_Device, 1, D3D11_BIND_SHADER_RESOURCE, true);
+	m_PointLightBuffer = new StructuredBuffer<PointLight>(m_Device, 1, D3D11_BIND_SHADER_RESOURCE, true);
+	m_SpotLightBuffer = new StructuredBuffer<SpotLight>(m_Device, 1, D3D11_BIND_SHADER_RESOURCE, true);
 
 	m_DirLights		= NULL;
 	m_PointLights	= NULL;
-	m_SpotLights		= NULL;
+	m_SpotLights	= NULL;
 }
 
 
@@ -194,7 +195,7 @@ void GraphicsManager::UpdateLights()
 		if (m_DirLightBuffer->Size() != m_DirLights->size())
 		{
 			delete m_DirLightBuffer;
-			m_DirLightBuffer = new StructuredBuffer<DirectionalLight>(m_Device, m_DirLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
+			m_DirLightBuffer = new StructuredBuffer<DirectionalLight>(m_Device, m_DirLights->size() == 0 ? 1 : m_DirLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
 		}
 		if (m_DirLightBuffer->Size() > 0)
 		{
@@ -210,7 +211,7 @@ void GraphicsManager::UpdateLights()
 	else if (m_DirLightBuffer->Size() != 0)
 	{
 		delete m_DirLightBuffer;
-		m_DirLightBuffer = new StructuredBuffer<DirectionalLight>(m_Device, 0, D3D11_BIND_SHADER_RESOURCE, true);
+		m_DirLightBuffer = new StructuredBuffer<DirectionalLight>(m_Device, 1, D3D11_BIND_SHADER_RESOURCE, true);
 	}
 
 	//Update PointLights.
@@ -219,7 +220,7 @@ void GraphicsManager::UpdateLights()
 		if (m_PointLightBuffer->Size() != m_PointLights->size())
 		{
 			delete m_PointLightBuffer;
-			m_PointLightBuffer = new StructuredBuffer<PointLight>(m_Device, m_PointLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
+			m_PointLightBuffer = new StructuredBuffer<PointLight>(m_Device, m_PointLights->size() == 0 ? 1 : m_PointLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
 		}
 		if (m_PointLightBuffer->Size() > 0)
 		{
@@ -235,7 +236,7 @@ void GraphicsManager::UpdateLights()
 	else if (m_PointLightBuffer->Size() != 0)
 	{
 		delete m_PointLightBuffer;
-		m_PointLightBuffer = new StructuredBuffer<PointLight>(m_Device, 0, D3D11_BIND_SHADER_RESOURCE, true);
+		m_PointLightBuffer = new StructuredBuffer<PointLight>(m_Device, 1, D3D11_BIND_SHADER_RESOURCE, true);
 	}
 
 	//Update SpotLights.
@@ -244,7 +245,7 @@ void GraphicsManager::UpdateLights()
 		if (m_SpotLightBuffer->Size() != m_SpotLights->size())
 		{
 			delete m_SpotLightBuffer;
-			m_SpotLightBuffer = new StructuredBuffer<SpotLight>(m_Device, m_SpotLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
+			m_SpotLightBuffer = new StructuredBuffer<SpotLight>(m_Device, m_SpotLights->size() == 0 ? 1 : m_SpotLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
 		}
 		if (m_SpotLightBuffer->Size() > 0)
 		{
@@ -261,7 +262,7 @@ void GraphicsManager::UpdateLights()
 	else if (m_SpotLightBuffer->Size() != 0)
 	{
 		delete m_SpotLightBuffer;
-		m_SpotLightBuffer = new StructuredBuffer<SpotLight>(m_Device, 0, D3D11_BIND_SHADER_RESOURCE, true);
+		m_SpotLightBuffer = new StructuredBuffer<SpotLight>(m_Device, 1, D3D11_BIND_SHADER_RESOURCE, true);
 	}
 
 
@@ -313,15 +314,14 @@ void GraphicsManager::ClearBuffers()
 void GraphicsManager::FillGBuffer(vector<Player*>& players)
 {
 	m_DeviceContext->OMSetRenderTargets( 2, GBuffer, m_DepthStencilView );
-
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	m_DeviceContext->OMSetDepthStencilState(RenderStates::LessDDS, 0);
-	
+
 	m_DeviceContext->RSSetState(RenderStates::NoCullRS);
 	//m_DeviceContext->RSSetState(RenderStates::WireframeRS);
-
-	for (int i = 0; i < players.size(); ++i)
+	
+	for (int i = 0; i < (int)players.size(); ++i)
 	{
 		RenderTerrain(players[i]);
 
@@ -358,6 +358,7 @@ void GraphicsManager::FillGBuffer(vector<Player*>& players)
 		}
 	}
 	cout << endl;
+
 	m_DeviceContext->OMSetRenderTargets( 0, 0, 0 );
 }
 
@@ -520,7 +521,7 @@ void GraphicsManager::ComputeLight(vector<Player*>& players)
 	{
 		Effects::TiledLightningFX->SetInvViewProjs(&invViewProjs[0], invViewProjs.size());
 		Effects::TiledLightningFX->SetCamPositions(&camPositions[0], camPositions.size());
-		Effects::TiledLightningFX->SetResolution(XMFLOAT2(m_Width, m_Height));
+		Effects::TiledLightningFX->SetResolution(XMFLOAT2((float)m_Width, (float)m_Height));
 
 		Effects::TiledLightningFX->SetAlbedoMap(m_AlbedoSRV);
 		Effects::TiledLightningFX->SetNormalSpecMap(m_NormalSpecSRV);
@@ -555,7 +556,8 @@ void GraphicsManager::ComputeLight(vector<Player*>& players)
 	Effects::TiledLightningFX->SetNormalSpecMap(NULL);
 	Effects::TiledLightningFX->SetDepthMap(NULL);
 	Effects::TiledLightningFX->SetOutputMap(NULL);
-	
+
+	tech->GetPassByIndex(0)->Apply(0, m_DeviceContext);
 	m_DeviceContext->CSSetShader(0, 0, 0);
 }
 
@@ -596,7 +598,7 @@ void GraphicsManager::Render(vector<Player*>& players)
 {
 	UpdateLights();
 	ClearBuffers();
-	FillGBuffer(players);	
+	FillGBuffer(players);
 	ComputeLight(players);
 	CombineFinal();
 }
