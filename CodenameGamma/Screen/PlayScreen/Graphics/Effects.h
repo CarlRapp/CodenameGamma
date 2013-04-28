@@ -220,6 +220,7 @@ public:
 	void SetAlbedoMap(ID3D11ShaderResourceView* tex)		{ AlbedoMap->SetResource(tex); }
 	void SetNormalSpecMap(ID3D11ShaderResourceView* tex)    { NormalSpecMap->SetResource(tex); }
 	void SetDepthMap(ID3D11ShaderResourceView* tex)			{ DepthMap->SetResource(tex); }
+	void SetShadowMap(ID3D11ShaderResourceView* tex)		{ ShadowMap->SetResource(tex); }
 	void SetOutputMap(ID3D11UnorderedAccessView* tex)		{ OutputMap->SetUnorderedAccessView(tex); }
 	void SetDirLightMap(ID3D11ShaderResourceView* tex)		{ DirLightMap->SetResource(tex); }
 	void SetPointLightMap(ID3D11ShaderResourceView* tex)	{ PointLightMap->SetResource(tex); }
@@ -237,6 +238,7 @@ public:
 	ID3DX11EffectShaderResourceVariable* AlbedoMap;
 	ID3DX11EffectShaderResourceVariable* NormalSpecMap;
 	ID3DX11EffectShaderResourceVariable* DepthMap;
+	ID3DX11EffectShaderResourceVariable* ShadowMap;
 	ID3DX11EffectUnorderedAccessViewVariable* OutputMap;
 
 	ID3DX11EffectShaderResourceVariable* DirLightMap;
@@ -602,15 +604,11 @@ public:
 	CombineFinalEffect(ID3D11Device* device, const std::wstring& filename);
 	~CombineFinalEffect();
 
-	void SetAlbedo(ID3D11ShaderResourceView* tex)  { Albedo->SetResource(tex); }
-	void SetDiffuse(ID3D11ShaderResourceView* tex)  { DiffuseLight->SetResource(tex); }
-	void SetSpecular(ID3D11ShaderResourceView* tex)  { SpecularLight->SetResource(tex); }
+	void SetTexture(ID3D11ShaderResourceView* tex)  { Texture->SetResource(tex); }
 
 	ID3DX11EffectTechnique* CombineTech;
 		
-	ID3DX11EffectShaderResourceVariable* Albedo;
-	ID3DX11EffectShaderResourceVariable* DiffuseLight;
-	ID3DX11EffectShaderResourceVariable* SpecularLight;
+	ID3DX11EffectShaderResourceVariable* Texture;
 };
 #pragma endregion
 
