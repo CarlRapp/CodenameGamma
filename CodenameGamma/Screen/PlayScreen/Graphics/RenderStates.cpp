@@ -5,8 +5,10 @@ ID3D11RasterizerState*   RenderStates::WireframeRS       = 0;
 ID3D11RasterizerState*   RenderStates::NoCullRS          = 0;
 	 
 ID3D11DepthStencilState* RenderStates::EqualsDSS         = 0;
-ID3D11DepthStencilState* RenderStates::LessDDS			= 0;
+ID3D11DepthStencilState* RenderStates::LessDSS			= 0;
+ID3D11DepthStencilState* RenderStates::NoDSS			= 0;
 
+ID3D11BlendState*        RenderStates::OpaqueBS			 = 0;
 ID3D11BlendState*        RenderStates::AlphaToCoverageBS = 0;
 ID3D11BlendState*        RenderStates::TransparentBS     = 0;
 
@@ -56,7 +58,34 @@ void RenderStates::InitAll(ID3D11Device* device)
 	lessDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	lessDesc.DepthFunc = D3D11_COMPARISON_LESS;
 
-	device->CreateDepthStencilState(&lessDesc, &LessDDS);
+	device->CreateDepthStencilState(&lessDesc, &LessDSS);
+
+	//
+	// NoDSS
+	//
+	D3D11_DEPTH_STENCIL_DESC noDesc;
+	ZeroMemory(&noDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
+	noDesc.DepthEnable = false;
+	noDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	noDesc.DepthFunc = D3D11_COMPARISON_ALWAYS;
+
+	device->CreateDepthStencilState(&noDesc, &NoDSS);
+
+
+
+	//
+	// OpaqueBS
+	//
+
+	D3D11_BLEND_DESC opaqueDesc = {0};
+	opaqueDesc.AlphaToCoverageEnable = false;
+	opaqueDesc.IndependentBlendEnable = false;
+	opaqueDesc.RenderTarget[0].BlendEnable = false;
+	opaqueDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	device->CreateBlendState(&opaqueDesc, &OpaqueBS);
+
+
 
 	//
 	// AlphaToCoverageBS
@@ -95,6 +124,9 @@ void RenderStates::DestroyAll()
 	ReleaseCOM(WireframeRS);
 	ReleaseCOM(NoCullRS);
 	ReleaseCOM(EqualsDSS);
+	ReleaseCOM(LessDSS);
+	ReleaseCOM(NoDSS);
+	ReleaseCOM(OpaqueBS);
 	ReleaseCOM(AlphaToCoverageBS);
 	ReleaseCOM(TransparentBS);
 }
