@@ -149,7 +149,7 @@ void PlayScreen::AddInstance(float x, float y, float z, Model *model)
 	
 	float speed = 80;
 
-	if (MathHelper::RandF(0, 1) > 0.0f)
+	if (MathHelper::RandF(0, 1) > 1.0f)
 		go->m_Velocity = DirectX::XMFLOAT3(MathHelper::RandF(-speed, speed), 0, MathHelper::RandF(-speed, speed));
 	gGameObjects.push_back(go);
 }

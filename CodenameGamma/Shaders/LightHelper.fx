@@ -135,7 +135,7 @@ void ComputePointLight(Material mat, PointLight L, float3 pos, float3 normal, fl
 		spec    = specFactor * mat.SpecIntensity * L.Color;
 	}
 	
-	float att = 1 - (d / L.Range);
+	float att = 1 - pow((d / L.Range), 3);
 
 	ambient *= att;
 	diffuse *= att;
@@ -195,10 +195,10 @@ void ComputeSpotLight(Material mat, SpotLight L, float3 pos, float3 normal, floa
 	float dotProduct 	= dot(-lightVec, L.Direction);
 	float angle 		= acos(dotProduct);
 
-	float spot = 1 - pow((angle / L.Angle), 2);
+	float spot = 1 - pow((angle / L.Angle), 3);
 
 	// Scale by spotlight factor and attenuate.
-	float att = max(spot * (1 - (d / L.Range)), 0);
+	float att = max(spot * (1 - pow((d / L.Range), 3)), 0);
 
 	ambient *= att;
 	diffuse *= att;

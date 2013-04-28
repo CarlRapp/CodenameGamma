@@ -404,7 +404,7 @@ void GraphicsManager::FillGBuffer(vector<Player*>& players)
 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	m_DeviceContext->OMSetDepthStencilState(RenderStates::LessDDS, 0);
+	m_DeviceContext->OMSetDepthStencilState(RenderStates::LessDSS, 0);
 
 	m_DeviceContext->RSSetState(RenderStates::NoCullRS);
 	//m_DeviceContext->RSSetState(RenderStates::WireframeRS);
@@ -609,6 +609,7 @@ void GraphicsManager::ComputeLight(vector<Player*>& players)
 		Effects::TiledLightningFX->SetAlbedoMap(m_AlbedoSRV);
 		Effects::TiledLightningFX->SetNormalSpecMap(m_NormalSpecSRV);
 		Effects::TiledLightningFX->SetDepthMap(m_DepthSRV);
+		Effects::TiledLightningFX->SetShadowMap(m_DepthSRV);
 		Effects::TiledLightningFX->SetOutputMap(m_FinalUAV);
 
 
@@ -644,6 +645,7 @@ void GraphicsManager::ComputeLight(vector<Player*>& players)
 	Effects::TiledLightningFX->SetAlbedoMap(NULL);
 	Effects::TiledLightningFX->SetNormalSpecMap(NULL);
 	Effects::TiledLightningFX->SetDepthMap(NULL);
+	Effects::TiledLightningFX->SetShadowMap(NULL);
 	Effects::TiledLightningFX->SetOutputMap(NULL);
 
 	tech->GetPassByIndex(0)->Apply(0, m_DeviceContext);
@@ -657,6 +659,7 @@ void GraphicsManager::CombineFinal()
 	m_DeviceContext->OMSetRenderTargets( 1, &m_RenderTargetView, NULL );
 	m_DeviceContext->IASetInputLayout(InputLayouts::Quad);
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);	
+	m_DeviceContext->OMSetDepthStencilState(RenderStates::NoDSS, 0);
 
 	ID3DX11EffectTechnique* tech;
 	D3DX11_TECHNIQUE_DESC techDesc;
@@ -664,7 +667,7 @@ void GraphicsManager::CombineFinal()
 	tech = Effects::CombineFinalFX->CombineTech;
 	tech->GetDesc( &techDesc );
 
-	Effects::CombineFinalFX->SetAlbedo(m_FinalSRV);
+	Effects::CombineFinalFX->SetTexture(m_FinalSRV);
 
 	for(UINT p = 0; p < techDesc.Passes; ++p)
     {
@@ -676,14 +679,13 @@ void GraphicsManager::CombineFinal()
 		m_DeviceContext->Draw(4, 0);
 	}
 
-	Effects::CombineFinalFX->SetAlbedo(NULL);
-	Effects::CombineFinalFX->SetDiffuse(NULL);
-	Effects::CombineFinalFX->SetSpecular(NULL);
+	Effects::CombineFinalFX->SetTexture(NULL);
 	tech->GetPassByIndex(0)->Apply(0, m_DeviceContext);
 }
 
 void GraphicsManager::Render(vector<Player*>& players)
 {
+	m_DeviceContext->OMSetBlendState(RenderStates::OpaqueBS, NULL, 0xffffffff);
 	UpdateLights();
 	ClearBuffers();
 	FillGBuffer(players);

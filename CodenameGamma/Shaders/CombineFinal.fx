@@ -1,23 +1,8 @@
-Texture2D g_Albedo;
-Texture2D g_Diffuse;
-Texture2D g_Specular;
-
-cbuffer Frame
-{
-	matrix InverseProjection;
-	bool showColor;
-}
+Texture2D g_Texture;
 
 SamplerState g_Sampler 
 {
     Filter = MIN_MAG_MIP_LINEAR;
-    AddressU = CLAMP;
-    AddressV = CLAMP;
-};
-
-SamplerState depthSampler 
-{
-    Filter = MIN_MAG_MIP_POINT;
     AddressU = CLAMP;
     AddressV = CLAMP;
 };
@@ -59,14 +44,7 @@ PSSceneIn VSScene(VSIn input)
 //-----------------------------------------------------------------------------------------
 float4 PSScene(PSSceneIn input) : SV_Target
 {	
-	//if (showColor)
-	return g_Albedo.Sample(g_Sampler, input.Tex);
-		
-	float3 albedo 		= g_Albedo.Sample(g_Sampler, input.Tex).rgb;	
-	float3 diffuse		= g_Diffuse.Sample(g_Sampler, input.Tex).rgb;
-	float3 specular		= g_Specular.Sample(g_Sampler, input.Tex).rgb;	
-
-	return float4((albedo * diffuse + specular),1);
+	return g_Texture.Sample(g_Sampler, input.Tex);
 }
 
 DepthStencilState DepthStencil
@@ -92,8 +70,6 @@ technique11 CombineTech
         SetVertexShader( CompileShader( vs_4_0, VSScene() ) );
         SetGeometryShader( NULL );
         SetPixelShader( CompileShader( ps_4_0, PSScene() ) );
-	    SetDepthStencilState( DepthStencil, 0 );
-		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 	    //SetRasterizerState( NoCulling );
     }  
 }
