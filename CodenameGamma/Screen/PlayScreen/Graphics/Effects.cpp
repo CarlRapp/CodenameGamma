@@ -183,6 +183,7 @@ TiledLightningEffect::TiledLightningEffect(ID3D11Device* device, const std::wstr
 	AlbedoMap		= mFX->GetVariableByName("gAlbedoMap")->AsShaderResource();
 	NormalSpecMap   = mFX->GetVariableByName("gNormalSpecMap")->AsShaderResource();
 	DepthMap		= mFX->GetVariableByName("gDepthMap")->AsShaderResource();
+	ShadowMap		= mFX->GetVariableByName("gShadowMap")->AsShaderResource();
 	OutputMap		= mFX->GetVariableByName("gOutput")->AsUnorderedAccessView();
 
 	DirLightMap     = mFX->GetVariableByName("gDirLightBuffer")->AsShaderResource();
@@ -489,9 +490,7 @@ CombineFinalEffect::CombineFinalEffect(ID3D11Device* device, const std::wstring&
 {
 	CombineTech  = mFX->GetTechniqueByName("CombineTech");
 
-	Albedo = mFX->GetVariableByName("g_Albedo")->AsShaderResource();
-	DiffuseLight = mFX->GetVariableByName("g_Diffuse")->AsShaderResource();
-	SpecularLight = mFX->GetVariableByName("g_Specular")->AsShaderResource();
+	Texture = mFX->GetVariableByName("g_Texture")->AsShaderResource();
 }
 
 CombineFinalEffect::~CombineFinalEffect()
