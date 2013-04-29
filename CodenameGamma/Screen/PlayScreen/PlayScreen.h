@@ -11,6 +11,7 @@
 #include "Player.h"
 #include "Terrain\Terrain.h"
 #include "Graphics\TextureManager.h"
+#include "Level/Level.h"
 
 class PlayScreen : public Screen
 {
@@ -20,13 +21,16 @@ private:
 	vector<Player*>						gPlayers;
 	Model								*gModel;
 
-	GraphicsManager						*gGraphicsManager;
+	GraphicsManager*					gGraphicsManager;
 	vector<GameObject*>					gGameObjects;
-	Terrain								*gTerrain;
+	Terrain*							gTerrain;
 
 	vector<DirectionalLight*>			gDirLights;
 	vector<PointLight*>					gPointLights;
 	vector<SpotLight*>					gSpotLights;
+
+
+	Level*		gLevel;
 
 	//TEST
 	vector<XMFLOAT3> rotpos;
