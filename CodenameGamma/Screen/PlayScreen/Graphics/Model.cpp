@@ -35,4 +35,37 @@ Model::Model(ID3D11Device* device, TextureManager& texMgr, const std::string& mo
 
 Model::~Model(void)
 {
+/*
+	KOMMENTERADE BORT DETTA DÅ DESSA
+	TEXTURER REDAN FANNS I TEXTURE MANAGER
+	OCH DET BLEV PROBLEM NÄR TEXTURE MANAGERNS
+	DESTRUKTOR KÖRS OCH SEDAN DENNAS. (EFTERSOM
+	TEXTUREN DÅ REDAN ÄR BORTTAGEN!)
+
+	if ( DiffuseMapSRV.size() > 0 )
+	{
+		for ( int i = 0; i < DiffuseMapSRV.size(); ++i )
+		{
+			if ( DiffuseMapSRV.at(i) )
+			{
+				DiffuseMapSRV.at(i)->Release();
+				DiffuseMapSRV.at(i)	=	0;
+			}
+		}
+		DiffuseMapSRV.clear();
+	}
+
+	if ( NormalMapSRV.size() > 0 )
+	{
+		for ( int i = 0; i < NormalMapSRV.size(); ++i )
+		{
+			if ( NormalMapSRV.at(i) )
+			{
+				NormalMapSRV.at(i)->Release();
+				NormalMapSRV.at(i)	=	0;
+			}
+		}
+		NormalMapSRV.clear();
+	}
+	*/
 }

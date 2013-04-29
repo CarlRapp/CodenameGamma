@@ -27,7 +27,39 @@ Terrain::Terrain(ID3D11Device *Device, ID3D11DeviceContext *DeviceContext)
 
 Terrain::~Terrain(void)
 {
+	if ( m_VertexBuffer )
+	{
+		m_VertexBuffer->Release();
+		m_VertexBuffer	=	0;
+	}
 
+	if ( m_IndexBuffer )
+	{
+		m_IndexBuffer->Release();
+		m_IndexBuffer	=	0;
+	}
+
+	if ( m_HeigthMap )
+		delete	m_HeigthMap;
+	if ( m_BlendMap )
+		delete	m_BlendMap;
+
+	for ( int i = 0; i < 4; ++i )
+	{
+		if ( m_GroundTextures[i] )
+		{
+			m_GroundTextures[i]->Release();
+			m_GroundTextures[i]	=	0;
+		}
+		if ( m_NormalTextures[i] )
+		{
+			m_NormalTextures[i]->Release();
+			m_NormalTextures[i]	=	0;
+		}
+	}
+
+	Vertices.clear();
+	Indices.clear();
 }
 
 void Terrain::LoadMap(std::string map)
