@@ -10,14 +10,23 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 	InputLayouts::InitAll(gDevice);
 	gTexMgr.Init(gDevice);
 
-	gTerrain = new Terrain(gDevice, gDeviceContext);
-	gTerrain->LoadMap("DATA\\Maps\\TestMap");
 
 
+	LevelData	tLData	=	LevelData();
+	tLData.DEVICE			=	Setup->DEVICE;
+	tLData.DEVICE_CONTEXT	=	Setup->DEVICE_CONTEXT;
+
+	gLevel	=	new Level(tLData);
+
+	gTerrain = gLevel->GetTerrain();
+
+	
+
+	
 	gGraphicsManager = new GraphicsManager(gDevice, gDeviceContext, gRenderTargetView, gScreenWidth, gScreenHeight);
 	gGraphicsManager->SetTerrain(gTerrain);
 	gGraphicsManager->SetLights(&gDirLights, &gPointLights, &gSpotLights);
-
+	
 	
 	gModel = new Model(gDevice, gTexMgr, "DATA\\Models\\obj\\pacman.obj", "DATA/Models/Textures/");
 
@@ -161,6 +170,24 @@ bool PlayScreen::Load()
 
 bool PlayScreen::Unload()
 {
+	if ( gLevel )
+		delete	gLevel;
+	
+	if ( gGraphicsManager )
+		delete	gGraphicsManager;
+	
+	Effects::DestroyAll();
+	RenderStates::DestroyAll();
+	InputLayouts::DestroyAll();
+	gTexMgr.~TextureManager();
+
+	if ( gGameObjects.size() > 0)
+	{
+		for each( GameObject* GO in gGameObjects)
+			delete GO;
+		gGameObjects.clear();
+	}
+
 	return true;
 }
 
