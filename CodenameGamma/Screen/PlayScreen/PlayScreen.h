@@ -16,31 +16,12 @@
 class PlayScreen : public Screen
 {
 private:
-
-	TextureManager						gTexMgr;
 	vector<Player*>						gPlayers;
 	Model								*gModel;
 
-	GraphicsManager*					gGraphicsManager;
 	vector<GameObject*>					gGameObjects;
-	Terrain*							gTerrain;
-
-	vector<DirectionalLight*>			gDirLights;
-	vector<PointLight*>					gPointLights;
-	vector<SpotLight*>					gSpotLights;
-
 
 	Level*		gLevel;
-
-	//TEST
-	vector<XMFLOAT3> rotpos;
-	vector<float>	 angle;
-	vector<float>	 anglespot;
-
-	void AddInstance(float x, float y, float z, Model *model);
-	void AddDirectionalLight();
-	void AddPointLight();
-	void AddSpotLight();
 
 protected:
 	bool	Load();
