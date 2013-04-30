@@ -114,6 +114,7 @@ void InputLayouts::DestroyAll()
 	ReleaseCOM(PosNormalTexTan);
 	ReleaseCOM(PosNormalTexTanSkinned);
 	ReleaseCOM(Quad);
+	ReleaseCOM(Terrain);
 }
 
 #pragma endregion

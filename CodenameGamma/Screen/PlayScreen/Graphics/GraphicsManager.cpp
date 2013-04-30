@@ -41,6 +41,81 @@ GraphicsManager::GraphicsManager(ID3D11Device *device, ID3D11DeviceContext *devi
 
 GraphicsManager::~GraphicsManager(void)
 {
+	//	Delete the light buffers
+	if ( m_DirLightBuffer )
+		delete	m_DirLightBuffer;
+	if ( m_PointLightBuffer )
+		delete	m_PointLightBuffer;
+	if ( m_SpotLightBuffer )
+		delete	m_SpotLightBuffer;
+
+	//	Remove the quad tree
+	if ( m_InstanceTree )
+		m_InstanceTree->~QuadTree();
+
+	if ( m_FullSceenQuad )
+		SAFE_RELEASE( m_FullSceenQuad );
+
+	if ( m_AlbedoRTV )
+		SAFE_RELEASE( m_AlbedoRTV );
+	if ( m_NormalSpecRTV )
+		SAFE_RELEASE( m_NormalSpecRTV );
+	if ( m_AlbedoSRV )
+		SAFE_RELEASE( m_AlbedoSRV );
+	if ( m_NormalSpecSRV )
+		SAFE_RELEASE( m_NormalSpecSRV );
+	if ( m_DepthSRV )
+		SAFE_RELEASE( m_DepthSRV );
+	if ( m_FinalSRV )
+		SAFE_RELEASE( m_FinalSRV );
+	if ( m_ShadowMapSRV )
+		SAFE_RELEASE( m_ShadowMapSRV );
+	if ( m_ShadowMapDSV )
+		SAFE_RELEASE( m_ShadowMapDSV );
+	if ( m_DepthStencilView ) 
+		SAFE_RELEASE( m_DepthStencilView );
+
+
+	if ( m_FinalUAV )
+		SAFE_RELEASE( m_FinalUAV );
+
+	if ( m_DirLights )
+	{
+		for ( int i = 0; i < m_DirLights->size(); ++i )
+			m_DirLights->at(i)	=	0;
+
+		m_DirLights->clear();
+		m_DirLights	=	0;
+	}
+	if ( m_PointLights )
+	{
+		for ( int i = 0; i < m_PointLights->size(); ++i )
+			m_PointLights->at(i)	=	0;
+
+		m_PointLights->clear();
+		m_PointLights	=	0;
+	}
+	if ( m_SpotLights )
+	{
+		for ( int i = 0; i < m_SpotLights->size(); ++i )
+			m_SpotLights->at(i)	=	0;
+
+		m_SpotLights->clear();
+		m_SpotLights	=	0;
+	}
+
+	if ( m_modelInstances.size() > 0)
+	{
+		for ( int i = 0; i < m_modelInstances.size(); ++i )
+		{
+			if ( m_modelInstances.at(i)->m_Model )
+			{
+				m_modelInstances.at(i)->m_Model->~Model();
+			}
+		}
+
+		m_modelInstances.clear();
+	}
 }
 
 void GraphicsManager::InitFullScreenQuad()
@@ -605,7 +680,6 @@ void GraphicsManager::ComputeLight(vector<Player*>& players)
 		ID3D11ShaderResourceView* dirLightMap = m_DirLightBuffer == NULL ? NULL : m_DirLightBuffer->GetShaderResource();
 		ID3D11ShaderResourceView* pointLightMap = m_PointLightBuffer == NULL ? NULL : m_PointLightBuffer->GetShaderResource();
 		ID3D11ShaderResourceView* spotLightMap = m_SpotLightBuffer == NULL ? NULL : m_SpotLightBuffer->GetShaderResource();
-
 
 		Effects::TiledLightningFX->SetDirLightMap(dirLightMap);
 		Effects::TiledLightningFX->SetPointLightMap(pointLightMap);
