@@ -62,9 +62,33 @@ Terrain::~Terrain(void)
 	Indices.clear();
 }
 
+void Terrain::LoadTerrain(LevelData TData)
+{
+
+	CreateGrid(
+		TData.ResolutionX,
+		TData.ResolutionY, 
+		TData.Width / (TData.ResolutionX - 1), 
+		TData.Height / (TData.ResolutionY - 1)
+	);
+
+	for ( int i = 0; i < 4; ++i)
+	{
+		LoadTexture(&m_GroundTextures[i], TData.LevelRootPath + "Textures/" + TData.Textures[i].Texture);
+		LoadTexture(&m_NormalTextures[i], TData.LevelRootPath + "NormalMaps/" + TData.Textures[i].NormalMap);
+	}
+
+	LoadBlendMap(TData.LevelRootPath + TData.BlendMap.Filename, TData.BlendMap.Width, TData.BlendMap.Height);
+	LoadHeightMap(TData.LevelRootPath + TData.HeightMap.Filename, TData.HeightMap.Width, TData.HeightMap.Height);
+
+	float	scaleX = (float) (m_Width * m_QuadWidth) / TData.TextureX;
+	float	scaleY = (float) (m_Height * m_QuadHeight) / TData.TextureY;
+	XMStoreFloat4x4(&m_TexTransform, XMMatrixScaling(scaleX, scaleY, 1));
+}
+
 void Terrain::LoadMap(std::string map)
 {
-	std::string config		= map + "\\map.cfg";
+	std::string config		= map + "/map.cfg";
 	std::string textruePath = map + "\\Textures\\";
 	std::string normalPath	= map + "\\NormalMaps\\";
 
@@ -109,6 +133,7 @@ void Terrain::LoadMap(std::string map)
 
 		else if(str == "TextureDimensions")	ParseTextureDim(file);
 	}
+	file.close();
 }
 
 void Terrain::ParseTexture(std::ifstream& file, std::string texturePath, int index)
