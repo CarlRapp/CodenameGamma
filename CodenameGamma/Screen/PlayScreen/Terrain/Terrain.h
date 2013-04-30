@@ -5,6 +5,7 @@
 #include "HeigthMap.h"
 #include "BlendMap.h"
 #include "..\Graphics\Vertex.h"
+#include "../Level/LevelParser.h"
 
 class Terrain
 {
@@ -47,6 +48,7 @@ public:
 	Terrain(ID3D11Device* Device, ID3D11DeviceContext* DeviceContext);
 	~Terrain(void);
 
+	void LoadTerrain(LevelData LData);
 	void LoadMap(std::string map);
 
 
