@@ -427,17 +427,6 @@ void GraphicsManager::UpdateLights()
 		delete m_SpotLightBuffer;
 		m_SpotLightBuffer = NULL;
 	}
-
-
-	/*
-	DirectionalLight* dirLight = gDirLightBuffer->MapDiscard(gDeviceContext);
-        for (unsigned int i = 0; i < gDirLights.size(); ++i) 
-		{
-            dirLight[i] = *gDirLights[i];
-			dirLight->Direction
-        }
-        mLightBuffer->Unmap(d3dDeviceContext);
-		*/
 }
 
 void GraphicsManager::ClearBuffers()
