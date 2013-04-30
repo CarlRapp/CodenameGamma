@@ -5,29 +5,17 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 {
 	LoadScreenData(Setup);
 
-	Effects::InitAll(gDevice);
-	RenderStates::InitAll(gDevice);
-	InputLayouts::InitAll(gDevice);
-	gTexMgr.Init(gDevice);
+	SystemData	tData	=	SystemData();
+	tData.DEVICE				=	gDevice;
+	tData.DEVICE_CONTEXT		=	gDeviceContext;
+	tData.RENDER_TARGET_VIEW	=	gRenderTargetView;
+	tData.SCREEN_WIDTH			=	gScreenWidth;
+	tData.SCREEN_HEIGHT			=	gScreenHeight;
 
+	gLevel	=	new Level(tData);
+	gLevel->LoadLevel("TestMap");
 
-
-	LevelData	tLData	=	LevelData();
-	tLData.DEVICE			=	Setup->DEVICE;
-	tLData.DEVICE_CONTEXT	=	Setup->DEVICE_CONTEXT;
-
-	gLevel	=	new Level(tLData);
-
-	gTerrain = gLevel->GetTerrain();
-
-	
-
-	
-	gGraphicsManager = new GraphicsManager(gDevice, gDeviceContext, gRenderTargetView, gScreenWidth, gScreenHeight);
-	gGraphicsManager->SetTerrain(gTerrain);
-	gGraphicsManager->SetLights(&gDirLights, &gPointLights, &gSpotLights);
-	
-	
+	/*
 	gModel = new Model(gDevice, gTexMgr, "DATA\\Models\\obj\\pacman.obj", "DATA/Models/Textures/");
 
 	for (int i = 0; i < 10; ++i)
@@ -42,94 +30,14 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 	AddDirectionalLight();
 	AddPointLight();
 	AddSpotLight();
+	*/
 
 	SetNumberOfPlayers(1);
 }
 
-void PlayScreen::AddDirectionalLight()
-{
-	float x = MathHelper::RandF(-10.0f, 10.0f);
-	float z = MathHelper::RandF(-10.0f, 10.0f);
-	/*
-	float r = MathHelper::RandF(0.0f, 1.0f);
-	float g = MathHelper::RandF(0.0f, 1.0f);
-	float b = MathHelper::RandF(0.0f, 1.0f);
-	*/
-	
-	float r = 1.0f;
-	float g = 1.0f;
-	float b = 1.0f;
-	
-
-	DirectionalLight *dirLight = new DirectionalLight();
-	dirLight->Color = XMFLOAT4(r,g,b,1);
-	dirLight->Direction = XMFLOAT4(x, -1.0f, z,0);
-
-	gDirLights.push_back(dirLight);
-}
 
 
-void PlayScreen::AddPointLight()
-{
-	float x = MathHelper::RandF(0.0f, 4000.0f);
-	float z = MathHelper::RandF(0.0f, 4000.0f);
-		
-	float r = MathHelper::RandF(0.0f, 0.6f);
-	float g = MathHelper::RandF(0.0f, 0.6f);
-	float b = MathHelper::RandF(0.0f, 0.6f);
-	/*
-	float r = 1.0f;
-	float g = 1.0f;
-	float b = 1.0f;
-	*/
-	PointLight *pointLight = new PointLight();
-	pointLight->Color		= XMFLOAT4(r, g, b, 0);
-	pointLight->Position	= XMFLOAT3(x, 0.0f, z);
-	pointLight->Range		= 250;
-	gPointLights.push_back(pointLight);
-
-	float Ox = pointLight->Position.x + MathHelper::RandF(-300.0f, 300.0f);
-	float Oz = pointLight->Position.z + MathHelper::RandF(-300.0f, 300.0f);
-
-	rotpos.push_back(XMFLOAT3(Ox, 0.0f, Oz));
-	angle.push_back(MathHelper::RandF(-45.0f, 45.0f));
-}
-
-void PlayScreen::AddSpotLight()
-{
-	float x = MathHelper::RandF(0.0f, 4000.0f);
-	float z = MathHelper::RandF(0.0f, 4000.0f);
-		
-	float r = MathHelper::RandF(0.0f, 1.0f);
-	float g = MathHelper::RandF(0.0f, 1.0f);
-	float b = MathHelper::RandF(0.0f, 1.0f);
-	/*
-	float r = 1.0f;
-	float g = 1.0f;
-	float b = 1.0f;
-	*/
-
-
-
-	SpotLight *spotLight	= new SpotLight();
-	spotLight->Color		= XMFLOAT4(r, g, b, 0.0f);
-	spotLight->Position		= XMFLOAT3(x, 0, z);
-	spotLight->Direction	= XMFLOAT3(MathHelper::RandF(-1.0f, 1.0f), -1, MathHelper::RandF(-1.0f, 1.0f));
-	spotLight->angle		= XMConvertToRadians(30);
-	spotLight->Range		= 500;
-
-	gSpotLights.push_back(spotLight);
-
-	anglespot.push_back(MathHelper::RandF(-90.0f, 90.0f));
-
-	//float Ox = pointLight->Position.x + MathHelper::RandF(-300.0f, 300.0f);
-	//float Oz = pointLight->Position.z + MathHelper::RandF(-300.0f, 300.0f);
-
-	//rotpos.push_back(XMFLOAT3(Ox, 0.0f, Oz));
-	//angle.push_back(MathHelper::RandF(-45.0f, 45.0f));
-}
-
-
+/*
 void PlayScreen::AddInstance(float x, float y, float z, Model *model)
 {
 	XMMATRIX scale, rot, trans, world;
@@ -161,7 +69,7 @@ void PlayScreen::AddInstance(float x, float y, float z, Model *model)
 	if (MathHelper::RandF(0, 1) > 1.0f)
 		go->m_Velocity = DirectX::XMFLOAT3(MathHelper::RandF(-speed, speed), 0, MathHelper::RandF(-speed, speed));
 	gGameObjects.push_back(go);
-}
+}*/
 
 bool PlayScreen::Load()
 {
@@ -170,29 +78,21 @@ bool PlayScreen::Load()
 
 bool PlayScreen::Unload()
 {
-	if ( gLevel )
-		delete	gLevel;
-	
-	if ( gGraphicsManager )
-		delete	gGraphicsManager;
-	
-	Effects::DestroyAll();
-	RenderStates::DestroyAll();
-	InputLayouts::DestroyAll();
-	gTexMgr.~TextureManager();
-
 	if ( gGameObjects.size() > 0)
 	{
 		for each( GameObject* GO in gGameObjects)
 			delete GO;
 		gGameObjects.clear();
 	}
-
+	
+	if ( gLevel )
+		delete	gLevel;
+		
 	return true;
 }
 
 void PlayScreen::Update(float DeltaTime)
-{
+{/*
 	//Updaterar gameobjects
 	vector<ModelInstance*>	updatedInstances;	
 	for each (GameObject *go in gGameObjects)
@@ -201,126 +101,18 @@ void PlayScreen::Update(float DeltaTime)
 		if (go->Update(DeltaTime, gTerrain))
 			updatedInstances.push_back(go->m_ModelInstance);
 	}
-	gGraphicsManager->Update(updatedInstances);
-
+	*/
+	gLevel->Update(DeltaTime);
 	for each (Player *p in gPlayers)
 	{
 		p->Update(DeltaTime);
 	}
 
-	
-	for (int i = 0; i < (int)gPointLights.size(); ++i)
-	{
-		PointLight *pLight = gPointLights[i];
-
-		XMFLOAT3 rp = rotpos[i];
-		float a		= angle[i];
-
-
-		XMVECTOR pos  = XMLoadFloat3(&pLight->Position);
-		//XMVECTOR move = XMLoadFloat3(&XMFLOAT3(0,0,0.1f));
-
-		
-		XMMATRIX transl1 = XMMatrixTranslation(-rp.x, -2000.0f, -rp.z);
-		XMMATRIX transl2 = XMMatrixTranslation(rp.x, 2000.0f, rp.z);	
-		XMMATRIX rot	 = XMMatrixRotationY(DeltaTime * XMConvertToRadians(a));
-
-		XMMATRIX transf = transl1 * rot * transl2;
-
-
-		pos = XMVector3TransformCoord(pos, transf);
-
-		//pos = pos + move;
-
-		XMStoreFloat3(&pLight->Position, pos);
-
-		//pLight->Position.z -= 0.1f;
-		pLight->Position.y = gTerrain->GetHeight(pLight->Position.x, pLight->Position.z) + 50;
-	}
-
-	for (int i = 0; i < (int)gSpotLights.size(); ++i)
-	{
-		SpotLight *sLight = gSpotLights[i];
-
-		float a		= anglespot[i];
-
-		XMVECTOR dir  = XMLoadFloat3(&sLight->Direction);
-
-		//XMMATRIX transl1 = XMMatrixTranslation(-sLight->Position.x, -2000.0f, -sLight->Position.z);
-		//XMMATRIX transl2 = XMMatrixTranslation(sLight->Position.x, 2000.0f, sLight->Position.z);
-		XMMATRIX rot	 = XMMatrixRotationY(DeltaTime * XMConvertToRadians(a));
-
-		dir = XMVector3TransformCoord(dir, rot);
-
-		XMStoreFloat3(&sLight->Direction, dir);
-		//XMMATRIX transf = transl1 * rot * transl2;
-
-		sLight->Position.y = gTerrain->GetHeight(sLight->Position.x, sLight->Position.z) + 200;
-	}
-
-	Controller* controller = InputManager::GetInstance()->GetController(0);
-	if (controller->GetButtonState(Xbox_Button::B) == InputState::DOWN)
-	//if (GetAsyncKeyState('L'))
-	{
-		if (!gGameObjects.empty())
-		{
-			ModelInstance *instance = gGameObjects.back()->m_ModelInstance;
-			gGraphicsManager->RemoveModelInstance(instance);
-			gGameObjects.pop_back();
-		}
-	}
-	if (controller->GetButtonState(Xbox_Button::A) == InputState::DOWN)
-		AddInstance(MathHelper::RandF(0, 4000), 12, MathHelper::RandF(0, 4000), gModel);
-
-	if (controller->GetButtonState(Xbox_Button::Y) == InputState::DOWN)
-	{
-		if (!gPointLights.empty())
-		{
-			gPointLights.pop_back();
-			rotpos.pop_back();
-			angle.pop_back();
-		}
-	}
-
-	if (controller->GetButtonState(Xbox_Button::X) == InputState::DOWN)
-		AddPointLight();
-
-
-	if (controller->GetButtonState(Xbox_Button::LEFT_BUMPER) == InputState::DOWN)
-	{
-		if (!gSpotLights.empty())
-		{
-			gSpotLights.pop_back();
-			anglespot.pop_back();
-		}
-	}
-
-	if (controller->GetButtonState(Xbox_Button::RIGHT_BUMPER) == InputState::DOWN)
-		AddSpotLight();
-
-
-	if (controller->GetButtonState(Xbox_Button::D_DOWN) == InputState::PRESSED)
-	{
-		if (!gDirLights.empty())
-		{
-			gDirLights.pop_back();
-		}
-	}
-
-	if (controller->GetButtonState(Xbox_Button::D_UP) == InputState::PRESSED)
-			AddDirectionalLight();
-		
-
-	
-	if (controller->GetButtonState(Xbox_Button::START) == InputState::PRESSED)
-		gGotoNextFrame = MAIN_MENU_SCREEN;
-		
-	
 }
 
 void PlayScreen::Render()
 {
-	gGraphicsManager->Render(gPlayers);
+	gLevel->Render(gPlayers);
 }
 
 ScreenType PlayScreen::GetScreenType()
