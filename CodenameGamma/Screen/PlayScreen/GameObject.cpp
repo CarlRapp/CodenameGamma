@@ -6,6 +6,7 @@ GameObject::GameObject(void)
 	m_Position = XMFLOAT3(0,0,0); 
 	m_Velocity = XMFLOAT3(0,0,0); 
 	m_ModelInstance = NULL;
+	m_QuadTreeType = NULL;
 }
 
 
@@ -82,4 +83,15 @@ bool GameObject::Update(float deltaTime, Terrain* terrain)
 		return true;
 	}
 	return false;
+
+	m_QuadTreeType->Update();
+}
+
+void GameObject::SetModelInstance(ModelInstance *modelInstance)
+{ 
+	SAFE_DELETE(m_ModelInstance);
+	SAFE_DELETE(m_QuadTreeType);
+
+	m_ModelInstance = modelInstance; 		
+	m_QuadTreeType = new QuadTreeTypeModel(m_ModelInstance);
 }

@@ -4,6 +4,7 @@
 
 #include "..\..\..\stdafx.h"
 #include "Model.h"
+#include "..\GameObject.h"
 
 using namespace std;
 using namespace DirectX;
@@ -14,7 +15,7 @@ public:
 
 	struct Node
 	{
-		vector<ModelInstance*> m_Content;
+		vector<GameObject*> m_Content;
 
 		Node			*m_Parent,	
 						*m_NW, *m_NE, 
@@ -27,7 +28,7 @@ public:
 			m_Parent		= parent;
 			m_BoundingBox	= boundingBox;
 
-			m_Content		= vector<ModelInstance*>();
+			m_Content		= vector<GameObject*>();
 
 			m_NW			= NULL;
 			m_NE			= NULL;
@@ -47,11 +48,11 @@ private:
 	Node *m_RootNode;
 	BoundingBox m_WorldBounds;
 
-	void Insert(ModelInstance* instance, BoundingSphere& boundingSphere, Node* node, ContainmentType containmentType);
-	void Delete(ModelInstance* instance, Node* node);
+	void Insert(GameObject* instance, BoundingSphere& boundingSphere, Node* node, ContainmentType containmentType);
+	void Delete(GameObject* instance, Node* node);
 
 	void CreateChildNodes(Node* node);
-	void InsertToChildren(ModelInstance* instance, BoundingSphere& boundingSphere, Node* node, ContainmentType containmentType);
+	void InsertToChildren(GameObject* instance, BoundingSphere& boundingSphere, Node* node, ContainmentType containmentType);
 
 	void Clean(Node* node);
 
@@ -59,31 +60,47 @@ private:
 
 	bool Empty(Node* node);
 
-	bool NeedUpdate(ModelInstance* instance);
+	bool NeedUpdate(GameObject* instance);
 
-	void GetIntersectingInstances(BoundingFrustum frusum, vector<ModelInstance*> &instances, Node* node, ContainmentType containmentType);
-	void GetInstances(vector<ModelInstance*> &instances, Node* node);
+	void GetIntersectingInstances(BoundingFrustum frusum, vector<GameObject*> &instances, Node* node, ContainmentType containmentType);
+	void GetInstances(vector<GameObject*> &instances, Node* node);
+
+	BoundingSphere GetCurrentBoundingSphere(GameObject* go)
+	{
+		return go->GetQuadTreeType()->GetQuadTreeData().Current;
+	}
+
+	BoundingSphere GetOldBoundingSphere(GameObject* go)
+	{
+		return go->GetQuadTreeType()->GetQuadTreeData().Old;
+	}
 
 public:
 	QuadTree(BoundingBox world, float minNodeVolume);
 	~QuadTree(void);
 
-	void Insert(ModelInstance* instance) { 
-		Insert(instance, instance->GetBoundingSphere(), m_RootNode, ContainmentType::INTERSECTS); 
+	void Insert(GameObject* instance) 
+	{ 
+		Insert(instance, instance->GetQuadTreeType()->GetQuadTreeData().Current, m_RootNode, ContainmentType::INTERSECTS); 
 	}
-	void Delete(ModelInstance* instance) { if (instance) Delete(instance, m_RootNode); }
-	void Update(ModelInstance* instance) 
+
+	void Delete(GameObject* instance) 
+	{ 
+		if (instance) Delete(instance, m_RootNode); 
+	}
+
+	void Update(GameObject* instance) 
 	{ 
 		if (instance)
 			if (NeedUpdate(instance)) 
 			{
 				Delete(instance); 
 				Insert(instance); 
-				instance->m_OldBoundingSphere = instance->GetBoundingSphere();
+				instance->GetQuadTreeType()->SetOldSphere(instance->GetQuadTreeType()->GetQuadTreeData().Current);
 			}
 	}
 
-	void GetIntersectingInstances(BoundingFrustum frusum, vector<ModelInstance*> &instances) 
+	void GetIntersectingInstances(BoundingFrustum frusum, vector<GameObject*> &instances) 
 	{ 
 		GetIntersectingInstances(frusum, instances, m_RootNode, ContainmentType::INTERSECTS); 
 	}

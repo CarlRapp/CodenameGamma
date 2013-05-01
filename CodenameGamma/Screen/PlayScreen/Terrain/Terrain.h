@@ -78,5 +78,7 @@ public:
 	ID3D11ShaderResourceView* GetGroundNormal(int index) { return m_NormalTextures[index]; }
 
 	XMMATRIX GetTexTransform() { return XMLoadFloat4x4(&m_TexTransform); }
+
+	XMFLOAT2 GetDimensions() { return XMFLOAT2(m_Width * m_QuadWidth, m_Height * m_QuadHeight); }
 };
 #endif
