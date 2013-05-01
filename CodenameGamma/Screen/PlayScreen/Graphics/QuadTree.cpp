@@ -71,7 +71,7 @@ void QuadTree::Insert(GameObject* instance, BoundingSphere& boundingSphere, Node
 	if (node->m_NW == NULL)
 	{
 		node->m_Content.push_back(instance);
-		instance->GetQuadTreeType()->GetQuadTreeData().SetNode(node);
+		instance->GetQuadTreeType()->SetNode(node);
 		//instance->GetQuadTreeType()->GetQuadTreeData().Node = node;
 
 		//För många instanser i noden. Skapar barn till noden som vi skickar ner instanserna till.
@@ -121,7 +121,7 @@ void QuadTree::Delete(GameObject* instance, Node* node)
 			node->m_Content = instances;
 
 			for each (GameObject* it in instances)
-				it->GetQuadTreeType()->GetQuadTreeData().SetNode(node);
+				it->GetQuadTreeType()->SetNode(node);
 				//it->GetQuadTreeType()->GetQuadTreeData().Node = node;
 		
 			delete node->m_NW;
@@ -285,7 +285,7 @@ bool QuadTree::Empty(Node* node)
 
 bool QuadTree::NeedUpdate(GameObject* instance)
 {		
-	Node* node = (Node*)instance->GetQuadTreeType()->GetQuadTreeData().Node;
+	Node* node = (Node*)instance->GetQuadTreeType()->GetNode();
 	if (node->m_BoundingBox.Contains(GetOldBoundingSphere(instance)) == ContainmentType::CONTAINS)
 		if (node->m_BoundingBox.Contains(GetCurrentBoundingSphere(instance)) == ContainmentType::CONTAINS)
 			return false;
