@@ -80,11 +80,10 @@ bool GameObject::Update(float deltaTime, Terrain* terrain)
 
 		m_ModelInstance->m_World._42 = terrain->GetHeight(m_ModelInstance->m_World._41, m_ModelInstance->m_World._43) + heigth;
 		m_Position.y = m_ModelInstance->m_World._42;
+		m_QuadTreeType->Update();
 		return true;
 	}
 	return false;
-
-	m_QuadTreeType->Update();
 }
 
 void GameObject::SetModelInstance(ModelInstance *modelInstance)

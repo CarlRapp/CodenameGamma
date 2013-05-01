@@ -182,20 +182,28 @@ void Level::AddInstance(float x, float y, float z, Model *model)
 	
 	float speed = 80;
 
-	if (MathHelper::RandF(0, 1) > 1.0f)
+	if (MathHelper::RandF(0, 1) > 0.0f)
 		go->m_Velocity = DirectX::XMFLOAT3(MathHelper::RandF(-speed, speed), 0, MathHelper::RandF(-speed, speed));
 
 	AddGameObject(go);
 }
 
-
-
-
-
-
 void Level::Update(float DeltaTime)
 {
+	//Updaterar gameobjects
+	vector<GameObject*>	updatedGO;	
+	for each (GameObject *go in gGameObjects)
+	{
+		//go->Update(deltaTime);
+		if (go->Update(DeltaTime, gTerrain))
+			updatedGO.push_back(go);
+	}
 
+	for each (GameObject *go in updatedGO)	
+		gQuadTree->Update(go);
+
+	//Updaterar ljus
+	//Updaterar pointlights
 	for (int i = 0; i < (int)gPointLights.size(); ++i)
 	{
 		PointLight *pLight = gPointLights[i];
@@ -225,6 +233,7 @@ void Level::Update(float DeltaTime)
 		pLight->Position.y = gTerrain->GetHeight(pLight->Position.x, pLight->Position.z) + 50;
 	}
 
+	//Updaterar spotlights
 	for (int i = 0; i < (int)gSpotLights.size(); ++i)
 	{
 		SpotLight *sLight = gSpotLights[i];
@@ -244,13 +253,6 @@ void Level::Update(float DeltaTime)
 
 		sLight->Position.y = gTerrain->GetHeight(sLight->Position.x, sLight->Position.z) + 200;
 	}
-
-	vector<GameObject*>	changedGO;
-	//skapa en lista med gameobjekt som har ändrat storlek/flyttat på sig (ändrat boundingsphere)
-	for each (GameObject *go in changedGO)	
-		gQuadTree->Update(go);
-	
-
 }
 void Level::Render()
 {
