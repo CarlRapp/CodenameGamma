@@ -21,7 +21,7 @@ GraphicsManager::GraphicsManager(ID3D11Device *device, ID3D11DeviceContext *devi
 
 	BoundingBox world = BoundingBox(XMFLOAT3(2000,0,2000), XMFLOAT3(2000, 2000, 2000));
 
-	m_InstanceTree = new QuadTree(world, 8);
+	g_QuadTree = NULL;
 
 
 	InitFullScreenQuad();
@@ -50,8 +50,8 @@ GraphicsManager::~GraphicsManager(void)
 		delete	m_SpotLightBuffer;
 
 	//	Remove the quad tree
-	if ( m_InstanceTree )
-		m_InstanceTree->~QuadTree();
+	if ( g_QuadTree )
+		g_QuadTree->~QuadTree();
 
 	if ( m_FullSceenQuad )
 		SAFE_RELEASE( m_FullSceenQuad );
@@ -102,19 +102,6 @@ GraphicsManager::~GraphicsManager(void)
 
 		m_SpotLights->clear();
 		m_SpotLights	=	0;
-	}
-
-	if ( m_modelInstances.size() > 0)
-	{
-		for ( int i = 0; i < m_modelInstances.size(); ++i )
-		{
-			if ( m_modelInstances.at(i)->m_Model )
-			{
-				m_modelInstances.at(i)->m_Model->~Model();
-			}
-		}
-
-		m_modelInstances.clear();
 	}
 }
 
@@ -475,43 +462,54 @@ void GraphicsManager::FillGBuffer(vector<Player*>& players)
 	
 	for (int i = 0; i < (int)players.size(); ++i)
 	{
-		RenderTerrain(players[i]);
+		if (m_Terrain != NULL)
+			RenderTerrain(players[i]);
 
-		Camera* camera = players[i]->GetCamera();
-		m_DeviceContext->RSSetViewports( 1, &camera->GetViewPort() );
-		XMMATRIX view;
-		XMMATRIX proj;
-
-		view = XMLoadFloat4x4(&camera->GetView());
-		proj = XMLoadFloat4x4(&camera->GetProjection());
-
-		ID3DX11EffectTechnique* tech;
-		D3DX11_TECHNIQUE_DESC techDesc;
-	
-		m_DeviceContext->IASetInputLayout(InputLayouts::PosNormalTexTan);
-		tech = Effects::ObjectDeferredFX->TexTech;
-		//tech = Effects::ObjectDeferredFX->TexNormalTech;
-		tech->GetDesc( &techDesc );
-
-	
-		vector<ModelInstance*> instances;
-		BoundingFrustum frustum = camera->GetFrustum();	
-		m_InstanceTree->GetIntersectingInstances(frustum, instances);
-		sort( instances.begin(), instances.end() );
-		instances.erase( unique( instances.begin(), instances.end() ), instances.end() );
-
-		cout << instances.size() << "\t";
-
-		for(UINT p = 0; p < techDesc.Passes; ++p)
-		{
-			//for each (ModelInstance* instance in m_modelInstances)
-			for each (ModelInstance* instance in instances)
-				RenderModel(*instance, view, proj, tech, p);
-		}
+		if (g_QuadTree)
+			RenderModels(players[i]);
 	}
 	cout << endl;
 
 	m_DeviceContext->OMSetRenderTargets( 0, 0, 0 );
+}
+
+void GraphicsManager::RenderModels(Player* player)
+{
+	Camera* camera = player->GetCamera();
+	m_DeviceContext->RSSetViewports( 1, &camera->GetViewPort() );
+	XMMATRIX view;
+	XMMATRIX proj;
+
+	view = XMLoadFloat4x4(&camera->GetView());
+	proj = XMLoadFloat4x4(&camera->GetProjection());
+
+	ID3DX11EffectTechnique* tech;
+	D3DX11_TECHNIQUE_DESC techDesc;
+	
+	m_DeviceContext->IASetInputLayout(InputLayouts::PosNormalTexTan);
+	tech = Effects::ObjectDeferredFX->TexTech;
+	//tech = Effects::ObjectDeferredFX->TexNormalTech;
+	tech->GetDesc( &techDesc );
+
+	
+	vector<GameObject*> instances;
+	BoundingFrustum frustum = camera->GetFrustum();	
+	g_QuadTree->GetIntersectingInstances(frustum, instances);
+	sort( instances.begin(), instances.end() );
+	instances.erase( unique( instances.begin(), instances.end() ), instances.end() );
+
+	cout << instances.size() << "\t";
+
+	for(UINT p = 0; p < techDesc.Passes; ++p)
+	{
+		//for each (ModelInstance* instance in m_modelInstances)
+		for each (GameObject* instance in instances)
+		{
+			ModelInstance* modelInstance = instance->GetModelInstance();
+			if (modelInstance != NULL)
+				RenderModel(*modelInstance, view, proj, tech, p);
+		}
+	}
 }
 
 void GraphicsManager::RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMATRIX proj, ID3DX11EffectTechnique* tech, UINT pass)

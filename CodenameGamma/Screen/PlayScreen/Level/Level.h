@@ -9,6 +9,8 @@
 #include "../Graphics/TextureManager.h"
 #include "../Graphics/GraphicsManager.h"
 #include "../Terrain/Terrain.h"
+#include "../GameObject.h"
+#include "../Graphics/QuadTree.h"
 #include "LevelParser.h"
 
 struct SystemData
@@ -25,6 +27,9 @@ using namespace std;
 class Level
 {
 private:
+
+	SystemData			gLData;
+
 	TextureManager		gTextureManager;
 
 	GraphicsManager*	gGraphicsManager;
@@ -40,9 +45,31 @@ private:
 	vector<float>	 anglespot;
 
 
+	//GameObjects
+	vector<GameObject*>		gGameObjects;
+	QuadTree				*gQuadTree;
+
+
 	void	AddDirectionalLight(DirectionalLight* Instance);
 	void	AddPointLight(PointLight* Instance);
 	void	AddSpotLight(SpotLight* Instance);
+	void	AddInstance(float x, float y, float z, Model *model);
+
+	void AddGameObject(GameObject* go) 
+	{ 
+		gGameObjects.push_back(go); 
+		sort( gGameObjects.begin(), gGameObjects.end() );
+		gQuadTree->Insert(go); 
+	}
+
+	void RemoveGameObject(GameObject* go) 
+	{ 
+		if (!gGameObjects.empty()) 
+		{ 
+			gQuadTree->Delete(go); 
+			gGameObjects.erase(remove(gGameObjects.begin(), gGameObjects.end(), go), gGameObjects.end());
+		} 
+	}
 
 public:
 	Level(void);

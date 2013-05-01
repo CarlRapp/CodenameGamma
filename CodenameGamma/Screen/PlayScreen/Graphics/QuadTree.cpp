@@ -17,7 +17,7 @@ QuadTree::~QuadTree(void)
 }
 
 
-void QuadTree::GetIntersectingInstances(BoundingFrustum frustum, vector<ModelInstance*> &instances, Node* node, ContainmentType containmentType)
+void QuadTree::GetIntersectingInstances(BoundingFrustum frustum, vector<GameObject*> &instances, Node* node, ContainmentType containmentType)
 {	
 
 	switch (containmentType)
@@ -28,7 +28,7 @@ void QuadTree::GetIntersectingInstances(BoundingFrustum frustum, vector<ModelIns
 		if (node->m_NW == NULL)
 		{
 			//Lägger till instancerna i listan.
-			for each (ModelInstance *instance in node->m_Content)			
+			for each (GameObject *instance in node->m_Content)			
 				instances.push_back(instance);			
 		}
 		else
@@ -42,10 +42,10 @@ void QuadTree::GetIntersectingInstances(BoundingFrustum frustum, vector<ModelIns
 	case ContainmentType::INTERSECTS:
 		if (node->m_NW == NULL)
 		{
-			for each (ModelInstance *instance in node->m_Content)
+			for each (GameObject *instance in node->m_Content)
 			{
 				//Om instansen kolliderar med furstum så lägger vi till den i listan.
-				if (frustum.Intersects(instance->GetBoundingSphere()))
+				if (frustum.Intersects(GetCurrentBoundingSphere(instance)))
 					instances.push_back(instance);
 			}		
 		}
@@ -62,7 +62,7 @@ void QuadTree::GetIntersectingInstances(BoundingFrustum frustum, vector<ModelIns
 }
 
 
-void QuadTree::Insert(ModelInstance* instance, BoundingSphere& boundingSphere, Node* node, ContainmentType containmentType)
+void QuadTree::Insert(GameObject* instance, BoundingSphere& boundingSphere, Node* node, ContainmentType containmentType)
 {
 	if (containmentType == ContainmentType::DISJOINT)
 		return;
@@ -71,7 +71,8 @@ void QuadTree::Insert(ModelInstance* instance, BoundingSphere& boundingSphere, N
 	if (node->m_NW == NULL)
 	{
 		node->m_Content.push_back(instance);
-		instance->m_Node = node;
+		instance->GetQuadTreeType()->GetQuadTreeData().SetNode(node);
+		//instance->GetQuadTreeType()->GetQuadTreeData().Node = node;
 
 		//För många instanser i noden. Skapar barn till noden som vi skickar ner instanserna till.
 		float volume = 4 * node->m_BoundingBox.Extents.x * node->m_BoundingBox.Extents.y *node->m_BoundingBox.Extents.z;
@@ -81,8 +82,8 @@ void QuadTree::Insert(ModelInstance* instance, BoundingSphere& boundingSphere, N
 
 			while (!node->m_Content.empty())
 			{
-				ModelInstance* temp = node->m_Content.back();
-				InsertToChildren(temp, temp->GetBoundingSphere(), node, containmentType);
+				GameObject* temp = node->m_Content.back();
+				InsertToChildren(temp, GetCurrentBoundingSphere(temp), node, containmentType);
 				node->m_Content.pop_back();
 			}			
 		}
@@ -95,9 +96,9 @@ void QuadTree::Insert(ModelInstance* instance, BoundingSphere& boundingSphere, N
 	}
 }
 
-void QuadTree::Delete(ModelInstance* instance, Node* node)
+void QuadTree::Delete(GameObject* instance, Node* node)
 {
-	if (!node->m_BoundingBox.Intersects(instance->m_OldBoundingSphere))
+	if (!node->m_BoundingBox.Intersects(GetOldBoundingSphere(instance)))
 		return;
 
 	int size = 0;
@@ -109,7 +110,7 @@ void QuadTree::Delete(ModelInstance* instance, Node* node)
 		Delete(instance, node->m_SW);
 		Delete(instance, node->m_SE);
 
-		vector<ModelInstance*> instances = vector<ModelInstance*>();
+		vector<GameObject*> instances = vector<GameObject*>();
 		GetInstances(instances, node);
 		sort( instances.begin(), instances.end() );
 		instances.erase( unique( instances.begin(), instances.end() ), instances.end() );
@@ -119,8 +120,9 @@ void QuadTree::Delete(ModelInstance* instance, Node* node)
 		{
 			node->m_Content = instances;
 
-			for each (ModelInstance* it in instances)
-				it->m_Node = node;
+			for each (GameObject* it in instances)
+				it->GetQuadTreeType()->GetQuadTreeData().SetNode(node);
+				//it->GetQuadTreeType()->GetQuadTreeData().Node = node;
 		
 			delete node->m_NW;
 			delete node->m_NE;
@@ -181,7 +183,7 @@ void QuadTree::CreateChildNodes(Node* node)
 	node->m_SE = new Node(node, SE);
 }
 
-void QuadTree::InsertToChildren(ModelInstance* instance, BoundingSphere& boundingSphere, Node* node, ContainmentType containmentType)
+void QuadTree::InsertToChildren(GameObject* instance, BoundingSphere& boundingSphere, Node* node, ContainmentType containmentType)
 {
 	if (containmentType == ContainmentType::CONTAINS)
 	{
@@ -214,7 +216,7 @@ void QuadTree::Clean(Node* node)
 
 	else if (size < maxNodeSize && node->m_Content.size() != size)
 	{
-		vector<ModelInstance*> instances = vector<ModelInstance*>();
+		vector<GameObject*> instances = vector<GameObject*>();
 		GetInstances(instances, node);
 		sort( instances.begin(), instances.end() );
 		instances.erase( unique( instances.begin(), instances.end() ), instances.end() );
@@ -235,11 +237,11 @@ void QuadTree::Clean(Node* node)
 	}
 }
 
-void QuadTree::GetInstances(vector<ModelInstance*> &instances, Node* node)
+void QuadTree::GetInstances(vector<GameObject*> &instances, Node* node)
 {
 	if (!node)
 		return;
-	for each (ModelInstance *instance in node->m_Content)
+	for each (GameObject *instance in node->m_Content)
 		instances.push_back(instance);
 
 	GetInstances(instances, node->m_NW);
@@ -281,11 +283,11 @@ bool QuadTree::Empty(Node* node)
 	
 }
 
-bool QuadTree::NeedUpdate(ModelInstance* instance)
+bool QuadTree::NeedUpdate(GameObject* instance)
 {		
-	Node* node = (Node*)instance->m_Node;	
-	if (node->m_BoundingBox.Contains(instance->m_OldBoundingSphere) == ContainmentType::CONTAINS)
-		if (node->m_BoundingBox.Contains(instance->GetBoundingSphere()) == ContainmentType::CONTAINS)
+	Node* node = (Node*)instance->GetQuadTreeType()->GetQuadTreeData().Node;
+	if (node->m_BoundingBox.Contains(GetOldBoundingSphere(instance)) == ContainmentType::CONTAINS)
+		if (node->m_BoundingBox.Contains(GetCurrentBoundingSphere(instance)) == ContainmentType::CONTAINS)
 			return false;
 	return true;
 
