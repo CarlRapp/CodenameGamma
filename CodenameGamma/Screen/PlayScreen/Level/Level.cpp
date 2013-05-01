@@ -4,6 +4,7 @@
 Level::Level(){}
 Level::Level(SystemData LData)
 {
+	gLData = LData;
 	Effects::InitAll(LData.DEVICE);
 	RenderStates::InitAll(LData.DEVICE);
 	InputLayouts::InitAll(LData.DEVICE);
@@ -23,6 +24,8 @@ Level::Level(SystemData LData)
 		AddPointLight(0);
 		AddSpotLight(0);
 	}
+
+	gQuadTree = NULL;
 }
 
 Level::~Level()
@@ -50,6 +53,24 @@ void Level::LoadLevel(string Levelname)
 
 	if ( LData.IsLoaded() )
 		gTerrain->LoadTerrain(LData);
+
+	SAFE_DELETE(gQuadTree);
+	XMFLOAT2 halfWorldSize = gTerrain->GetDimensions();
+	halfWorldSize.x /= 2.0f;
+	halfWorldSize.y /= 2.0f;
+	BoundingBox world = BoundingBox(XMFLOAT3(halfWorldSize.x, 0, halfWorldSize.y), XMFLOAT3(halfWorldSize.x, 2000, halfWorldSize.y));
+	gQuadTree = new QuadTree(world, 8);
+	gGraphicsManager->SetQuadTree(gQuadTree);
+	Model *model = new Model(gLData.DEVICE, gTextureManager, "DATA\\Models\\obj\\pacman.obj", "DATA/Models/Textures/");
+
+	for (int i = 0; i < 10; ++i)
+	{
+		float x = MathHelper::RandF(0, 4000);
+		float y = 12;
+		float z = MathHelper::RandF(0, 4000);
+
+		AddInstance(x, y, z, model);
+	}
 }
 
 
@@ -133,7 +154,39 @@ void Level::AddSpotLight(SpotLight* Instance)
 	//angle.push_back(MathHelper::RandF(-45.0f, 45.0f));
 }
 
+void Level::AddInstance(float x, float y, float z, Model *model)
+{
+	XMMATRIX scale, rot, trans, world;
+	scale	= XMMatrixScaling(10.0f, 10.0f, 10.0f);
 
+	y += gTerrain->GetHeight(x, z);
+
+	rot		= XMMatrixRotationX(0);
+	//rot		= XMMatrixRotationX(-PI/2);
+	trans	= XMMatrixTranslation(x, y, z);
+
+	ModelInstance *instance = new ModelInstance();
+	instance->m_Model = model;	
+	//instance->m_World = scale * rot * trans;
+	world = XMMatrixMultiply(scale, rot);
+	world = XMMatrixMultiply(world, trans);
+	XMStoreFloat4x4(&instance->m_World, world);
+	instance->m_OldBoundingSphere = instance->GetBoundingSphere();
+
+	
+
+
+	GameObject *go = new GameObject();
+	go->m_Position = DirectX::XMFLOAT3(x, y, z);
+	go->SetModelInstance(instance);
+	
+	float speed = 80;
+
+	if (MathHelper::RandF(0, 1) > 1.0f)
+		go->m_Velocity = DirectX::XMFLOAT3(MathHelper::RandF(-speed, speed), 0, MathHelper::RandF(-speed, speed));
+
+	AddGameObject(go);
+}
 
 
 
@@ -191,6 +244,12 @@ void Level::Update(float DeltaTime)
 
 		sLight->Position.y = gTerrain->GetHeight(sLight->Position.x, sLight->Position.z) + 200;
 	}
+
+	vector<GameObject*>	changedGO;
+	//skapa en lista med gameobjekt som har ändrat storlek/flyttat på sig (ändrat boundingsphere)
+	for each (GameObject *go in changedGO)	
+		gQuadTree->Update(go);
+	
 
 }
 void Level::Render()

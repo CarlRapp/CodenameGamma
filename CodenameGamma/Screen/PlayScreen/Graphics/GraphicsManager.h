@@ -9,6 +9,7 @@
 #include "..\Player.h"
 #include "..\Terrain\Terrain.h"
 #include "Buffer.h"
+#include "..\GameObject.h"
 
 using namespace std;
 using namespace DirectX;
@@ -32,9 +33,7 @@ class GraphicsManager
 
 	ID3D11RenderTargetView* GBuffer[2];
 
-	QuadTree				*m_InstanceTree;
-	vector<ModelInstance*>	m_modelInstances;
-
+	QuadTree				*g_QuadTree;
 	Terrain					*m_Terrain;
 
 	vector<DirectionalLight*>			*m_DirLights;
@@ -61,24 +60,8 @@ public:
 	GraphicsManager(ID3D11Device *device, ID3D11DeviceContext *deviceContext, ID3D11RenderTargetView *renderTargetView, int width, int height);
 	~GraphicsManager(void);
 
-	void AddModelInstance(ModelInstance* instance) 
-	{ 
-		m_modelInstances.push_back(instance); 
-		sort( m_modelInstances.begin(), m_modelInstances.end() );
-		m_InstanceTree->Insert(instance); 
-	}
-	void RemoveModelInstance(ModelInstance* instance) 
-	{ 
-		if (!m_modelInstances.empty()) 
-		{ 
-			m_InstanceTree->Delete(instance); 
-			//ModelInstance* instance = m_modelInstances.back();
-			m_modelInstances.erase(remove(m_modelInstances.begin(), m_modelInstances.end(), instance), m_modelInstances.end());
-			//return instance;
-		} 
-	}
-
 	void SetTerrain(Terrain *terrain) { m_Terrain = terrain; }
+	void SetQuadTree(QuadTree *quadTree) { g_QuadTree = quadTree; }
 	void SetLights(	vector<DirectionalLight*>			*DirLights,
 					vector<PointLight*>					*PointLights,
 					vector<SpotLight*>					*SpotLights)
@@ -88,23 +71,8 @@ public:
 		m_SpotLights	= SpotLights;
 	}
 
-	void Update(vector<ModelInstance*>	&modelInstances)
-	{
-		/*
-		vector<ModelInstance*> updatedInstances(modelInstances.size());
-		vector<ModelInstance*>::iterator it;
-
-		sort( modelInstances.begin(), modelInstances.end() );
-		//sort( m_modelInstances.begin(), m_modelInstances.end() );
-		it = set_intersection(modelInstances.begin(), modelInstances.end(), m_modelInstances.begin(), m_modelInstances.end(), updatedInstances.begin());
-		updatedInstances.resize(it - updatedInstances.begin());
-		*/
-		for each (ModelInstance *instance in modelInstances)
-		{
-			m_InstanceTree->Update(instance);
-		}
-	}
 	void Render(vector<Player*>& players);
+	void RenderModels(Player* player);
 	void RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMATRIX proj, ID3DX11EffectTechnique* tech, UINT pass);
 	void RenderTerrain(Player* player);
 };
