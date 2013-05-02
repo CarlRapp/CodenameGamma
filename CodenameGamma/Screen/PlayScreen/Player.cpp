@@ -17,12 +17,33 @@ Player::Player(int index)
 
 Player::~Player(void)
 {
-	delete m_Camera;
+
 }
 
 void Player::Update(float deltaTime)
 {
 	UpdateCamera(deltaTime);
+	
+	if ( m_GameObject )
+	{
+		XMFLOAT3	newVel	=	XMFLOAT3(0, 0, 0);
+		XMFLOAT3	tPosition	=	m_GameObject->GetFloat3Value(Position);
+
+		XMFLOAT2	rStickDir		=	m_Controller->GetStickDirection( RIGHT );
+
+		if ( m_Controller->GetStickLength( RIGHT ) > 0.3f)
+			m_GameObject->LookAt(XMFLOAT3(tPosition.x - rStickDir.x, 0, tPosition.z - rStickDir.y));
+
+		XMFLOAT2	lStickDir		=	m_Controller->GetStickDirection( LEFT );
+		float		lStickLength	=	m_Controller->GetStickLength( LEFT ) * (80);
+		newVel	=	XMFLOAT3(lStickDir.x * lStickLength, 0, lStickDir.y * lStickLength);
+
+		m_GameObject->SetVelocity(newVel);
+
+		m_Camera->SetPosition(tPosition.x, tPosition.y + 150, tPosition.z);
+		m_Camera->SetLookAt(tPosition);
+	}
+	
 }
 
 void Player::UpdateCamera(float deltaTime)
