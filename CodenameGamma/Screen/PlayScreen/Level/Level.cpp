@@ -1,6 +1,5 @@
 #include "Level.h"
 
-
 Level::Level(){}
 Level::Level(SystemData LData)
 {
@@ -18,14 +17,21 @@ Level::Level(SystemData LData)
 
 
 	AddDirectionalLight(0);
+	AddDirectionalLight(0);
+	AddDirectionalLight(0);
+	AddDirectionalLight(0);
+	AddDirectionalLight(0);
+	AddDirectionalLight(0);
 
-	for( int i = 0; i < 300; ++i)
+	for( int i = 0; i < 30; ++i)
 	{
 		AddPointLight(0);
 		AddSpotLight(0);
 	}
 
 	gQuadTree = NULL;
+
+	gLoadedModels	=	vector<Model*>();
 }
 
 Level::~Level()
@@ -38,6 +44,11 @@ Level::~Level()
 	Effects::DestroyAll();
 	RenderStates::DestroyAll();
 	InputLayouts::DestroyAll();
+
+	for ( int i = 0; i < gLoadedModels.size(); ++i )
+		if ( gLoadedModels.at( i ) )
+			delete gLoadedModels.at( i );
+	gLoadedModels.clear();
 }
 
 void Level::LoadLevel(string Levelname)
@@ -61,7 +72,7 @@ void Level::LoadLevel(string Levelname)
 	BoundingBox world = BoundingBox(XMFLOAT3(halfWorldSize.x, 0, halfWorldSize.y), XMFLOAT3(halfWorldSize.x, 2000, halfWorldSize.y));
 	gQuadTree = new QuadTree(world, 8);
 	gGraphicsManager->SetQuadTree(gQuadTree);
-	Model *model = new Model(gLData.DEVICE, gTextureManager, "DATA\\Models\\obj\\pacman.obj", "DATA/Models/Textures/");
+	Model* model = new Model(gLData.DEVICE, gTextureManager, "DATA\\Models\\obj\\pacman.obj", "DATA/Models/Textures/");
 
 	for (int i = 0; i < 10; ++i)
 	{
@@ -71,6 +82,8 @@ void Level::LoadLevel(string Levelname)
 
 		AddInstance(x, y, z, model);
 	}
+
+	gLoadedModels.push_back( model );
 }
 
 
@@ -254,15 +267,10 @@ void Level::Update(float DeltaTime)
 		sLight->Position.y = gTerrain->GetHeight(sLight->Position.x, sLight->Position.z) + 200;
 	}
 }
-void Level::Render()
+void Level::Render(vector<Camera*>& Cameras)
 {
-	
+	gGraphicsManager->Render(Cameras);
 }
-void Level::Render(vector<Player*>& players)
-{
-	gGraphicsManager->Render(players);
-}
-
 
 
 

@@ -11,9 +11,35 @@ QuadTree::QuadTree(BoundingBox world, float minNodeVolume)
 
 QuadTree::~QuadTree(void)
 {
-	m_WorldBounds	= BoundingBox(XMFLOAT3(2000,0,2000), XMFLOAT3(2000, 2000, 2000));
-	m_RootNode		= new Node(NULL, m_WorldBounds);
-	minNodeVolume	= 1000;
+	//m_WorldBounds	= BoundingBox(XMFLOAT3(2000,0,2000), XMFLOAT3(2000, 2000, 2000));
+	//m_RootNode		= new Node(NULL, m_WorldBounds);
+	//minNodeVolume	= 1000;
+
+	DestroyTree( m_RootNode );
+}
+
+void QuadTree::DestroyTree(Node* Instance)
+{
+	if ( Instance->m_NE )
+		DestroyTree( Instance->m_NE );
+
+	if ( Instance->m_NW )
+		DestroyTree( Instance->m_NW );
+
+	if ( Instance->m_SE )
+		DestroyTree( Instance->m_SE );
+
+	if ( Instance->m_SW )
+		DestroyTree( Instance->m_SW );
+
+	for ( int i = 0; i < Instance->m_Content.size(); ++i )
+		if ( Instance->m_Content.at( i ) )
+		{
+			delete Instance->m_Content.at( i );
+		}
+
+	Instance->m_Content.clear();
+	delete Instance;
 }
 
 
