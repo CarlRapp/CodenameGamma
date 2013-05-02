@@ -49,6 +49,9 @@ private:
 	vector<GameObject*>		gGameObjects;
 	QuadTree				*gQuadTree;
 
+	//	Loaded Models
+	vector<Model*>			gLoadedModels;
+
 
 	void	AddDirectionalLight(DirectionalLight* Instance);
 	void	AddPointLight(PointLight* Instance);
@@ -68,7 +71,9 @@ private:
 		{ 
 			gQuadTree->Delete(go); 
 			gGameObjects.erase(remove(gGameObjects.begin(), gGameObjects.end(), go), gGameObjects.end());
-		} 
+		}
+
+		delete go;
 	}
 
 public:
@@ -79,10 +84,11 @@ public:
 	void	LoadLevel(string Levelname);
 
 	void	Update(float DeltaTime);
-	void	Render();
-	void	Render(vector<Player*>& players);
+	void	Render(vector<Camera*>& Cameras);
 
 	Terrain*	GetTerrain();
+
+	vector<GameObject*>	GetGameObjects() { return gGameObjects; }
 };
 
 #endif
