@@ -146,13 +146,16 @@ float HeigthMap::GetHeight(float x, float z)
 	if (x < 0 || z < 0 ) 
 		return 0;
 
-	float X = x * m_Width;
-	float Z = z * m_Height;
+	int maxWidth  = (m_Width  - 1);
+	int maxHeight = (m_Height - 1);
 
-	if ( X + 1 > m_Width || Z + 1 > m_Height )
+	float X = x * maxWidth;
+	float Z = z * maxHeight;
+
+	if ( X > maxWidth || Z > maxHeight )
 		return 0;
 
-	else if ( X + 1 == m_Width || Z + 1 == m_Height )
+	else if ( X == maxWidth || Z == maxHeight )
 		return m_Map[(int)Z][(int)X];
 
 	//hämtar höjddata för hörnen i den rektangel man står i

@@ -11,13 +11,13 @@ Terrain::Terrain(ID3D11Device *Device, ID3D11DeviceContext *DeviceContext)
 	m_HeigthMap		= 0;
 	m_BlendMap		= 0;
 
-	m_DeviceContext		= DeviceContext;
-	m_Device			= Device;
+	m_DeviceContext	= DeviceContext;
+	m_Device		= Device;
 
 	m_Width			= 0;
 	m_Height		= 0;
-	m_QuadWidth		= 0;
-	m_QuadHeight	= 0;
+	m_ResolutionX	= 0;
+	m_ResolutionY	= 0;
 
 	mat.SpecIntensity = 0.0f;
 	mat.SpecPower = 1;
@@ -64,13 +64,12 @@ Terrain::~Terrain(void)
 
 void Terrain::LoadTerrain(LevelData TData)
 {
+	m_Width			= TData.Width;
+	m_Height		= TData.Height;
 
-	CreateGrid(
-		TData.ResolutionX,
-		TData.ResolutionY, 
-		TData.Width / (TData.ResolutionX - 1), 
-		TData.Height / (TData.ResolutionY - 1)
-	);
+	m_ResolutionX	= TData.ResolutionX;
+	m_ResolutionY	= TData.ResolutionY;
+	CreateGrid();
 
 	for ( int i = 0; i < 4; ++i)
 	{
@@ -78,113 +77,14 @@ void Terrain::LoadTerrain(LevelData TData)
 		LoadTexture(&m_NormalTextures[i], TData.LevelRootPath + "NormalMaps/" + TData.Textures[i].NormalMap);
 	}
 
-	LoadBlendMap(TData.LevelRootPath + TData.BlendMap.Filename, TData.BlendMap.Width, TData.BlendMap.Height);
-	LoadHeightMap(TData.LevelRootPath + TData.HeightMap.Filename, TData.HeightMap.Width, TData.HeightMap.Height);
+	if (TData.BlendMap.Filename != "")
+		LoadBlendMap(TData.LevelRootPath + TData.BlendMap.Filename, TData.BlendMap.Width, TData.BlendMap.Height);
 
-	float	scaleX = (float) (m_Width * m_QuadWidth) / TData.TextureX;
-	float	scaleY = (float) (m_Height * m_QuadHeight) / TData.TextureY;
-	XMStoreFloat4x4(&m_TexTransform, XMMatrixScaling(scaleX, scaleY, 1));
-}
+	if (TData.HeightMap.Filename != "")
+		LoadHeightMap(TData.LevelRootPath + TData.HeightMap.Filename, TData.HeightMap.Width, TData.HeightMap.Height);
 
-void Terrain::LoadMap(std::string map)
-{
-	std::string config		= map + "/map.cfg";
-	std::string textruePath = map + "\\Textures\\";
-	std::string normalPath	= map + "\\NormalMaps\\";
-
-
-	std::ifstream file;
-	file.open(config);
-
-	std::string str;
-
-	float width, height, resX, resZ;
-
-	file >> str;
-	file >> width;
-	file >>str;
-	file >> height;
-	file >>str;
-	file >> resX;
-	file >>str;
-	file >> resZ;
-
-	CreateGrid(resX, resZ, width / (resX - 1), height / (resZ - 1));
-	
-	while(!file.eof())
-	{
-		str = "";
-		file >> str;
-
-		//Ladda texturer
-		if		(str == "Texture1")		ParseTexture(file, textruePath, 0);
-		else if	(str == "Texture2")		ParseTexture(file, textruePath, 1);
-		else if	(str == "Texture3")		ParseTexture(file, textruePath, 2);
-		else if	(str == "Texture4")		ParseTexture(file, textruePath, 3);
-
-		//Ladda normalmaps
-		else if	(str == "NormalMap1")	ParseNormal(file, normalPath, 0);
-		else if	(str == "NormalMap2")	ParseNormal(file, normalPath, 1);
-		else if	(str == "NormalMap3")	ParseNormal(file, normalPath, 2);
-		else if	(str == "NormalMap4")	ParseNormal(file, normalPath, 3);
-
-		else if(str == "BlendMap")		ParseBlendMap(file, map);
-		else if(str == "HeightMap")		ParseHeightMap(file, map);
-
-		else if(str == "TextureDimensions")	ParseTextureDim(file);
-	}
-	file.close();
-}
-
-void Terrain::ParseTexture(std::ifstream& file, std::string texturePath, int index)
-{
-	std::string filename;
-	file >> filename;
-	LoadTexture(&m_GroundTextures[index], texturePath + filename);
-}
-
-void Terrain::ParseNormal(std::ifstream& file, std::string normalPath, int index)
-{
-	std::string filename;
-	file >> filename;
-	LoadTexture(&m_NormalTextures[index], normalPath + filename);
-}
-
-void Terrain::ParseBlendMap(std::ifstream& file, std::string path)
-{
-	path += "\\";
-	std::string filename;
-	float resX;	
-	float resY;
-	file >> filename;
-	file >> resX;
-	file >> resY;
-
-	LoadBlendMap(path + filename, resX, resY);
-}
-
-void Terrain::ParseHeightMap(std::ifstream& file, std::string path)
-{
-	path += "\\";
-	std::string filename;
-	float resX;	
-	float resY;
-	file >> filename;
-	file >> resX;
-	file >> resY;
-
-	LoadHeightMap(path + filename, resX, resY);
-}
-
-void Terrain::ParseTextureDim(std::ifstream& file)
-{
-	float scaleX, scaleY;
-	file >> scaleX;
-	file >> scaleY;
-
-	scaleX = (float) (m_Width * m_QuadWidth) / scaleX;
-	scaleY = (float) (m_Height * m_QuadHeight) / scaleY;
-
+	float	scaleX = m_Width / TData.TextureX;
+	float	scaleY = m_Height / TData.TextureY;
 	XMStoreFloat4x4(&m_TexTransform, XMMatrixScaling(scaleX, scaleY, 1));
 }
 
@@ -194,27 +94,22 @@ void Terrain::LoadTexture(ID3D11ShaderResourceView** SRV, std::string path)
 		::MessageBox(0, "Failed to create ShaderResourceView (Terrain)", "Error", MB_OK);
 }
 
-void Terrain::CreateGrid(int Width, int Height, float QuadWidth, float QuadHeight)
+void Terrain::CreateGrid()
 {
-	m_Width			= Width;
-	m_Height		= Height;
-	m_QuadWidth		= QuadWidth;
-	m_QuadHeight	= QuadHeight;
+	float QuadWidth  = m_Width  / (float) (m_ResolutionX - 1.0f);
+	float QuadHeight = m_Height / (float) (m_ResolutionX - 1.0f);
 
 	//Vertices.clear();
 
-	float W = (float)Width;
-	float H = (float)Height;
-
-	for (int z = 0; z < Height; ++z)
+	for (int z = 0; z < m_ResolutionY; ++z)
 	{
 		float Z = z * QuadHeight;
-		for (int x = 0; x < Width; ++x)
+		for (int x = 0; x < m_ResolutionX; ++x)
 		{
 			float X = x * QuadWidth;
 
-			float TexX = (float) x / (float) Width;
-			float TexZ = (float) z / (float) Height;
+			float TexX = X / m_Width;
+			float TexZ = Z / m_Height;
 
 			Vertex::Terrain vertex;
 
@@ -231,23 +126,23 @@ void Terrain::CreateGrid(int Width, int Height, float QuadWidth, float QuadHeigh
 	}
 
 	//Indices.clear();
-	UINT indexCount = (m_Width - 1) * (m_Height - 1) * 6;
+	UINT indexCount = (m_ResolutionX - 1) * (m_ResolutionY - 1) * 6;
 	Indices.resize(indexCount);
 
 	//Lägger till triangel för triangel i indexfältet.
 	int k = 0;
-	for (int z = 0; z < m_Height - 1; z++)
-		for (int x = 0; x < m_Width - 1; x++)
+	for (int z = 0; z < m_ResolutionY - 1; z++)
+		for (int x = 0; x < m_ResolutionX - 1; x++)
 		{
 			//Triangel A
-			Indices[k]		= z * m_Width + x;
-			Indices[k+1]	= z * m_Width + x + 1;
-			Indices[k+2]	= (z+1) * m_Width + x;
+			Indices[k]		= z * m_ResolutionX + x;
+			Indices[k+1]	= z * m_ResolutionX + x + 1;
+			Indices[k+2]	= (z+1) * m_ResolutionX + x;
 
 			//Triangel B
-			Indices[k+3]	= z * m_Width + x + 1;
-			Indices[k+4]	= (z+1) * m_Width + x;
-			Indices[k+5]	= (z+1) * m_Width + x + 1;
+			Indices[k+3]	= z * m_ResolutionX + x + 1;
+			Indices[k+4]	= (z+1) * m_ResolutionX + x;
+			Indices[k+5]	= (z+1) * m_ResolutionX + x + 1;
 			k += 6;
 		}	
 
@@ -298,8 +193,8 @@ void Terrain::LoadHeightMap(std::string path, int Width, int Height)
 
 	for (UINT i = 0; i < Vertices.size(); ++i)
 	{
-		float x = Vertices[i].Pos.x / (m_Width * m_QuadWidth);
-		float z = Vertices[i].Pos.z / (m_Height * m_QuadHeight);
+		float x = Vertices[i].Pos.x / m_Width;
+		float z = Vertices[i].Pos.z / m_Height;
 		Vertices[i].Pos.y = m_HeigthMap->GetHeight(x, z);
 	}
 	
@@ -308,7 +203,7 @@ void Terrain::LoadHeightMap(std::string path, int Width, int Height)
 		Vertices[i].Normal = XMFLOAT3(0, 0, 0);
 
 	//Ändra Normalerna:
-	int numTriangles = 2 * (m_Width - 1) * (m_Height - 1);
+	int numTriangles = 2 * (m_ResolutionX - 1) * (m_ResolutionY - 1);
 	for (int i = 0; i < numTriangles; i++)
 	{
 		//Index för vertex per triangel.
@@ -371,8 +266,8 @@ void Terrain::LoadBlendMap(std::string path, int Width, int Height)
 
 	for (UINT i = 0; i < Vertices.size(); ++i)
 	{
-		float x = Vertices[i].Pos.x / (m_Width * m_QuadWidth);
-		float z = Vertices[i].Pos.z / (m_Height * m_QuadHeight);
+		float x = Vertices[i].Pos.x / m_Width;
+		float z = Vertices[i].Pos.z / m_Height;
 		Vertices[i].BlendData = m_BlendMap->GetBlendData(x, z);
 	}
 

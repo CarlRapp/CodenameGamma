@@ -57,16 +57,19 @@ void BlendMap::Load(std::string filename, int Width, int Height)
 //
 XMFLOAT4 BlendMap::GetBlendData(float x, float z)
 {
-	if (x < 0 || x >= 1 ) 
+	if (x < 0 || z < 0 ) 
 		return XMFLOAT4(0,0,0,0);
 
-	float X = x * m_Width;
-	float Z = z * m_Height;
+	int maxWidth  = (m_Width  - 1);
+	int maxHeight = (m_Height - 1);
 
-	if ( X + 1 > m_Width || Z + 1 > m_Height )
+	float X = x * maxWidth;
+	float Z = z * maxHeight;
+
+	if ( X > maxWidth || Z > maxHeight )
 		return XMFLOAT4(0,0,0,0);
 
-	if ( X + 1 == m_Width || Z + 1 == m_Height )
+	if ( X == maxWidth || Z == maxHeight )
 		return m_Map[(int)Z][(int)X];
 
 	//hämtar blenddata för hörnen i den rektangel man står i

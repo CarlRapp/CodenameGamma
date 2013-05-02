@@ -22,11 +22,13 @@ class Terrain
 	ID3D11ShaderResourceView* m_GroundTextures[4];
 	ID3D11ShaderResourceView* m_NormalTextures[4];
 
-	int m_Width;
-	int m_Height;
-	float m_QuadWidth;
-	float m_QuadHeight;
+	float m_Width;
+	float m_Height;
+
+	int m_ResolutionX;
+	int m_ResolutionY;
 	
+
 	std::vector<Vertex::Terrain>	Vertices;
 	std::vector<UINT>				Indices;
 
@@ -37,22 +39,14 @@ private:
 	void SetVertices();
 	void SetIndices();
 
-	void ParseTexture(std::ifstream& file, std::string texturePath, int index);
-	void ParseNormal(std::ifstream& file, std::string normalPath, int index);
-	void ParseBlendMap(std::ifstream& file, std::string path);
-	void ParseHeightMap(std::ifstream& file, std::string path);
-	void ParseTextureDim(std::ifstream& file);
-
 public:
 	Terrain(void);
 	Terrain(ID3D11Device* Device, ID3D11DeviceContext* DeviceContext);
 	~Terrain(void);
 
 	void LoadTerrain(LevelData LData);
-	void LoadMap(std::string map);
 
-
-	void CreateGrid(int Width, int Height, float QuadWidth, float QuadHeight);
+	void CreateGrid();
 	void LoadHeightMap(std::string path, int Width, int Height);
 	void LoadBlendMap(std::string path, int Width, int Height);
 
@@ -64,13 +58,8 @@ public:
 	Material	GetMaterial() { return mat; }
 	float		GetHeight(float x, float z)		
 	{ 
-		if (m_HeigthMap)
-		{
-			float TotalWidth  = m_Width	 * m_QuadWidth;
-			float TotalHeight = m_Height * m_QuadHeight;
-
-			return m_HeigthMap->GetHeight(x / TotalWidth, z / TotalHeight);
-		}
+		if (m_HeigthMap)		
+			return m_HeigthMap->GetHeight(x / m_Width, z / m_Height);		
 		else
 			return 0;
 	}
@@ -79,6 +68,6 @@ public:
 
 	XMMATRIX GetTexTransform() { return XMLoadFloat4x4(&m_TexTransform); }
 
-	XMFLOAT2 GetDimensions() { return XMFLOAT2(m_Width * m_QuadWidth, m_Height * m_QuadHeight); }
+	XMFLOAT2 GetDimensions() { return XMFLOAT2(m_Width, m_Height); }
 };
 #endif
