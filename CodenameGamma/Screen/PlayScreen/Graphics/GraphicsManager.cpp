@@ -665,7 +665,8 @@ void GraphicsManager::RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMA
 	
 	
 	worldView     = XMMatrixMultiply(world, view);
-	worldInvTranspose = MathHelper::InverseTranspose(world);
+	//worldInvTranspose = MathHelper::InverseTranspose(world);
+	worldInvTranspose	=	XMLoadFloat4x4(&instance.m_WorldInverseTranspose);
 	
 	//worldInvTransposeView = worldInvTranspose*view;
 	worldViewProj = XMMatrixMultiply(worldView, proj);
