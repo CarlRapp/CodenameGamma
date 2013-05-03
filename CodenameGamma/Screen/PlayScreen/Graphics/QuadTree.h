@@ -67,6 +67,8 @@ private:
 	void GetIntersectingInstances(BoundingFrustum frusum, vector<GameObject*> &instances, Node* node, ContainmentType containmentType);
 	void GetInstances(vector<GameObject*> &instances, Node* node);
 
+	void GetObjectsCollidingWith(GameObject* go, vector<GameObject*> &GameObjects, Node* node, ContainmentType containmentType);
+
 	BoundingSphere GetCurrentBoundingSphere(GameObject* go)
 	{
 		return go->GetQuadTreeType()->GetQuadTreeData().Current;
@@ -105,6 +107,11 @@ public:
 	void GetIntersectingInstances(BoundingFrustum frusum, vector<GameObject*> &instances) 
 	{ 
 		GetIntersectingInstances(frusum, instances, m_RootNode, ContainmentType::INTERSECTS); 
+	}
+
+	void GetObjectsCollidingWith(GameObject* go, vector<GameObject*> &GameObjects)
+	{
+		return GetObjectsCollidingWith(go, GameObjects, m_RootNode, ContainmentType::INTERSECTS); 
 	}
 };
 
