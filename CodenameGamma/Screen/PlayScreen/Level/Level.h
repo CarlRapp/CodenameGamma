@@ -55,7 +55,7 @@ private:
 
 	void	AddDirectionalLight(DirectionalLight* Instance);
 	void	AddPointLight(PointLight* Instance);
-	void	AddSpotLight(SpotLight* Instance);
+	void	AddSpotLight(bool hasShadow, XMFLOAT2 res);
 	void	AddInstance(float x, float y, float z, Model *model);
 
 	void AddGameObject(GameObject* go) 

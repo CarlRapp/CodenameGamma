@@ -19,10 +19,28 @@ Level::Level(SystemData LData)
 	for(int i = 0; i < 5; i++)
 		AddDirectionalLight(0);
 
-	for( int i = 0; i < 30; ++i)
+	for( int i = 0; i < 4; ++i)
 	{
-		AddPointLight(0);
-		AddSpotLight(0);
+		//AddPointLight(0);
+		AddSpotLight(true, SHADOWMAP_512);
+	}
+
+	for( int i = 0; i < 3; ++i)
+	{
+		//AddPointLight(0);
+		AddSpotLight(true, SHADOWMAP_1024);
+	}
+
+	for( int i = 0; i < 2; ++i)
+	{
+		//AddPointLight(0);
+		AddSpotLight(true, SHADOWMAP_2048);
+	}
+
+	for( int i = 0; i < 1; ++i)
+	{
+		//AddPointLight(0);
+		AddSpotLight(true, SHADOWMAP_4096);
 	}
 
 	gQuadTree = NULL;
@@ -129,29 +147,33 @@ void Level::AddPointLight(PointLight* Instance)
 	rotpos.push_back(XMFLOAT3(Ox, 0.0f, Oz));
 	angle.push_back(MathHelper::RandF(-45.0f, 45.0f));
 }
-void Level::AddSpotLight(SpotLight* Instance)
+void Level::AddSpotLight(bool hasShadow, XMFLOAT2 res)
 {
 	float x = MathHelper::RandF(0.0f, 4000.0f);
 	float z = MathHelper::RandF(0.0f, 4000.0f);
-		
+	/*	
 	float r = MathHelper::RandF(0.0f, 1.0f);
 	float g = MathHelper::RandF(0.0f, 1.0f);
 	float b = MathHelper::RandF(0.0f, 1.0f);
-	/*
-	float r = 1.0f;
-	float g = 1.0f;
-	float b = 1.0f;
 	*/
+	float r = 6.0f;
+	float g = 6.0f;
+	float b = 6.0f;
+	
 
 
 
 	SpotLight *spotLight	= new SpotLight();
 	spotLight->Color		= XMFLOAT4(r, g, b, 0.0f);
-	spotLight->Position		= XMFLOAT3(x, 0, z);
-	spotLight->Direction	= XMFLOAT3(MathHelper::RandF(-1.0f, 1.0f), -1, MathHelper::RandF(-1.0f, 1.0f));
+	spotLight->Position		= XMFLOAT3(x, 1.0f, z);
+
+	spotLight->Direction	= XMFLOAT3(0, 0, 1);
+
 	spotLight->angle		= XMConvertToRadians(30);
 	spotLight->Range		= 500;
 
+	spotLight->HasShadow = hasShadow;
+	spotLight->Resolution = res;
 	gSpotLights.push_back(spotLight);
 
 	anglespot.push_back(MathHelper::RandF(-90.0f, 90.0f));
@@ -195,7 +217,7 @@ void Level::Update(float DeltaTime)
 		if (go->Update(DeltaTime, gTerrain))
 			updatedGO.push_back(go);
 	}
-
+	
 	BoundingSphere As, Bs;
 	for each (GameObject* A in gGameObjects)
 	{
@@ -214,6 +236,7 @@ void Level::Update(float DeltaTime)
 				B->SetState( Dead );
 		}
 	}
+	
 
 	for each (GameObject *go in updatedGO)
 	{
@@ -257,7 +280,7 @@ void Level::Update(float DeltaTime)
 		//pLight->Position.z -= 0.1f;
 		pLight->Position.y = gTerrain->GetHeight(pLight->Position.x, pLight->Position.z) + 50;
 	}
-
+	
 	//Updaterar spotlights
 	for (int i = 0; i < (int)gSpotLights.size(); ++i)
 	{
@@ -276,14 +299,14 @@ void Level::Update(float DeltaTime)
 		XMStoreFloat3(&sLight->Direction, dir);
 		//XMMATRIX transf = transl1 * rot * transl2;
 
-		sLight->Position.y = gTerrain->GetHeight(sLight->Position.x, sLight->Position.z) + 200;
+		//sLight->Position.y = gTerrain->GetHeight(sLight->Position.x, sLight->Position.z) + 200;
 	}
+	
 }
 void Level::Render(vector<Camera*>& Cameras)
 {
 	gGraphicsManager->Render(Cameras);
 }
-
 
 
 Terrain* Level::GetTerrain()
