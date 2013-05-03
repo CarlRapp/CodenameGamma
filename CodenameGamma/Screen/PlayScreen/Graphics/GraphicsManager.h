@@ -13,6 +13,7 @@
 
 using namespace std;
 using namespace DirectX;
+
 class GraphicsManager
 {
 	D3D11_VIEWPORT			m_ViewPort;
@@ -22,6 +23,7 @@ class GraphicsManager
 	ID3D11RenderTargetView	*m_RenderTargetView;
 
 	int						m_Width, m_Height;
+	int						m_ShadowWidth, m_ShadowHeight;
 
 	ID3D11Buffer			*m_FullSceenQuad;
 
@@ -48,7 +50,53 @@ private:
 
 	void InitFullScreenQuad();
 	void InitBuffers();
+
 	void InitShadowMap(int width, int height);
+	
+	void RenderShadowMaps(vector<Camera*>& cameras);
+	void RenderShadowMap(SpotLight& light, D3D11_VIEWPORT);
+
+	D3D11_VIEWPORT ShadowViewPort(int x, int y, int width, int height)
+	{
+		D3D11_VIEWPORT vp;
+		vp.TopLeftX = x;
+		vp.TopLeftY = y;		
+		vp.Width	= width;
+		vp.Height	= height;
+		vp.MinDepth = 0.0f;
+		vp.MaxDepth = 1.0f;
+
+		return vp;
+	}
+	
+	XMFLOAT4X4 ShadowViewProjTex(D3D11_VIEWPORT &vp, CXMMATRIX ViewProj)
+	{
+		//Skala om från pixlar till intervallet [0, 1]
+		float x			= vp.TopLeftX	/ (float) m_ShadowWidth;
+		float y			= vp.TopLeftY	/ (float) m_ShadowHeight;
+		float scaleX	= vp.Width		/ (float) m_ShadowWidth;
+		float scaleY	= vp.Height		/ (float) m_ShadowHeight;
+
+		//Räkna ut Translation / Scala för tex-matrisen.
+		XMMATRIX texTrans = XMMatrixTranslation(x, y, 0);
+		XMMATRIX texScale = XMMatrixTranslation(scaleX, scaleY, 0);
+
+		//Räkna ut tex.
+		XMMATRIX tex = texTrans * texScale;
+
+		//Räkna ut viewprojtex.
+		XMMATRIX ViewProjTex = ViewProj * tex;
+		
+		//Omvandla till XMFLOAT4X4
+		XMFLOAT4X4 result;
+		XMStoreFloat4x4(&result, ViewProjTex);
+
+		return result;
+	}
+
+	void RenderModels(Player* player);
+	void RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMATRIX proj, ID3DX11EffectTechnique* tech, UINT pass);
+	void RenderTerrain(Player* player);
 
 	void UpdateLights();
 	void ClearBuffers();
@@ -75,9 +123,6 @@ public:
 	}
 
 	void Render(vector<Player*>& players);
-	void RenderModels(Player* player);
-	void RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMATRIX proj, ID3DX11EffectTechnique* tech, UINT pass);
-	void RenderTerrain(Player* player);
 
 	void RenderTerrain(Camera* tCamera);
 	void RenderModels(Camera* tCamera);

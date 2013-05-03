@@ -11,6 +11,8 @@ GraphicsManager::GraphicsManager(ID3D11Device *device, ID3D11DeviceContext *devi
 
 	m_Width = width;
 	m_Height = height;
+	m_ShadowWidth = 0;
+	m_ShadowHeight = 0;
 
 	m_ViewPort.MinDepth = 0.0f;
 	m_ViewPort.MaxDepth = 1.0f;
@@ -252,6 +254,9 @@ void GraphicsManager::InitBuffers()
 
 void GraphicsManager::InitShadowMap(int width, int height)
 {
+	m_ShadowWidth  = width;
+	m_ShadowHeight = height;
+
 	SAFE_RELEASE(m_ShadowMapSRV);
 	SAFE_RELEASE(m_ShadowMapDSV);
 	//Texture desc
@@ -292,6 +297,71 @@ void GraphicsManager::InitShadowMap(int width, int height)
 
 	//Release texture
 	texture->Release();
+}
+
+void GraphicsManager::RenderShadowMaps(vector<Camera*>& cameras)
+{
+	//m_DirLights
+	//m_PointLights
+	//m_SpotLights
+
+	vector<XMFLOAT2> Resolutions;
+	Resolutions.push_back(SHADOWMAP_2048);
+	Resolutions.push_back(SHADOWMAP_1024);
+	Resolutions.push_back(SHADOWMAP_512);
+
+	int ShadowIndex = 0;
+
+
+	//Går igenom upplösningarna i storlerksordning.
+	for each (XMFLOAT2 Resolution in Resolutions)
+	{
+		XMVECTOR CurrentRes = XMLoadFloat2(&Resolution);
+		//spotlights för vald upplösning ritats ut.
+		for each (SpotLight* light in *m_SpotLights)
+		{			
+			XMVECTOR LightRes = XMLoadFloat2(&light->Resolution);
+
+			if (light->HasShadow && XMVector2Equal(LightRes, CurrentRes))
+			{
+				//kolla om shadowmapen får plats
+				//else light->ShadowIndex = -1 (kolla på GPU)
+
+
+				//räkna ut viewport
+				D3D11_VIEWPORT vp = ShadowViewPort(0, 0, Resolution.x, Resolution.y);
+
+				//Räkna ut viewproj (se 3D-2 projekt)
+
+
+
+
+				XMMATRIX ViewProj = XMMatrixTranslation(0,0,0); //dummy!
+
+				//räkna ut viewprojtex
+				XMFLOAT4X4 ViewProjTex = ShadowViewProjTex(vp, ViewProj);
+
+				//spara viewprojtex till listan med viewprojtex. denna ska till GPU:n. index i listan ska vara samma som light->ShadowIndex
+
+				//drawshadowmap med vp
+
+
+
+				//Sätter ShadowIndex
+				light->ShadowIndex = ShadowIndex;
+
+				//Räknar upp ShadowIndex
+				++ShadowIndex;
+			}
+		}
+
+
+	}	
+}
+
+void GraphicsManager::RenderShadowMap(SpotLight& light, D3D11_VIEWPORT)
+{
+
 }
 
 void GraphicsManager::UpdateLights()
