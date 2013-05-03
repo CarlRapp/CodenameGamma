@@ -302,9 +302,9 @@ void GraphicsManager::InitShadowMap(int width, int height)
 
 void GraphicsManager::RenderShadowMaps(vector<Camera*>& cameras)
 {
-	//m_DirLights
-	//m_PointLights
-	//m_SpotLights
+	m_ViewProjTexs.clear();
+	m_ViewProj.clear();
+	m_Texs.clear();
 
 	//Lists with lights that have a shadowmap and will be visible
 	vector<DirectionalLight*>	dirLights;
@@ -393,8 +393,16 @@ void GraphicsManager::RenderShadowMaps(vector<Camera*>& cameras)
 				//räkna ut viewprojtex
 				XMFLOAT4X4 ViewProjTex = ShadowViewProjTex(vp, ViewProj);
 
-				//spara viewprojtex till listan med viewprojtex. denna ska till GPU:n. index i listan ska vara samma som light->ShadowIndex
+				XMFLOAT4X4 Tex = ShadowTex(vp);
+				
+				XMFLOAT4X4 viewprojf44;
 
+				XMStoreFloat4x4(&viewprojf44, ViewProj);
+
+				//spara viewprojtex till listan med viewprojtex. denna ska till GPU:n. index i listan ska vara samma som light->ShadowIndex
+				m_ViewProjTexs.push_back(ViewProjTex);
+				m_ViewProj.push_back(viewprojf44);
+				m_Texs.push_back(Tex);
 
 
 				//drawshadowmap med vp
@@ -872,14 +880,18 @@ void GraphicsManager::ComputeLight(vector<Camera*>& Cameras)
 
 	for(UINT p = 0; p < techDesc.Passes; ++p)
 	{
+		Effects::TiledLightningFX->SetViewProjTexs(&m_ViewProjTexs[0], m_ViewProjTexs.size());
+		Effects::TiledLightningFX->SetViewProj(&m_ViewProj[0], m_ViewProj.size());
+		Effects::TiledLightningFX->SetTexs(&m_Texs[0], m_Texs.size());
 		Effects::TiledLightningFX->SetInvViewProjs(&invViewProjs[0], invViewProjs.size());
 		Effects::TiledLightningFX->SetCamPositions(&camPositions[0], camPositions.size());
 		Effects::TiledLightningFX->SetResolution(XMFLOAT2((float)m_Width, (float)m_Height));
+		Effects::TiledLightningFX->SetShadowMapResolution(XMFLOAT2((float)m_ShadowWidth, (float)m_ShadowHeight));
 
 		Effects::TiledLightningFX->SetAlbedoMap(m_AlbedoSRV);
 		Effects::TiledLightningFX->SetNormalSpecMap(m_NormalSpecSRV);
 		Effects::TiledLightningFX->SetDepthMap(m_DepthSRV);
-		Effects::TiledLightningFX->SetShadowMap(m_DepthSRV);
+		Effects::TiledLightningFX->SetShadowMap(m_ShadowMapSRV);
 		Effects::TiledLightningFX->SetOutputMap(m_FinalUAV);
 
 
