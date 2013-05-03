@@ -312,3 +312,41 @@ bool QuadTree::NeedUpdate(GameObject* instance)
 
 }
 
+void QuadTree::GetObjectsCollidingWith(GameObject* go, vector<GameObject*> &GameObjects, Node* node, ContainmentType containmentType)
+{
+	switch (containmentType)
+	{
+	case ContainmentType::DISJOINT:
+		return;
+		break;
+	case ContainmentType::INTERSECTS:
+		if (node->m_NW == NULL)
+		{
+			BoundingSphere goSphere = GetCurrentBoundingSphere(go);
+			for each (GameObject* go2 in node->m_Content)
+			{
+				BoundingSphere go2Sphere = GetCurrentBoundingSphere(go);
+
+				if (goSphere.Intersects(go2Sphere))
+					GameObjects.push_back(go2);
+			}
+		}
+
+		else
+		{
+			BoundingSphere goSphere = GetCurrentBoundingSphere(go);
+			GetObjectsCollidingWith(go, GameObjects, node->m_NW, goSphere.Contains(node->m_NW->m_BoundingBox));
+			GetObjectsCollidingWith(go, GameObjects, node->m_NE, goSphere.Contains(node->m_NE->m_BoundingBox));
+			GetObjectsCollidingWith(go, GameObjects, node->m_SW, goSphere.Contains(node->m_SW->m_BoundingBox));
+			GetObjectsCollidingWith(go, GameObjects, node->m_SE, goSphere.Contains(node->m_SE->m_BoundingBox));
+		}
+
+		break;
+	case ContainmentType::CONTAINS:
+		GetInstances(GameObjects, node);
+		break;
+	}
+
+	if (containmentType == ContainmentType::DISJOINT)
+		return;
+}
