@@ -12,6 +12,7 @@
 static const XMFLOAT2 SHADOWMAP_512  = XMFLOAT2(512, 512);
 static const XMFLOAT2 SHADOWMAP_1024 = XMFLOAT2(1024, 1024);
 static const XMFLOAT2 SHADOWMAP_2048 = XMFLOAT2(2048, 2048);
+static const XMFLOAT2 SHADOWMAP_4096 = XMFLOAT2(4096, 4096);
 
 static int ShadowTileSize(XMFLOAT2 resolution)
 {
@@ -24,16 +25,26 @@ static int ShadowTileSize(XMFLOAT2 resolution)
 	else if (resolution.x == SHADOWMAP_2048.x && resolution.y == SHADOWMAP_2048.y)
 		return 16;
 
+	else if (resolution.x == SHADOWMAP_4096.x && resolution.y == SHADOWMAP_4096.y)
+		return 64;
+
 	else return 0;
 }
 
 static XMFLOAT2 CalculateShadowCoord(int ShadowIndex)
 {
-	int numBig    = ShadowIndex / 16;
-	int numMedium = (ShadowIndex % 16) / 4;
-	int numSmall  = (ShadowIndex % 16) % 4;
+	int numHuge   = ShadowIndex / 64;
+	int numBig    = (ShadowIndex % 64) / 16;
+	int numMedium = ((ShadowIndex % 64) % 16) / 4;
+	int numSmall  = ((ShadowIndex % 64) % 16) % 4;
 
-	int x = numBig * 2048;
+
+
+	int x = numHuge * 4096;
+
+	if (numBig == 1 || numBig == 3)
+		x += 2048;
+
 	if (numMedium == 1 || numMedium == 3)
 		x += 1024;
 
@@ -41,6 +52,10 @@ static XMFLOAT2 CalculateShadowCoord(int ShadowIndex)
 		x += 512;
 
 	int y = 0;
+	
+	if (numBig == 2 || numBig == 3)
+		y += 2048;
+
 	if (numMedium == 2 || numMedium == 3)
 		y += 1024;
 
@@ -111,9 +126,10 @@ struct SpotLight : public Light
 	XMMATRIX GetViewMatrix();
 	XMMATRIX GetProjectionMatrix(float nearZ, float farZ);
 
-	BoundingSphere GetBoundingSphere()
+	BoundingFrustum GetBoundingFrustum()
 	{
-		return BoundingSphere(Position, Range);
+		return MathHelper::GenerateBoundingFrustum(GetViewMatrix(), GetProjectionMatrix(0.0f, Range));
+		//return BoundingFrustum(Position, Range);
 	}
 };
 

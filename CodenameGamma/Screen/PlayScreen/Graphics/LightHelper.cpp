@@ -47,7 +47,7 @@ XMMATRIX SpotLight::GetViewMatrix()
 XMMATRIX SpotLight::GetProjectionMatrix(float nearZ, float farZ)
 {
 	XMMATRIX projcetion;
-	float fovY = PI * angle / 90.0f;
+	float fovY = 2 * angle;
 	float n = 1.0f;
 	float f = Range;
 
