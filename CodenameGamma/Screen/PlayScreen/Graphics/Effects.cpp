@@ -176,9 +176,13 @@ TiledLightningEffect::TiledLightningEffect(ID3D11Device* device, const std::wstr
 	Viewport3		= mFX->GetTechniqueByName("Viewport3");
 	Viewport4		= mFX->GetTechniqueByName("Viewport4");
 
-	InvViewProjs    = mFX->GetVariableByName("gInvViewProjs")->AsMatrix();	
-	CamPositions	= mFX->GetVariableByName("gCamPositions")->AsVector();
-	Resolution		= mFX->GetVariableByName("gResolution")->AsVector();
+	ViewProjTexs		= mFX->GetVariableByName("gLightViewProjTex")->AsMatrix();
+	ViewProj			= mFX->GetVariableByName("gLightViewProj")->AsMatrix();
+	Texs				= mFX->GetVariableByName("gLightTex")->AsMatrix();
+	InvViewProjs		= mFX->GetVariableByName("gInvViewProjs")->AsMatrix();
+	CamPositions		= mFX->GetVariableByName("gCamPositions")->AsVector();
+	Resolution			= mFX->GetVariableByName("gResolution")->AsVector();
+	ShadowMapResolution	= mFX->GetVariableByName("gShadowMapResolution")->AsVector();
 
 	AlbedoMap		= mFX->GetVariableByName("gAlbedoMap")->AsShaderResource();
 	NormalSpecMap   = mFX->GetVariableByName("gNormalSpecMap")->AsShaderResource();

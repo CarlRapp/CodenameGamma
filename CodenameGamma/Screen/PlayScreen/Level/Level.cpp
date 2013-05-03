@@ -16,10 +16,10 @@ Level::Level(SystemData LData)
 	gGraphicsManager->SetLights(&gDirLights, &gPointLights, &gSpotLights);
 
 
-	for(int i = 0; i < 5; i++)
+	for(int i = 0; i < 2; i++)
 		AddDirectionalLight(0);
 
-	for( int i = 0; i < 4; ++i)
+	for( int i = 0; i < 20; ++i)
 	{
 		//AddPointLight(0);
 		AddSpotLight(true, SHADOWMAP_512);
@@ -156,18 +156,18 @@ void Level::AddSpotLight(bool hasShadow, XMFLOAT2 res)
 	float g = MathHelper::RandF(0.0f, 1.0f);
 	float b = MathHelper::RandF(0.0f, 1.0f);
 	*/
-	float r = 6.0f;
-	float g = 6.0f;
-	float b = 6.0f;
+	float r = 1.0f;
+	float g = 1.0f;
+	float b = 1.0f;
 	
 
 
 
 	SpotLight *spotLight	= new SpotLight();
 	spotLight->Color		= XMFLOAT4(r, g, b, 0.0f);
-	spotLight->Position		= XMFLOAT3(x, 1.0f, z);
+	spotLight->Position		= XMFLOAT3(x, 0.0f, z);
 
-	spotLight->Direction	= XMFLOAT3(0, 0, 1);
+	spotLight->Direction	= XMFLOAT3(0, -1, 1);
 
 	spotLight->angle		= XMConvertToRadians(30);
 	spotLight->Range		= 500;
@@ -286,7 +286,7 @@ void Level::Update(float DeltaTime)
 		XMStoreFloat3(&sLight->Direction, dir);
 		//XMMATRIX transf = transl1 * rot * transl2;
 
-		//sLight->Position.y = gTerrain->GetHeight(sLight->Position.x, sLight->Position.z) + 200;
+		sLight->Position.y = gTerrain->GetHeight(sLight->Position.x, sLight->Position.z) + 100.0f;
 	}
 	
 }
