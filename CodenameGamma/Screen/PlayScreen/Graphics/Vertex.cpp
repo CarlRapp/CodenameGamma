@@ -95,7 +95,7 @@ void InputLayouts::InitAll(ID3D11Device* device)
 	// CombineFinal
 	//
 
-	Effects::CombineFinalFX->CombineTech->GetPassByIndex(0)->GetDesc(&passDesc);
+	Effects::CombineFinalFX->ColorTech->GetPassByIndex(0)->GetDesc(&passDesc);
 	device->CreateInputLayout(InputLayoutDesc::Quad, 2, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, &Quad);
 
 	//
