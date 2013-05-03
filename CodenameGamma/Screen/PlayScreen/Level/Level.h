@@ -12,6 +12,7 @@
 #include "../GameObject.h"
 #include "../Graphics/QuadTree.h"
 #include "LevelParser.h"
+#include "../Units/Unit.h"
 
 struct SystemData
 {

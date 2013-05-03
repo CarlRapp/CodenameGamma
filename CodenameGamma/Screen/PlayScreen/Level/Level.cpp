@@ -168,7 +168,7 @@ void Level::AddInstance(float x, float y, float z, Model *model)
 	ModelInstance *instance = new ModelInstance();
 	instance->m_Model = model;
 
-	GameObject *go = new GameObject();
+	Unit *go = new Unit();
 	go->MoveTo(DirectX::XMFLOAT3(x, y, z));
 	go->SetModelInstance(instance);
 	go->SetScale(XMFLOAT3(10, 10, 10));
@@ -181,6 +181,10 @@ void Level::AddInstance(float x, float y, float z, Model *model)
 		go->SetVelocity(DirectX::XMFLOAT3(MathHelper::RandF(-speed, speed), 0, MathHelper::RandF(-speed, speed)));
 
 	instance->m_OldBoundingSphere = instance->GetBoundingSphere();
+
+	int a = (int)(MathHelper::RandF(0, 1) * 5);
+
+	go->SetTeam((GOTeam)a);
 
 	AddGameObject(go);
 }
@@ -289,9 +293,13 @@ void Level::RunCollisionTest()
 	{
 		As	=	A->GetModelInstance()->GetBoundingSphere();
 
-		for each (GameObject* B in gGameObjects)
+		vector<GameObject*>	collidingWith	=	vector<GameObject*>();
+
+		gQuadTree->GetObjectsCollidingWith(A, collidingWith);
+
+		for each (GameObject* B in collidingWith)
 		{
-			if ( A == B )
+			if ( A == B || !A->IsAlive() || !B->IsAlive() )
 				continue;
 
 			Bs	=	B->GetModelInstance()->GetBoundingSphere();
@@ -313,9 +321,13 @@ void Level::RunCollisionTest()
 	
 	if ( tCollisionEvents.size() > 0 )
 	{
-		for each( CollisionEvent Event in tCollisionEvents )
+		for each( CollisionEvent tEvent in tCollisionEvents )
 		{
+			if ( tEvent.A->IsEnemy( tEvent.B ) )
+			{
+				((Unit*)tEvent.A)->Hit(((Unit*)tEvent.B));
 
+			}
 		}
 	}
 
