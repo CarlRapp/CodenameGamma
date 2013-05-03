@@ -9,11 +9,20 @@
 //   Elements are packed into 4D vectors with the restriction that an element
 //   cannot straddle a 4D vector boundary.
 
-struct DirectionalLight
+static const XMFLOAT2 SHADOWMAP_512  = XMFLOAT2(512, 512);
+static const XMFLOAT2 SHADOWMAP_1024 = XMFLOAT2(1024, 1024);
+static const XMFLOAT2 SHADOWMAP_2048 = XMFLOAT2(2048, 2048);
+
+
+struct Light
+{
+	XMFLOAT4 Color;
+};
+
+struct DirectionalLight : public Light
 {
 	//DirectionalLight() { ZeroMemory(this, sizeof(this)); }
 
-	XMFLOAT4 Color;
 	XMFLOAT4 Direction;
 
 	//shadow info
@@ -22,11 +31,10 @@ struct DirectionalLight
 	bool	 HasShadow;
 };
 
-struct PointLight
+struct PointLight : public Light
 {
 	PointLight() { ZeroMemory(this, sizeof(this)); }
 
-	XMFLOAT4 Color;
 
 	// Packed into 4D vector: (Position, Range)
 	XMFLOAT3 Position;
@@ -38,11 +46,10 @@ struct PointLight
 	bool	 HasShadow;
 };
 
-struct SpotLight
+struct SpotLight : public Light
 {
 	SpotLight() { ZeroMemory(this, sizeof(this)); }
 
-	XMFLOAT4 Color;
 
 	// Packed into 4D vector: (Position, Range)
 	XMFLOAT3 Position;
@@ -56,6 +63,10 @@ struct SpotLight
 	XMFLOAT2 Resolution;
 	UINT	 ShadowIndex;
 	bool	 HasShadow;
+
+
+	XMMATRIX GetViewMatrix();
+	XMMATRIX GetProjectionMatrix(float nearZ, float farZ);
 };
 
 struct Material
