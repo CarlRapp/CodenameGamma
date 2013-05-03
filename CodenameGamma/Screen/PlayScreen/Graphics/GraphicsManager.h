@@ -6,7 +6,7 @@
 #include "..\..\..\stdafx.h"
 #include "QuadTree.h"
 #include "..\Camera.h"
-#include "..\Player.h"
+//#include "..\Player.h"
 #include "..\Terrain\Terrain.h"
 #include "Buffer.h"
 #include "..\GameObject.h"
@@ -54,7 +54,7 @@ private:
 	void InitShadowMap(int width, int height);
 	
 	void RenderShadowMaps(vector<Camera*>& cameras);
-	void RenderShadowMap(SpotLight& light, D3D11_VIEWPORT);
+	void RenderShadowMap(SpotLight& light, D3D11_VIEWPORT vp);
 
 	D3D11_VIEWPORT ShadowViewPort(int x, int y, int width, int height)
 	{
@@ -94,14 +94,19 @@ private:
 		return result;
 	}
 
-	void RenderModels(Player* player);
+	//void RenderModels(Player* player);	
+	//void RenderTerrain(Player* player);
+
+
+	void RenderTerrain(Camera* tCamera);
 	void RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMATRIX proj, ID3DX11EffectTechnique* tech, UINT pass);
-	void RenderTerrain(Player* player);
+	void RenderModels(Camera* tCamera);
+
 
 	void UpdateLights();
 	void ClearBuffers();
-	void FillGBuffer(vector<Player*>& players);
-	void ComputeLight(vector<Player*>& players);
+	//void FillGBuffer(vector<Player*>& players);
+	//void ComputeLight(vector<Player*>& players);
 
 	void FillGBuffer(vector<Camera*>& Cameras);
 	void ComputeLight(vector<Camera*>& Cameras);
@@ -122,10 +127,10 @@ public:
 		m_SpotLights	= SpotLights;
 	}
 
-	void Render(vector<Player*>& players);
+	
+	//void Render(vector<Player*>& players);
 
-	void RenderTerrain(Camera* tCamera);
-	void RenderModels(Camera* tCamera);
+
 	void Render(vector<Camera*>& Cameras);
 };
 
