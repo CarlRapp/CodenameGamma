@@ -123,9 +123,6 @@ public:
 	}
 
 	void Render(vector<Player*>& players);
-	void RenderModels(Player* player);
-	void RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMATRIX proj, ID3DX11EffectTechnique* tech, UINT pass);
-	void RenderTerrain(Player* player);
 
 	void RenderTerrain(Camera* tCamera);
 	void RenderModels(Camera* tCamera);
