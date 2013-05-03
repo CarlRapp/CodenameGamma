@@ -543,6 +543,29 @@ void GraphicsManager::FillGBuffer(vector<Player*>& players)
 	m_DeviceContext->OMSetRenderTargets( 0, 0, 0 );
 }
 
+void GraphicsManager::FillGBuffer(vector<Camera*>& Cameras)
+{
+	m_DeviceContext->OMSetRenderTargets( 2, GBuffer, m_DepthStencilView );
+
+	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	m_DeviceContext->OMSetDepthStencilState(RenderStates::LessDSS, 0);
+
+	m_DeviceContext->RSSetState(RenderStates::NoCullRS);
+	//m_DeviceContext->RSSetState(RenderStates::WireframeRS);
+	
+	for (int i = 0; i < (int)Cameras.size(); ++i)
+	{
+		if (m_Terrain != NULL)
+			RenderTerrain(Cameras[i]);
+
+		if (g_QuadTree)
+			RenderModels(Cameras[i]);
+	}
+
+	m_DeviceContext->OMSetRenderTargets( 0, 0, 0 );
+}
+
 void GraphicsManager::RenderModels(Player* player)
 {
 	Camera* camera = player->GetCamera();
@@ -569,6 +592,42 @@ void GraphicsManager::RenderModels(Player* player)
 	instances.erase( unique( instances.begin(), instances.end() ), instances.end() );
 
 	cout << instances.size() << "\t";
+
+	for(UINT p = 0; p < techDesc.Passes; ++p)
+	{
+		//for each (ModelInstance* instance in m_modelInstances)
+		for each (GameObject* instance in instances)
+		{
+			ModelInstance* modelInstance = instance->GetModelInstance();
+			if (modelInstance != NULL)
+				RenderModel(*modelInstance, view, proj, tech, p);
+		}
+	}
+}
+
+void GraphicsManager::RenderModels(Camera* tCamera)
+{
+	m_DeviceContext->RSSetViewports( 1, &tCamera->GetViewPort() );
+	XMMATRIX view;
+	XMMATRIX proj;
+
+	view = XMLoadFloat4x4(&tCamera->GetView());
+	proj = XMLoadFloat4x4(&tCamera->GetProjection());
+
+	ID3DX11EffectTechnique* tech;
+	D3DX11_TECHNIQUE_DESC techDesc;
+	
+	m_DeviceContext->IASetInputLayout(InputLayouts::PosNormalTexTan);
+	tech = Effects::ObjectDeferredFX->TexTech;
+	//tech = Effects::ObjectDeferredFX->TexNormalTech;
+	tech->GetDesc( &techDesc );
+
+	
+	vector<GameObject*> instances;
+	BoundingFrustum frustum = tCamera->GetFrustum();	
+	g_QuadTree->GetIntersectingInstances(frustum, instances);
+	sort( instances.begin(), instances.end() );
+	instances.erase( unique( instances.begin(), instances.end() ), instances.end() );
 
 	for(UINT p = 0; p < techDesc.Passes; ++p)
 	{
@@ -619,6 +678,8 @@ void GraphicsManager::RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMA
 	}
 }
 
+
+
 void GraphicsManager::RenderTerrain(Player* player)
 {
 	Camera* camera = player->GetCamera();
@@ -628,6 +689,66 @@ void GraphicsManager::RenderTerrain(Player* player)
 
 	view = XMLoadFloat4x4(&camera->GetView());
 	proj = XMLoadFloat4x4(&camera->GetProjection());
+
+	ID3DX11EffectTechnique* tech;
+	D3DX11_TECHNIQUE_DESC techDesc;
+	
+	m_DeviceContext->IASetInputLayout(InputLayouts::Terrain);
+	tech = Effects::TerrainDeferredFX->TexTech;
+	//tech = Effects::TerrainDeferredFX->TexNormalTech;
+	tech->GetDesc( &techDesc );
+	
+	for(UINT p = 0; p < techDesc.Passes; ++p)
+	{
+		XMMATRIX world;
+
+		XMMATRIX worldView;
+		XMMATRIX worldInvTranspose;
+		XMMATRIX worldViewProj;
+		XMMATRIX tex = m_Terrain->GetTexTransform();
+
+		world = XMMatrixTranslation(0, 0, 0);
+		//float a = MathHelper::InverseTranspose(world);
+	
+	
+		worldView     = XMMatrixMultiply(world, view);
+		worldInvTranspose = MathHelper::InverseTranspose(world);
+	
+		//worldInvTransposeView = worldInvTranspose*view;
+		worldViewProj = XMMatrixMultiply(worldView, proj);
+
+		Effects::TerrainDeferredFX->SetWorld(world);
+		Effects::TerrainDeferredFX->SetWorldInvTranspose(worldInvTranspose);
+		Effects::TerrainDeferredFX->SetTexTransform(tex);
+		Effects::TerrainDeferredFX->SetWorldViewProj(worldViewProj);
+
+
+		//UINT subset = 6;
+		Effects::TerrainDeferredFX->SetMaterial(m_Terrain->GetMaterial());
+
+		Effects::TerrainDeferredFX->SetGround1Map(m_Terrain->GetGroundTexture(0));
+		Effects::TerrainDeferredFX->SetGround2Map(m_Terrain->GetGroundTexture(1));
+		Effects::TerrainDeferredFX->SetGround3Map(m_Terrain->GetGroundTexture(2));
+		Effects::TerrainDeferredFX->SetGround4Map(m_Terrain->GetGroundTexture(3));
+		Effects::TerrainDeferredFX->SetNormal1Map(m_Terrain->GetGroundNormal(0));
+		Effects::TerrainDeferredFX->SetNormal2Map(m_Terrain->GetGroundNormal(1));
+		Effects::TerrainDeferredFX->SetNormal3Map(m_Terrain->GetGroundNormal(2));
+		Effects::TerrainDeferredFX->SetNormal4Map(m_Terrain->GetGroundNormal(3));
+
+		tech->GetPassByIndex(p)->Apply(0, m_DeviceContext);
+		m_Terrain->Draw(m_DeviceContext);
+		
+	}
+}
+
+void GraphicsManager::RenderTerrain(Camera* tCamera)
+{
+	m_DeviceContext->RSSetViewports( 1, &tCamera->GetViewPort() );
+	XMMATRIX view;
+	XMMATRIX proj;
+
+	view = XMLoadFloat4x4(&tCamera->GetView());
+	proj = XMLoadFloat4x4(&tCamera->GetProjection());
 
 	ID3DX11EffectTechnique* tech;
 	D3DX11_TECHNIQUE_DESC techDesc;
@@ -783,6 +904,109 @@ void GraphicsManager::ComputeLight(vector<Player*>& players)
 	m_DeviceContext->CSSetShader(0, 0, 0);
 }
 
+void GraphicsManager::ComputeLight(vector<Camera*>& Cameras)
+{
+	std::vector<XMFLOAT4>	camPositions;
+	std::vector<XMFLOAT4X4> invViewProjs;
+	for each (Camera* tCam in Cameras)
+	{
+		XMFLOAT3 temp	=	tCam->GetPosition();
+		XMFLOAT4 camPos	=	XMFLOAT4(temp.x, temp.y, temp.z, 1);
+		camPositions.push_back(camPos);
+
+		XMMATRIX	viewMatrix;
+		XMMATRIX	projMatrix;
+		XMMATRIX	invViewProjMatrix;
+		XMFLOAT4X4	invViewProj;
+
+		viewMatrix = XMLoadFloat4x4(&tCam->GetView());
+		projMatrix = XMLoadFloat4x4(&tCam->GetProjection());
+
+		invViewProjMatrix = XMMatrixMultiply(viewMatrix, projMatrix);
+
+		XMVECTOR det		= XMMatrixDeterminant(invViewProjMatrix);
+		invViewProjMatrix	= XMMatrixInverse(&det, invViewProjMatrix);
+
+		XMStoreFloat4x4(&invViewProj, invViewProjMatrix);
+		invViewProjs.push_back(invViewProj);
+	}
+
+
+	D3DX11_TECHNIQUE_DESC	techDesc;
+	ID3DX11EffectTechnique* tech;
+	int numViewports = Cameras.size();
+
+	switch (numViewports)
+	{
+	case 1:
+		tech = Effects::TiledLightningFX->Viewport1;
+		break;
+	case 2:
+		tech = Effects::TiledLightningFX->Viewport2;
+		break;
+	case 3:
+		tech = Effects::TiledLightningFX->Viewport3;
+		break;
+	case 4:
+		tech = Effects::TiledLightningFX->Viewport4;
+		break;
+	default:
+		return;
+	}
+	
+	tech->GetDesc( &techDesc );
+
+	for(UINT p = 0; p < techDesc.Passes; ++p)
+	{
+		Effects::TiledLightningFX->SetInvViewProjs(&invViewProjs[0], invViewProjs.size());
+		Effects::TiledLightningFX->SetCamPositions(&camPositions[0], camPositions.size());
+		Effects::TiledLightningFX->SetResolution(XMFLOAT2((float)m_Width, (float)m_Height));
+
+		Effects::TiledLightningFX->SetAlbedoMap(m_AlbedoSRV);
+		Effects::TiledLightningFX->SetNormalSpecMap(m_NormalSpecSRV);
+		Effects::TiledLightningFX->SetDepthMap(m_DepthSRV);
+		Effects::TiledLightningFX->SetShadowMap(m_DepthSRV);
+		Effects::TiledLightningFX->SetOutputMap(m_FinalUAV);
+
+
+		ID3D11ShaderResourceView* dirLightMap = m_DirLightBuffer == NULL ? NULL : m_DirLightBuffer->GetShaderResource();
+		ID3D11ShaderResourceView* pointLightMap = m_PointLightBuffer == NULL ? NULL : m_PointLightBuffer->GetShaderResource();
+		ID3D11ShaderResourceView* spotLightMap = m_SpotLightBuffer == NULL ? NULL : m_SpotLightBuffer->GetShaderResource();
+
+		Effects::TiledLightningFX->SetDirLightMap(dirLightMap);
+		Effects::TiledLightningFX->SetPointLightMap(pointLightMap);
+		Effects::TiledLightningFX->SetSpotLightMap(spotLightMap);
+
+		tech->GetPassByIndex(p)->Apply(0, m_DeviceContext);
+
+		// How many groups do we need to dispatch to cover a row of pixels, where each
+		// group covers 256 pixels (the 256 is defined in the ComputeShader).
+		UINT numGroupsX = (UINT)ceilf(m_Width / 16.0f);
+		UINT numGroupsY = (UINT)ceilf(m_Height / 16.0f);
+		m_DeviceContext->Dispatch(numGroupsX, numGroupsY, 1);
+	}
+
+
+	// Unbind the input texture from the CS for good housekeeping.
+	ID3D11ShaderResourceView* nullSRV[1] = { 0 };
+	m_DeviceContext->CSSetShaderResources( 0, 1, nullSRV );
+
+	// Unbind output from compute shader (we are going to use this output as an input in the next pass, 
+	// and a resource cannot be both an output and input at the same time.
+	ID3D11UnorderedAccessView* nullUAV[1] = { 0 };
+	m_DeviceContext->CSSetUnorderedAccessViews( 0, 1, nullUAV, 0 );
+
+	
+	Effects::TiledLightningFX->SetAlbedoMap(NULL);
+	Effects::TiledLightningFX->SetNormalSpecMap(NULL);
+	Effects::TiledLightningFX->SetDepthMap(NULL);
+	Effects::TiledLightningFX->SetShadowMap(NULL);
+	Effects::TiledLightningFX->SetOutputMap(NULL);
+
+	tech->GetPassByIndex(0)->Apply(0, m_DeviceContext);
+	m_DeviceContext->CSSetShader(0, 0, 0);
+}
+
 void GraphicsManager::CombineFinal()
 {
 	m_DeviceContext->RSSetState(RenderStates::NoCullRS);
@@ -821,5 +1045,15 @@ void GraphicsManager::Render(vector<Player*>& players)
 	ClearBuffers();
 	FillGBuffer(players);
 	ComputeLight(players);
+	CombineFinal();
+}
+
+void GraphicsManager::Render(vector<Camera*>& Cameras)
+{
+	m_DeviceContext->OMSetBlendState(RenderStates::OpaqueBS, NULL, 0xffffffff);
+	UpdateLights();
+	ClearBuffers();
+	FillGBuffer(Cameras);
+	ComputeLight(Cameras);
 	CombineFinal();
 }
