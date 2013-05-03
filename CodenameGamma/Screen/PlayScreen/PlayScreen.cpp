@@ -34,7 +34,7 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 
 	SetNumberOfPlayers(1);
 
-	//gPlayers.at(0)->SetGameObject(gLevel->GetGameObjects().at(0));
+	gPlayers.at(0)->SetGameObject(gLevel->GetGameObjects().at(0));
 }
 
 

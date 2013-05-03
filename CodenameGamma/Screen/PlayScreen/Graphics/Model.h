@@ -47,13 +47,16 @@ struct ModelInstance
 {
 	Model*							m_Model;
 	DirectX::XMFLOAT4X4				m_World;
+	DirectX::XMFLOAT4X4				m_WorldInverseTranspose;
 	DirectX::BoundingSphere			m_OldBoundingSphere;
 
 	void							*m_Node;
 
 	ModelInstance()
 	{
-		m_Model				= NULL;
+		m_Model					=	NULL;
+		m_World					=	XMFLOAT4X4(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+		m_WorldInverseTranspose	=	XMFLOAT4X4(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 	}
 
 	BoundingSphere GetBoundingSphere()

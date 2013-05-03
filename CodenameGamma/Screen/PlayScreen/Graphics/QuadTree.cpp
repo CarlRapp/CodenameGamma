@@ -32,13 +32,6 @@ void QuadTree::DestroyTree(Node* Instance)
 	if ( Instance->m_SW )
 		DestroyTree( Instance->m_SW );
 
-	for ( int i = 0; i < Instance->m_Content.size(); ++i )
-		if ( Instance->m_Content.at( i ) )
-		{
-			delete Instance->m_Content.at( i );
-		}
-
-	Instance->m_Content.clear();
 	delete Instance;
 }
 

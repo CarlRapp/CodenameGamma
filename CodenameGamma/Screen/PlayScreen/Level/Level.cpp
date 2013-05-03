@@ -16,12 +16,8 @@ Level::Level(SystemData LData)
 	gGraphicsManager->SetLights(&gDirLights, &gPointLights, &gSpotLights);
 
 
-	AddDirectionalLight(0);
-	AddDirectionalLight(0);
-	AddDirectionalLight(0);
-	AddDirectionalLight(0);
-	AddDirectionalLight(0);
-	AddDirectionalLight(0);
+	for(int i = 0; i < 5; i++)
+		AddDirectionalLight(0);
 
 	for( int i = 0; i < 30; ++i)
 	{
@@ -74,7 +70,7 @@ void Level::LoadLevel(string Levelname)
 	gGraphicsManager->SetQuadTree(gQuadTree);
 	Model* model = new Model(gLData.DEVICE, gTextureManager, "DATA\\Models\\obj\\pacman.obj", "DATA/Models/Textures/");
 
-	for (int i = 0; i < 10; ++i)
+	for (int i = 0; i < 50; ++i)
 	{
 		float x = MathHelper::RandF(0, 4000);
 		float y = 12;
@@ -169,34 +165,22 @@ void Level::AddSpotLight(SpotLight* Instance)
 
 void Level::AddInstance(float x, float y, float z, Model *model)
 {
-	XMMATRIX scale, rot, trans, world;
-	scale	= XMMatrixScaling(10.0f, 10.0f, 10.0f);
-
-	y += gTerrain->GetHeight(x, z);
-
-	rot		= XMMatrixRotationX(0);
-	//rot		= XMMatrixRotationX(-PI/2);
-	trans	= XMMatrixTranslation(x, y, z);
-
 	ModelInstance *instance = new ModelInstance();
-	instance->m_Model = model;	
-	//instance->m_World = scale * rot * trans;
-	world = XMMatrixMultiply(scale, rot);
-	world = XMMatrixMultiply(world, trans);
-	XMStoreFloat4x4(&instance->m_World, world);
-	instance->m_OldBoundingSphere = instance->GetBoundingSphere();
-
-	
-
+	instance->m_Model = model;
 
 	GameObject *go = new GameObject();
-	go->m_Position = DirectX::XMFLOAT3(x, y, z);
+	go->MoveTo(DirectX::XMFLOAT3(x, y, z));
 	go->SetModelInstance(instance);
-	
+	go->SetScale(XMFLOAT3(10, 10, 10));
+
+	instance->m_World	=	go->GetFloat4x4Value(World);
+
 	float speed = 80;
 
 	if (MathHelper::RandF(0, 1) > 0.0f)
-		go->m_Velocity = DirectX::XMFLOAT3(MathHelper::RandF(-speed, speed), 0, MathHelper::RandF(-speed, speed));
+		go->SetVelocity(DirectX::XMFLOAT3(MathHelper::RandF(-speed, speed), 0, MathHelper::RandF(-speed, speed)));
+
+	instance->m_OldBoundingSphere = instance->GetBoundingSphere();
 
 	AddGameObject(go);
 }
@@ -212,8 +196,36 @@ void Level::Update(float DeltaTime)
 			updatedGO.push_back(go);
 	}
 
-	for each (GameObject *go in updatedGO)	
-		gQuadTree->Update(go);
+	BoundingSphere As, Bs;
+	for each (GameObject* A in gGameObjects)
+	{
+		As	=	A->GetModelInstance()->GetBoundingSphere();
+
+		
+		if ( A == gGameObjects[0] )
+		for each (GameObject* B in gGameObjects)
+		{
+			if ( A == B )
+				continue;
+
+			Bs	=	B->GetModelInstance()->GetBoundingSphere();
+
+			if ( As.Intersects( Bs ) )
+				B->SetState( Dead );
+		}
+	}
+
+	for each (GameObject *go in updatedGO)
+	{
+		if ( go->IsAlive() )
+			gQuadTree->Update(go);
+		else
+			gQuadTree->Delete(go);
+	}
+
+	for ( int i = gGameObjects.size() - 1; i >= 0; --i )
+		if ( !gGameObjects[i]->IsAlive() )
+			gGameObjects.erase( gGameObjects.begin() + i );
 
 	//Updaterar ljus
 	//Updaterar pointlights

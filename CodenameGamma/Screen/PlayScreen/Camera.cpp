@@ -16,6 +16,7 @@ Camera::Camera(void)
 	m_Right		= XMFLOAT3(1, 0, 0);
 	m_Up		= XMFLOAT3(0, 1, 0);
 
+
 	UpdateView();
 	UpdateProjection();
 }
@@ -159,13 +160,19 @@ void Camera::SetForward(XMFLOAT3 forward)
 {
 	XMVECTOR pos = XMLoadFloat3(&m_Position);
 	XMVECTOR direction = XMLoadFloat3(&forward);
+	direction = XMVector3Normalize(direction);
 	XMVECTOR up	= XMVectorSet(0, 1 , 0, 0);
+
+
 
 	if (XMVector3Equal(direction, XMVectorZero()))
 		direction = XMVectorSet(0, 0, 1, 0);
 
 	else if (XMVector3Equal(direction, XMVectorSet(0, -1, 0, 0)))
 		up = XMVectorSet(0, 0 , 1, 0);
+
+	else if (XMVector3Equal(direction, XMVectorSet(0, 1, 0, 0)))
+		up = XMVectorSet(0, 0 , -1, 0);
 
 	XMMATRIX view = XMMatrixLookToLH(pos, direction, up);
 	
