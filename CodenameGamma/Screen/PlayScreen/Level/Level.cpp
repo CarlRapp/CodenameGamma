@@ -190,7 +190,7 @@ void Level::AddInstance(float x, float y, float z, Model *model)
 	ModelInstance *instance = new ModelInstance();
 	instance->m_Model = model;
 
-	GameObject *go = new GameObject();
+	Unit *go = new Unit();
 	go->MoveTo(DirectX::XMFLOAT3(x, y, z));
 	go->SetModelInstance(instance);
 	go->SetScale(XMFLOAT3(10, 10, 10));
@@ -203,6 +203,10 @@ void Level::AddInstance(float x, float y, float z, Model *model)
 		go->SetVelocity(DirectX::XMFLOAT3(MathHelper::RandF(-speed, speed), 0, MathHelper::RandF(-speed, speed)));
 
 	instance->m_OldBoundingSphere = instance->GetBoundingSphere();
+
+	int a = (int)(MathHelper::RandF(0, 1) * 5);
+
+	go->SetTeam((GOTeam)a);
 
 	AddGameObject(go);
 }
@@ -218,24 +222,7 @@ void Level::Update(float DeltaTime)
 			updatedGO.push_back(go);
 	}
 	
-	BoundingSphere As, Bs;
-	for each (GameObject* A in gGameObjects)
-	{
-		As	=	A->GetModelInstance()->GetBoundingSphere();
-
-		
-		if ( A == gGameObjects[0] )
-		for each (GameObject* B in gGameObjects)
-		{
-			if ( A == B )
-				continue;
-
-			Bs	=	B->GetModelInstance()->GetBoundingSphere();
-
-			if ( As.Intersects( Bs ) )
-				B->SetState( Dead );
-		}
-	}
+	RunCollisionTest();
 	
 
 	for each (GameObject *go in updatedGO)
@@ -312,4 +299,59 @@ void Level::Render(vector<Camera*>& Cameras)
 Terrain* Level::GetTerrain()
 {	
 	return gTerrain;
+}
+
+
+
+//	Will run after every
+//	object has been updated
+//	so all the positions are
+//	up to date
+void Level::RunCollisionTest()
+{
+	vector<CollisionEvent>	tCollisionEvents	=	vector<CollisionEvent>();
+
+	BoundingSphere As, Bs;
+	for each (GameObject* A in gGameObjects)
+	{
+		As	=	A->GetModelInstance()->GetBoundingSphere();
+
+		vector<GameObject*>	collidingWith	=	vector<GameObject*>();
+
+		gQuadTree->GetObjectsCollidingWith(A, collidingWith);
+
+		for each (GameObject* B in collidingWith)
+		{
+			if ( A == B || !A->IsAlive() || !B->IsAlive() )
+				continue;
+
+			Bs	=	B->GetModelInstance()->GetBoundingSphere();
+
+			if ( As.Intersects( Bs ) )
+			{
+				CollisionEvent	tEvent(A, B);
+
+				bool	hasOccured	=	false;
+				for each ( CollisionEvent Event in tCollisionEvents )
+					if ( Event == tEvent )
+						hasOccured	=	true;
+
+				if ( !hasOccured )
+					tCollisionEvents.push_back(tEvent);
+			}
+		}
+	}
+	
+	if ( tCollisionEvents.size() > 0 )
+	{
+		for each( CollisionEvent tEvent in tCollisionEvents )
+		{
+			if ( tEvent.A->IsEnemy( tEvent.B ) )
+			{
+				((Unit*)tEvent.A)->Hit(((Unit*)tEvent.B));
+
+			}
+		}
+	}
+
 }

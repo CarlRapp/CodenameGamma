@@ -1,6 +1,6 @@
 #include "PlayScreen.h"
 
-
+DebugData*	TDATA;
 PlayScreen::PlayScreen(ScreenData* Setup)
 {
 	LoadScreenData(Setup);
@@ -35,44 +35,12 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 	SetNumberOfPlayers(1);
 
 	gPlayers.at(0)->SetGameObject(gLevel->GetGameObjects().at(0));
+	gLevel->GetGameObjects().at(0)->SetTeam(Team1);
+
+	TDATA	=	DebugScreen::GetInstance()->AddDebugData(" HP");
 }
 
-
-
-/*
-void PlayScreen::AddInstance(float x, float y, float z, Model *model)
-{
-	XMMATRIX scale, rot, trans, world;
-	scale	= XMMatrixScaling(10.0f, 10.0f, 10.0f);
-
-	y += gTerrain->GetHeight(x, z);
-
-	rot		= XMMatrixRotationX(0);
-	//rot		= XMMatrixRotationX(-PI/2);
-	trans	= XMMatrixTranslation(x, y, z);
-
-	ModelInstance *instance = new ModelInstance();
-	instance->m_Model = model;	
-	//instance->m_World = scale * rot * trans;
-	world = XMMatrixMultiply(scale, rot);
-	world = XMMatrixMultiply(world, trans);
-	XMStoreFloat4x4(&instance->m_World, world);
-	instance->m_OldBoundingSphere = instance->GetBoundingSphere();
-
-	gGraphicsManager->AddModelInstance(instance);
-
-
-	GameObject *go = new GameObject();
-	go->m_Position = DirectX::XMFLOAT3(x, y, z);
-	go->m_ModelInstance = instance;
-	
-	float speed = 80;
-
-	if (MathHelper::RandF(0, 1) > 1.0f)
-		go->m_Velocity = DirectX::XMFLOAT3(MathHelper::RandF(-speed, speed), 0, MathHelper::RandF(-speed, speed));
-	gGameObjects.push_back(go);
-}*/
-
+#pragma region Load / Unload
 bool PlayScreen::Load()
 {
 	return true;
@@ -92,6 +60,7 @@ bool PlayScreen::Unload()
 		
 	return true;
 }
+#pragma endregion
 
 void PlayScreen::Update(float DeltaTime)
 {
@@ -101,6 +70,7 @@ void PlayScreen::Update(float DeltaTime)
 		p->Update(DeltaTime);
 	}
 
+	TDATA->Value	=	to_string((long double)((Unit*)gLevel->GetGameObjects().at(0))->GetHealth().first);
 }
 
 void PlayScreen::Render()
@@ -111,6 +81,11 @@ void PlayScreen::Render()
 		tCams.push_back( p->GetCamera() );
 
 	gLevel->Render(tCams);
+
+
+	UnitHealth	tData	=	((Unit*)gLevel->GetGameObjects().at(0))->GetHealth();
+
+	DrawString(*gTextInstance, to_string((long double)tData.first) + " HP", 300.0f, 300.0f, 40.0f, White, Black, 2, 0);
 }
 
 ScreenType PlayScreen::GetScreenType()
@@ -118,6 +93,7 @@ ScreenType PlayScreen::GetScreenType()
 	return PLAY_SCREEN;
 }
 
+#pragma region Setup Viewports (SetNumberOfPlayers)
 void PlayScreen::SetNumberOfPlayers(int noPlayers)
 {
 	gPlayers.clear();
@@ -157,3 +133,4 @@ void PlayScreen::SetNumberOfPlayers(int noPlayers)
 			break;
 	}
 }
+#pragma endregion

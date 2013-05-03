@@ -12,6 +12,7 @@
 #include "../GameObject.h"
 #include "../Graphics/QuadTree.h"
 #include "LevelParser.h"
+#include "../Units/Unit.h"
 
 struct SystemData
 {
@@ -21,6 +22,23 @@ struct SystemData
 	ID3D11DeviceContext*	DEVICE_CONTEXT;
 	ID3D11RenderTargetView*	RENDER_TARGET_VIEW;
 	int	SCREEN_WIDTH, SCREEN_HEIGHT;
+};
+
+struct CollisionEvent
+{
+	GameObject* A;
+	GameObject* B;
+
+	CollisionEvent(GameObject* InstanceA, GameObject* InstanceB)
+	{
+		A	=	InstanceA;
+		B	=	InstanceB;
+	}
+
+	bool operator==(CollisionEvent Event)
+	{
+		return (Event.A == A || Event.B == A) && ( Event.A == B || Event.B == B );
+	}
 };
 
 using namespace std;
@@ -75,6 +93,8 @@ private:
 
 		delete go;
 	}
+
+	void RunCollisionTest();
 
 public:
 	Level(void);
