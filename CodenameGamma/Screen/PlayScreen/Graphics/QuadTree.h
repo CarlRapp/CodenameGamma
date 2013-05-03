@@ -42,6 +42,8 @@ public:
 		}
 	};
 
+	void DestroyTree(Node* Instance);
+
 private:
 	static const int maxNodeSize = 4;
 	float minNodeVolume;

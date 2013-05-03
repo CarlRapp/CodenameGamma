@@ -13,7 +13,7 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 	tData.SCREEN_HEIGHT			=	gScreenHeight;
 
 	gLevel	=	new Level(tData);
-	gLevel->LoadLevel("TestMap");
+	gLevel->LoadLevel("FlatMap");
 
 	/*
 	gModel = new Model(gDevice, gTexMgr, "DATA\\Models\\obj\\pacman.obj", "DATA/Models/Textures/");
@@ -33,6 +33,8 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 	*/
 
 	SetNumberOfPlayers(1);
+
+	//gPlayers.at(0)->SetGameObject(gLevel->GetGameObjects().at(0));
 }
 
 
@@ -112,7 +114,12 @@ void PlayScreen::Update(float DeltaTime)
 
 void PlayScreen::Render()
 {
-	gLevel->Render(gPlayers);
+	vector<Camera*> tCams = vector<Camera*>();
+
+	for each(Player* p in gPlayers)
+		tCams.push_back( p->GetCamera() );
+
+	gLevel->Render(tCams);
 }
 
 ScreenType PlayScreen::GetScreenType()

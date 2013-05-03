@@ -3,11 +3,13 @@
 #define PLAYER_H
 
 #include "../../Input/InputManager.h"
+#include "GameObject.h";
 #include "Camera.h"
 
 class Player
 {
 private:
+	GameObject*	m_GameObject;
 	Camera		*m_Camera;
 	Controller	*m_Controller;
 
@@ -28,6 +30,8 @@ public:
 
 	Camera*		GetCamera()		{ return m_Camera; }
 	Controller*	GetController()	{ return m_Controller; }
+	
+	void	SetGameObject(GameObject* Instance);
 };
 
 #endif
