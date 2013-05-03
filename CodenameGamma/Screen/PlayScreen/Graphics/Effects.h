@@ -213,9 +213,13 @@ public:
 	TiledLightningEffect(ID3D11Device* device, const std::wstring& filename);
 	~TiledLightningEffect();
 
+	void SetViewProjTexs(const XMFLOAT4X4* M, int cnt)		{ ViewProjTexs->SetMatrixArray(reinterpret_cast<const float*>(M), 0, cnt); }
+	void SetViewProj(const XMFLOAT4X4* M, int cnt)			{ ViewProj->SetMatrixArray(reinterpret_cast<const float*>(M), 0, cnt); }
+	void SetTexs(const XMFLOAT4X4* M, int cnt)				{ Texs->SetMatrixArray(reinterpret_cast<const float*>(M), 0, cnt); }
 	void SetInvViewProjs(const XMFLOAT4X4* M, int cnt)		{ InvViewProjs->SetMatrixArray(reinterpret_cast<const float*>(M), 0, cnt); }
 	void SetCamPositions(const XMFLOAT4* V, int cnt)		{ CamPositions->SetFloatVectorArray(reinterpret_cast<const float*>(V), 0, cnt); }
 	void SetResolution(const XMFLOAT2 v)					{ Resolution->SetRawValue(&v, 0, sizeof(XMFLOAT2)); }
+	void SetShadowMapResolution(const XMFLOAT2 v)			{ ShadowMapResolution->SetRawValue(&v, 0, sizeof(XMFLOAT2)); }
 
 	void SetAlbedoMap(ID3D11ShaderResourceView* tex)		{ AlbedoMap->SetResource(tex); }
 	void SetNormalSpecMap(ID3D11ShaderResourceView* tex)    { NormalSpecMap->SetResource(tex); }
@@ -231,9 +235,13 @@ public:
 	ID3DX11EffectTechnique* Viewport3;
 	ID3DX11EffectTechnique* Viewport4;
 
+	ID3DX11EffectMatrixVariable* ViewProjTexs;
+	ID3DX11EffectMatrixVariable* ViewProj;
+	ID3DX11EffectMatrixVariable* Texs;
 	ID3DX11EffectMatrixVariable* InvViewProjs;	
 	ID3DX11EffectVectorVariable* CamPositions;
 	ID3DX11EffectVectorVariable* Resolution;
+	ID3DX11EffectVectorVariable* ShadowMapResolution;
 
 	ID3DX11EffectShaderResourceVariable* AlbedoMap;
 	ID3DX11EffectShaderResourceVariable* NormalSpecMap;

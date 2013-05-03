@@ -3,14 +3,17 @@
 
 #include "LightHelper.fx"
 #define MAX_LIGHTS 1024
-#define MAX_SHADOWMAPS 10
+#define MAX_SHADOWMAPS 128
 
 cbuffer perFrame
 {
 	float4x4    gLightViewProjTex[MAX_SHADOWMAPS];
+	float4x4    gLightViewProj[MAX_SHADOWMAPS];
+	float4x4    gLightTex[MAX_SHADOWMAPS];
 	float4x4	gInvViewProjs[4];
 	float4		gCamPositions[4];
 	float2		gResolution;
+	float2		gShadowMapResolution;
 };
 
 //Lights
@@ -90,7 +93,7 @@ float CalcualteShadowFactor(DirectionalLight light, float4 posW)
 		{
 			float4x4 VPT = gLightViewProjTex[light.ShadowIndex];
 			float4 posT = mul(posW, VPT);
-			float shadowDepth = gShadowMap[posT.xy * gResolution].x;
+			float shadowDepth = gShadowMap[posT.xy * gShadowMapResolution].x;
 			
 			if (posT.z > shadowDepth)
 				return 0;
@@ -106,10 +109,28 @@ float CalcualteShadowFactor(SpotLight light, float4 posW)
 	if (light.HasShadow)
 		{
 			float4x4 VPT = gLightViewProjTex[light.ShadowIndex];
-			float4 posT = mul(posW, VPT);
-			float shadowDepth = gShadowMap[posT.xy * gResolution].x;
+			float4x4 VP = gLightViewProj[light.ShadowIndex];
+			float4x4 T = gLightTex[light.ShadowIndex];
+
+			float4 posH = mul(posW, VP);
+			posH = posH / posH.w;
+			posH.xy = (posH.xy + float2(1,-1)) * float2(0.5f, -0.5f);
+
+			float4 posT = mul(posH, T);
 			
-			if (posT.z > shadowDepth)
+
+
+			/*
+			float4 posT = mul(posW, VPT);
+			posT = posT / posT.w;
+			posT.xy = (posT.xy + float2(1,-1)) * float2(0.5f, -0.5f);
+			*/
+			float shadowDepth = gShadowMap[int2(posT.xy * gShadowMapResolution)].x;
+
+			//return posT.y;
+			//return pow(posT.z * 0.99f, 100);
+			//return shadowDepth;
+			if (posH.z > shadowDepth)
 				return 0;
 
 			return 1;
@@ -371,11 +392,24 @@ void TiledLightningCS(	uniform int gViewportCount,
 
 		float4 A, D, S;
 		ComputeSpotLight(mat, light, posW, normalW, toEye, A, D, S);
-
+		
 		ambient += A;    
 		diffuse += shadowFactor * D;
 		spec    += shadowFactor * S;
 		
+		/*
+		ambient += A;    
+		diffuse += D;
+		spec    += S;
+		*/
+		/*
+		if (D.x != 0)
+		{
+			ambient = 0;    
+			diffuse = shadowFactor;
+			spec    = 0;
+		}
+		*/
 	}
 	
 	/*

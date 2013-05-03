@@ -46,6 +46,10 @@ class GraphicsManager
 	StructuredBuffer<PointLight>		*m_PointLightBuffer;
 	StructuredBuffer<SpotLight>			*m_SpotLightBuffer;
 
+	std::vector<XMFLOAT4X4> m_ViewProjTexs;
+	std::vector<XMFLOAT4X4> m_ViewProj;
+	std::vector<XMFLOAT4X4> m_Texs;
+
 private:
 
 	void InitFullScreenQuad();
@@ -76,17 +80,18 @@ private:
 	XMFLOAT4X4 ShadowViewProjTex(D3D11_VIEWPORT &vp, CXMMATRIX ViewProj)
 	{
 		//Skala om från pixlar till intervallet [0, 1]
-		float x			= vp.TopLeftX	/ (float) m_ShadowWidth;
-		float y			= vp.TopLeftY	/ (float) m_ShadowHeight;
+		
 		float scaleX	= vp.Width		/ (float) m_ShadowWidth;
 		float scaleY	= vp.Height		/ (float) m_ShadowHeight;
+		float x			= (vp.TopLeftX	/ (float) m_ShadowWidth)  * scaleX;
+		float y			= (vp.TopLeftY	/ (float) m_ShadowHeight) * scaleY;
 
 		//Räkna ut Translation / Scala för tex-matrisen.
 		XMMATRIX texTrans = XMMatrixTranslation(x, y, 0);
 		XMMATRIX texScale = XMMatrixTranslation(scaleX, scaleY, 0);
 
 		//Räkna ut tex.
-		XMMATRIX tex = texTrans * texScale;
+		XMMATRIX tex = texScale * texTrans;
 
 		//Räkna ut viewprojtex.
 		XMMATRIX ViewProjTex = ViewProj * tex;
@@ -94,6 +99,29 @@ private:
 		//Omvandla till XMFLOAT4X4
 		XMFLOAT4X4 result;
 		XMStoreFloat4x4(&result, ViewProjTex);
+
+		return result;
+	}
+
+	XMFLOAT4X4 ShadowTex(D3D11_VIEWPORT &vp)
+	{
+		//Skala om från pixlar till intervallet [0, 1]
+		
+		float scaleX	= vp.Width		/ (float) m_ShadowWidth;
+		float scaleY	= vp.Height		/ (float) m_ShadowHeight;
+		float x			= (vp.TopLeftX	/ (float) m_ShadowWidth);
+		float y			= (vp.TopLeftY	/ (float) m_ShadowHeight);
+
+		//Räkna ut Translation / Scala för tex-matrisen.
+		XMMATRIX texTrans = XMMatrixTranslation(x, y, 0);
+		XMMATRIX texScale = XMMatrixScaling(scaleX, scaleY, 0);
+
+		//Räkna ut tex.
+		XMMATRIX tex = texScale * texTrans;
+		
+		//Omvandla till XMFLOAT4X4
+		XMFLOAT4X4 result;
+		XMStoreFloat4x4(&result, tex);
 
 		return result;
 	}

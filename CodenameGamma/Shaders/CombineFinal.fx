@@ -47,7 +47,7 @@ float4 PSScene(PSSceneIn input, uniform bool gColor) : SV_Target
 	if (gColor)
 		return g_Texture.Sample(g_Sampler, input.Tex);
 	else
-		return g_Texture.Sample(g_Sampler, input.Tex).x;
+		return pow(g_Texture.Sample(g_Sampler, input.Tex).x * 0.98f, 20);
 }
 
 DepthStencilState DepthStencil
