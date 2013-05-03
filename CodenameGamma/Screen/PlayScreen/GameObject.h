@@ -16,6 +16,13 @@ enum GOState
 	Dead
 };
 
+enum GOTeam
+{
+	Team1, Team2,
+	Team3, Team4,
+	Team5, Neutral
+};
+
 enum GOFloat3Value
 {
 	Position, Velocity,
@@ -34,6 +41,7 @@ class GameObject
 	ModelInstance *m_ModelInstance;
 
 	GOState		gState;
+	GOTeam		gTeam;
 	XMFLOAT3	gPosition;
 	XMFLOAT3	gVelocity, gAcceleration;
 	XMFLOAT3	gRotationInFloat;
@@ -47,7 +55,7 @@ public:
 	GameObject(void);
 	~GameObject(void);
 
-	bool Update(float deltaTime, Terrain* terrain);
+	virtual bool Update(float deltaTime, Terrain* terrain);
 	QuadTreeType* GetQuadTreeType() { return m_QuadTreeType; }
 	
 	void SetModelInstance(ModelInstance *modelInstance);	
@@ -68,8 +76,13 @@ public:
 	void	SetVelocity(XMFLOAT3 Velocity);
 
 	void	SetState(GOState Value);
+	
 
 	bool	IsAlive(){ return (gState != Dead); }
+
+	bool	IsEnemy(GameObject* Instance);
+	void	SetTeam(GOTeam Value);
+	GOTeam	GetTeam();
 };
 
 #endif

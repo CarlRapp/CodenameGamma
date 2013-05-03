@@ -29,6 +29,8 @@ GameObject::GameObject(void)
 
 	SetState( Alive );
 
+	SetTeam(Team2);
+
 	m_ModelInstance = NULL;
 	m_QuadTreeType = NULL;
 }
@@ -99,16 +101,17 @@ bool GameObject::Update(float deltaTime, Terrain* terrain)
 	if (moved && m_ModelInstance)
 	{
 		Move(XMFLOAT3(gVelocity.x * deltaTime, 0, gVelocity.z * deltaTime));
-		//MoveTo(XMFLOAT3(0, terrain->GetHeight(gPosition.x, gPosition.z) + 10, 0));
-				m_ModelInstance->m_World	=	gWorld;
+
+		m_ModelInstance->m_World	=	gWorld;
 		m_ModelInstance->m_WorldInverseTranspose	=	gWorldInverseTranspose;
 
 		m_QuadTreeType->Update();
 
 		return true;
 	}
-			m_ModelInstance->m_World	=	gWorld;
-		m_ModelInstance->m_WorldInverseTranspose	=	gWorldInverseTranspose;
+
+	m_ModelInstance->m_World	=	gWorld;
+	m_ModelInstance->m_WorldInverseTranspose	=	gWorldInverseTranspose;
 	return false;
 }
 
@@ -263,6 +266,20 @@ void GameObject::SetState(GOState Value)
 {
 	gState	=	Value;
 }
+
+#pragma region Team Methods
+void GameObject::SetTeam(GOTeam Team)
+{
+	gTeam	=	Team;
+}
+
+
+bool GameObject::IsEnemy(GameObject* Instance)
+{
+	return ( gTeam != Neutral && Instance->gTeam != Neutral && gTeam != Instance->gTeam );
+}
+#pragma endregion
+
 
 //	Updates the world matrix,
 //	and if bool is true will also
