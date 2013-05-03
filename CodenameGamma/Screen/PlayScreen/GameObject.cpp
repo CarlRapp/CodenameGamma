@@ -27,6 +27,8 @@ GameObject::GameObject(void)
 	);
 	UpdateWorld(true);
 
+	SetState( Alive );
+
 	m_ModelInstance = NULL;
 	m_QuadTreeType = NULL;
 }
@@ -256,6 +258,11 @@ void GameObject::SetVelocity(XMFLOAT3 Velocity)
 	gVelocity	=	Velocity;
 }
 #pragma endregion
+
+void GameObject::SetState(GOState Value)
+{
+	gState	=	Value;
+}
 
 //	Updates the world matrix,
 //	and if bool is true will also

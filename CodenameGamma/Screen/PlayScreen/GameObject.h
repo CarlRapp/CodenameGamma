@@ -9,6 +9,13 @@
 #include "../../MathHelper.h"
 using namespace DirectX;
 
+enum GOState
+{
+	Alive,
+	Idle,
+	Dead
+};
+
 enum GOFloat3Value
 {
 	Position, Velocity,
@@ -26,6 +33,7 @@ class GameObject
 	QuadTreeType *m_QuadTreeType;
 	ModelInstance *m_ModelInstance;
 
+	GOState		gState;
 	XMFLOAT3	gPosition;
 	XMFLOAT3	gVelocity, gAcceleration;
 	XMFLOAT3	gRotationInFloat;
@@ -59,6 +67,9 @@ public:
 
 	void	SetVelocity(XMFLOAT3 Velocity);
 
+	void	SetState(GOState Value);
+
+	bool	IsAlive(){ return (gState != Dead); }
 };
 
 #endif
