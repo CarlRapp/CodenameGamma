@@ -16,12 +16,8 @@ Level::Level(SystemData LData)
 	gGraphicsManager->SetLights(&gDirLights, &gPointLights, &gSpotLights);
 
 
-	AddDirectionalLight(0);
-	AddDirectionalLight(0);
-	AddDirectionalLight(0);
-	AddDirectionalLight(0);
-	AddDirectionalLight(0);
-	AddDirectionalLight(0);
+	for(int i = 0; i < 5; i++)
+		AddDirectionalLight(0);
 
 	for( int i = 0; i < 30; ++i)
 	{
@@ -200,8 +196,36 @@ void Level::Update(float DeltaTime)
 			updatedGO.push_back(go);
 	}
 
-	for each (GameObject *go in updatedGO)	
-		gQuadTree->Update(go);
+	BoundingSphere As, Bs;
+	for each (GameObject* A in gGameObjects)
+	{
+		As	=	A->GetModelInstance()->GetBoundingSphere();
+
+		
+		if ( A == gGameObjects[0] )
+		for each (GameObject* B in gGameObjects)
+		{
+			if ( A == B )
+				continue;
+
+			Bs	=	B->GetModelInstance()->GetBoundingSphere();
+
+			if ( As.Intersects( Bs ) )
+				B->SetState( Dead );
+		}
+	}
+
+	for each (GameObject *go in updatedGO)
+	{
+		if ( go->IsAlive() )
+			gQuadTree->Update(go);
+		else
+			gQuadTree->Delete(go);
+	}
+
+	for ( int i = gGameObjects.size() - 1; i >= 0; --i )
+		if ( !gGameObjects[i]->IsAlive() )
+			gGameObjects.erase( gGameObjects.begin() + i );
 
 	//Updaterar ljus
 	//Updaterar pointlights
