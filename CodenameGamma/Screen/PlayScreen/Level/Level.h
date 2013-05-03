@@ -23,6 +23,23 @@ struct SystemData
 	int	SCREEN_WIDTH, SCREEN_HEIGHT;
 };
 
+struct CollisionEvent
+{
+	GameObject* A;
+	GameObject* B;
+
+	CollisionEvent(GameObject* InstanceA, GameObject* InstanceB)
+	{
+		A	=	InstanceA;
+		B	=	InstanceB;
+	}
+
+	bool operator==(CollisionEvent Event)
+	{
+		return (Event.A == A || Event.B == A) && ( Event.A == B || Event.B == B );
+	}
+};
+
 using namespace std;
 class Level
 {
@@ -75,6 +92,8 @@ private:
 
 		delete go;
 	}
+
+	void RunCollisionTest();
 
 public:
 	Level(void);
