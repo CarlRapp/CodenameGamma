@@ -94,16 +94,7 @@ bool PlayScreen::Unload()
 }
 
 void PlayScreen::Update(float DeltaTime)
-{/*
-	//Updaterar gameobjects
-	vector<ModelInstance*>	updatedInstances;	
-	for each (GameObject *go in gGameObjects)
-	{
-		//go->Update(deltaTime);
-		if (go->Update(DeltaTime, gTerrain))
-			updatedInstances.push_back(go->m_ModelInstance);
-	}
-	*/
+{
 	gLevel->Update(DeltaTime);
 	for each (Player *p in gPlayers)
 	{
