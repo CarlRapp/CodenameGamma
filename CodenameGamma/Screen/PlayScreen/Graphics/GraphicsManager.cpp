@@ -26,9 +26,6 @@ GraphicsManager::GraphicsManager(ID3D11Device *device, ID3D11DeviceContext *devi
 	g_QuadTree = NULL;
 
 
-	InitFullScreenQuad();
-	InitBuffers();
-
 	m_DirLightBuffer = NULL;
 	m_PointLightBuffer = NULL;
 	m_SpotLightBuffer = NULL;
@@ -39,6 +36,8 @@ GraphicsManager::GraphicsManager(ID3D11Device *device, ID3D11DeviceContext *devi
 	m_ShadowMapSRV	= NULL;
 	m_ShadowMapDSV	= NULL;
 
+	InitFullScreenQuad();
+	InitBuffers();
 }
 
 GraphicsManager::~GraphicsManager(void)
@@ -250,6 +249,8 @@ void GraphicsManager::InitBuffers()
 	normalSpecTex->Release();	
 	depthTex->Release();
 	finalTex->Release();
+
+	InitShadowMap(8192, 4096);
 }
 
 void GraphicsManager::InitShadowMap(int width, int height)
@@ -339,12 +340,12 @@ void GraphicsManager::RenderShadowMaps(vector<Camera*>& cameras)
 	{
 		if (light->HasShadow)
 		{
-			BoundingSphere lightBounds = light->GetBoundingSphere();
+			BoundingFrustum lightBounds = light->GetBoundingFrustum();
 			for each (Camera* camera in cameras)
 			{
 				if (camera->GetFrustum().Intersects(lightBounds))
 				{
-					spotLights.push_back(light);
+					spotLights.push_back(light);					
 				}
 			}
 		}
@@ -352,6 +353,7 @@ void GraphicsManager::RenderShadowMaps(vector<Camera*>& cameras)
 #pragma endregion Select lights with shadows
 	
 	vector<XMFLOAT2> Resolutions;
+	Resolutions.push_back(SHADOWMAP_4096);
 	Resolutions.push_back(SHADOWMAP_2048);
 	Resolutions.push_back(SHADOWMAP_1024);
 	Resolutions.push_back(SHADOWMAP_512);
@@ -376,14 +378,17 @@ void GraphicsManager::RenderShadowMaps(vector<Camera*>& cameras)
 				//kolla om shadowmapen får plats
 				//else light->ShadowIndex = -1 (kolla på GPU)
 
-				XMFLOAT2 shadowCoord = CalculateShadowCoord(ShadowIndex);
+				XMFLOAT2 shadowCoord = CalculateShadowCoord(ShadowTileIndex);
 
 				//räkna ut viewport
 				D3D11_VIEWPORT vp = ShadowViewPort(shadowCoord.x, shadowCoord.y, Resolution.x, Resolution.y);
 
 				//räkna ut ViewProj-matris.
 				//1.0f, light->Range ska vara närsta avstånd till objekt, största avstånd. Terräng? GOLDPLATING! Drar prestanda, ökar kvalité på skuggorna.
-				XMMATRIX ViewProj = light->GetViewMatrix() * light->GetProjectionMatrix(1.0f, light->Range);
+
+				XMMATRIX View = light->GetViewMatrix();
+				XMMATRIX Proj = light->GetProjectionMatrix(1.0f, light->Range);
+				XMMATRIX ViewProj = View * Proj;
 
 				//räkna ut viewprojtex
 				XMFLOAT4X4 ViewProjTex = ShadowViewProjTex(vp, ViewProj);
@@ -393,7 +398,7 @@ void GraphicsManager::RenderShadowMaps(vector<Camera*>& cameras)
 
 
 				//drawshadowmap med vp
-
+				RenderShadowMap(View, Proj, vp);
 
 
 				//Sätter ShadowIndex
@@ -410,31 +415,94 @@ void GraphicsManager::RenderShadowMaps(vector<Camera*>& cameras)
 	}	
 }
 
-void GraphicsManager::RenderShadowMap(SpotLight& light, D3D11_VIEWPORT vp)
+void GraphicsManager::RenderShadowMap(CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEWPORT vp)
 {
 	m_DeviceContext->RSSetViewports( 1, &vp );
-	/*
-	XMMATRIX view;
-	XMMATRIX proj;
+	m_DeviceContext->OMSetRenderTargets( 0, NULL, m_ShadowMapDSV );
+	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	m_DeviceContext->OMSetDepthStencilState(RenderStates::LessDSS, 0);
+	m_DeviceContext->RSSetState(RenderStates::NoCullRS);	
+	//m_DeviceContext->RSSetState(RenderStates::WireframeRS);	
 
-	view = XMLoadFloat4x4(&tCamera->GetView());
-	proj = XMLoadFloat4x4(&tCamera->GetProjection());
+	m_DeviceContext->IASetInputLayout(InputLayouts::Pos);
 
+	Effects::ShadowMapFX->SetViewProj(View * Proj);
+
+	RenderTerrainShadowMap(View, Proj);
+	RenderModelsShadowMap(View, Proj);
+	std::cout << "shadow" << endl;
+
+	m_DeviceContext->OMSetRenderTargets( 0, 0, 0 );
+
+}
+
+void GraphicsManager::RenderTerrainShadowMap(CXMMATRIX View, CXMMATRIX Proj)
+{
 	ID3DX11EffectTechnique* tech;
 	D3DX11_TECHNIQUE_DESC techDesc;
-	
-	m_DeviceContext->IASetInputLayout(InputLayouts::Terrain);
-	tech = Effects::TerrainDeferredFX->TexTech;
-	//tech = Effects::TerrainDeferredFX->TexNormalTech;
+
+	tech = Effects::ShadowMapFX->BasicShadow;
 	tech->GetDesc( &techDesc );
-	
+
 	for(UINT p = 0; p < techDesc.Passes; ++p)
 	{
-		//sätt effektvariabler
+		XMMATRIX world = XMMatrixTranslation(0, 0, 0);
+		Effects::ShadowMapFX->SetViewProj(View * Proj);
+		Effects::ShadowMapFX->SetWorld(world);
+
 		tech->GetPassByIndex(p)->Apply(0, m_DeviceContext);
-		m_Terrain->Draw(m_DeviceContext);
+		m_Terrain->Draw(m_DeviceContext);		
 	}
-	*/
+}
+
+void GraphicsManager::RenderModelsShadowMap(CXMMATRIX View, CXMMATRIX Proj)
+{
+	ID3DX11EffectTechnique* tech;
+	D3DX11_TECHNIQUE_DESC techDesc;
+
+	tech = Effects::ShadowMapFX->BasicShadow;
+	tech->GetDesc( &techDesc );
+
+	vector<GameObject*> instances;	
+	BoundingFrustum frustum = MathHelper::GenerateBoundingFrustum(View, Proj);
+	g_QuadTree->GetIntersectingInstances(frustum, instances);
+	sort( instances.begin(), instances.end() );
+	instances.erase( unique( instances.begin(), instances.end() ), instances.end() );
+
+	std::cout << instances.size() << endl;
+
+	for(UINT p = 0; p < techDesc.Passes; ++p)
+	{
+		//for each (ModelInstance* instance in m_modelInstances)
+		for each (GameObject* instance in instances)
+		{
+
+			Effects::ShadowMapFX->SetViewProj(View * Proj);
+			ModelInstance* modelInstance = instance->GetModelInstance();
+			if (modelInstance != NULL)
+				RenderModelShadowMap(*modelInstance, p);
+		}
+	}
+}
+
+void GraphicsManager::RenderModelShadowMap(ModelInstance& instance, UINT pass)
+{
+	ID3DX11EffectTechnique* tech;
+	D3DX11_TECHNIQUE_DESC techDesc;
+
+	tech = Effects::ShadowMapFX->BasicShadow;
+	tech->GetDesc( &techDesc );
+	
+	XMMATRIX world;
+	world = XMLoadFloat4x4(&instance.m_World);
+	Effects::ShadowMapFX->SetWorld(world);
+
+	for(UINT subset = 0; subset < instance.m_Model->SubsetCount; ++subset)
+	{
+
+		tech->GetPassByIndex(pass)->Apply(0, m_DeviceContext);
+		instance.m_Model->ModelMesh.Draw(m_DeviceContext, subset);
+	}
 }
 
 void GraphicsManager::UpdateLights()
@@ -563,6 +631,7 @@ void GraphicsManager::ClearBuffers()
 {
 	m_DeviceContext->RSSetViewports( 1, &m_ViewPort );
 	m_DeviceContext->ClearDepthStencilView( m_DepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
+	m_DeviceContext->ClearDepthStencilView( m_ShadowMapDSV, D3D11_CLEAR_DEPTH, 1.0f, 0 );
 	float AlbedoClearColor[4] = {0.1f,  0.1f, 0.1f, 0.0f};
 	float ClearColor[4] = {0.0f,  0.0f, 0.0f, 0.0f};
 	m_DeviceContext->ClearRenderTargetView( m_RenderTargetView, ClearColor );
@@ -861,13 +930,32 @@ void GraphicsManager::CombineFinal()
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);	
 	m_DeviceContext->OMSetDepthStencilState(RenderStates::NoDSS, 0);
 
-	ID3DX11EffectTechnique* tech;
-	D3DX11_TECHNIQUE_DESC techDesc;
+	//Effects::CombineFinalFX->SetTexture(m_FinalSRV);
+	Effects::CombineFinalFX->SetTexture(m_ShadowMapSRV);
 
-	tech = Effects::CombineFinalFX->CombineTech;
+	
+	D3D11_VIEWPORT shadowVP;
+	shadowVP.TopLeftX = 20;
+	shadowVP.TopLeftY = m_Height - 320;		
+	shadowVP.Width	= 600;
+	shadowVP.Height	= 300;
+	shadowVP.MinDepth = 0.0f;
+	shadowVP.MaxDepth = 1.0f;
+
+	
+	RenderQuad(m_ViewPort, m_FinalSRV, Effects::CombineFinalFX->ColorTech);
+	RenderQuad(shadowVP, m_ShadowMapSRV, Effects::CombineFinalFX->MonoTech);
+
+	m_DeviceContext->RSSetViewports( 1, &m_ViewPort );
+}
+
+void GraphicsManager::RenderQuad(D3D11_VIEWPORT &vp, ID3D11ShaderResourceView* SRV, ID3DX11EffectTechnique* tech)
+{
+	m_DeviceContext->RSSetViewports( 1, &vp );
+	D3DX11_TECHNIQUE_DESC techDesc;
 	tech->GetDesc( &techDesc );
 
-	Effects::CombineFinalFX->SetTexture(m_FinalSRV);
+	Effects::CombineFinalFX->SetTexture(SRV);
 
 	for(UINT p = 0; p < techDesc.Passes; ++p)
     {
@@ -888,6 +976,9 @@ void GraphicsManager::Render(vector<Camera*>& Cameras)
 	m_DeviceContext->OMSetBlendState(RenderStates::OpaqueBS, NULL, 0xffffffff);
 	UpdateLights();
 	ClearBuffers();
+
+	RenderShadowMaps(Cameras);
+
 	FillGBuffer(Cameras);
 	ComputeLight(Cameras);
 	CombineFinal();

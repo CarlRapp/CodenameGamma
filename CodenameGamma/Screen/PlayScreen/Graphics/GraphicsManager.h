@@ -54,7 +54,11 @@ private:
 	void InitShadowMap(int width, int height);
 	
 	void RenderShadowMaps(vector<Camera*>& cameras);
-	void RenderShadowMap(SpotLight& light, D3D11_VIEWPORT vp);
+	void RenderShadowMap(CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEWPORT vp);
+
+	void RenderTerrainShadowMap(CXMMATRIX View, CXMMATRIX Proj);
+	void RenderModelsShadowMap(CXMMATRIX View, CXMMATRIX Proj);
+	void RenderModelShadowMap(ModelInstance& instance, UINT pass);	
 
 	D3D11_VIEWPORT ShadowViewPort(int x, int y, int width, int height)
 	{
@@ -111,6 +115,8 @@ private:
 	void FillGBuffer(vector<Camera*>& Cameras);
 	void ComputeLight(vector<Camera*>& Cameras);
 	void CombineFinal();
+
+	void RenderQuad(D3D11_VIEWPORT &vp, ID3D11ShaderResourceView* SRV, ID3DX11EffectTechnique* tech);
 
 public:
 	GraphicsManager(ID3D11Device *device, ID3D11DeviceContext *deviceContext, ID3D11RenderTargetView *renderTargetView, int width, int height);
