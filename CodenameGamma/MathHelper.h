@@ -52,6 +52,18 @@ public:
 	// Returns the polar angle of the point (x,y) in [0, 2*PI).
 	static float AngleFromXY(float x, float y);
 
+
+	static BoundingFrustum GenerateBoundingFrustum(CXMMATRIX View, CXMMATRIX Proj)
+	{
+		XMVECTOR det		= XMMatrixDeterminant(View);
+		XMMATRIX invView	= XMMatrixInverse(&det, View);
+
+		BoundingFrustum output = BoundingFrustum(Proj);
+		output.Transform(output, invView);
+
+		return output;
+	}
+
 	static XMMATRIX InverseTranspose(CXMMATRIX M)
 	{
 		// Inverse-transpose is just applied to normals.  So zero out 
