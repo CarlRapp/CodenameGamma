@@ -16,7 +16,6 @@ Camera::Camera(void)
 	m_Right		= XMFLOAT3(1, 0, 0);
 	m_Up		= XMFLOAT3(0, 1, 0);
 
-
 	UpdateView();
 	UpdateProjection();
 }
@@ -113,11 +112,14 @@ void Camera::UpdateFrustum()
 	XMMATRIX proj		= XMLoadFloat4x4(&m_Projection);
 	XMMATRIX view		= XMLoadFloat4x4(&m_View);
 
+	m_BoundingFrustum = MathHelper::GenerateBoundingFrustum(view, proj);
+	/*
 	XMVECTOR det		= XMMatrixDeterminant(view);
 	XMMATRIX invView	= XMMatrixInverse(&det, view);
 
 	m_BoundingFrustum = BoundingFrustum(proj);
 	m_BoundingFrustum.Transform(m_BoundingFrustum, invView);
+	*/
 }
 
 void Camera::Pitch(float angle)
@@ -162,8 +164,6 @@ void Camera::SetForward(XMFLOAT3 forward)
 	XMVECTOR direction = XMLoadFloat3(&forward);
 	direction = XMVector3Normalize(direction);
 	XMVECTOR up	= XMVectorSet(0, 1 , 0, 0);
-
-
 
 	if (XMVector3Equal(direction, XMVectorZero()))
 		direction = XMVectorSet(0, 0, 1, 0);
