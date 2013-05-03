@@ -597,6 +597,23 @@ public:
 };
 #pragma endregion
 
+#pragma region ShadowMapEffect
+class ShadowMapEffect : public Effect
+{
+public:
+	ShadowMapEffect(ID3D11Device* device, const std::wstring& filename);
+	~ShadowMapEffect();
+
+	void SetWorld(CXMMATRIX M)		{ World->SetMatrix(reinterpret_cast<const float*>(&M)); }
+	void SetViewProj(CXMMATRIX M)	{ ViewProj->SetMatrix(reinterpret_cast<const float*>(&M)); }
+
+	ID3DX11EffectTechnique* BasicShadow;
+
+	ID3DX11EffectMatrixVariable* World;
+	ID3DX11EffectMatrixVariable* ViewProj;
+};
+#pragma endregion
+
 #pragma region CombineFinalEffect
 class CombineFinalEffect : public Effect
 {
@@ -606,7 +623,8 @@ public:
 
 	void SetTexture(ID3D11ShaderResourceView* tex)  { Texture->SetResource(tex); }
 
-	ID3DX11EffectTechnique* CombineTech;
+	ID3DX11EffectTechnique* MonoTech;
+	ID3DX11EffectTechnique* ColorTech;
 		
 	ID3DX11EffectShaderResourceVariable* Texture;
 };
@@ -632,6 +650,7 @@ public:
 	static ObjectDeferredEffect* ObjectDeferredFX;
 	static TerrainDeferredEffect* TerrainDeferredFX;
 	static TiledLightningEffect* TiledLightningFX;
+	static ShadowMapEffect*	ShadowMapFX;
 };
 #pragma endregion
 
