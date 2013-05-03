@@ -42,9 +42,12 @@ PSSceneIn VSScene(VSIn input)
 //-----------------------------------------------------------------------------------------
 // PixelShader: PSSceneMain
 //-----------------------------------------------------------------------------------------
-float4 PSScene(PSSceneIn input) : SV_Target
+float4 PSScene(PSSceneIn input, uniform bool gColor) : SV_Target
 {	
-	return g_Texture.Sample(g_Sampler, input.Tex);
+	if (gColor)
+		return g_Texture.Sample(g_Sampler, input.Tex);
+	else
+		return g_Texture.Sample(g_Sampler, input.Tex).x;
 }
 
 DepthStencilState DepthStencil
@@ -60,17 +63,34 @@ BlendState NoBlending
 };
 
 //-----------------------------------------------------------------------------------------
-// Technique: RenderTextured  
+// Technique: Mono  
 //-----------------------------------------------------------------------------------------
-technique11 CombineTech
+technique11 Mono
 {
     pass p0
     {
 		// Set VS, GS, and PS
         SetVertexShader( CompileShader( vs_4_0, VSScene() ) );
         SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_4_0, PSScene() ) );
+        SetPixelShader( CompileShader( ps_4_0, PSScene(false) ) );
 	    //SetRasterizerState( NoCulling );
     }  
 }
+
+//-----------------------------------------------------------------------------------------
+// Technique: Color 
+//-----------------------------------------------------------------------------------------
+technique11 Color
+{
+    pass p0
+    {
+		// Set VS, GS, and PS
+        SetVertexShader( CompileShader( vs_4_0, VSScene() ) );
+        SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_4_0, PSScene(true) ) );
+	    //SetRasterizerState( NoCulling );
+    }  
+}
+
+
 
