@@ -16,6 +16,7 @@ Camera::Camera(void)
 	m_Right		= XMFLOAT3(1, 0, 0);
 	m_Up		= XMFLOAT3(0, 1, 0);
 
+
 	UpdateView();
 	UpdateProjection();
 }
