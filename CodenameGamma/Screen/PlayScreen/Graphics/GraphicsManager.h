@@ -102,6 +102,9 @@ private:
 	void ClearBuffers();
 	void FillGBuffer(vector<Player*>& players);
 	void ComputeLight(vector<Player*>& players);
+
+	void FillGBuffer(vector<Camera*>& Cameras);
+	void ComputeLight(vector<Camera*>& Cameras);
 	void CombineFinal();
 
 public:
@@ -120,6 +123,13 @@ public:
 	}
 
 	void Render(vector<Player*>& players);
+	void RenderModels(Player* player);
+	void RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMATRIX proj, ID3DX11EffectTechnique* tech, UINT pass);
+	void RenderTerrain(Player* player);
+
+	void RenderTerrain(Camera* tCamera);
+	void RenderModels(Camera* tCamera);
+	void Render(vector<Camera*>& Cameras);
 };
 
 #endif

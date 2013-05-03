@@ -12,12 +12,12 @@ Player::Player(int index)
 {
 	m_Controller = InputManager::GetInstance()->GetController(index);
 	m_Camera = new Camera();
-	//m_Camera->SetForward(0,-1,0);
 	m_Camera->SetPosition(2000, 100, 500);
 }
 
 Player::~Player(void)
 {
+	delete m_Camera;
 }
 
 void Player::Update(float deltaTime)
@@ -49,4 +49,9 @@ void Player::UpdateCamera(float deltaTime)
 	float dy = stickright.y * deltaTime * 4;
 
 	m_Camera->Rotate(-dy, dx);
+}
+
+void Player::SetGameObject(GameObject* Instance)
+{
+	m_GameObject	=	Instance;
 }
