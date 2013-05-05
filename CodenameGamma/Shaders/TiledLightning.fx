@@ -3,7 +3,7 @@
 
 #include "LightHelper.fx"
 #define MAX_LIGHTS 1024
-#define MAX_SHADOWMAPS 128
+#define MAX_SHADOWMAPS 256
 
 cbuffer perFrame
 {
@@ -85,20 +85,106 @@ bool AABBvsSphere(float3 min, float3 max, float3 c, float r)
 	return false;
 }
 
-
-
-float CalcualteShadowFactor(DirectionalLight light, float4 posW)
+float SimpleShadow(int2 texCoord, float depth)
 {
-	if (light.HasShadow)
+	//skugga
+	if (depth > gShadowMap[texCoord].x)
+		return 0;
+	//inte skugga
+	else
+		return 1;
+}
+
+float PCF(int2 texCoord, float depth)
+{
+	const float2 offsets[9] =
+	{
+		float2(-1,  -1),	float2(0, -1),	float2(1,  -1),
+		float2(-1,   0),	float2(0,  0),	float2(1,   0), 
+		float2(-1,   1),	float2(0,  1),	float2(1,   1) 		
+	};
+	
+	
+	float percentLit = 0.0f;
+	for (int i = 0; i < 9; ++i)
+	{
+		percentLit += SimpleShadow(texCoord + offsets[i], depth);
+	}
+	return percentLit /= 9.0f;
+}
+
+
+
+float CalcualteShadowFactor(DirectionalLight light, float4 posW, uint viewportIndex)
+{
+	uint ShadowIndex = light.ShadowIndex[viewportIndex];
+	if (light.HasShadow && ShadowIndex != 9999)
 		{
-			float4x4 VPT = gLightViewProjTex[light.ShadowIndex];
-			float4 posT = mul(posW, VPT);
-			float shadowDepth = gShadowMap[posT.xy * gShadowMapResolution].x;
+			float4x4 VPT = gLightViewProjTex[ShadowIndex];
+			float4x4 VP = gLightViewProj[ShadowIndex];
+			float4x4 T = gLightTex[ShadowIndex];
+
+			float4 posH = mul(posW, VP);
+			posH = posH / posH.w;
+			posH.xy = (posH.xy + float2(1,-1)) * float2(0.5f, -0.5f);
+
+			float4 posT = mul(posH, T);
+/*
+			float shadowDepth = gShadowMap[int2(posT.xy * gShadowMapResolution)].x;
 			
 			if (posT.z > shadowDepth)
 				return 0;
 
 			return 1;
+			*/
+			return PCF(int2(posT.xy * gShadowMapResolution), posT.z);
+		}
+	else
+		return 1;
+}
+
+float CalcualteShadowFactor(PointLight light, float4 posW)
+{
+	uint lightShadowIndex = 0;
+
+	float3 dist = posW.xyz - light.Position;
+
+	if (abs(dist.x) > abs(dist.y) && abs(dist.x) > abs(dist.z))
+	{
+		if (dist.x < 0)
+			lightShadowIndex = 3; //vänster
+		else
+			lightShadowIndex = 0; //höger
+	}
+	else if (abs(dist.y) > abs(dist.z))
+	{
+		if (dist.y < 0)
+			lightShadowIndex = 4; //ner
+		else
+			lightShadowIndex = 1; //upp
+	}
+	else
+	{
+		if (dist.z < 0)
+			lightShadowIndex = 5; //bak
+		else
+			lightShadowIndex = 2; //fram
+	}
+
+	uint ShadowIndex = light.ShadowIndex[lightShadowIndex];
+	if (light.HasShadow && ShadowIndex != 9999)
+		{
+			float4x4 VPT = gLightViewProjTex[ShadowIndex];
+			float4x4 VP = gLightViewProj[ShadowIndex];
+			float4x4 T = gLightTex[ShadowIndex];
+
+			float4 posH = mul(posW, VP);
+			posH = posH / posH.w;
+			posH.xy = (posH.xy + float2(1,-1)) * float2(0.5f, -0.5f);
+
+			float4 posT = mul(posH, T);
+
+			return PCF(int2(posT.xy * gShadowMapResolution), posT.z);
 		}
 	else
 		return 1;
@@ -106,7 +192,7 @@ float CalcualteShadowFactor(DirectionalLight light, float4 posW)
 
 float CalcualteShadowFactor(SpotLight light, float4 posW)
 {
-	if (light.HasShadow)
+	if (light.HasShadow && light.ShadowIndex != 9999)
 		{
 			float4x4 VPT = gLightViewProjTex[light.ShadowIndex];
 			float4x4 VP = gLightViewProj[light.ShadowIndex];
@@ -117,27 +203,31 @@ float CalcualteShadowFactor(SpotLight light, float4 posW)
 			posH.xy = (posH.xy + float2(1,-1)) * float2(0.5f, -0.5f);
 
 			float4 posT = mul(posH, T);
-			
-
 
 			/*
 			float4 posT = mul(posW, VPT);
 			posT = posT / posT.w;
 			posT.xy = (posT.xy + float2(1,-1)) * float2(0.5f, -0.5f);
 			*/
+			/*
 			float shadowDepth = gShadowMap[int2(posT.xy * gShadowMapResolution)].x;
 
 			//return posT.y;
 			//return pow(posT.z * 0.99f, 100);
 			//return shadowDepth;
-			if (posH.z > shadowDepth)
+			if (posT.z > shadowDepth)
 				return 0;
 
 			return 1;
+			*/
+
+			return PCF(int2(posT.xy * gShadowMapResolution), posT.z);
+
 		}
 	else
 		return 1;
 }
+
 
 [numthreads(COMPUTE_SHADER_TILE_GROUP_DIM, COMPUTE_SHADER_TILE_GROUP_DIM, 1)]	//Antal trådar per grupp x,y,z
 void TiledLightningCS(	uniform int gViewportCount,
@@ -339,7 +429,7 @@ void TiledLightningCS(	uniform int gViewportCount,
 		for(int i = 0; i < totalDirLights; ++i)
 		{
 			DirectionalLight light = gDirLightBuffer[i];			
-			float shadowFactor = CalcualteShadowFactor(light, posW);
+			float shadowFactor = CalcualteShadowFactor(light, posW, viewportIndex);
 
 			float4 A, D, S;
 			ComputeDirectionalLight(mat, light, normalW, toEye, A, D, S);
@@ -356,14 +446,14 @@ void TiledLightningCS(	uniform int gViewportCount,
 	{
 		PointLight light = gPointLightBuffer[sTilePointLightIndices[tileLightIndex]]; //hämtar pointlight
 
-		//float shadowFactor = CalcualteShadowFactor(light, posW);
+		float shadowFactor = CalcualteShadowFactor(light, posW);
 
 		float4 A, D, S;
 		ComputePointLight(mat, light, posW, normalW, toEye, A, D, S);
 
 		ambient += A;    
-		diffuse += D;
-		spec    += S;
+		diffuse += D * shadowFactor;
+		spec    += S * shadowFactor;
 	}
 
 	/*
