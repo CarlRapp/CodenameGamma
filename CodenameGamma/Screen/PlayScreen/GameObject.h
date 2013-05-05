@@ -27,7 +27,8 @@ enum GOTeam
 enum GOFloat3Value
 {
 	Position, Velocity,
-	Acceleration, Rotations
+	Acceleration, Rotations,
+	Direction
 };
 enum GOFloat4x4Value
 {
@@ -62,6 +63,7 @@ public:
 	void SetModelInstance(ModelInstance *modelInstance);	
 	ModelInstance* GetModelInstance() { return m_ModelInstance; }
 
+	float		GetRadius();
 	XMFLOAT3	GetFloat3Value(GOFloat3Value Value);
 	XMFLOAT4X4	GetFloat4x4Value(GOFloat4x4Value Value);
 

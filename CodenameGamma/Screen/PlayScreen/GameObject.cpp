@@ -129,6 +129,14 @@ void GameObject::SetModelInstance(ModelInstance *modelInstance)
 	m_QuadTreeType = new QuadTreeTypeModel(m_ModelInstance);
 }
 
+float GameObject::GetRadius()
+{
+	if (m_ModelInstance)
+		return m_ModelInstance->GetBoundingSphere().Radius;
+	else
+		return 0;
+}
+
 #pragma region Custom Get Methods
 //	Will return the specific Float3
 //	according to Value
@@ -150,6 +158,14 @@ XMFLOAT3 GameObject::GetFloat3Value(GOFloat3Value Value)
 
 	case Rotations:
 		return gRotationInFloat;
+		break;
+	case Direction:
+		XMFLOAT3 result;
+		XMVECTOR direction = XMLoadFloat3(&XMFLOAT3(0,0,-1));
+		XMMATRIX rotation  = XMLoadFloat4x4(&GetFloat4x4Value( Rotation ));
+		direction = XMVector3TransformCoord(direction, rotation);
+		XMStoreFloat3(&result, direction);
+		return result;
 		break;
 	}
 
