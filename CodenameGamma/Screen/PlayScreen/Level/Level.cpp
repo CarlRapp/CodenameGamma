@@ -87,7 +87,24 @@ void Level::LoadLevel(string Levelname)
 		AddInstance(x, y, z, model);
 	}
 
+	Model* pistolModel = new Model(gLData.DEVICE, gTextureManager, "DATA\\Models\\obj\\BoxWeapon.obj", "DATA/Models/Textures/");
+	Model* bulletModel = new Model(gLData.DEVICE, gTextureManager, "DATA\\Models\\obj\\GunShot.obj", "DATA/Models/Textures/");
+
+	ModelInstance *instance = new ModelInstance();
+	instance->m_Model = pistolModel;
+	instance->m_OldBoundingSphere = instance->GetBoundingSphere();
+
+	Pistol *pistol = new Pistol();
+
+
+
+	pistol->SetModelInstance(instance);
+	AddGameObject(pistol);
+	((Unit*)gGameObjects[0])->SetWeapon(pistol);
+
 	gLoadedModels.push_back( model );
+	gLoadedModels.push_back( pistolModel );
+	gLoadedModels.push_back( bulletModel );
 }
 
 
@@ -212,7 +229,7 @@ void Level::AddInstance(float x, float y, float z, Model *model)
 
 void Level::Update(float DeltaTime)
 {
-	if ( InputManager::GetInstance()->GetController(0)->GetButtonState( RIGHT_BUMPER ) == PRESSED )
+	if ( InputManager::GetInstance()->GetController(0)->GetButtonState( RIGHT_BUMPER ) == DOWN )
 	{
 		vector<Projectile*>	tBullets	=	((Unit*)gGameObjects[0])->FireWeapon();
 
@@ -220,7 +237,7 @@ void Level::Update(float DeltaTime)
 			for each ( Projectile* p in tBullets )
 			{
 				ModelInstance *instance = new ModelInstance();
-				instance->m_Model = gLoadedModels[0];
+				instance->m_Model = gLoadedModels[2];
 
 				p->SetModelInstance(instance);
 
