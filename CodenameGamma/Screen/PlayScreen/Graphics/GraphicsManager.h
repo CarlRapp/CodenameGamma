@@ -11,6 +11,8 @@
 #include "Buffer.h"
 #include "..\GameObject.h"
 
+#define MAX_SHADOWMAPS 256
+
 using namespace std;
 using namespace DirectX;
 
@@ -46,9 +48,9 @@ class GraphicsManager
 	StructuredBuffer<PointLight>		*m_PointLightBuffer;
 	StructuredBuffer<SpotLight>			*m_SpotLightBuffer;
 
-	std::vector<XMFLOAT4X4> m_ViewProjTexs;
-	std::vector<XMFLOAT4X4> m_ViewProj;
-	std::vector<XMFLOAT4X4> m_Texs;
+	XMFLOAT4X4 m_ViewProjTexs[MAX_SHADOWMAPS];
+	XMFLOAT4X4 m_ViewProj[MAX_SHADOWMAPS];
+	XMFLOAT4X4 m_Texs[MAX_SHADOWMAPS];
 
 private:
 
