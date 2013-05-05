@@ -508,7 +508,11 @@ CombineFinalEffect::CombineFinalEffect(ID3D11Device* device, const std::wstring&
 	: Effect(device, filename)
 {
 	MonoTech  = mFX->GetTechniqueByName("Mono");
+	BlendMonoTech  = mFX->GetTechniqueByName("BlendMono");
 	ColorTech  = mFX->GetTechniqueByName("Color");
+	BlendColorTech  = mFX->GetTechniqueByName("BlendColor");
+
+	Opacity = mFX->GetVariableByName("g_Opacity")->AsScalar();
 
 	Texture = mFX->GetVariableByName("g_Texture")->AsShaderResource();
 }

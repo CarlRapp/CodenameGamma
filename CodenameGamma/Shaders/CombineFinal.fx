@@ -1,3 +1,9 @@
+
+cbuffer Object
+{
+	float g_Opacity;
+};
+
 Texture2D g_Texture;
 
 SamplerState g_Sampler 
@@ -44,10 +50,16 @@ PSSceneIn VSScene(VSIn input)
 //-----------------------------------------------------------------------------------------
 float4 PSScene(PSSceneIn input, uniform bool gColor) : SV_Target
 {	
+	float4 result;
+
 	if (gColor)
-		return g_Texture.Sample(g_Sampler, input.Tex);
+		result = g_Texture.Sample(g_Sampler, input.Tex);
 	else
-		return pow(g_Texture.Sample(g_Sampler, input.Tex).x * 0.98f, 20);
+		result = pow(g_Texture.Sample(g_Sampler, input.Tex).x, 200);
+
+	result.a = g_Opacity;
+
+	return result;
 }
 
 DepthStencilState DepthStencil
@@ -62,6 +74,19 @@ BlendState NoBlending
 	BlendEnable[0] = FALSE;
 };
 
+BlendState AdditiveBlending
+{
+	AlphaToCoverageEnable = FALSE;
+	BlendEnable[0] = TRUE;
+	SrcBlend = SRC_ALPHA;
+	DestBlend = ONE;
+	BlendOp = ADD;
+	SrcBlendAlpha = ZERO;
+	DestBlendAlpha = ZERO;
+	BlendOpAlpha = ADD;
+	RenderTargetWriteMask[0] = 0x0F;
+};
+
 //-----------------------------------------------------------------------------------------
 // Technique: Mono  
 //-----------------------------------------------------------------------------------------
@@ -73,6 +98,23 @@ technique11 Mono
         SetVertexShader( CompileShader( vs_4_0, VSScene() ) );
         SetGeometryShader( NULL );
         SetPixelShader( CompileShader( ps_4_0, PSScene(false) ) );
+		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+	    //SetRasterizerState( NoCulling );
+    }  
+}
+
+//-----------------------------------------------------------------------------------------
+// Technique: BlendMono  
+//-----------------------------------------------------------------------------------------
+technique11 BlendMono
+{
+    pass p0
+    {
+		// Set VS, GS, and PS
+        SetVertexShader( CompileShader( vs_4_0, VSScene() ) );
+        SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_4_0, PSScene(false) ) );
+		SetBlendState(AdditiveBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 	    //SetRasterizerState( NoCulling );
     }  
 }
@@ -88,6 +130,23 @@ technique11 Color
         SetVertexShader( CompileShader( vs_4_0, VSScene() ) );
         SetGeometryShader( NULL );
         SetPixelShader( CompileShader( ps_4_0, PSScene(true) ) );
+		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+	    //SetRasterizerState( NoCulling );
+    }  
+}
+
+//-----------------------------------------------------------------------------------------
+// Technique: BlendColor 
+//-----------------------------------------------------------------------------------------
+technique11 BlendColor
+{
+    pass p0
+    {
+		// Set VS, GS, and PS
+        SetVertexShader( CompileShader( vs_4_0, VSScene() ) );
+        SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_4_0, PSScene(true) ) );
+		SetBlendState(AdditiveBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 	    //SetRasterizerState( NoCulling );
     }  
 }

@@ -4,7 +4,7 @@
 
 #include "..\..\..\stdafx.h"
 
-
+#define DIRECTION_MAXRANGE 10000.0f
 // Note: Make sure structure alignment agrees with HLSL structure padding rules. 
 //   Elements are packed into 4D vectors with the restriction that an element
 //   cannot straddle a 4D vector boundary.
@@ -31,40 +31,6 @@ static int ShadowTileSize(XMFLOAT2 resolution)
 	else return 0;
 }
 
-static XMFLOAT2 CalculateShadowCoord(int ShadowIndex)
-{
-	int numHuge   = ShadowIndex / 64;
-	int numBig    = (ShadowIndex % 64) / 16;
-	int numMedium = ((ShadowIndex % 64) % 16) / 4;
-	int numSmall  = ((ShadowIndex % 64) % 16) % 4;
-
-
-
-	int x = numHuge * 4096;
-
-	if (numBig == 1 || numBig == 3)
-		x += 2048;
-
-	if (numMedium == 1 || numMedium == 3)
-		x += 1024;
-
-	if (numSmall == 1 || numSmall == 3)
-		x += 512;
-
-	int y = 0;
-	
-	if (numBig == 2 || numBig == 3)
-		y += 2048;
-
-	if (numMedium == 2 || numMedium == 3)
-		y += 1024;
-
-	if (numSmall == 2 || numSmall == 3)
-		y += 512;
-
-	return XMFLOAT2(x, y);
-}
-
 struct Light
 {
 	XMFLOAT4 Color;
@@ -76,10 +42,24 @@ struct DirectionalLight : public Light
 
 	XMFLOAT4 Direction;
 
-	//shadow info
+	//shadow info	
+	UINT	 ShadowIndex[4];
 	XMFLOAT2 Resolution;
-	UINT	 ShadowIndex;
 	bool	 HasShadow;
+
+	XMMATRIX GetViewMatrix(BoundingFrustum& frustum, float offset);
+	XMMATRIX GetProjectionMatrix(float nearZ, float farZ);
+
+	void GetViewProjOBB(BoundingFrustum& frustum, float offset, XMFLOAT4X4& View, XMFLOAT4X4& Proj, BoundingOrientedBox& OBB);
+
+	/*
+	BoundingFrustum GetBoundingOrientedBox(BoundingFrustum& frustum, float offset)
+	{
+		return MathHelper::GenerateBoundingFrustum(GetViewMatrix(frustum, offset), GetProjectionMatrix(0.0f, DIRECTION_MAXRANGE));
+		//return BoundingFrustum(Position, Range);
+	}
+	*/
+	
 };
 
 struct PointLight : public Light
@@ -91,13 +71,29 @@ struct PointLight : public Light
 	XMFLOAT3 Position;
 	float Range;
 
-	//shadow info
+	//shadow info	
+	UINT	 ShadowIndex[6];
 	XMFLOAT2 Resolution;
-	UINT	 ShadowIndex;
 	bool	 HasShadow;
-
-	//XMMATRIX GetViewMatrix();
+	
+	std::vector<XMFLOAT4X4> GetViewMatrixes();
 	XMMATRIX GetProjectionMatrix(float nearZ, float farZ);
+	
+	std::vector<BoundingFrustum> GetBoundingFrustums()
+	{
+		std::vector<BoundingFrustum> frustums;
+		
+		std::vector<XMFLOAT4X4> Views = GetViewMatrixes();;
+		XMMATRIX Proj = GetProjectionMatrix(0.0f, Range);
+		
+		for (int i = 0; i < Views.size(); ++i)
+		{
+			BoundingFrustum frustum = MathHelper::GenerateBoundingFrustum(XMLoadFloat4x4(&Views[i]), Proj);
+			frustums.push_back(frustum);
+		}		
+		return frustums;
+	}
+
 
 	BoundingSphere GetBoundingSphere()
 	{

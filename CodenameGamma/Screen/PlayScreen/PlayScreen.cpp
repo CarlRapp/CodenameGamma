@@ -5,7 +5,7 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 {
 	LoadScreenData(Setup);
 
-	SystemData	tData	=	SystemData();
+	SystemData	tData			=	SystemData();
 	tData.DEVICE				=	gDevice;
 	tData.DEVICE_CONTEXT		=	gDeviceContext;
 	tData.RENDER_TARGET_VIEW	=	gRenderTargetView;
@@ -14,6 +14,7 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 
 	gLevel	=	new Level(tData);
 	gLevel->LoadLevel("FlatMap");
+	//gLevel->LoadLevel("TestMap");
 
 	/*
 	gModel = new Model(gDevice, gTexMgr, "DATA\\Models\\obj\\pacman.obj", "DATA/Models/Textures/");
@@ -34,8 +35,15 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 
 	SetNumberOfPlayers(1);
 
-	gPlayers.at(0)->SetGameObject(gLevel->GetGameObjects().at(0));
-	gLevel->GetGameObjects().at(0)->SetTeam(Team1);
+	for (int i = 0; i < gPlayers.size(); ++i)
+	{
+		if (gLevel->GetGameObjects().size() > i)
+		{
+			gPlayers.at(i)->SetGameObject(gLevel->GetGameObjects().at(i));		
+			gLevel->GetGameObjects().at(i)->SetTeam(Team1);
+		}
+	}
+
 
 	TDATA	=	DebugScreen::GetInstance()->AddDebugData(" HP");
 }
