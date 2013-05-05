@@ -15,7 +15,6 @@ Level::Level(SystemData LData)
 	gGraphicsManager->SetTerrain(gTerrain);
 	gGraphicsManager->SetLights(&gDirLights, &gPointLights, &gSpotLights);
 
-
 	for(int i = 0; i < 0; ++i)
 		AddDirectionalLight(false);
 
@@ -33,7 +32,6 @@ Level::Level(SystemData LData)
 
 	for( int i = 0; i < 10; ++i)	
 		AddSpotLight(true);
-	
 
 	gQuadTree = NULL;
 
@@ -80,7 +78,7 @@ void Level::LoadLevel(string Levelname)
 	gGraphicsManager->SetQuadTree(gQuadTree);
 	Model* model = new Model(gLData.DEVICE, gTextureManager, "DATA\\Models\\obj\\pacman.obj", "DATA/Models/Textures/");
 
-	for (int i = 0; i < 200; ++i)
+	for (int i = 0; i < 100; ++i)
 	{
 		float x = MathHelper::RandF(0, 4000);
 		float y = 12;
@@ -208,34 +206,51 @@ void Level::AddInstance(float x, float y, float z, Model *model)
 
 	go->SetTeam((GOTeam)a);
 
+
 	AddGameObject(go);
 }
 
 void Level::Update(float DeltaTime)
 {
-	//Updaterar gameobjects
-	vector<GameObject*>	updatedGO;	
-	for each (GameObject *go in gGameObjects)
+	if ( InputManager::GetInstance()->GetController(0)->GetButtonState( RIGHT_BUMPER ) == PRESSED )
 	{
-		//go->Update(deltaTime);
-		if (go->Update(DeltaTime, gTerrain))
-			updatedGO.push_back(go);
-	}
-	
-	RunCollisionTest();
-	
+		vector<Projectile*>	tBullets	=	((Unit*)gGameObjects[0])->FireWeapon();
 
-	for each (GameObject *go in updatedGO)
-	{
-		if ( go->IsAlive() )
-			gQuadTree->Update(go);
-		else
-			gQuadTree->Delete(go);
+		if ( tBullets.size() > 0)
+			for each ( Projectile* p in tBullets )
+			{
+				ModelInstance *instance = new ModelInstance();
+				instance->m_Model = gLoadedModels[0];
+
+				p->SetModelInstance(instance);
+
+				instance->m_World	=	p->GetFloat4x4Value(World);
+				instance->m_OldBoundingSphere = instance->GetBoundingSphere();
+				
+				AddGameObject(p);
+			}
 	}
 
 	for ( int i = gGameObjects.size() - 1; i >= 0; --i )
-		if ( !gGameObjects[i]->IsAlive() )
+	{
+		GameObject*	tObject	=	gGameObjects[i];
+
+		if ( tObject->Update(DeltaTime, gTerrain) )
+		{
+			if ( tObject->IsAlive() )
+				gQuadTree->Update(tObject);
+			else
+				gQuadTree->Delete(tObject);
+		}
+
+		if ( !tObject->IsAlive() )
+		{
+			tObject	=	0;
 			gGameObjects.erase( gGameObjects.begin() + i );
+		}
+	}
+
+	RunCollisionTest();
 
 	//Updaterar ljus
 	//Updaterar dirlights	
@@ -313,8 +328,6 @@ void Level::Update(float DeltaTime)
 
 		sLight->Position.y = gTerrain->GetHeight(sLight->Position.x, sLight->Position.z) + 100.0f;
 	}
-	
-	
 }
 void Level::Render(vector<Camera*>& Cameras)
 {
@@ -374,8 +387,13 @@ void Level::RunCollisionTest()
 		{
 			if ( tEvent.A->IsEnemy( tEvent.B ) )
 			{
-				((Unit*)tEvent.A)->Hit(((Unit*)tEvent.B));
-
+				if ( typeid( *tEvent.A ) == typeid( *tEvent.B ) )
+					tEvent.A->CollideWith( tEvent.B );
+				else
+				{
+					tEvent.A->CollideWith( tEvent.B );
+					tEvent.B->CollideWith( tEvent.A );
+				}
 			}
 		}
 	}
