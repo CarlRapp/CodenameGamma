@@ -5,7 +5,7 @@ Unit::Unit(void)
 {
 	gHealth	=	UnitHealth(10.0f, 10.0f);
 
-	gCooldown	=	2.0f;
+	gWeapon	=	new Pistol();
 }
 
 Unit::~Unit(void)
@@ -26,8 +26,9 @@ bool Unit::Update(float DeltaTime, Terrain* TerrainInstance)
 	if ( gHealth.first <= 0 )
 		SetState( Dead );
 
-	if( gCooldown > 0 )
-		gCooldown	-=	DeltaTime;
+	gWeapon->Update(DeltaTime);
+	gWeapon->MoveTo( GetFloat3Value( Position ) );
+	gWeapon->SetRotation( GetFloat3Value( Rotations ) );
 
 	return GameObject::Update(DeltaTime, TerrainInstance);
 }
@@ -39,10 +40,24 @@ void Unit::ReceiveDamage(float Damage)
 
 void Unit::Hit(Unit* Target)
 {
-	if ( gCooldown > 0 )
+	if ( !gWeapon->CanFire() )
 		return;
 
-	gCooldown	=	0.5f;
+	gWeapon->Fire();
+
 	Target->ReceiveDamage(1.0f);
 	ReceiveDamage(-1.0f);
+}
+
+vector<Projectile*> Unit::FireWeapon()
+{
+	if ( !gWeapon->CanFire() )
+		return vector<Projectile*>();
+
+	return gWeapon->Fire();
+}
+
+void Unit::CollideWith(GameObject* Instance)
+{
+
 }

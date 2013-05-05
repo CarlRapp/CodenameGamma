@@ -3,6 +3,8 @@
 #define UNIT_H
 
 #include "../GameObject.h"
+#include "../Weapons/Weapon.h"
+#include "../Weapons/Pistol.h"
 
 using namespace DirectX;
 
@@ -13,8 +15,7 @@ class Unit : public GameObject
 {
 private:
 	UnitHealth	gHealth;
-
-	float	gCooldown;
+	Weapon*		gWeapon;
 
 public:
 	Unit(void);
@@ -28,6 +29,10 @@ public:
 	void	ReceiveDamage(float Damage);
 
 	void	Hit(Unit* Target);
+
+	vector<Projectile*>	FireWeapon();
+
+	void	CollideWith(GameObject* Instance);
 };
 
 #endif
