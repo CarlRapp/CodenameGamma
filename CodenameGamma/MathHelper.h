@@ -64,6 +64,14 @@ public:
 		return output;
 	}
 
+	static bool BoundingSphereEqual(BoundingSphere A, BoundingSphere B)
+	{
+		XMVECTOR AC = XMLoadFloat3(&A.Center);
+		XMVECTOR BC = XMLoadFloat3(&B.Center);
+
+		return XMVector3Equal(AC, BC) && A.Radius == B.Radius;
+	}
+
 	static XMMATRIX InverseTranspose(CXMMATRIX M)
 	{
 		// Inverse-transpose is just applied to normals.  So zero out 
