@@ -42,10 +42,14 @@ GameObject::~GameObject(void)
 
 bool GameObject::Update(float deltaTime, Terrain* terrain)
 {
+	if ( !IsAlive() )
+		return true;
+
 	float heigth = gPosition.y - terrain->GetHeight(gPosition.x, gPosition.z);
 
 	XMVECTOR pos = XMLoadFloat3(&gPosition);
 	XMVECTOR vel = XMLoadFloat3(&gVelocity);
+	//XMVECTOR vel = XMLoadFloat3(&XMFLOAT3(0, 0, 0));
 
 	XMVECTOR mov = pos;
 	pos += vel * deltaTime;
@@ -110,6 +114,7 @@ bool GameObject::Update(float deltaTime, Terrain* terrain)
 		return true;
 	}
 
+	m_QuadTreeType->Update();
 	m_ModelInstance->m_World	=	gWorld;
 	m_ModelInstance->m_WorldInverseTranspose	=	gWorldInverseTranspose;
 	return false;
@@ -141,6 +146,10 @@ XMFLOAT3 GameObject::GetFloat3Value(GOFloat3Value Value)
 
 	case Acceleration:
 		return gAcceleration;
+		break;
+
+	case Rotations:
+		return gRotationInFloat;
 		break;
 	}
 
@@ -273,6 +282,10 @@ void GameObject::SetTeam(GOTeam Team)
 	gTeam	=	Team;
 }
 
+GOTeam GameObject::GetTeam()
+{
+	return gTeam;
+}
 
 bool GameObject::IsEnemy(GameObject* Instance)
 {
@@ -293,3 +306,5 @@ void GameObject::UpdateWorld(bool UpdateInverseTranspose)
 	if ( UpdateInverseTranspose )
 		XMStoreFloat4x4(&gWorldInverseTranspose, MathHelper::InverseTranspose(XMLoadFloat4x4(&gWorld)));
 }
+
+void GameObject::CollideWith(GameObject* Instance) { } 

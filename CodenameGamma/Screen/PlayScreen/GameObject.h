@@ -7,6 +7,7 @@
 #include "Terrain\Terrain.h"
 #include "Graphics\QuadTreeData.h"
 #include "../../MathHelper.h"
+#include <typeinfo>
 using namespace DirectX;
 
 enum GOState
@@ -26,7 +27,7 @@ enum GOTeam
 enum GOFloat3Value
 {
 	Position, Velocity,
-	Acceleration
+	Acceleration, Rotations
 };
 enum GOFloat4x4Value
 {
@@ -83,6 +84,8 @@ public:
 	bool	IsEnemy(GameObject* Instance);
 	void	SetTeam(GOTeam Value);
 	GOTeam	GetTeam();
+
+	virtual	void	CollideWith(GameObject* Instance);
 };
 
 #endif

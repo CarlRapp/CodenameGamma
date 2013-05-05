@@ -1,6 +1,5 @@
 #include "PlayScreen.h"
 
-DebugData*	TDATA;
 PlayScreen::PlayScreen(ScreenData* Setup)
 {
 	LoadScreenData(Setup);
@@ -43,9 +42,6 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 			gLevel->GetGameObjects().at(i)->SetTeam(Team1);
 		}
 	}
-
-
-	TDATA	=	DebugScreen::GetInstance()->AddDebugData(" HP");
 }
 
 #pragma region Load / Unload
@@ -77,8 +73,6 @@ void PlayScreen::Update(float DeltaTime)
 	{
 		p->Update(DeltaTime);
 	}
-
-	TDATA->Value	=	to_string((long double)((Unit*)gLevel->GetGameObjects().at(0))->GetHealth().first);
 }
 
 void PlayScreen::Render()
@@ -89,11 +83,6 @@ void PlayScreen::Render()
 		tCams.push_back( p->GetCamera() );
 
 	gLevel->Render(tCams);
-
-
-	UnitHealth	tData	=	((Unit*)gLevel->GetGameObjects().at(0))->GetHealth();
-
-	DrawString(*gTextInstance, to_string((long double)tData.first) + " HP", 300.0f, 300.0f, 40.0f, White, Black, 2, 0);
 }
 
 ScreenType PlayScreen::GetScreenType()
