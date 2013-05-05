@@ -629,11 +629,16 @@ public:
 	CombineFinalEffect(ID3D11Device* device, const std::wstring& filename);
 	~CombineFinalEffect();
 
+	void SetOpacity(float value)					{ Opacity->SetFloat(value); }
 	void SetTexture(ID3D11ShaderResourceView* tex)  { Texture->SetResource(tex); }
 
 	ID3DX11EffectTechnique* MonoTech;
+	ID3DX11EffectTechnique* BlendMonoTech;
 	ID3DX11EffectTechnique* ColorTech;
+	ID3DX11EffectTechnique* BlendColorTech;
 		
+	ID3DX11EffectScalarVariable*		Opacity;
+
 	ID3DX11EffectShaderResourceVariable* Texture;
 };
 #pragma endregion
