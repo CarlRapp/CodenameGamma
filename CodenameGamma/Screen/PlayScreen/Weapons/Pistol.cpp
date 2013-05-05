@@ -17,8 +17,7 @@ vector<Projectile*> Pistol::Fire()
 
 	for ( int i = 0; i < 7; ++i )
 	{
-		Bullet*	tBullet	=	new Bullet();
-		tBullets.push_back(tBullet);
+		Bullet*	tBullet	=	new Bullet();		
 
 		float temp	=	PI * 0.125f * 0.333333f * (i - 3);
 
@@ -30,6 +29,8 @@ vector<Projectile*> Pistol::Fire()
 		tBullet->SetVelocity( tVelocity );
 		tBullet->SetTeam( GetTeam() );
 		tBullet->SetScale( XMFLOAT3( 2, 2, 2 ) );
+
+		tBullets.push_back(tBullet);
 	}
 
 	gCooldown.first	=	gCooldown.second;
