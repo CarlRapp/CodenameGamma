@@ -46,6 +46,7 @@ void Player::Update(float deltaTime)
 
 		m_Camera->SetPosition(tPosition.x, tPosition.y + 350, tPosition.z - 50);
 		m_Camera->SetLookAt(tPosition);
+		//m_Camera->SetFarZ(tPosition.y + 700.0f);
 	}
 	
 }
@@ -57,7 +58,7 @@ void Player::UpdateCamera(float deltaTime)
 	XMVECTOR cameraFor = XMLoadFloat3(&m_Camera->GetForward());
 	XMVECTOR cameraRig = XMLoadFloat3(&m_Camera->GetRight());
 
-	XMFLOAT2 stickleft = m_Controller->GetStickDirection(Xbox_Direction::LEFT);
+	XMFLOAT2 stickleft = m_Controller->GetStickDirection(LEFT);
 
 	cameraPosV += stickleft.y * cameraFor * deltaTime * 300;
 	cameraPosV += stickleft.x * cameraRig * deltaTime * 300;
@@ -68,7 +69,7 @@ void Player::UpdateCamera(float deltaTime)
 	m_Camera->SetPosition(cameraPos);
 
 	//Change Look-Direction
-	XMFLOAT2 stickright = m_Controller->GetStickDirection(Xbox_Direction::RIGHT);
+	XMFLOAT2 stickright = m_Controller->GetStickDirection(RIGHT);
 
 	float dx = stickright.x * deltaTime * 4;
 	float dy = stickright.y * deltaTime * 4;
