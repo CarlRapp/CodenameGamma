@@ -104,13 +104,12 @@ bool GameObject::Update(float deltaTime, Terrain* terrain)
 	
 	bool moved = XMVector3NotEqual(mov, XMVectorZero());
 
-	if (moved && m_ModelInstance)
-	{
-		Move(XMFLOAT3(gVelocity.x * deltaTime, 0, gVelocity.z * deltaTime));
+	Move(XMFLOAT3(gVelocity.x * deltaTime, 0, gVelocity.z * deltaTime));
 
+	if (m_ModelInstance)
+	{
 		m_ModelInstance->m_World	=	gWorld;
 		m_ModelInstance->m_WorldInverseTranspose	=	gWorldInverseTranspose;
-
 	}
 
 	m_QuadTreeType->Update();
