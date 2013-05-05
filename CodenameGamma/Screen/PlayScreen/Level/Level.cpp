@@ -219,7 +219,7 @@ void Level::AddInstance(float x, float y, float z, Model *model)
 
 	instance->m_OldBoundingSphere = instance->GetBoundingSphere();
 
-	int a = (int)(MathHelper::RandF(0, 1) * 5);
+	int a = (int)(MathHelper::RandF(0, 1) * 4) + 1;
 
 	go->SetTeam((GOTeam)a);
 
@@ -241,7 +241,7 @@ void Level::Update(float DeltaTime)
 
 				p->SetModelInstance(instance);
 
-				instance->m_World	=	p->GetFloat4x4Value(World);
+				//instance->m_World	=	p->GetFloat4x4Value(World);
 				instance->m_OldBoundingSphere = instance->GetBoundingSphere();
 				
 				AddGameObject(p);
@@ -402,16 +402,18 @@ void Level::RunCollisionTest()
 	{
 		for each( CollisionEvent tEvent in tCollisionEvents )
 		{
-			if ( tEvent.A->IsEnemy( tEvent.B ) )
-			{
+			//if ( tEvent.A->IsEnemy( tEvent.B ) )
+			//{
 				if ( typeid( *tEvent.A ) == typeid( *tEvent.B ) )
 					tEvent.A->CollideWith( tEvent.B );
 				else
 				{
+					//cout << typeid( *tEvent.A ).name() << " - " << typeid( *tEvent.B ).name() << endl;
+
 					tEvent.A->CollideWith( tEvent.B );
 					tEvent.B->CollideWith( tEvent.A );
 				}
-			}
+			//}
 		}
 	}
 

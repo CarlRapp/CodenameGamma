@@ -84,7 +84,7 @@ public:
 	bool	IsAlive(){ return (gState != Dead); }
 
 	bool	IsEnemy(GameObject* Instance);
-	void	SetTeam(GOTeam Value);
+	virtual void	SetTeam(GOTeam Value);
 	GOTeam	GetTeam();
 
 	virtual	void	CollideWith(GameObject* Instance);

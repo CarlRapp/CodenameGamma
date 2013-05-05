@@ -26,6 +26,8 @@ bool Unit::Update(float DeltaTime, Terrain* TerrainInstance)
 	if ( gHealth.first <= 0 )
 		SetState( Dead );
 
+	bool updated = GameObject::Update(DeltaTime, TerrainInstance);
+
 	XMVECTOR pos = XMLoadFloat3(&GetFloat3Value( Position ));
 	XMVECTOR dir = XMLoadFloat3(&GetFloat3Value( Direction ));
 
@@ -38,7 +40,7 @@ bool Unit::Update(float DeltaTime, Terrain* TerrainInstance)
 	gWeapon->MoveTo( position );
 	gWeapon->SetRotation( GetFloat3Value( Rotations ) );
 
-	return GameObject::Update(DeltaTime, TerrainInstance);
+	return updated;
 }
 
 void Unit::ReceiveDamage(float Damage)

@@ -12,7 +12,7 @@ public:
 	Bullet(void);
 	~Bullet(void);
 
-	void	CollideWith(GameObject* Instance);
+	virtual	 void	CollideWith(GameObject* Instance);
 };
 
 #endif
