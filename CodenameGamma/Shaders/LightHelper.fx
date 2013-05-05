@@ -10,8 +10,8 @@ struct DirectionalLight
 	float4 Direction;
 
 	//shadow info
+	uint   ShadowIndex[4];
 	float2 Resolution;
-	uint   ShadowIndex;
 	bool   HasShadow;
 };
 
@@ -23,8 +23,8 @@ struct PointLight
 	float Range;
 
 	//shadow info
+	uint   ShadowIndex[6];
 	float2 Resolution;
-	uint   ShadowIndex;
 	bool   HasShadow;
 };
 
@@ -71,7 +71,7 @@ void ComputeDirectionalLight(Material mat, DirectionalLight L,
 	float3 lightVec = normalize(-L.Direction.xyz);
 	
 	// Add ambient term.
-	ambient = L.Color * 0.0f;	
+	ambient = L.Color * 0.1f;	
 
 	// Add diffuse and specular term, provided the surface is in 
 	// the line of site of the light.
