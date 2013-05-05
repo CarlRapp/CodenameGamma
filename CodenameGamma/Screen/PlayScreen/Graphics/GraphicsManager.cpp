@@ -82,7 +82,7 @@ GraphicsManager::~GraphicsManager(void)
 
 	if ( m_DirLights )
 	{
-		for ( int i = 0; i < m_DirLights->size(); ++i )
+		for ( UINT i = 0; i < m_DirLights->size(); ++i )
 			m_DirLights->at(i)	=	0;
 
 		m_DirLights->clear();
@@ -90,7 +90,7 @@ GraphicsManager::~GraphicsManager(void)
 	}
 	if ( m_PointLights )
 	{
-		for ( int i = 0; i < m_PointLights->size(); ++i )
+		for ( UINT i = 0; i < m_PointLights->size(); ++i )
 			m_PointLights->at(i)	=	0;
 
 		m_PointLights->clear();
@@ -98,7 +98,7 @@ GraphicsManager::~GraphicsManager(void)
 	}
 	if ( m_SpotLights )
 	{
-		for ( int i = 0; i < m_SpotLights->size(); ++i )
+		for ( UINT i = 0; i < m_SpotLights->size(); ++i )
 			m_SpotLights->at(i)	=	0;
 
 		m_SpotLights->clear();
@@ -250,7 +250,10 @@ void GraphicsManager::InitBuffers()
 	depthTex->Release();
 	finalTex->Release();
 
-	InitShadowMap(8192, 4096);
+	//InitShadowMap(8192, 4096);
+	//InitShadowMap(16384, 4096);
+	InitShadowMap(16384, 8192);
+	//InitShadowMap(20480, 4096);
 }
 
 void GraphicsManager::InitShadowMap(int width, int height)
@@ -315,6 +318,10 @@ void GraphicsManager::RenderShadowMaps(vector<Camera*>& cameras)
 	//Add directionallights with shadows
 	for each (DirectionalLight* light in *m_DirLights)
 	{
+		light->ShadowIndex[0] = 9999;
+		light->ShadowIndex[1] = 9999;
+		light->ShadowIndex[2] = 9999;
+		light->ShadowIndex[3] = 9999;
 		if (light->HasShadow)
 			dirLights.push_back(light);
 	}
@@ -322,14 +329,28 @@ void GraphicsManager::RenderShadowMaps(vector<Camera*>& cameras)
 	//Add pointlights with shadows
 	for each (PointLight* light in *m_PointLights)
 	{
+		light->ShadowIndex[0] = 9999;
+		light->ShadowIndex[1] = 9999;
+		light->ShadowIndex[2] = 9999;
+		light->ShadowIndex[3] = 9999;
+		light->ShadowIndex[4] = 9999;
+		light->ShadowIndex[5] = 9999;
 		if (light->HasShadow)
 		{
 			BoundingSphere lightBounds = light->GetBoundingSphere();
+			bool added = false;
+			light->Resolution = SHADOWMAP_512;
 			for each (Camera* camera in cameras)
 			{
 				if (camera->GetFrustum().Intersects(lightBounds))
 				{
-					pointLights.push_back(light);
+					if (!added)
+						pointLights.push_back(light);
+
+					XMFLOAT2 tempRes = ChooseResolution(light, camera->GetPosition());
+					light->Resolution = HighestRes(light->Resolution, tempRes);
+
+					break;
 				}
 			}
 		}			
@@ -338,14 +359,23 @@ void GraphicsManager::RenderShadowMaps(vector<Camera*>& cameras)
 	//Add spotlights with shadows
 	for each (SpotLight* light in *m_SpotLights)
 	{
+		light->ShadowIndex = 9999;
 		if (light->HasShadow)
 		{
 			BoundingFrustum lightBounds = light->GetBoundingFrustum();
+			bool added = false;
+			light->Resolution = SHADOWMAP_512;
 			for each (Camera* camera in cameras)
 			{
 				if (camera->GetFrustum().Intersects(lightBounds))
 				{
-					spotLights.push_back(light);					
+					if (!added)
+						spotLights.push_back(light);
+
+					XMFLOAT2 tempRes = ChooseResolution(light, camera->GetPosition());
+					light->Resolution = HighestRes(light->Resolution, tempRes);
+
+					break;
 				}
 			}
 		}
@@ -359,44 +389,115 @@ void GraphicsManager::RenderShadowMaps(vector<Camera*>& cameras)
 	Resolutions.push_back(SHADOWMAP_512);
 
 	int ShadowIndex = 0;
-
 	int ShadowTileIndex = 0;
+	//int ShadowTileMaxTotalSize = (m_ShadowWidth / 512) * (m_ShadowHeight / 512);
 
 	//Går igenom upplösningarna i storlerksordning.
 	for each (XMFLOAT2 Resolution in Resolutions)
 	{
-		int TileSize = ShadowTileSize(Resolution);
+		RenderDirShadowMaps(dirLights, cameras, Resolution, ShadowIndex, ShadowTileIndex);	
+		RenderPointShadowMaps(pointLights, Resolution, ShadowIndex, ShadowTileIndex);	
+		RenderSpotShadowMaps(spotLights, Resolution, ShadowIndex, ShadowTileIndex);	
+	}	
+}
 
-		XMVECTOR CurrentRes = XMLoadFloat2(&Resolution);
-		//spotlights för vald upplösning ritats ut.
-		for each (SpotLight* light in spotLights)
-		{			
-			XMVECTOR LightRes = XMLoadFloat2(&light->Resolution);
+void GraphicsManager::RenderDirShadowMaps(vector<DirectionalLight*>& dirLights, vector<Camera*>& cameras, XMFLOAT2 Resolution, int& ShadowIndex, int& ShadowTileIndex)
+{
+	int TileSize = ShadowTileSize(Resolution);
+	XMVECTOR CurrentRes = XMLoadFloat2(&Resolution);
+	//spotlights för vald upplösning ritats ut.
+	for each (DirectionalLight* light in dirLights)
+	{	
+		XMVECTOR LightRes = XMLoadFloat2(&light->Resolution);
 
-			if (XMVector2Equal(LightRes, CurrentRes))
+		if (XMVector2Equal(LightRes, CurrentRes))
+		{
+			for (int i = 0; i < cameras.size(); ++i)
+			//for each (Camera* camera in cameras)
 			{
+				Camera* camera = cameras[i];
+
 				//kolla om shadowmapen får plats
 				//else light->ShadowIndex = -1 (kolla på GPU)
-
 				XMFLOAT2 shadowCoord = CalculateShadowCoord(ShadowTileIndex);
 
 				//räkna ut viewport
-				D3D11_VIEWPORT vp = ShadowViewPort(shadowCoord.x, shadowCoord.y, Resolution.x, Resolution.y);
-
+				D3D11_VIEWPORT vp = ShadowViewPort((int)shadowCoord.x, (int)shadowCoord.y, (int)Resolution.x, (int)Resolution.y);
+				
 				//räkna ut ViewProj-matris.
 				//1.0f, light->Range ska vara närsta avstånd till objekt, största avstånd. Terräng? GOLDPLATING! Drar prestanda, ökar kvalité på skuggorna.
+				XMFLOAT4X4 V, P;
+				BoundingOrientedBox OBB;
 
-				XMMATRIX View = light->GetViewMatrix();
-				XMMATRIX Proj = light->GetProjectionMatrix(1.0f, light->Range);
+				light->GetViewProjOBB(camera->GetFrustum(), 0.0f, V, P, OBB);
+				
+				XMFLOAT3 tempPos = camera->GetPosition();
+
+				/*
+				system("cls");
+				cout << "Camera:	  " << tempPos.x << ", " << tempPos.y << ", " << tempPos.z << endl;
+				cout << "OBB center:  " << OBB.Center.x << ", " << OBB.Center.y << ", " << OBB.Center.z << endl;
+				cout << "OBB extents: " << OBB.Extents.x << ", " << OBB.Extents.y << ", " << OBB.Extents.z << endl;
+				*/
+
+				XMMATRIX View = XMLoadFloat4x4(&V);
+				XMMATRIX Proj = XMLoadFloat4x4(&P);
+
 				XMMATRIX ViewProj = View * Proj;
 
 				//räkna ut viewprojtex
 				XMFLOAT4X4 ViewProjTex = ShadowViewProjTex(vp, ViewProj);
-
-				XMFLOAT4X4 Tex = ShadowTex(vp);
-				
+				XMFLOAT4X4 Tex = ShadowTex(vp);				
 				XMFLOAT4X4 viewprojf44;
+				XMStoreFloat4x4(&viewprojf44, ViewProj);
 
+				//spara viewprojtex till listan med viewprojtex. denna ska till GPU:n. index i listan ska vara samma som light->ShadowIndex
+				m_ViewProjTexs.push_back(ViewProjTex);
+				m_ViewProj.push_back(viewprojf44);
+				m_Texs.push_back(Tex);
+				
+				//drawshadowmap med vp
+				RenderShadowMap(View, Proj, vp, OBB);
+
+				//Sätter ShadowIndex
+				light->ShadowIndex[i] = ShadowIndex;
+
+				//Räknar upp ShadowIndex
+				++ShadowIndex;
+				ShadowTileIndex += TileSize;
+			}			
+		}	
+	}
+}
+
+void GraphicsManager::RenderPointShadowMaps(vector<PointLight*>& pointLights, XMFLOAT2 Resolution, int& ShadowIndex, int& ShadowTileIndex)
+{
+	int TileSize = ShadowTileSize(Resolution);
+	XMVECTOR CurrentRes = XMLoadFloat2(&Resolution);
+	//spotlights för vald upplösning ritats ut.
+	for each (PointLight* light in pointLights)
+	{					
+		XMVECTOR LightRes = XMLoadFloat2(&light->Resolution);
+
+		if (XMVector2Equal(LightRes, CurrentRes))
+		{
+			std::vector<XMFLOAT4X4> Views = light->GetViewMatrixes();
+			XMMATRIX Proj = light->GetProjectionMatrix(1.0f, light->Range);
+
+			for (int i = 0; i < Views.size(); ++i)
+			{
+				XMFLOAT2 shadowCoord = CalculateShadowCoord(ShadowTileIndex);
+
+				D3D11_VIEWPORT vp = ShadowViewPort((int)shadowCoord.x, (int)shadowCoord.y, (int)Resolution.x, (int)Resolution.y);
+
+				XMMATRIX View = XMLoadFloat4x4(&Views[i]);
+
+				XMMATRIX ViewProj = View * Proj;
+
+				//räkna ut viewprojtex
+				XMFLOAT4X4 ViewProjTex = ShadowViewProjTex(vp, ViewProj);
+				XMFLOAT4X4 Tex = ShadowTex(vp);				
+				XMFLOAT4X4 viewprojf44;
 				XMStoreFloat4x4(&viewprojf44, ViewProj);
 
 				//spara viewprojtex till listan med viewprojtex. denna ska till GPU:n. index i listan ska vara samma som light->ShadowIndex
@@ -404,26 +505,69 @@ void GraphicsManager::RenderShadowMaps(vector<Camera*>& cameras)
 				m_ViewProj.push_back(viewprojf44);
 				m_Texs.push_back(Tex);
 
-
 				//drawshadowmap med vp
 				RenderShadowMap(View, Proj, vp);
 
-
 				//Sätter ShadowIndex
-				light->ShadowIndex = ShadowIndex;
+				light->ShadowIndex[i] = ShadowIndex;
 
 				//Räknar upp ShadowIndex
 				++ShadowIndex;
-
 				ShadowTileIndex += TileSize;
 			}
-		}
-
-
-	}	
+		}	
+	}
 }
 
-void GraphicsManager::RenderShadowMap(CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEWPORT vp)
+void GraphicsManager::RenderSpotShadowMaps(vector<SpotLight*>& spotLights, XMFLOAT2 Resolution, int& ShadowIndex, int& ShadowTileIndex)
+{
+	int TileSize = ShadowTileSize(Resolution);
+	XMVECTOR CurrentRes = XMLoadFloat2(&Resolution);
+	//spotlights för vald upplösning ritats ut.
+	for each (SpotLight* light in spotLights)
+	{					
+		XMVECTOR LightRes = XMLoadFloat2(&light->Resolution);
+
+		if (XMVector2Equal(LightRes, CurrentRes))
+		{
+			//kolla om shadowmapen får plats
+			//else light->ShadowIndex = -1 (kolla på GPU)
+			XMFLOAT2 shadowCoord = CalculateShadowCoord(ShadowTileIndex);
+
+			//räkna ut viewport
+			D3D11_VIEWPORT vp = ShadowViewPort((int)shadowCoord.x, (int)shadowCoord.y, (int)Resolution.x, (int)Resolution.y);
+
+			//räkna ut ViewProj-matris.
+			//1.0f, light->Range ska vara närsta avstånd till objekt, största avstånd. Terräng? GOLDPLATING! Drar prestanda, ökar kvalité på skuggorna.
+			XMMATRIX View = light->GetViewMatrix();
+			XMMATRIX Proj = light->GetProjectionMatrix(1.0f, light->Range);
+			XMMATRIX ViewProj = View * Proj;
+
+			//räkna ut viewprojtex
+			XMFLOAT4X4 ViewProjTex = ShadowViewProjTex(vp, ViewProj);
+			XMFLOAT4X4 Tex = ShadowTex(vp);				
+			XMFLOAT4X4 viewprojf44;
+			XMStoreFloat4x4(&viewprojf44, ViewProj);
+
+			//spara viewprojtex till listan med viewprojtex. denna ska till GPU:n. index i listan ska vara samma som light->ShadowIndex
+			m_ViewProjTexs.push_back(ViewProjTex);
+			m_ViewProj.push_back(viewprojf44);
+			m_Texs.push_back(Tex);
+
+			//drawshadowmap med vp
+			RenderShadowMap(View, Proj, vp);
+
+			//Sätter ShadowIndex
+			light->ShadowIndex = ShadowIndex;
+
+			//Räknar upp ShadowIndex
+			++ShadowIndex;
+			ShadowTileIndex += TileSize;
+		}	
+	}
+}
+
+void GraphicsManager::RenderShadowMap(CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEWPORT vp, BoundingFrustum& frustum)
 {
 	m_DeviceContext->RSSetViewports( 1, &vp );
 	m_DeviceContext->OMSetRenderTargets( 0, NULL, m_ShadowMapDSV );
@@ -437,11 +581,28 @@ void GraphicsManager::RenderShadowMap(CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEW
 	Effects::ShadowMapFX->SetViewProj(View * Proj);
 
 	RenderTerrainShadowMap(View, Proj);
-	RenderModelsShadowMap(View, Proj);
-	std::cout << "shadow" << endl;
+	RenderModelsShadowMap(View, Proj, frustum);
 
 	m_DeviceContext->OMSetRenderTargets( 0, 0, 0 );
+}
 
+void GraphicsManager::RenderShadowMap(CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEWPORT vp, BoundingOrientedBox& OBB)
+{
+	m_DeviceContext->RSSetViewports( 1, &vp );
+	m_DeviceContext->OMSetRenderTargets( 0, NULL, m_ShadowMapDSV );
+	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	m_DeviceContext->OMSetDepthStencilState(RenderStates::LessDSS, 0);
+	m_DeviceContext->RSSetState(RenderStates::NoCullRS);	
+	//m_DeviceContext->RSSetState(RenderStates::WireframeRS);	
+
+	m_DeviceContext->IASetInputLayout(InputLayouts::Pos);
+
+	Effects::ShadowMapFX->SetViewProj(View * Proj);
+
+	RenderTerrainShadowMap(View, Proj);
+	RenderModelsShadowMap(View, Proj, OBB);
+
+	m_DeviceContext->OMSetRenderTargets( 0, 0, 0 );
 }
 
 void GraphicsManager::RenderTerrainShadowMap(CXMMATRIX View, CXMMATRIX Proj)
@@ -463,21 +624,13 @@ void GraphicsManager::RenderTerrainShadowMap(CXMMATRIX View, CXMMATRIX Proj)
 	}
 }
 
-void GraphicsManager::RenderModelsShadowMap(CXMMATRIX View, CXMMATRIX Proj)
+void GraphicsManager::RenderModelsShadowMap(CXMMATRIX View, CXMMATRIX Proj, vector<GameObject*>& instances)
 {
 	ID3DX11EffectTechnique* tech;
 	D3DX11_TECHNIQUE_DESC techDesc;
 
 	tech = Effects::ShadowMapFX->BasicShadow;
 	tech->GetDesc( &techDesc );
-
-	vector<GameObject*> instances;	
-	BoundingFrustum frustum = MathHelper::GenerateBoundingFrustum(View, Proj);
-	g_QuadTree->GetIntersectingInstances(frustum, instances);
-	sort( instances.begin(), instances.end() );
-	instances.erase( unique( instances.begin(), instances.end() ), instances.end() );
-
-	std::cout << instances.size() << endl;
 
 	for(UINT p = 0; p < techDesc.Passes; ++p)
 	{
@@ -642,7 +795,7 @@ void GraphicsManager::ClearBuffers()
 	m_DeviceContext->ClearDepthStencilView( m_ShadowMapDSV, D3D11_CLEAR_DEPTH, 1.0f, 0 );
 	float AlbedoClearColor[4] = {0.1f,  0.1f, 0.1f, 0.0f};
 	float ClearColor[4] = {0.0f,  0.0f, 0.0f, 0.0f};
-	m_DeviceContext->ClearRenderTargetView( m_RenderTargetView, ClearColor );
+	//m_DeviceContext->ClearRenderTargetView( m_RenderTargetView, ClearColor );
 	m_DeviceContext->ClearRenderTargetView( m_AlbedoRTV,		AlbedoClearColor );
 	m_DeviceContext->ClearRenderTargetView( m_NormalSpecRTV,	ClearColor );
 	m_DeviceContext->ClearUnorderedAccessViewFloat( m_FinalUAV, ClearColor );
@@ -947,15 +1100,18 @@ void GraphicsManager::CombineFinal()
 
 	
 	D3D11_VIEWPORT shadowVP;
+	shadowVP.Width	= 400;
+	shadowVP.Height	= ((float)m_ShadowHeight / (float)m_ShadowWidth) * shadowVP.Width;
 	shadowVP.TopLeftX = 20;
-	shadowVP.TopLeftY = m_Height - 320;		
-	shadowVP.Width	= 600;
-	shadowVP.Height	= 300;
+	shadowVP.TopLeftY = m_Height - (shadowVP.Height + 20);		
 	shadowVP.MinDepth = 0.0f;
 	shadowVP.MaxDepth = 1.0f;
 
 	
 	RenderQuad(m_ViewPort, m_FinalSRV, Effects::CombineFinalFX->ColorTech);
+	//Effects::CombineFinalFX->SetOpacity(0.8f);
+	//RenderQuad(shadowVP, m_ShadowMapSRV, Effects::CombineFinalFX->BlendMonoTech);
+
 	RenderQuad(shadowVP, m_ShadowMapSRV, Effects::CombineFinalFX->MonoTech);
 
 	m_DeviceContext->RSSetViewports( 1, &m_ViewPort );
