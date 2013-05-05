@@ -13,4 +13,9 @@ Bullet::~Bullet()
 
 void Bullet::CollideWith(GameObject* Instance)
 {
+	if (IsEnemy(Instance))
+	{
+		if (strcmp(typeid(*Instance).name(), "class Unit") == 0)
+			Instance->SetState(Dead);
+	}
 }

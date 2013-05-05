@@ -24,9 +24,11 @@ public:
 	bool	Update(float deltaTime, Terrain* terrain);
 
 
-	void		SetWeapon(Weapon* Weapon) { gWeapon = Weapon; }
-	void		SetHealth(UnitHealth HealthData);
-	UnitHealth	GetHealth();
+	virtual void	SetTeam(GOTeam Value) { GameObject::SetTeam(Value); if (gWeapon) gWeapon->SetTeam(GetTeam()); }
+
+	void			SetWeapon(Weapon* Weapon) { gWeapon = Weapon; if (gWeapon) gWeapon->SetTeam(GetTeam()); }
+	void			SetHealth(UnitHealth HealthData);
+	UnitHealth		GetHealth();
 
 	void	ReceiveDamage(float Damage);
 
