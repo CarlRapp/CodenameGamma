@@ -27,6 +27,8 @@ GameObject::GameObject(void)
 	);
 	UpdateWorld(true);
 
+	SetScale(XMFLOAT3(1,1,1));
+
 	SetState( Alive );
 
 	SetTeam(Team2);
@@ -109,15 +111,13 @@ bool GameObject::Update(float deltaTime, Terrain* terrain)
 		m_ModelInstance->m_World	=	gWorld;
 		m_ModelInstance->m_WorldInverseTranspose	=	gWorldInverseTranspose;
 
-		m_QuadTreeType->Update();
-
-		return true;
 	}
 
 	m_QuadTreeType->Update();
 	m_ModelInstance->m_World	=	gWorld;
 	m_ModelInstance->m_WorldInverseTranspose	=	gWorldInverseTranspose;
-	return false;
+
+	return !MathHelper::BoundingSphereEqual(m_QuadTreeType->GetQuadTreeData().Old, m_QuadTreeType->GetQuadTreeData().Current);
 }
 
 void GameObject::SetModelInstance(ModelInstance *modelInstance)
