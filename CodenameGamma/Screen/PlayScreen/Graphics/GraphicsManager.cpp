@@ -251,8 +251,8 @@ void GraphicsManager::InitBuffers()
 	finalTex->Release();
 
 	//InitShadowMap(8192, 4096);
-	//InitShadowMap(16384, 4096);
-	InitShadowMap(16384, 8192);
+	InitShadowMap(16384, 4096);
+	//InitShadowMap(16384, 8192);
 	//InitShadowMap(20480, 4096);
 }
 
