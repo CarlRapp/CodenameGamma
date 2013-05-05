@@ -9,7 +9,7 @@ Camera::Camera(void)
 	m_Fovy			= (float)PI * 0.45f;
 	m_AspectRatio	= 16.0f / 9.0f;
 	m_NearZ			= 1.0f;
-	m_FarZ			= 5000.0f;	
+	m_FarZ			= 1000.0f;	
 
 	m_Position	= XMFLOAT3(0, 0, 0);
 	m_Forward	= XMFLOAT3(0, 0, 1);

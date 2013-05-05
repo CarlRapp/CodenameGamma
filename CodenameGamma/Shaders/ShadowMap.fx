@@ -82,9 +82,9 @@ RasterizerState Depth2048
 
 RasterizerState Depth1024
 {
-	DepthBias = 1500;
+	DepthBias = 1800;
     DepthBiasClamp = 0.0f;
-	SlopeScaledDepthBias = 1.0f;
+	SlopeScaledDepthBias = 3.0f;
 	CullMode = NONE;
 };
 

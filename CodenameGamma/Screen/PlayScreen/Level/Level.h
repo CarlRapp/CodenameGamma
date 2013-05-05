@@ -71,9 +71,9 @@ private:
 	vector<Model*>			gLoadedModels;
 
 
-	void	AddDirectionalLight(DirectionalLight* Instance);
-	void	AddPointLight(PointLight* Instance);
-	void	AddSpotLight(bool hasShadow, XMFLOAT2 res);
+	void	AddDirectionalLight(bool hasShadow);
+	void	AddPointLight(bool hasShadow);
+	void	AddSpotLight(bool hasShadow);
 	void	AddInstance(float x, float y, float z, Model *model);
 
 	void AddGameObject(GameObject* go) 

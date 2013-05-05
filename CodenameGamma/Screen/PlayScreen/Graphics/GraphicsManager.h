@@ -52,25 +52,61 @@ class GraphicsManager
 
 private:
 
-	void InitFullScreenQuad();
-	void InitBuffers();
+	static XMFLOAT2 CalculateShadowCoord(int ShadowIndex)
+	{
 
-	void InitShadowMap(int width, int height);
+		int rest = ShadowIndex;
+
+		int row		  = rest / 256;
+		rest		  %= 256;
+
+		int numHuge   = rest / 64;
+		rest		  %= 64;
+
+		int numBig    = rest / 16;
+		rest		  %= 16;
+
+		int numMedium = rest / 4;
+		rest		  %= 4;
+
+		int numSmall  = rest;
+
+
+
+		int x = numHuge * 4096;
+
+		if (numBig == 1 || numBig == 3)
+			x += 2048;
+
+		if (numMedium == 1 || numMedium == 3)
+			x += 1024;
+
+		if (numSmall == 1 || numSmall == 3)
+			x += 512;
+
+		int y = 0;
 	
-	void RenderShadowMaps(vector<Camera*>& cameras);
-	void RenderShadowMap(CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEWPORT vp);
+		y += row * 4096;
 
-	void RenderTerrainShadowMap(CXMMATRIX View, CXMMATRIX Proj);
-	void RenderModelsShadowMap(CXMMATRIX View, CXMMATRIX Proj);
-	void RenderModelShadowMap(ModelInstance& instance, UINT pass);	
+		if (numBig == 2 || numBig == 3)
+			y += 2048;
+
+		if (numMedium == 2 || numMedium == 3)
+			y += 1024;
+
+		if (numSmall == 2 || numSmall == 3)
+			y += 512;
+
+		return XMFLOAT2((float)x, (float)y);
+	}
 
 	D3D11_VIEWPORT ShadowViewPort(int x, int y, int width, int height)
 	{
 		D3D11_VIEWPORT vp;
-		vp.TopLeftX = x;
-		vp.TopLeftY = y;		
-		vp.Width	= width;
-		vp.Height	= height;
+		vp.TopLeftX = (float)x;
+		vp.TopLeftY = (float)y;		
+		vp.Width	= (float)width;
+		vp.Height	= (float)height;
 		vp.MinDepth = 0.0f;
 		vp.MaxDepth = 1.0f;
 
@@ -88,7 +124,7 @@ private:
 
 		//Räkna ut Translation / Scala för tex-matrisen.
 		XMMATRIX texTrans = XMMatrixTranslation(x, y, 0);
-		XMMATRIX texScale = XMMatrixTranslation(scaleX, scaleY, 0);
+		XMMATRIX texScale = XMMatrixTranslation(scaleX, scaleY, 1.0f);
 
 		//Räkna ut tex.
 		XMMATRIX tex = texScale * texTrans;
@@ -114,7 +150,7 @@ private:
 
 		//Räkna ut Translation / Scala för tex-matrisen.
 		XMMATRIX texTrans = XMMatrixTranslation(x, y, 0);
-		XMMATRIX texScale = XMMatrixScaling(scaleX, scaleY, 0);
+		XMMATRIX texScale = XMMatrixScaling(scaleX, scaleY, 1.0f);
 
 		//Räkna ut tex.
 		XMMATRIX tex = texScale * texTrans;
@@ -125,6 +161,98 @@ private:
 
 		return result;
 	}
+
+	XMFLOAT2 HighestRes(XMFLOAT2 res1, XMFLOAT2 res2)
+	{
+		float pix1 = res1.x * res1.y;
+		float pix2 = res2.x * res2.y;
+
+		return (pix1 >= pix2) ? res1 : res2;
+	}
+
+	float PosToLightDist(XMFLOAT3 pos1, XMFLOAT3 pos2, float lightRange)
+	{
+		XMVECTOR A = XMLoadFloat3(&pos1);
+		XMVECTOR B = XMLoadFloat3(&pos2);
+		XMVECTOR AB = B - A;
+		XMVECTOR distVec = XMVector3Length(AB);
+		float dist;
+		XMStoreFloat(&dist, distVec);
+		dist -= lightRange;
+		return dist;
+	}
+
+	XMFLOAT2 ChooseResolution(PointLight* light, XMFLOAT3 cameraPos)
+	{
+		float dist = PosToLightDist(cameraPos, light->Position, light->Range);
+
+		if (dist < -700)
+			return SHADOWMAP_1024;
+		else if (dist < -500)
+			return SHADOWMAP_1024;
+		else if (dist < -300)
+			return SHADOWMAP_1024;
+		else
+			return SHADOWMAP_512;	
+	}
+
+	XMFLOAT2 ChooseResolution(SpotLight* light, XMFLOAT3 cameraPos)
+	{
+		float dist = PosToLightDist(cameraPos, light->Position, light->Range);
+
+		if (dist < -700)
+			return SHADOWMAP_4096;
+		else if (dist < -500)
+			return SHADOWMAP_2048;
+		else if (dist < -300)
+			return SHADOWMAP_1024;
+		else
+			return SHADOWMAP_512;		
+	}
+
+	vector<GameObject*> GetIntersectingInstances(BoundingFrustum frustum)
+	{
+		vector<GameObject*> instances;	
+		g_QuadTree->GetIntersectingInstances(frustum, instances);
+		sort( instances.begin(), instances.end() );
+		instances.erase( unique( instances.begin(), instances.end() ), instances.end() );
+		return instances;
+	}
+
+	vector<GameObject*> GetIntersectingInstances(BoundingOrientedBox OBB)
+	{
+		vector<GameObject*> instances;	
+		g_QuadTree->GetIntersectingInstances(OBB, instances);
+		sort( instances.begin(), instances.end() );
+		instances.erase( unique( instances.begin(), instances.end() ), instances.end() );
+		return instances;
+	}
+
+
+	void InitFullScreenQuad();
+	void InitBuffers();
+
+	void InitShadowMap(int width, int height);
+	
+	void RenderShadowMaps(vector<Camera*>& cameras);
+	void RenderDirShadowMaps(vector<DirectionalLight*>& dirLights, vector<Camera*>& cameras, XMFLOAT2 Resolution, int& ShadowIndex, int& ShadowTileIndex);
+	void RenderPointShadowMaps(vector<PointLight*>& pointLights, XMFLOAT2 Resolution, int& ShadowIndex, int& ShadowTileIndex);
+	void RenderSpotShadowMaps(vector<SpotLight*>& spotLights, XMFLOAT2 Resolution, int& ShadowIndex, int& ShadowTileIndex);
+
+	void RenderShadowMap(CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEWPORT vp, BoundingFrustum& frustum);
+	void RenderShadowMap(CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEWPORT vp, BoundingOrientedBox& OBB);
+	void RenderShadowMap(CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEWPORT vp)								{ RenderShadowMap(View, Proj, vp, MathHelper::GenerateBoundingFrustum(View, Proj)); }
+	void RenderShadowMap(CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEWPORT vp, Camera& camera)				{ RenderShadowMap(View, Proj, vp, camera.GetFrustum()); }	
+
+	void RenderTerrainShadowMap(CXMMATRIX View, CXMMATRIX Proj);
+	void RenderModelsShadowMap(CXMMATRIX View, CXMMATRIX Proj, vector<GameObject*>& instances);
+
+	void RenderModelsShadowMap(CXMMATRIX View, CXMMATRIX Proj, BoundingFrustum& frustum) { RenderModelsShadowMap(View, Proj, GetIntersectingInstances(frustum)); }
+	void RenderModelsShadowMap(CXMMATRIX View, CXMMATRIX Proj, BoundingOrientedBox& OBB)  { RenderModelsShadowMap(View, Proj, GetIntersectingInstances(OBB)); }
+
+	void RenderModelShadowMap(ModelInstance& instance, UINT pass);	
+
+
 
 	//void RenderModels(Player* player);	
 	//void RenderTerrain(Player* player);

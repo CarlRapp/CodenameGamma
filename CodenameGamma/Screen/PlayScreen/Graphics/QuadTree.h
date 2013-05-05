@@ -45,8 +45,8 @@ public:
 	void DestroyTree(Node* Instance);
 
 private:
-	static const int maxNodeSize = 4;
-	float minNodeVolume;
+	static const int maxNodeSize = 8;
+	float minNodeArea;
 	Node *m_RootNode;
 	BoundingBox m_WorldBounds;
 
@@ -64,7 +64,9 @@ private:
 
 	bool NeedUpdate(GameObject* instance);
 
-	void GetIntersectingInstances(BoundingFrustum frusum, vector<GameObject*> &instances, Node* node, ContainmentType containmentType);
+	void GetIntersectingInstances(BoundingFrustum frustum, vector<GameObject*> &instances, Node* node, ContainmentType containmentType);
+	void GetIntersectingInstances(BoundingOrientedBox OBB, vector<GameObject*> &instances, Node* node, ContainmentType containmentType);
+
 	void GetInstances(vector<GameObject*> &instances, Node* node);
 
 	void GetObjectsCollidingWith(GameObject* go, vector<GameObject*> &GameObjects, Node* node, ContainmentType containmentType);
@@ -80,12 +82,12 @@ private:
 	}
 
 public:
-	QuadTree(BoundingBox world, float minNodeVolume);
+	QuadTree(BoundingBox world, float minNodeArea);
 	~QuadTree(void);
 
 	void Insert(GameObject* instance) 
 	{ 
-		Insert(instance, instance->GetQuadTreeType()->GetQuadTreeData().Current, m_RootNode, ContainmentType::INTERSECTS); 
+		Insert(instance, instance->GetQuadTreeType()->GetQuadTreeData().Current, m_RootNode, INTERSECTS); 
 	}
 
 	void Delete(GameObject* instance) 
@@ -104,14 +106,19 @@ public:
 			}
 	}
 
-	void GetIntersectingInstances(BoundingFrustum frusum, vector<GameObject*> &instances) 
+	void GetIntersectingInstances(BoundingFrustum frustum, vector<GameObject*> &instances) 
 	{ 
-		GetIntersectingInstances(frusum, instances, m_RootNode, ContainmentType::INTERSECTS); 
+		GetIntersectingInstances(frustum, instances, m_RootNode, INTERSECTS); 
+	}
+
+	void GetIntersectingInstances(BoundingOrientedBox OBB, vector<GameObject*> &instances) 
+	{ 
+		GetIntersectingInstances(OBB, instances, m_RootNode, INTERSECTS); 
 	}
 
 	void GetObjectsCollidingWith(GameObject* go, vector<GameObject*> &GameObjects)
 	{
-		return GetObjectsCollidingWith(go, GameObjects, m_RootNode, ContainmentType::INTERSECTS); 
+		return GetObjectsCollidingWith(go, GameObjects, m_RootNode, INTERSECTS); 
 	}
 };
 

@@ -1,11 +1,11 @@
 #include "QuadTree.h"
 
 
-QuadTree::QuadTree(BoundingBox world, float minNodeVolume)
+QuadTree::QuadTree(BoundingBox world, float minNodeArea)
 {
 	m_WorldBounds	= world;
 	m_RootNode		= new Node(NULL, world);
-	QuadTree::minNodeVolume = minNodeVolume;
+	QuadTree::minNodeArea = minNodeArea;
 }
 
 
@@ -41,9 +41,9 @@ void QuadTree::GetIntersectingInstances(BoundingFrustum frustum, vector<GameObje
 
 	switch (containmentType)
 	{
-	case ContainmentType::DISJOINT:
+	case DISJOINT:
 		return;
-	case ContainmentType::CONTAINS:
+	case CONTAINS:
 		if (node->m_NW == NULL)
 		{
 			//Lägger till instancerna i listan.
@@ -52,13 +52,13 @@ void QuadTree::GetIntersectingInstances(BoundingFrustum frustum, vector<GameObje
 		}
 		else
 		{
-			GetIntersectingInstances(frustum, instances, node->m_NW, ContainmentType::CONTAINS);
-			GetIntersectingInstances(frustum, instances, node->m_NE, ContainmentType::CONTAINS);
-			GetIntersectingInstances(frustum, instances, node->m_SW, ContainmentType::CONTAINS);
-			GetIntersectingInstances(frustum, instances, node->m_SE, ContainmentType::CONTAINS);
+			GetIntersectingInstances(frustum, instances, node->m_NW, CONTAINS);
+			GetIntersectingInstances(frustum, instances, node->m_NE, CONTAINS);
+			GetIntersectingInstances(frustum, instances, node->m_SW, CONTAINS);
+			GetIntersectingInstances(frustum, instances, node->m_SE, CONTAINS);
 		}
 		break;
-	case ContainmentType::INTERSECTS:
+	case INTERSECTS:
 		if (node->m_NW == NULL)
 		{
 			for each (GameObject *instance in node->m_Content)
@@ -80,10 +80,54 @@ void QuadTree::GetIntersectingInstances(BoundingFrustum frustum, vector<GameObje
 	}
 }
 
+void QuadTree::GetIntersectingInstances(BoundingOrientedBox OBB, vector<GameObject*> &instances, Node* node, ContainmentType containmentType)
+{	
+
+	switch (containmentType)
+	{
+	case DISJOINT:
+		return;
+	case CONTAINS:
+		if (node->m_NW == NULL)
+		{
+			//Lägger till instancerna i listan.
+			for each (GameObject *instance in node->m_Content)			
+				instances.push_back(instance);			
+		}
+		else
+		{
+			GetIntersectingInstances(OBB, instances, node->m_NW, CONTAINS);
+			GetIntersectingInstances(OBB, instances, node->m_NE, CONTAINS);
+			GetIntersectingInstances(OBB, instances, node->m_SW, CONTAINS);
+			GetIntersectingInstances(OBB, instances, node->m_SE, CONTAINS);
+		}
+		break;
+	case INTERSECTS:
+		if (node->m_NW == NULL)
+		{
+			for each (GameObject *instance in node->m_Content)
+			{
+				//Om instansen kolliderar med furstum så lägger vi till den i listan.
+				if (OBB.Intersects(GetCurrentBoundingSphere(instance)))
+					instances.push_back(instance);
+			}		
+		}
+		else
+		{
+			GetIntersectingInstances(OBB, instances, node->m_NW, OBB.Contains(node->m_NW->m_BoundingBox));
+			GetIntersectingInstances(OBB, instances, node->m_NE, OBB.Contains(node->m_NE->m_BoundingBox));
+			GetIntersectingInstances(OBB, instances, node->m_SW, OBB.Contains(node->m_SW->m_BoundingBox));
+			GetIntersectingInstances(OBB, instances, node->m_SE, OBB.Contains(node->m_SE->m_BoundingBox));
+		}
+			
+		break;
+	}
+}
+
 
 void QuadTree::Insert(GameObject* instance, BoundingSphere& boundingSphere, Node* node, ContainmentType containmentType)
 {
-	if (containmentType == ContainmentType::DISJOINT)
+	if (containmentType == DISJOINT)
 		return;
 
 	//Sätter in instansen i noden om den är ett löv.
@@ -94,8 +138,8 @@ void QuadTree::Insert(GameObject* instance, BoundingSphere& boundingSphere, Node
 		//instance->GetQuadTreeType()->GetQuadTreeData().Node = node;
 
 		//För många instanser i noden. Skapar barn till noden som vi skickar ner instanserna till.
-		float volume = 4 * node->m_BoundingBox.Extents.x * node->m_BoundingBox.Extents.y *node->m_BoundingBox.Extents.z;
-		if (node->m_Content.size() > maxNodeSize && volume > minNodeVolume)
+		float area = (node->m_BoundingBox.Extents.x * node->m_BoundingBox.Extents.z) / 4;
+		if (node->m_Content.size() > maxNodeSize && area >= minNodeArea)
 		{
 			CreateChildNodes(node);
 
@@ -204,15 +248,15 @@ void QuadTree::CreateChildNodes(Node* node)
 
 void QuadTree::InsertToChildren(GameObject* instance, BoundingSphere& boundingSphere, Node* node, ContainmentType containmentType)
 {
-	if (containmentType == ContainmentType::CONTAINS)
+	if (containmentType == CONTAINS)
 	{
-		Insert(instance, boundingSphere, node->m_NW, ContainmentType::CONTAINS);
-		Insert(instance, boundingSphere, node->m_NE, ContainmentType::CONTAINS);	
-		Insert(instance, boundingSphere, node->m_SE, ContainmentType::CONTAINS);	
-		Insert(instance, boundingSphere, node->m_SW, ContainmentType::CONTAINS);	
+		Insert(instance, boundingSphere, node->m_NW, CONTAINS);
+		Insert(instance, boundingSphere, node->m_NE, CONTAINS);	
+		Insert(instance, boundingSphere, node->m_SE, CONTAINS);	
+		Insert(instance, boundingSphere, node->m_SW, CONTAINS);	
 	}
 
-	else if (containmentType == ContainmentType::INTERSECTS)
+	else if (containmentType == INTERSECTS)
 	{
 		Insert(instance, boundingSphere, node->m_NW, boundingSphere.Contains(node->m_NW->m_BoundingBox));
 		Insert(instance, boundingSphere, node->m_NE, boundingSphere.Contains(node->m_NE->m_BoundingBox));
@@ -305,8 +349,8 @@ bool QuadTree::Empty(Node* node)
 bool QuadTree::NeedUpdate(GameObject* instance)
 {		
 	Node* node = (Node*)instance->GetQuadTreeType()->GetNode();
-	if (node->m_BoundingBox.Contains(GetOldBoundingSphere(instance)) == ContainmentType::CONTAINS)
-		if (node->m_BoundingBox.Contains(GetCurrentBoundingSphere(instance)) == ContainmentType::CONTAINS)
+	if (node->m_BoundingBox.Contains(GetOldBoundingSphere(instance)) == CONTAINS)
+		if (node->m_BoundingBox.Contains(GetCurrentBoundingSphere(instance)) == CONTAINS)
 			return false;
 	return true;
 
@@ -316,10 +360,10 @@ void QuadTree::GetObjectsCollidingWith(GameObject* go, vector<GameObject*> &Game
 {
 	switch (containmentType)
 	{
-	case ContainmentType::DISJOINT:
+	case DISJOINT:
 		return;
 		break;
-	case ContainmentType::INTERSECTS:
+	case INTERSECTS:
 		if (node->m_NW == NULL)
 		{
 			BoundingSphere goSphere = GetCurrentBoundingSphere(go);
@@ -342,11 +386,11 @@ void QuadTree::GetObjectsCollidingWith(GameObject* go, vector<GameObject*> &Game
 		}
 
 		break;
-	case ContainmentType::CONTAINS:
+	case CONTAINS:
 		GetInstances(GameObjects, node);
 		break;
 	}
 
-	if (containmentType == ContainmentType::DISJOINT)
+	if (containmentType == DISJOINT)
 		return;
 }

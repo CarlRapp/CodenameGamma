@@ -90,11 +90,11 @@ bool ModelLoader::Load(const std::string& filename,
 void ModelLoader::LoadBones(const aiScene* scene, aiNode* node)
 {
 	//for each mesh in this node.
-	for (int i = 0; i < node->mNumMeshes; ++i)
+	for (UINT i = 0; i < node->mNumMeshes; ++i)
 	{
 		aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
 		//for each bone in the mesh.
-		for (int j = 0; j < mesh->mNumBones; ++j)
+		for (UINT j = 0; j < mesh->mNumBones; ++j)
 		{
 			//add the bone to the bone-map
 			std::string name = mesh->mBones[j]->mName.data;
@@ -102,7 +102,7 @@ void ModelLoader::LoadBones(const aiScene* scene, aiNode* node)
 		}
 	}
 
-	for (int i = 0; i < node->mNumChildren; ++i)
+	for (UINT i = 0; i < node->mNumChildren; ++i)
 		LoadBones(scene, node->mChildren[i]);
 }
 
@@ -112,11 +112,11 @@ void ModelLoader::LoadAnimationNodes(const aiScene* scene, aiNode* node)
 	AnimationNode aniNode;
 	std::string nodeName = node->mName.data;
 	//for each mesh in tht node.
-	for (int i = 0; i < node->mNumMeshes; ++i)
+	for (UINT i = 0; i < node->mNumMeshes; ++i)
 	{
 		aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
 		//for each bone in the mesh.
-		for (int j = 0; j < mesh->mNumBones; ++j)
+		for (UINT j = 0; j < mesh->mNumBones; ++j)
 		{
 			//add the name of the bone to the list.
 			aiBone *bone = mesh->mBones[j];
@@ -128,7 +128,7 @@ void ModelLoader::LoadAnimationNodes(const aiScene* scene, aiNode* node)
 	m_AnimationNodes.insert(std::pair<std::string, AnimationNode>(nodeName, aniNode));
 
 	//Repeat for all the childerens.
-	for (int i = 0; i < node->mNumChildren; ++i)
+	for (UINT i = 0; i < node->mNumChildren; ++i)
 		LoadAnimationNodes(scene, node->mChildren[i]);
 }
 
@@ -137,7 +137,7 @@ void ModelLoader::LoadAnimationNodes(const aiScene* scene, aiNode* node)
 void ModelLoader::LoadAnimations(const aiScene* scene)
 {
 	//for each animation in the aiScene
-	for (int i = 0; i < scene->mNumAnimations; ++i)
+	for (UINT i = 0; i < scene->mNumAnimations; ++i)
 	{
 		AnimationClip animation;
 
@@ -145,7 +145,7 @@ void ModelLoader::LoadAnimations(const aiScene* scene)
 		std::vector<BoneAnimation> BoneAnimations(m_Bones.size());
 
 		//for each node affected by the animation
-		for (int j = 0; j < scene->mAnimations[i]->mNumChannels; ++j)
+		for (UINT j = 0; j < scene->mAnimations[i]->mNumChannels; ++j)
 		{
 			//creates the boneanimation for this "channel".
 			BoneAnimation boneAnimation;					
@@ -164,7 +164,7 @@ void ModelLoader::LoadAnimations(const aiScene* scene)
 			{
 				PosKeyframe poskeyframe;
 				poskeyframe.Translation = aiVector3DToXMFLOAT3(scene->mAnimations[i]->mChannels[j]->mPositionKeys[key].mValue);
-				poskeyframe.TimePos		= scene->mAnimations[i]->mChannels[j]->mPositionKeys[key].mTime;
+				poskeyframe.TimePos		= (float)scene->mAnimations[i]->mChannels[j]->mPositionKeys[key].mTime;
 
 				PosKeyframes.push_back(poskeyframe);
 			}
@@ -174,7 +174,7 @@ void ModelLoader::LoadAnimations(const aiScene* scene)
 			{
 				ScaleKeyframe scalekeyframe;
 				scalekeyframe.Scale			= aiVector3DToXMFLOAT3(scene->mAnimations[i]->mChannels[j]->mScalingKeys[key].mValue);
-				scalekeyframe.TimePos		= scene->mAnimations[i]->mChannels[j]->mScalingKeys[key].mTime;
+				scalekeyframe.TimePos		= (float)scene->mAnimations[i]->mChannels[j]->mScalingKeys[key].mTime;
 
 				ScaleKeyframes.push_back(scalekeyframe);
 			}
@@ -185,7 +185,7 @@ void ModelLoader::LoadAnimations(const aiScene* scene)
 				
 				RotationKeyframe rotationkeyframe;
 				rotationkeyframe.RotationQuat	= aiQuaternionToXMFLOAT4(scene->mAnimations[i]->mChannels[j]->mRotationKeys[key].mValue);
-				rotationkeyframe.TimePos		= scene->mAnimations[i]->mChannels[j]->mRotationKeys[key].mTime;
+				rotationkeyframe.TimePos		= (float)scene->mAnimations[i]->mChannels[j]->mRotationKeys[key].mTime;
 
 				RoatationKeyframes.push_back(rotationkeyframe);				
 			}
@@ -195,7 +195,7 @@ void ModelLoader::LoadAnimations(const aiScene* scene)
 			AnimationNode aniNode = m_AnimationNodes[nodeName]; //hämtar listan på ben som tillhör noden
 
 
-			for (int k = 0; k < aniNode.bones.size(); ++k)
+			for (UINT k = 0; k < aniNode.bones.size(); ++k)
 			{
 				std::string boneName = aniNode.bones[k];	
 				int boneIndex = m_Bones[boneName];			//hämtar benet
@@ -352,7 +352,7 @@ void  ModelLoader::GetVerts(const aiScene* scene,
 	int numbones = mesh->mNumBones;
 
 
-	for (int i = 0; i < mesh->mNumBones; i++)
+	for (UINT i = 0; i < mesh->mNumBones; i++)
 	{
 		const char* a = mesh->mBones[i]->mName.C_Str();
 		int hejrasda = 113246;
