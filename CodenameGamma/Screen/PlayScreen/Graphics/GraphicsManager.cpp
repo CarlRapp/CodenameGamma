@@ -305,9 +305,9 @@ void GraphicsManager::InitShadowMap(int width, int height)
 
 void GraphicsManager::RenderShadowMaps(vector<Camera*>& cameras)
 {
-	m_ViewProjTexs.clear();
-	m_ViewProj.clear();
-	m_Texs.clear();
+	//m_ViewProjTexs.clear();
+	//m_ViewProj.clear();
+	//m_Texs.clear();
 
 	//Lists with lights that have a shadowmap and will be visible
 	vector<DirectionalLight*>	dirLights;
@@ -452,9 +452,9 @@ void GraphicsManager::RenderDirShadowMaps(vector<DirectionalLight*>& dirLights, 
 				XMStoreFloat4x4(&viewprojf44, ViewProj);
 
 				//spara viewprojtex till listan med viewprojtex. denna ska till GPU:n. index i listan ska vara samma som light->ShadowIndex
-				m_ViewProjTexs.push_back(ViewProjTex);
-				m_ViewProj.push_back(viewprojf44);
-				m_Texs.push_back(Tex);
+				m_ViewProjTexs[ShadowIndex] = ViewProjTex;
+				m_ViewProj[ShadowIndex] = viewprojf44;
+				m_Texs[ShadowIndex] = Tex;
 				
 				//drawshadowmap med vp
 				RenderShadowMap(View, Proj, vp, OBB);
@@ -496,14 +496,14 @@ void GraphicsManager::RenderPointShadowMaps(vector<PointLight*>& pointLights, XM
 
 				//räkna ut viewprojtex
 				XMFLOAT4X4 ViewProjTex = ShadowViewProjTex(vp, ViewProj);
-				XMFLOAT4X4 Tex = ShadowTex(vp);				
+				XMFLOAT4X4 Tex = ShadowTex(vp);
 				XMFLOAT4X4 viewprojf44;
 				XMStoreFloat4x4(&viewprojf44, ViewProj);
 
 				//spara viewprojtex till listan med viewprojtex. denna ska till GPU:n. index i listan ska vara samma som light->ShadowIndex
-				m_ViewProjTexs.push_back(ViewProjTex);
-				m_ViewProj.push_back(viewprojf44);
-				m_Texs.push_back(Tex);
+				m_ViewProjTexs[ShadowIndex] =ViewProjTex;
+				m_ViewProj[ShadowIndex] = viewprojf44;
+				m_Texs[ShadowIndex] = Tex;
 
 				//drawshadowmap med vp
 				RenderShadowMap(View, Proj, vp);
@@ -550,9 +550,9 @@ void GraphicsManager::RenderSpotShadowMaps(vector<SpotLight*>& spotLights, XMFLO
 			XMStoreFloat4x4(&viewprojf44, ViewProj);
 
 			//spara viewprojtex till listan med viewprojtex. denna ska till GPU:n. index i listan ska vara samma som light->ShadowIndex
-			m_ViewProjTexs.push_back(ViewProjTex);
-			m_ViewProj.push_back(viewprojf44);
-			m_Texs.push_back(Tex);
+			m_ViewProjTexs[ShadowIndex] =ViewProjTex;
+			m_ViewProj[ShadowIndex] = viewprojf44;
+			m_Texs[ShadowIndex] = Tex;
 
 			//drawshadowmap med vp
 			RenderShadowMap(View, Proj, vp);
@@ -1033,9 +1033,9 @@ void GraphicsManager::ComputeLight(vector<Camera*>& Cameras)
 
 	for(UINT p = 0; p < techDesc.Passes; ++p)
 	{
-		Effects::TiledLightningFX->SetViewProjTexs(&m_ViewProjTexs[0], m_ViewProjTexs.size());
-		Effects::TiledLightningFX->SetViewProj(&m_ViewProj[0], m_ViewProj.size());
-		Effects::TiledLightningFX->SetTexs(&m_Texs[0], m_Texs.size());
+		Effects::TiledLightningFX->SetViewProjTexs(&m_ViewProjTexs[0], MAX_SHADOWMAPS);
+		Effects::TiledLightningFX->SetViewProj(&m_ViewProj[0], MAX_SHADOWMAPS);
+		Effects::TiledLightningFX->SetTexs(&m_Texs[0], MAX_SHADOWMAPS);
 		Effects::TiledLightningFX->SetInvViewProjs(&invViewProjs[0], invViewProjs.size());
 		Effects::TiledLightningFX->SetCamPositions(&camPositions[0], camPositions.size());
 		Effects::TiledLightningFX->SetResolution(XMFLOAT2((float)m_Width, (float)m_Height));
