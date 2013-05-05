@@ -23,6 +23,8 @@ public:
 
 	bool	Update(float deltaTime, Terrain* terrain);
 
+
+	void		SetWeapon(Weapon* Weapon) { gWeapon = Weapon; }
 	void		SetHealth(UnitHealth HealthData);
 	UnitHealth	GetHealth();
 

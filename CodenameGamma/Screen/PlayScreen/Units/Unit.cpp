@@ -26,8 +26,16 @@ bool Unit::Update(float DeltaTime, Terrain* TerrainInstance)
 	if ( gHealth.first <= 0 )
 		SetState( Dead );
 
+	XMVECTOR pos = XMLoadFloat3(&GetFloat3Value( Position ));
+	XMVECTOR dir = XMLoadFloat3(&GetFloat3Value( Direction ));
+
+	pos += dir * (GetRadius() + 10);
+
+	XMFLOAT3 position;
+	XMStoreFloat3(&position, pos);
+
 	gWeapon->Update(DeltaTime);
-	gWeapon->MoveTo( GetFloat3Value( Position ) );
+	gWeapon->MoveTo( position );
 	gWeapon->SetRotation( GetFloat3Value( Rotations ) );
 
 	return GameObject::Update(DeltaTime, TerrainInstance);
