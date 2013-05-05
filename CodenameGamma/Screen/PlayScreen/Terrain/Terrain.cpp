@@ -64,8 +64,8 @@ Terrain::~Terrain(void)
 
 void Terrain::LoadTerrain(LevelData TData)
 {
-	m_Width			= TData.Width;
-	m_Height		= TData.Height;
+	m_Width			= (float)TData.Width;
+	m_Height		= (float)TData.Height;
 
 	m_ResolutionX	= TData.ResolutionX;
 	m_ResolutionY	= TData.ResolutionY;
