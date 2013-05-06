@@ -3,6 +3,9 @@
 
 GameObject::GameObject(void)
 {
+	m_ModelInstance = NULL;
+	m_QuadTreeType = NULL;
+
 	gPosition			=	XMFLOAT3(0, 0, 0);
 	gVelocity			=	XMFLOAT3(0, 0, 0);
 	gAcceleration		=	XMFLOAT3(0, 0, 0); 
@@ -25,18 +28,13 @@ GameObject::GameObject(void)
 			gRotationInFloat.z
 		)
 	);
-	UpdateWorld(true);
 
 	SetScale(XMFLOAT3(1,1,1));
 
 	SetState( Alive );
 
 	SetTeam(Team2);
-
-	m_ModelInstance = NULL;
-	m_QuadTreeType = NULL;
 }
-
 
 GameObject::~GameObject(void)
 {
@@ -53,68 +51,52 @@ bool GameObject::Update(float deltaTime, Terrain* terrain)
 	XMVECTOR vel = XMLoadFloat3(&gVelocity);
 	//XMVECTOR vel = XMLoadFloat3(&XMFLOAT3(0, 0, 0));
 
-	XMVECTOR mov = pos;
 	pos += vel * deltaTime;
 
-	//D3DXVECTOR3 move = m_Position;
-	//m_Position += m_Velocity * deltaTime;
-
-	XMStoreFloat3(&gPosition, pos);
+	XMFLOAT3 newPos;
+	XMStoreFloat3(&newPos, pos);
 
 	XMFLOAT3 min = XMFLOAT3(0, 0, 0);
 	XMFLOAT3 max = XMFLOAT3(4000, 4000, 4000);
 
-	if (gPosition.x < min.x)
+#pragma region WALL
+	if (newPos.x < min.x)
 	{
-		gPosition.x = min.x;
+		newPos.x = min.x;
 		gVelocity.x = abs(gVelocity.x);
 	}
-	if (gPosition.x > max.x)
+	if (newPos.x > max.x)
 	{
-		gPosition.x = max.x;
+		newPos.x = max.x;
 		gVelocity.x = -abs(gVelocity.x);
 	}
 
-	if (gPosition.y < min.y)
+	if (newPos.y < min.y)
 	{
-		gPosition.y = min.y;
+		newPos.y = min.y;
 		gVelocity.y = abs(gVelocity.y);
 	}
-	if (gPosition.y > max.y)
+	if (newPos.y > max.y)
 	{
-		gPosition.y = max.y;
+		newPos.y = max.y;
 		gVelocity.y = -abs(gVelocity.y);
 	}
 
-	if (gPosition.z < min.z)
+	if (newPos.z < min.z)
 	{
-		gPosition.z = min.z;
+		newPos.z = min.z;
 		gVelocity.z = abs(gVelocity.z);
 	}
-	if (gPosition.z > max.z)
+	if (newPos.z > max.z)
 	{
-		gPosition.z = max.z;
+		newPos.z = max.z;
 		gVelocity.z = -abs(gVelocity.z);
 	}
+#pragma endregion Wallbounce
 
-	pos = XMLoadFloat3(&gPosition);
-	mov = pos - mov;
-	
+	MoveTo(newPos);
 
-	
-	bool moved = XMVector3NotEqual(mov, XMVectorZero());
-
-	Move(XMFLOAT3(gVelocity.x * deltaTime, 0, gVelocity.z * deltaTime));
-
-	if (m_ModelInstance)
-	{
-		m_ModelInstance->m_World	=	gWorld;
-		m_ModelInstance->m_WorldInverseTranspose	=	gWorldInverseTranspose;
-	}
-
-	m_QuadTreeType->Update();
-	m_ModelInstance->m_World	=	gWorld;
-	m_ModelInstance->m_WorldInverseTranspose	=	gWorldInverseTranspose;
+	//Move(XMFLOAT3(gVelocity.x * deltaTime, 0, gVelocity.z * deltaTime));
 
 	return !MathHelper::BoundingSphereEqual(m_QuadTreeType->GetQuadTreeData().Old, m_QuadTreeType->GetQuadTreeData().Current);
 }
@@ -353,6 +335,13 @@ void GameObject::UpdateWorld(bool UpdateInverseTranspose)
 
 	if ( UpdateInverseTranspose )
 		XMStoreFloat4x4(&gWorldInverseTranspose, MathHelper::InverseTranspose(XMLoadFloat4x4(&gWorld)));
+
+	if (m_ModelInstance)
+	{
+		m_ModelInstance->m_World	=	gWorld;
+		m_ModelInstance->m_WorldInverseTranspose	=	gWorldInverseTranspose;
+		m_QuadTreeType->Update();
+	}
 }
 
 void GameObject::CollideWith(GameObject* Instance) { } 
