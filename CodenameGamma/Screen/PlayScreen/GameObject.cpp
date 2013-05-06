@@ -291,6 +291,39 @@ void GameObject::SetState(GOState Value)
 	gState	=	Value;
 }
 
+bool GameObject::Intersects(GameObject* go)
+{
+	BoundingSphere As = m_QuadTreeType->GetQuadTreeData().Current;
+	BoundingSphere Bs = go->m_QuadTreeType->GetQuadTreeData().Current;
+
+
+	if (As.Intersects(Bs))
+	{
+
+		if (m_ModelInstance != NULL && go->m_ModelInstance != NULL)
+		{
+			BoundingOrientedBox Ab = m_ModelInstance->GetBoundingOrientedBox();
+			BoundingOrientedBox Bb = go->m_ModelInstance->GetBoundingOrientedBox();
+			return Ab.Intersects(Bb);
+		}
+
+		else if (m_ModelInstance != NULL && go->m_ModelInstance == NULL)
+		{
+			BoundingOrientedBox Ab = m_ModelInstance->GetBoundingOrientedBox();
+			return Ab.Intersects(Bs);
+		}
+
+		else if (m_ModelInstance == NULL && go->m_ModelInstance != NULL)
+		{
+			BoundingOrientedBox Bb = go->m_ModelInstance->GetBoundingOrientedBox();
+			return Bb.Intersects(As);
+		}
+
+		return true;
+	}
+	return false;
+}
+
 #pragma region Team Methods
 void GameObject::SetTeam(GOTeam Team)
 {

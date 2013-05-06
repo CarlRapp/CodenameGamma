@@ -366,12 +366,9 @@ void QuadTree::GetObjectsCollidingWith(GameObject* go, vector<GameObject*> &Game
 	case INTERSECTS:
 		if (node->m_NW == NULL)
 		{
-			BoundingSphere goSphere = GetCurrentBoundingSphere(go);
 			for each (GameObject* go2 in node->m_Content)
 			{
-				BoundingSphere go2Sphere = GetCurrentBoundingSphere(go);
-
-				if (goSphere.Intersects(go2Sphere))
+				if (go->Intersects(go2))
 					GameObjects.push_back(go2);
 			}
 		}

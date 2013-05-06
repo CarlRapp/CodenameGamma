@@ -80,6 +80,7 @@ public:
 
 	void	SetState(GOState Value);
 	
+	bool	Intersects(GameObject* go);
 
 	bool	IsAlive(){ return (gState != Dead); }
 
