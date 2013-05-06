@@ -47,9 +47,22 @@ void ModelManager::LoadModel(string Name, string Filename, string Path)
 
 Model* ModelManager::GetModel(string Name)
 {
-	if ( gLoadedModels.count(Name) != 0)
+	if ( gLoadedModels.count(Name) != 0 )
 		return gLoadedModels[Name];
 
 	DebugScreen::GetInstance()->AddLogMessage("Model: \"" + Name + "\" is not loaded.", Red);
 	return 0;
+}
+
+ModelInstance* ModelManager::CreateModelInstance(string ModelName)
+{
+	Model*	tModel	=	GetModel(ModelName);
+
+	if ( tModel == 0 )
+		return 0;
+
+	ModelInstance*	tInstance	=	new ModelInstance();
+	tInstance->m_Model	=	tModel;
+
+	return	tInstance;
 }
