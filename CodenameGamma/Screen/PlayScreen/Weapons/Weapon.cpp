@@ -20,9 +20,12 @@ void Weapon::LowerCooldown(float DeltaTime)
 	}
 }
 
-void Weapon::Update(float DeltaTime)
+bool Weapon::Update(float deltaTime, Terrain* terrain)
 {
-	LowerCooldown(DeltaTime);
+	bool updated = GameObject::Update(deltaTime, terrain);
+	LowerCooldown(deltaTime);
+
+	return updated;
 }
 
 vector<Projectile*> Weapon::Fire()

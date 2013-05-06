@@ -22,7 +22,7 @@ public:
 	~Weapon(void);
 
 	//	This will be "master update"
-	virtual	void	Update(float DeltaTime);
+	virtual bool Update(float deltaTime, Terrain* terrain);
 
 	virtual	bool	CanFire() { return (gCooldown.first <= 0); }
 
