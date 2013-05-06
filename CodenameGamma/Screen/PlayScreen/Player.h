@@ -30,7 +30,8 @@ public:
 
 	Camera*		GetCamera()		{ return m_Camera; }
 	Controller*	GetController()	{ return m_Controller; }
-	
+	GameObject* GetGameObject() { return m_GameObject; }
+
 	void	SetGameObject(GameObject* Instance);
 };
 
