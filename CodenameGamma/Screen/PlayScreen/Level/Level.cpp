@@ -90,17 +90,7 @@ void Level::LoadLevel(string Levelname)
 	Model* pistolModel = new Model(gLData.DEVICE, gTextureManager, "DATA\\Models\\obj\\BoxWeapon.obj", "DATA/Models/Textures/");
 	Model* bulletModel = new Model(gLData.DEVICE, gTextureManager, "DATA\\Models\\obj\\GunShot.obj", "DATA/Models/Textures/");
 
-	ModelInstance *instance = new ModelInstance();
-	instance->m_Model = pistolModel;
-	instance->m_OldBoundingSphere = instance->GetBoundingSphere();
-
-	Pistol *pistol = new Pistol();
-
-
-
-	pistol->SetModelInstance(instance);
-	AddGameObject(pistol);
-	((Unit*)gGameObjects[0])->SetWeapon(pistol);
+	
 
 	gLoadedModels.push_back( model );
 	gLoadedModels.push_back( pistolModel );
@@ -128,8 +118,8 @@ void Level::AddDirectionalLight(bool hasShadow)
 	dirLight->Direction = XMFLOAT4(0.0f, -1.0f, 0.0f,0);
 	//dirLight->Direction = XMFLOAT4(x, -1.0f, z,0);
 	dirLight->HasShadow = hasShadow;
-	dirLight->Resolution = SHADOWMAP_4096;
-	//dirLight->Resolution = SHADOWMAP_2048;
+	//dirLight->Resolution = SHADOWMAP_4096;
+	dirLight->Resolution = SHADOWMAP_2048;
 	//dirLight->Resolution = SHADOWMAP_1024;
 	gDirLights.push_back(dirLight);
 }
@@ -229,25 +219,34 @@ void Level::AddInstance(float x, float y, float z, Model *model)
 
 void Level::Update(float DeltaTime)
 {
-	if ( InputManager::GetInstance()->GetController(0)->GetButtonState( RIGHT_BUMPER ) == DOWN )
+	for each (Player *p in gPlayers)
 	{
-		vector<Projectile*>	tBullets	=	((Unit*)gGameObjects[0])->FireWeapon();
-
-		if ( tBullets.size() > 0)
-			for each ( Projectile* p in tBullets )
-			{
-				ModelInstance *instance = new ModelInstance();
-				instance->m_Model = gLoadedModels[2];
-
-				p->SetModelInstance(instance);
-
-				//instance->m_World	=	p->GetFloat4x4Value(World);
-				instance->m_OldBoundingSphere = instance->GetBoundingSphere();
-				
-				AddGameObject(p);
-			}
+		p->Update(DeltaTime);
 	}
 
+	for each (Player *p in gPlayers)
+	{
+		if ( p->GetController()->GetButtonState( RIGHT_BUMPER ) == DOWN )
+		{
+			vector<Projectile*>	tBullets	=	((Unit*)p->GetGameObject())->FireWeapon();
+
+			if ( tBullets.size() > 0)
+				for each ( Projectile* p in tBullets )
+				{
+					ModelInstance *instance = new ModelInstance();
+					instance->m_Model = gLoadedModels[2];
+
+					p->SetModelInstance(instance);
+
+					//instance->m_World	=	p->GetFloat4x4Value(World);
+					instance->m_OldBoundingSphere = instance->GetBoundingSphere();
+				
+					AddGameObject(p);
+				}
+		}
+	}
+
+	
 	for ( int i = gGameObjects.size() - 1; i >= 0; --i )
 	{
 		GameObject*	tObject	=	gGameObjects[i];
@@ -346,9 +345,14 @@ void Level::Update(float DeltaTime)
 		sLight->Position.y = gTerrain->GetHeight(sLight->Position.x, sLight->Position.z) + 100.0f;
 	}
 }
-void Level::Render(vector<Camera*>& Cameras)
+void Level::Render()
 {
-	gGraphicsManager->Render(Cameras);
+	vector<Camera*> tCams = vector<Camera*>();
+
+	for each(Player* p in gPlayers)
+		tCams.push_back( p->GetCamera() );
+
+	gGraphicsManager->Render(tCams);
 }
 
 
@@ -418,3 +422,67 @@ void Level::RunCollisionTest()
 	}
 
 }
+
+#pragma region Setup Viewports (SetNumberOfPlayers)
+void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
+{
+	gPlayers.clear();
+	Player *player1 =  new Player(0);
+	Player *player2 = new Player(1);
+	Player *player3 = new Player(2);
+	Player *player4 = new Player(3);
+	switch (noPlayers)
+	{
+		case 1:
+			player1->SetScreen(0,				0,						screenWidth,	screenHeight);	
+			gPlayers.push_back(player1);
+			break;
+		case 2:
+			player1->SetScreen(0,				0,						screenWidth / 2, screenHeight);	
+			player2->SetScreen(screenWidth / 2,	0,						screenWidth / 2, screenHeight);
+			gPlayers.push_back(player1);	
+			gPlayers.push_back(player2);
+			break;
+		case 3:
+			player1->SetScreen(0,				0,						screenWidth,	 screenHeight / 2);	
+			player2->SetScreen(0,				screenHeight / 2,		screenWidth / 2, screenHeight / 2);
+			player3->SetScreen(screenWidth / 2,	screenHeight / 2,		screenWidth / 2, screenHeight / 2);
+			gPlayers.push_back(player1);	
+			gPlayers.push_back(player2);
+			gPlayers.push_back(player3);
+			break;
+		case 4:
+			player1->SetScreen(0,				0,						screenWidth / 2, screenHeight / 2);	
+			player2->SetScreen(screenWidth / 2,	0,						screenWidth / 2, screenHeight / 2);
+			player3->SetScreen(0,				screenHeight / 2,		screenWidth / 2, screenHeight / 2);
+			player4->SetScreen(screenWidth / 2,	screenHeight / 2,		screenWidth / 2, screenHeight / 2);
+			gPlayers.push_back(player1);	
+			gPlayers.push_back(player2);
+			gPlayers.push_back(player3);
+			gPlayers.push_back(player4);	
+			break;
+	}
+
+	for (int i = 0; i < gPlayers.size(); ++i)
+	{
+
+		if (i < gGameObjects.size())
+		{
+			gPlayers[i]->SetGameObject(gGameObjects[i]);
+			gPlayers[i]->GetGameObject()->SetTeam(Team1);
+			
+			ModelInstance *instance = new ModelInstance();
+			instance->m_Model = gLoadedModels[1];
+			instance->m_OldBoundingSphere = instance->GetBoundingSphere();
+
+			Pistol *pistol = new Pistol();
+			pistol->SetModelInstance(instance);
+			AddGameObject(pistol);
+
+			((Unit*)gPlayers[i]->GetGameObject())->SetWeapon(pistol);
+			
+		}
+	}
+
+}
+#pragma endregion

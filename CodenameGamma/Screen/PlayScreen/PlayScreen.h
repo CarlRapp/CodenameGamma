@@ -8,7 +8,7 @@
 #include "Graphics\Buffer.h"
 #include "Graphics\GraphicsManager.h"
 #include "GameObject.h"
-#include "Player.h"
+//#include "Player.h"
 #include "Terrain\Terrain.h"
 #include "Graphics\TextureManager.h"
 #include "Level/Level.h"
@@ -16,7 +16,6 @@
 class PlayScreen : public Screen
 {
 private:
-	vector<Player*>						gPlayers;
 	Model								*gModel;
 
 	vector<GameObject*>					gGameObjects;
@@ -31,7 +30,7 @@ public:
 
 	void	Update(float DeltaTime);
 	void	Render();
-	void	SetNumberOfPlayers(int noPlayers);
+	void	SetNumberOfPlayers(int noPlayers) { if (gLevel) gLevel->SetNumberOfPlayers(noPlayers, gScreenWidth, gScreenHeight); }
 
 	ScreenType	GetScreenType();
 };
