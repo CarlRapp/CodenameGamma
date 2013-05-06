@@ -32,8 +32,8 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 	AddSpotLight();
 	*/
 
-	SetNumberOfPlayers(1);
-
+	SetNumberOfPlayers(4);
+	/*
 	for (int i = 0; i < gPlayers.size(); ++i)
 	{
 		if (gLevel->GetGameObjects().size() > i)
@@ -42,6 +42,7 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 			gLevel->GetGameObjects().at(i)->SetTeam(Team1);
 		}
 	}
+	*/
 }
 
 #pragma region Load / Unload
@@ -69,65 +70,14 @@ bool PlayScreen::Unload()
 void PlayScreen::Update(float DeltaTime)
 {
 	gLevel->Update(DeltaTime);
-	for each (Player *p in gPlayers)
-	{
-		p->Update(DeltaTime);
-	}
 }
 
 void PlayScreen::Render()
 {
-	vector<Camera*> tCams = vector<Camera*>();
-
-	for each(Player* p in gPlayers)
-		tCams.push_back( p->GetCamera() );
-
-	gLevel->Render(tCams);
+	gLevel->Render();
 }
 
 ScreenType PlayScreen::GetScreenType()
 {
 	return PLAY_SCREEN;
 }
-
-#pragma region Setup Viewports (SetNumberOfPlayers)
-void PlayScreen::SetNumberOfPlayers(int noPlayers)
-{
-	gPlayers.clear();
-	Player *player1 =  new Player(0);
-	Player *player2 = new Player(1);
-	Player *player3 = new Player(2);
-	Player *player4 = new Player(3);
-	switch (noPlayers)
-	{
-		case 1:
-			player1->SetScreen(0,					0,						gScreenWidth, gScreenHeight);	
-			gPlayers.push_back(player1);
-			break;
-		case 2:
-			player1->SetScreen(0,					0,						gScreenWidth / 2, gScreenHeight);	
-			player2->SetScreen(gScreenWidth / 2,	0,						gScreenWidth / 2, gScreenHeight);
-			gPlayers.push_back(player1);	
-			gPlayers.push_back(player2);
-			break;
-		case 3:
-			player1->SetScreen(0,					0,						gScreenWidth,	  gScreenHeight / 2);	
-			player2->SetScreen(0,					gScreenHeight / 2,		gScreenWidth / 2, gScreenHeight / 2);
-			player3->SetScreen(gScreenWidth / 2,	gScreenHeight / 2,		gScreenWidth / 2, gScreenHeight / 2);
-			gPlayers.push_back(player1);	
-			gPlayers.push_back(player2);
-			gPlayers.push_back(player3);
-			break;
-		case 4:
-			player1->SetScreen(0,					0,						gScreenWidth / 2, gScreenHeight / 2);	
-			player2->SetScreen(gScreenWidth / 2,	0,						gScreenWidth / 2, gScreenHeight / 2);
-			player3->SetScreen(0,					gScreenHeight / 2,		gScreenWidth / 2, gScreenHeight / 2);
-			player4->SetScreen(gScreenWidth / 2,	gScreenHeight / 2,		gScreenWidth / 2, gScreenHeight / 2);
-			gPlayers.push_back(player1);	
-			gPlayers.push_back(player2);
-			gPlayers.push_back(player3);
-			gPlayers.push_back(player4);	
-			break;
-	}
-}
-#pragma endregion
