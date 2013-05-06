@@ -28,6 +28,8 @@ public:
 
 	Model*	GetModel(string Name);
 	void	LoadModel(string Name, string Filename, string Path);
+
+	ModelInstance*	CreateModelInstance(string ModelName);
 };
 
 #endif

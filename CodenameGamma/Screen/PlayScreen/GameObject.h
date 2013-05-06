@@ -7,6 +7,7 @@
 #include "Terrain\Terrain.h"
 #include "Graphics\QuadTreeData.h"
 #include "../../MathHelper.h"
+#include "Graphics\ModelManager.h"
 #include <typeinfo>
 using namespace DirectX;
 

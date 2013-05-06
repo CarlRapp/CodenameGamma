@@ -2,6 +2,8 @@
 
 Pistol::Pistol()
 {
+	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "Pistol" ) );
+
 	gCooldown	=	WeaponCooldown(0.0f, 0.5f);
 }
 
@@ -28,7 +30,6 @@ vector<Projectile*> Pistol::Fire()
 		tBullet->MoveTo( GetFloat3Value( Position ) );
 		tBullet->SetVelocity( tVelocity );
 		tBullet->SetTeam( GetTeam() );
-		tBullet->SetScale( XMFLOAT3( 2, 2, 2 ) );
 
 		tBullets.push_back(tBullet);
 	}
