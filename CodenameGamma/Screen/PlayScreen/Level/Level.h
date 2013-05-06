@@ -6,7 +6,7 @@
 #include "../Graphics/Effects.h"
 #include "../Graphics/RenderStates.h"
 #include "../Graphics/Buffer.h"
-#include "../Graphics/TextureManager.h"
+#include "../Graphics/ModelManager.h"
 #include "../Graphics/GraphicsManager.h"
 #include "../Terrain/Terrain.h"
 #include "../GameObject.h"
@@ -14,6 +14,7 @@
 #include "LevelParser.h"
 #include "../Units/Unit.h"
 #include "../Player.h"
+
 
 struct SystemData
 {
@@ -49,8 +50,6 @@ private:
 
 	SystemData			gLData;
 
-	TextureManager		gTextureManager;
-
 	GraphicsManager*	gGraphicsManager;
 	Terrain*			gTerrain;
 
@@ -69,9 +68,6 @@ private:
 	//GameObjects
 	vector<GameObject*>		gGameObjects;
 	QuadTree				*gQuadTree;
-
-	//	Loaded Models
-	vector<Model*>			gLoadedModels;
 
 
 	void	AddDirectionalLight(bool hasShadow);

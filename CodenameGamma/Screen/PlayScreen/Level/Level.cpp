@@ -7,7 +7,6 @@ Level::Level(SystemData LData)
 	Effects::InitAll(LData.DEVICE);
 	RenderStates::InitAll(LData.DEVICE);
 	InputLayouts::InitAll(LData.DEVICE);
-	gTextureManager.Init(LData.DEVICE);
 
 	gTerrain	=	new Terrain(LData.DEVICE, LData.DEVICE_CONTEXT);
 
@@ -34,8 +33,6 @@ Level::Level(SystemData LData)
 		AddSpotLight(true);
 
 	gQuadTree = NULL;
-
-	gLoadedModels	=	vector<Model*>();
 }
 
 Level::~Level()
@@ -48,11 +45,6 @@ Level::~Level()
 	Effects::DestroyAll();
 	RenderStates::DestroyAll();
 	InputLayouts::DestroyAll();
-
-	for ( UINT i = 0; i < gLoadedModels.size(); ++i )
-		if ( gLoadedModels.at( i ) )
-			delete gLoadedModels.at( i );
-	gLoadedModels.clear();
 }
 
 void Level::LoadLevel(string Levelname)
@@ -76,25 +68,20 @@ void Level::LoadLevel(string Levelname)
 	BoundingBox world = BoundingBox(XMFLOAT3(halfWorldSize.x, 0, halfWorldSize.y), XMFLOAT3(halfWorldSize.x, 2000, halfWorldSize.y));
 	gQuadTree = new QuadTree(world, 250 * 250);
 	gGraphicsManager->SetQuadTree(gQuadTree);
-	Model* model = new Model(gLData.DEVICE, gTextureManager, "DATA\\Models\\obj\\pacman.obj", "DATA/Models/Textures/");
 
+	ModelManager::GetInstance()->LoadModel("Container", "export2objFT.obj", "DATA/Models/Character/");
+	ModelManager::GetInstance()->LoadModel("Pistol", "BoxWeapon.obj", "DATA/Models/obj/");
+	ModelManager::GetInstance()->LoadModel("Bullet", "GunShot.obj", "DATA/Models/obj/");
+
+	Model*	model	=	ModelManager::GetInstance()->GetModel("Container");
 	for (int i = 0; i < 100; ++i)
 	{
 		float x = MathHelper::RandF(0, 4000);
-		float y = 12;
+		float y = 0;
 		float z = MathHelper::RandF(0, 4000);
 
 		AddInstance(x, y, z, model);
 	}
-
-	Model* pistolModel = new Model(gLData.DEVICE, gTextureManager, "DATA\\Models\\obj\\BoxWeapon.obj", "DATA/Models/Textures/");
-	Model* bulletModel = new Model(gLData.DEVICE, gTextureManager, "DATA\\Models\\obj\\GunShot.obj", "DATA/Models/Textures/");
-
-	
-
-	gLoadedModels.push_back( model );
-	gLoadedModels.push_back( pistolModel );
-	gLoadedModels.push_back( bulletModel );
 }
 
 
@@ -198,7 +185,7 @@ void Level::AddInstance(float x, float y, float z, Model *model)
 	Unit *go = new Unit();
 	go->MoveTo(DirectX::XMFLOAT3(x, y, z));
 	go->SetModelInstance(instance);
-	go->SetScale(XMFLOAT3(10, 10, 10));
+	//go->SetScale(XMFLOAT3(10, 10, 10));
 
 	instance->m_World	=	go->GetFloat4x4Value(World);
 
@@ -234,7 +221,7 @@ void Level::Update(float DeltaTime)
 				for each ( Projectile* p in tBullets )
 				{
 					ModelInstance *instance = new ModelInstance();
-					instance->m_Model = gLoadedModels[2];
+					instance->m_Model = ModelManager::GetInstance()->GetModel("Bullet");
 
 					p->SetModelInstance(instance);
 
@@ -462,7 +449,7 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 			gPlayers[i]->GetGameObject()->SetTeam(Team1);
 			
 			ModelInstance *instance = new ModelInstance();
-			instance->m_Model = gLoadedModels[1];
+			instance->m_Model = ModelManager::GetInstance()->GetModel("Pistol");
 			instance->m_OldBoundingSphere = instance->GetBoundingSphere();
 
 			Pistol *pistol = new Pistol();
