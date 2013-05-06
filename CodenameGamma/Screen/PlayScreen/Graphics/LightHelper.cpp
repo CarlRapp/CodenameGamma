@@ -192,7 +192,7 @@ std::vector<XMFLOAT4X4> PointLight::GetViewMatrixes()
 XMMATRIX PointLight::GetProjectionMatrix(float nearZ, float farZ)
 {
 	XMMATRIX projcetion;
-	float fovY = PI / 2;
+	float fovY = PI * 0.505f;
 	float n = 1.0f;
 	float f = Range;
 
