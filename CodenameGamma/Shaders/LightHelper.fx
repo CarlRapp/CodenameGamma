@@ -135,7 +135,7 @@ void ComputePointLight(Material mat, PointLight L, float3 pos, float3 normal, fl
 		spec    = specFactor * mat.SpecIntensity * L.Color;
 	}
 	
-	float att = 1 - pow((d / L.Range), 3);
+	float att = 1 - pow((d / L.Range), 1);
 
 	ambient *= att;
 	diffuse *= att;
