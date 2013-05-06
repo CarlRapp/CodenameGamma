@@ -32,7 +32,7 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 	AddSpotLight();
 	*/
 
-	SetNumberOfPlayers(4);
+	SetNumberOfPlayers(1);
 	/*
 	for (int i = 0; i < gPlayers.size(); ++i)
 	{
