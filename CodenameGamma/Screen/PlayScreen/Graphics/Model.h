@@ -39,8 +39,8 @@ public:
 	*/
 	Mesh ModelMesh;
 
-	DirectX::BoundingSphere m_BoundingSphere;
-	DirectX::BoundingBox	m_BoundingBox;
+	DirectX::BoundingSphere			m_BoundingSphere;
+	DirectX::BoundingOrientedBox	m_BoundingOrientedBox;
 };
 
 struct ModelInstance
@@ -70,13 +70,13 @@ struct ModelInstance
 		return out;
 	}
 
-	BoundingBox GetBoundingBox()
+	BoundingOrientedBox GetBoundingOrientedBox()
 	{
-		BoundingBox out;
+		BoundingOrientedBox out;
 		if (m_Model)
 		{
 			XMMATRIX world = XMLoadFloat4x4(&m_World);
-			m_Model->m_BoundingBox.Transform(out, world);
+			m_Model->m_BoundingOrientedBox.Transform(out, world);
 		}
 		return out;
 	}
