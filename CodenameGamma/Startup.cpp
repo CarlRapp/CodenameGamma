@@ -2,6 +2,7 @@
 #include "Input/Controller.h"
 #include "Screen/ScreenManager.h"
 #include "Sound/SoundManager.h"
+#include "Screen/PlayScreen/Graphics/ModelManager.h"
 #include <ctime> 
 #include <iostream>
 #include <stdio.h>
@@ -28,7 +29,6 @@ ID3D11DeviceContext*	g_DeviceContext			= NULL;
 	PROJECT RELATED FIELDS
 */
 ScreenData*				ScreenSetupData			=	NULL;
-
 ScreenManager*			ScreenM					=	NULL;
 
 
@@ -100,7 +100,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 
 	SoundManager::GetInstance();
 	InputManager::Initialize(&hInstance, &g_hWndMain, WINDOW_WIDTH, WINDOW_HEIGHT);
-	
+	ModelManager::Initialize(g_Device);
 	
 	ScreenM	=	new ScreenManager(ScreenSetupData);
 
@@ -327,10 +327,11 @@ void CloseApplication()
 
 	ScreenSetupData	=	NULL;
 
-	if(ScreenM)	delete ScreenM;
+	if ( ScreenM )	delete	ScreenM;
 
-	if( SoundManager::GetInstance() )	delete SoundManager::GetInstance();
-	if( InputManager::GetInstance() )	delete InputManager::GetInstance();
+	if ( SoundManager::GetInstance() )	delete	SoundManager::GetInstance();
+	if ( InputManager::GetInstance() )	delete	InputManager::GetInstance();
+	if ( ModelManager::GetInstance() )	delete	ModelManager::GetInstance();
 
 	//	Clear all created assets
 	if(g_SwapChain)			g_SwapChain->Release();
