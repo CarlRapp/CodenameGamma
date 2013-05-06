@@ -220,14 +220,6 @@ void Level::Update(float DeltaTime)
 			if ( tBullets.size() > 0)
 				for each ( Projectile* p in tBullets )
 				{
-					ModelInstance *instance = new ModelInstance();
-					instance->m_Model = ModelManager::GetInstance()->GetModel("Bullet");
-
-					p->SetModelInstance(instance);
-
-					//instance->m_World	=	p->GetFloat4x4Value(World);
-					instance->m_OldBoundingSphere = instance->GetBoundingSphere();
-				
 					AddGameObject(p);
 				}
 		}
@@ -447,13 +439,8 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 		{
 			gPlayers[i]->SetGameObject(gGameObjects[i]);
 			gPlayers[i]->GetGameObject()->SetTeam(Team1);
-			
-			ModelInstance *instance = new ModelInstance();
-			instance->m_Model = ModelManager::GetInstance()->GetModel("Pistol");
-			instance->m_OldBoundingSphere = instance->GetBoundingSphere();
 
 			Pistol *pistol = new Pistol();
-			pistol->SetModelInstance(instance);
 			AddGameObject(pistol);
 
 			((Unit*)gPlayers[i]->GetGameObject())->SetWeapon(pistol);
