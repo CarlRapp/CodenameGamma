@@ -361,8 +361,6 @@ void Level::RunCollisionTest()
 	BoundingSphere As, Bs;
 	for each (GameObject* A in gGameObjects)
 	{
-		As	=	A->GetModelInstance()->GetBoundingSphere();
-
 		vector<GameObject*>	collidingWith	=	vector<GameObject*>();
 
 		gQuadTree->GetObjectsCollidingWith(A, collidingWith);
@@ -372,20 +370,16 @@ void Level::RunCollisionTest()
 			if ( A == B || !A->IsAlive() || !B->IsAlive() )
 				continue;
 
-			Bs	=	B->GetModelInstance()->GetBoundingSphere();
+			CollisionEvent	tEvent(A, B);
 
-			if ( As.Intersects( Bs ) )
-			{
-				CollisionEvent	tEvent(A, B);
+			bool	hasOccured	=	false;
+			for each ( CollisionEvent Event in tCollisionEvents )
+				if ( Event == tEvent )
+					hasOccured	=	true;
 
-				bool	hasOccured	=	false;
-				for each ( CollisionEvent Event in tCollisionEvents )
-					if ( Event == tEvent )
-						hasOccured	=	true;
-
-				if ( !hasOccured )
-					tCollisionEvents.push_back(tEvent);
-			}
+			if ( !hasOccured )
+				tCollisionEvents.push_back(tEvent);
+			
 		}
 	}
 	
@@ -393,18 +387,14 @@ void Level::RunCollisionTest()
 	{
 		for each( CollisionEvent tEvent in tCollisionEvents )
 		{
-			//if ( tEvent.A->IsEnemy( tEvent.B ) )
-			//{
-				if ( typeid( *tEvent.A ) == typeid( *tEvent.B ) )
-					tEvent.A->CollideWith( tEvent.B );
-				else
-				{
-					//cout << typeid( *tEvent.A ).name() << " - " << typeid( *tEvent.B ).name() << endl;
-
-					tEvent.A->CollideWith( tEvent.B );
-					tEvent.B->CollideWith( tEvent.A );
+			//cout << typeid( *tEvent.A ).name() << " - " << typeid( *tEvent.B ).name() << endl;
+			if ( typeid( *tEvent.A ) == typeid( *tEvent.B ) )
+				tEvent.A->CollideWith( tEvent.B );
+			else
+			{	
+				tEvent.A->CollideWith( tEvent.B );
+				tEvent.B->CollideWith( tEvent.A );
 				}
-			//}
 		}
 	}
 
