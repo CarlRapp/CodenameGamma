@@ -250,10 +250,9 @@ void GraphicsManager::InitBuffers()
 	depthTex->Release();
 	finalTex->Release();
 
-	//InitShadowMap(8192, 4096);
+
 	InitShadowMap(16384, 4096);
 	//InitShadowMap(16384, 8192);
-	//InitShadowMap(20480, 4096);
 }
 
 void GraphicsManager::InitShadowMap(int width, int height)
@@ -1112,7 +1111,7 @@ void GraphicsManager::CombineFinal()
 	//Effects::CombineFinalFX->SetOpacity(0.8f);
 	//RenderQuad(shadowVP, m_ShadowMapSRV, Effects::CombineFinalFX->BlendMonoTech);
 
-	RenderQuad(shadowVP, m_ShadowMapSRV, Effects::CombineFinalFX->MonoTech);
+	//RenderQuad(shadowVP, m_ShadowMapSRV, Effects::CombineFinalFX->MonoTech);
 
 	m_DeviceContext->RSSetViewports( 1, &m_ViewPort );
 }
