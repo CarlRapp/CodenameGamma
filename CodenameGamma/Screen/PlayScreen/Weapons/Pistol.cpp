@@ -24,8 +24,8 @@ vector<Projectile*> Pistol::Fire()
 		float temp	=	PI * 0.125f * 0.333333f * (i - 3);
 
 		XMFLOAT3	tVelocity	=	XMFLOAT3(0, 0, 0);
-		tVelocity.x	=	-200.0f * cos( GetFloat3Value( Rotations ).y - PI*0.50f - temp);
-		tVelocity.z	=	200.0f * sin( GetFloat3Value( Rotations ).y - PI*0.50f - temp);
+		tVelocity.x	=	-400.0f * cos( GetFloat3Value( Rotations ).y - PI*0.50f - temp);
+		tVelocity.z	=	400.0f * sin( GetFloat3Value( Rotations ).y - PI*0.50f - temp);
 
 		tBullet->MoveTo( GetFloat3Value( Position ) );
 		tBullet->SetVelocity( tVelocity );
