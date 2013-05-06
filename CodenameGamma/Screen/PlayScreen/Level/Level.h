@@ -13,6 +13,7 @@
 #include "../Graphics/QuadTree.h"
 #include "LevelParser.h"
 #include "../Units/Unit.h"
+#include "../Player.h"
 
 struct SystemData
 {
@@ -52,6 +53,8 @@ private:
 
 	GraphicsManager*	gGraphicsManager;
 	Terrain*			gTerrain;
+
+	vector<Player*>		gPlayers;
 
 	//	Lights
 	vector<DirectionalLight*>	gDirLights;
@@ -104,7 +107,8 @@ public:
 	void	LoadLevel(string Levelname);
 
 	void	Update(float DeltaTime);
-	void	Render(vector<Camera*>& Cameras);
+	void	Render();
+	void	SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight);
 
 	Terrain*	GetTerrain();
 
