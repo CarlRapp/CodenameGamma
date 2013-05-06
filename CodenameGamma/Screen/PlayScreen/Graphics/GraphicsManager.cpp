@@ -1141,12 +1141,11 @@ void GraphicsManager::RenderQuad(D3D11_VIEWPORT &vp, ID3D11ShaderResourceView* S
 
 void GraphicsManager::Render(vector<Camera*>& Cameras)
 {
-	m_DeviceContext->OMSetBlendState(RenderStates::OpaqueBS, NULL, 0xffffffff);
-	UpdateLights();
+	m_DeviceContext->OMSetBlendState(RenderStates::OpaqueBS, NULL, 0xffffffff);	
 	ClearBuffers();
 
 	RenderShadowMaps(Cameras);
-
+	UpdateLights();
 	FillGBuffer(Cameras);
 	ComputeLight(Cameras);
 	CombineFinal();
