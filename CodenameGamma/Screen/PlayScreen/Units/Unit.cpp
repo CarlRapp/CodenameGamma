@@ -5,7 +5,7 @@ Unit::Unit(void)
 {
 	gHealth	=	UnitHealth(10.0f, 10.0f);
 
-	gWeapon	=	new Pistol();
+	gWeapon	=	NULL;
 }
 
 Unit::~Unit(void)
@@ -28,17 +28,25 @@ bool Unit::Update(float DeltaTime, Terrain* TerrainInstance)
 
 	bool updated = GameObject::Update(DeltaTime, TerrainInstance);
 
-	XMVECTOR pos = XMLoadFloat3(&GetFloat3Value( Position ));
-	XMVECTOR dir = XMLoadFloat3(&GetFloat3Value( Direction ));
 
-	pos += dir * (GetRadius() + 10);
+	if (gWeapon)
+	{
+		XMVECTOR pos = XMLoadFloat3(&GetFloat3Value( Position ));
+		XMVECTOR dir = XMLoadFloat3(&GetFloat3Value( Direction ));
 
-	XMFLOAT3 position;
-	XMStoreFloat3(&position, pos);
+		XMVECTOR lv = XMVector3Length(dir);
 
-	gWeapon->Update(DeltaTime);
-	gWeapon->MoveTo( position );
-	gWeapon->SetRotation( GetFloat3Value( Rotations ) );
+		pos += dir * (GetRadius() - 10);
+
+		XMFLOAT3 position;
+		XMStoreFloat3(&position, pos);
+
+		position.y += 40;
+
+		//gWeapon->Update(DeltaTime);
+		gWeapon->MoveTo( position );
+		gWeapon->SetRotation( GetFloat3Value( Rotations ) );
+	}
 
 	return updated;
 }
@@ -69,5 +77,8 @@ vector<Projectile*> Unit::FireWeapon()
 
 void Unit::CollideWith(GameObject* Instance)
 {
+	if (strcmp(typeid(*Instance).name(), "class Unit") == 0)
+	{
 
+	}
 }

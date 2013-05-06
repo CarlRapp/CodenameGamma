@@ -115,9 +115,9 @@ void Level::AddPointLight(bool hasShadow)
 	float x = MathHelper::RandF(0.0f, 4000.0f);
 	float z = MathHelper::RandF(0.0f, 4000.0f);
 		
-	float r = MathHelper::RandF(0.0f, 1.0f);
-	float g = MathHelper::RandF(0.0f, 1.0f);
-	float b = MathHelper::RandF(0.0f, 1.0f);
+	float r = MathHelper::RandF(0.0f, 2.0f);
+	float g = MathHelper::RandF(0.0f, 2.0f);
+	float b = MathHelper::RandF(0.0f, 2.0f);
 	/*
 	float r = 1.0f;
 	float g = 1.0f;
@@ -126,7 +126,7 @@ void Level::AddPointLight(bool hasShadow)
 	PointLight *pointLight = new PointLight();
 	pointLight->Color		= XMFLOAT4(r, g, b, 0);
 	pointLight->Position	= XMFLOAT3(x, 0.0f, z);
-	pointLight->Range		= 300;
+	pointLight->Range		= 500;
 	pointLight->HasShadow = hasShadow;
 	gPointLights.push_back(pointLight);
 
@@ -189,7 +189,7 @@ void Level::AddInstance(float x, float y, float z, Model *model)
 
 	instance->m_World	=	go->GetFloat4x4Value(World);
 
-	float speed = 80;
+	float speed = 160;
 
 	if (MathHelper::RandF(0, 1) > 0.0f)
 		go->SetVelocity(DirectX::XMFLOAT3(MathHelper::RandF(-speed, speed), 0, MathHelper::RandF(-speed, speed)));
@@ -206,26 +206,6 @@ void Level::AddInstance(float x, float y, float z, Model *model)
 
 void Level::Update(float DeltaTime)
 {
-	for each (Player *p in gPlayers)
-	{
-		p->Update(DeltaTime);
-	}
-
-	for each (Player *p in gPlayers)
-	{
-		if ( p->GetController()->GetButtonState( RIGHT_BUMPER ) == DOWN )
-		{
-			vector<Projectile*>	tBullets	=	((Unit*)p->GetGameObject())->FireWeapon();
-
-			if ( tBullets.size() > 0)
-				for each ( Projectile* p in tBullets )
-				{
-					AddGameObject(p);
-				}
-		}
-	}
-
-	
 	for ( int i = gGameObjects.size() - 1; i >= 0; --i )
 	{
 		GameObject*	tObject	=	gGameObjects[i];
@@ -242,6 +222,25 @@ void Level::Update(float DeltaTime)
 		{
 			tObject	=	0;
 			gGameObjects.erase( gGameObjects.begin() + i );
+		}
+	}
+
+	for each (Player *p in gPlayers)
+	{
+		p->Update(DeltaTime);
+	}
+
+	for each (Player *p in gPlayers)
+	{
+		if ( p->GetController()->GetButtonState( RIGHT_BUMPER ) == DOWN )
+		{
+			vector<Projectile*>	tBullets	=	((Unit*)p->GetGameObject())->FireWeapon();
+
+			if ( tBullets.size() > 0)
+				for each ( Projectile* p in tBullets )
+				{
+					AddGameObject(p);
+				}
 		}
 	}
 
@@ -300,7 +299,7 @@ void Level::Update(float DeltaTime)
 		XMStoreFloat3(&pLight->Position, pos);
 
 		//pLight->Position.z -= 0.1f;
-		pLight->Position.y = gTerrain->GetHeight(pLight->Position.x, pLight->Position.z) + 50;
+		pLight->Position.y = gTerrain->GetHeight(pLight->Position.x, pLight->Position.z) + 200;
 	}
 	
 	//Updaterar spotlights	

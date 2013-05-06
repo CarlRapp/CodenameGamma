@@ -37,13 +37,13 @@ void Player::Update(float deltaTime)
 			m_GameObject->LookAt(XMFLOAT3(tPosition.x - rStickDir.x, 0, tPosition.z - rStickDir.y));
 
 		XMFLOAT2	lStickDir		=	m_Controller->GetStickDirection( LEFT );
-		float		lStickLength	=	m_Controller->GetStickLength( LEFT ) * (80);
+		float		lStickLength	=	m_Controller->GetStickLength( LEFT ) * (160);
 		lStickLength	*=	1 + m_Controller->GetTriggerValue( RIGHT );
 
 		newVel	=	XMFLOAT3(lStickDir.x * lStickLength, 0, lStickDir.y * lStickLength);
 
 		m_GameObject->SetVelocity(newVel);
-
+		
 		m_Camera->SetPosition(tPosition.x, tPosition.y + 350, tPosition.z - 50);
 		m_Camera->SetLookAt(tPosition);
 		//m_Camera->SetFarZ(tPosition.y + 700.0f);
