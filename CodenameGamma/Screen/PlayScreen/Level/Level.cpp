@@ -105,8 +105,8 @@ void Level::AddDirectionalLight(bool hasShadow)
 	dirLight->Direction = XMFLOAT4(0.0f, -1.0f, 0.0f,0);
 	//dirLight->Direction = XMFLOAT4(x, -1.0f, z,0);
 	dirLight->HasShadow = hasShadow;
-	//dirLight->Resolution = SHADOWMAP_4096;
-	dirLight->Resolution = SHADOWMAP_2048;
+	dirLight->Resolution = SHADOWMAP_4096;
+	//dirLight->Resolution = SHADOWMAP_2048;
 	//dirLight->Resolution = SHADOWMAP_1024;
 	gDirLights.push_back(dirLight);
 }
