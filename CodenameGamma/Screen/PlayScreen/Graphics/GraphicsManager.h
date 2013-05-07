@@ -188,11 +188,11 @@ private:
 	{
 		float dist = PosToLightDist(cameraPos, light->Position, light->Range);
 
-		if (dist < -700)
-			return SHADOWMAP_1024;
-		else if (dist < -500)
-			return SHADOWMAP_1024;
-		else if (dist < -300)
+		if (dist < -1200)
+			return SHADOWMAP_4096;
+		else if (dist < -700)
+			return SHADOWMAP_2048;
+		else if (dist < -100)
 			return SHADOWMAP_1024;
 		else
 			return SHADOWMAP_512;	
