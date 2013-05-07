@@ -1,4 +1,6 @@
 #include "Bullet.h"
+#include "../../Units/Unit.h"
+#include "../../Structures/StructureList.h"
 
 Bullet::Bullet()
 {
@@ -15,9 +17,13 @@ Bullet::~Bullet()
 
 void Bullet::CollideWith(GameObject* Instance)
 {
+
 	if (IsEnemy(Instance))
 	{
-		if (strcmp(typeid(*Instance).name(), "class Unit") == 0)
+		if ( IsOfType<Unit>(Instance) )
 			Instance->SetState(Dead);
+
+		if ( IsOfType<Structure>(Instance) )
+			SetState(Dead);
 	}
 }
