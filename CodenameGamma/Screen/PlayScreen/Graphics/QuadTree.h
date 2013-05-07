@@ -50,11 +50,11 @@ private:
 	Node *m_RootNode;
 	BoundingBox m_WorldBounds;
 
-	void Insert(GameObject* instance, BoundingSphere& boundingSphere, Node* node, ContainmentType containmentType);
-	void Delete(GameObject* instance, Node* node);
+	void Insert(GameObject* instance, Node* node, ContainmentType containmentType);
+	void Delete(GameObject* instance, Node* node, ContainmentType containmentType);
 
 	void CreateChildNodes(Node* node);
-	void InsertToChildren(GameObject* instance, BoundingSphere& boundingSphere, Node* node, ContainmentType containmentType);
+	void InsertToChildren(GameObject* instance, Node* node, ContainmentType containmentType);
 
 	void Clean(Node* node);
 
@@ -87,12 +87,12 @@ public:
 
 	void Insert(GameObject* instance) 
 	{ 
-		Insert(instance, instance->GetQuadTreeType()->GetQuadTreeData().Current, m_RootNode, INTERSECTS); 
+		Insert(instance, m_RootNode, INTERSECTS); 
 	}
 
 	void Delete(GameObject* instance) 
 	{ 
-		if (instance) Delete(instance, m_RootNode); 
+		if (instance) Delete(instance, m_RootNode, INTERSECTS); 
 	}
 
 	void Update(GameObject* instance) 
@@ -102,7 +102,6 @@ public:
 			{
 				Delete(instance); 
 				Insert(instance); 
-				instance->GetQuadTreeType()->SetOldSphere(instance->GetQuadTreeType()->GetQuadTreeData().Current);
 			}
 	}
 
