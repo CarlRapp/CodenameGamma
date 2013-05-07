@@ -34,6 +34,9 @@ vector<Projectile*> Pistol::Fire()
 		tBullets.push_back(tBullet);
 	}
 
+	if ( tBullets.size() > 0 )
+		SoundManager::GetInstance()->Play("Pistol");
+
 	gCooldown.first	=	gCooldown.second;
 	return tBullets;
 }

@@ -26,6 +26,8 @@ MainMenuScreen::MainMenuScreen(ScreenData* Setup)
 
 	SoundManager::GetInstance()->Load("Theme", "DATA/Sounds/Theme.mp3", FMOD_SOFTWARE | FMOD_2D);
 	SoundManager::GetInstance()->Load("MenuPick", "DATA/Sounds/MenuPick.wav", FMOD_SOFTWARE | FMOD_2D);
+
+	SoundManager::GetInstance()->Load("Pistol", "DATA/Sounds/Pistol.wav", FMOD_SOFTWARE | FMOD_2D);
 	//SoundManager::GetInstance()->Play("Theme", true);
 }
 
