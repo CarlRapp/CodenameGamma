@@ -17,6 +17,7 @@ protected:
 	bool	Load();
 	bool	Unload();
 public:
+	MainMenuScreen(void);
 	MainMenuScreen(ScreenData* Setup);
 
 	void	Update(float DeltaTime);

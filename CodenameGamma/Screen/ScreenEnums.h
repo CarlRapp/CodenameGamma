@@ -38,15 +38,20 @@ struct ScreenData
 	ID3D11Texture2D*        DEPTH_STENCIL;
 	ID3D11DepthStencilView* DEPTH_STENCIL_VIEW;
 
-	IFW1FontWrapper*	TEXT_INSTANCE;
+	IFW1FontWrapper*		TEXT_INSTANCE;
+
+	int						NUMBER_OF_PLAYERS;
 };
 
 enum ScreenType
 {
 	MAIN_MENU_SCREEN,
 	OPTIONS_SCREEN,
-	PLAY_SCREEN,
 	CREDITS_SCREEN,
+
+	PRE_PLAY_SCREEN,
+	PLAY_SCREEN,
+
 
 
 

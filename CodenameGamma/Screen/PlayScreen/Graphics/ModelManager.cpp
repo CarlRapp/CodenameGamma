@@ -40,6 +40,13 @@ void ModelManager::LoadModel(string Name, string Filename, string Path)
 		return;
 
 	Model*	tModel	=	new Model(gDevice, gTextureManager, Path + Filename, Path);
+
+	if ( tModel == 0 )
+	{
+		DebugScreen::GetInstance()->AddLogMessage("Model: \"" + Filename + "\" could not be loaded.", Red);
+		return;
+	}
+
 	gLoadedModels.insert(pair<string, Model*>(Name, tModel));
 
 	DebugScreen::GetInstance()->AddLogMessage("Model: \"" + Filename + "\" loaded.", Green);

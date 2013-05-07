@@ -1,10 +1,17 @@
 #include "MainMenuScreen.h"
+MainMenuScreen::MainMenuScreen(void) 
+{ 
+	gTextSize				=	62;
+	gTextSizeActive			=	0;
+	gTextSizeActiveTicker	=	0;
+	gCurrentIndex			=	0;
+}
 MainMenuScreen::MainMenuScreen(ScreenData* Setup)
 {
 	LoadScreenData(Setup);
 
 	
-	gMenuEntries[0]	=	MenuEntry("Play Game",		PLAY_SCREEN);
+	gMenuEntries[0]	=	MenuEntry("Play Game",		PRE_PLAY_SCREEN);
 	gMenuEntries[1]	=	MenuEntry("Options",		UNDEFINED_SCREEN);
 	gMenuEntries[2]	=	MenuEntry("Credits",		UNDEFINED_SCREEN);
 	gMenuEntries[3]	=	MenuEntry("Quit",			EXIT_SCREEN);
