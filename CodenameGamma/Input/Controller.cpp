@@ -73,6 +73,9 @@ float Controller::GetTriggerValue(Xbox_Direction Trigger)
 
 InputState Controller::GetButtonState(Xbox_Button Button)
 {
+	if ( !IsConnected() )
+		return UP;
+
 	bool	tOld	=	gOldButtonState[Button];
 	bool	tNew	=	gNewButtonState[Button];
 
