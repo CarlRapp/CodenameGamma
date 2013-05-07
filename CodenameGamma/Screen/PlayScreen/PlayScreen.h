@@ -16,9 +16,7 @@
 class PlayScreen : public Screen
 {
 private:
-	Model								*gModel;
-
-	vector<GameObject*>					gGameObjects;
+	ScreenData*	gScreenData;
 
 	Level*		gLevel;
 
@@ -33,6 +31,8 @@ public:
 	void	SetNumberOfPlayers(int noPlayers) { if (gLevel) gLevel->SetNumberOfPlayers(noPlayers, gScreenWidth, gScreenHeight); }
 
 	ScreenType	GetScreenType();
+
+	void	Reset();
 };
 
 #endif
