@@ -12,6 +12,7 @@ cbuffer perFrame
 	float4x4    gLightTex[MAX_SHADOWMAPS];
 	float4x4	gInvViewProjs[4];
 	float4		gCamPositions[4];
+	float3		gShadowMapSwitches;
 	float2		gResolution;
 	float2		gShadowMapResolution;
 };
@@ -27,7 +28,10 @@ Texture2D gNormalSpecMap;
 Texture2D gDepthMap;
 
 //Shadowmap
-Texture2D gShadowMap;
+Texture2D gShadowMap0;
+Texture2D gShadowMap1;
+Texture2D gShadowMap2;
+Texture2D gShadowMap3;
 
 //Output
 RWTexture2D<float4> gOutput;
@@ -85,17 +89,35 @@ bool AABBvsSphere(float3 min, float3 max, float3 c, float r)
 	return false;
 }
 
-float SimpleShadow(int2 texCoord, float depth)
+float SimpleShadow(int2 texCoord, float depth, uint shadowIndex)
 {
-	//skugga
-	if (depth > gShadowMap[texCoord].x)
-		return 0;
-	//inte skugga
+	if (shadowIndex < gShadowMapSwitches.x)
+	{
+		if (depth > gShadowMap0[texCoord].x)
+			return 0;
+	}
+	
+	else if (shadowIndex < gShadowMapSwitches.y)
+	{
+		if (depth > gShadowMap1[texCoord].x)
+			return 0;
+	}
+	else if (shadowIndex < gShadowMapSwitches.z)
+	{
+		if (depth > gShadowMap2[texCoord].x)
+			return 0;
+	}
 	else
-		return 1;
+	{
+		if (depth > gShadowMap3[texCoord].x)
+			return 0;
+	}
+	
+	//inte skugga
+	return 1;
 }
 
-float PCF(int2 texCoord, float depth)
+float PCF(int2 texCoord, float depth, uint shadowIndex)
 {
 	const float2 offsets[9] =
 	{
@@ -108,7 +130,7 @@ float PCF(int2 texCoord, float depth)
 	float percentLit = 0.0f;
 	for (int i = 0; i < 9; ++i)
 	{
-		percentLit += SimpleShadow(texCoord + offsets[i], depth);
+		percentLit += SimpleShadow(texCoord + offsets[i], depth, shadowIndex);
 	}
 	return percentLit /= 9.0f;
 }
@@ -137,7 +159,7 @@ float CalcualteShadowFactor(DirectionalLight light, float4 posW, uint viewportIn
 
 			return 1;
 			*/
-			return PCF(int2(posT.xy * gShadowMapResolution), posT.z);
+			return PCF(int2(posT.xy * gShadowMapResolution), posT.z, ShadowIndex);
 		}
 	else
 		return 1;
@@ -184,7 +206,7 @@ float CalcualteShadowFactor(PointLight light, float4 posW)
 
 			float4 posT = mul(posH, T);
 
-			return PCF(int2(posT.xy * gShadowMapResolution), posT.z);
+			return PCF(int2(posT.xy * gShadowMapResolution), posT.z, ShadowIndex);
 		}
 	else
 		return 1;
@@ -221,7 +243,7 @@ float CalcualteShadowFactor(SpotLight light, float4 posW)
 			return 1;
 			*/
 
-			return PCF(int2(posT.xy * gShadowMapResolution), posT.z);
+			return PCF(int2(posT.xy * gShadowMapResolution), posT.z, light.ShadowIndex);
 
 		}
 	else
