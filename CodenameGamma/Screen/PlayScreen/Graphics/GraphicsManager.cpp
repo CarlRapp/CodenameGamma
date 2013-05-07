@@ -33,8 +33,14 @@ GraphicsManager::GraphicsManager(ID3D11Device *device, ID3D11DeviceContext *devi
 	m_DirLights		= NULL;
 	m_PointLights	= NULL;
 	m_SpotLights	= NULL;
-	m_ShadowMapSRV	= NULL;
-	m_ShadowMapDSV	= NULL;
+	m_ShadowMapSRV0	= NULL;
+	m_ShadowMapSRV1	= NULL;
+	m_ShadowMapSRV2	= NULL;
+	m_ShadowMapSRV3	= NULL;
+	m_ShadowMapDSV0	= NULL;
+	m_ShadowMapDSV1	= NULL;
+	m_ShadowMapDSV2	= NULL;
+	m_ShadowMapDSV3	= NULL;
 
 	InitFullScreenQuad();
 	InitBuffers();
@@ -69,10 +75,22 @@ GraphicsManager::~GraphicsManager(void)
 		SAFE_RELEASE( m_DepthSRV );
 	if ( m_FinalSRV )
 		SAFE_RELEASE( m_FinalSRV );
-	if ( m_ShadowMapSRV )
-		SAFE_RELEASE( m_ShadowMapSRV );
-	if ( m_ShadowMapDSV )
-		SAFE_RELEASE( m_ShadowMapDSV );
+	if ( m_ShadowMapSRV0 )
+		SAFE_RELEASE( m_ShadowMapSRV0 );
+	if ( m_ShadowMapSRV1 )
+		SAFE_RELEASE( m_ShadowMapSRV1 );
+	if ( m_ShadowMapSRV2 )
+		SAFE_RELEASE( m_ShadowMapSRV2 );
+	if ( m_ShadowMapSRV3 )
+		SAFE_RELEASE( m_ShadowMapSRV3 );
+	if ( m_ShadowMapDSV0 )
+		SAFE_RELEASE( m_ShadowMapDSV0 );
+	if ( m_ShadowMapDSV1 )
+		SAFE_RELEASE( m_ShadowMapDSV1 );
+	if ( m_ShadowMapDSV2 )
+		SAFE_RELEASE( m_ShadowMapDSV2 );
+	if ( m_ShadowMapDSV3 )
+		SAFE_RELEASE( m_ShadowMapDSV3 );
 	if ( m_DepthStencilView ) 
 		SAFE_RELEASE( m_DepthStencilView );
 
@@ -250,8 +268,8 @@ void GraphicsManager::InitBuffers()
 	depthTex->Release();
 	finalTex->Release();
 
-
-	InitShadowMap(16384, 4096);
+	InitShadowMap(8192, 4096);
+	//InitShadowMap(16384, 4096);
 	//InitShadowMap(16384, 8192);
 }
 
@@ -260,8 +278,14 @@ void GraphicsManager::InitShadowMap(int width, int height)
 	m_ShadowWidth  = width;
 	m_ShadowHeight = height;
 
-	SAFE_RELEASE(m_ShadowMapSRV);
-	SAFE_RELEASE(m_ShadowMapDSV);
+	SAFE_RELEASE(m_ShadowMapSRV0);
+	SAFE_RELEASE(m_ShadowMapSRV1);
+	SAFE_RELEASE(m_ShadowMapSRV2);
+	SAFE_RELEASE(m_ShadowMapSRV3);
+	SAFE_RELEASE(m_ShadowMapDSV0);
+	SAFE_RELEASE(m_ShadowMapDSV1);
+	SAFE_RELEASE(m_ShadowMapDSV2);
+	SAFE_RELEASE(m_ShadowMapDSV3);
 	//Texture desc
 	D3D11_TEXTURE2D_DESC texDesc;
 	ZeroMemory(&texDesc, sizeof(texDesc));
@@ -277,8 +301,14 @@ void GraphicsManager::InitShadowMap(int width, int height)
 	texDesc.MiscFlags = 0;
 
 	//Create texture
-	ID3D11Texture2D* texture = NULL;
-	m_Device->CreateTexture2D(&texDesc, NULL, &texture);
+	ID3D11Texture2D* texture0 = NULL;
+	ID3D11Texture2D* texture1 = NULL;
+	ID3D11Texture2D* texture2 = NULL;
+	ID3D11Texture2D* texture3 = NULL;
+	m_Device->CreateTexture2D(&texDesc, NULL, &texture0);
+	m_Device->CreateTexture2D(&texDesc, NULL, &texture1);
+	m_Device->CreateTexture2D(&texDesc, NULL, &texture2);
+	m_Device->CreateTexture2D(&texDesc, NULL, &texture3);
 
 	//SRV desc
 	D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc;
@@ -288,7 +318,10 @@ void GraphicsManager::InitShadowMap(int width, int height)
 	SRVDesc.Texture2D.MipLevels = 1;
 
 	//Create SRV
-	m_Device->CreateShaderResourceView(texture, &SRVDesc, &m_ShadowMapSRV);
+	m_Device->CreateShaderResourceView(texture0, &SRVDesc, &m_ShadowMapSRV0);
+	m_Device->CreateShaderResourceView(texture1, &SRVDesc, &m_ShadowMapSRV1);
+	m_Device->CreateShaderResourceView(texture2, &SRVDesc, &m_ShadowMapSRV2);
+	m_Device->CreateShaderResourceView(texture3, &SRVDesc, &m_ShadowMapSRV3);
 
 	D3D11_DEPTH_STENCIL_VIEW_DESC DSVdesc;
 	ZeroMemory(&DSVdesc, sizeof(DSVdesc));
@@ -296,14 +329,22 @@ void GraphicsManager::InitShadowMap(int width, int height)
 	DSVdesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	DSVdesc.Texture2D.MipSlice = 0;
 
-	m_Device->CreateDepthStencilView( texture, &DSVdesc, &m_ShadowMapDSV );
+	m_Device->CreateDepthStencilView( texture0, &DSVdesc, &m_ShadowMapDSV0 );
+	m_Device->CreateDepthStencilView( texture1, &DSVdesc, &m_ShadowMapDSV1 );
+	m_Device->CreateDepthStencilView( texture2, &DSVdesc, &m_ShadowMapDSV2 );
+	m_Device->CreateDepthStencilView( texture3, &DSVdesc, &m_ShadowMapDSV3 );
 
 	//Release texture
-	texture->Release();
+	texture0->Release();
+	texture1->Release();
+	texture2->Release();
+	texture3->Release();
 }
 
 void GraphicsManager::RenderShadowMaps(vector<Camera*>& cameras)
 {
+	m_CurrentShadowMap = 0;
+	m_ShadowMapSwitches = XMFLOAT3(9999, 9999, 9999);
 	//m_ViewProjTexs.clear();
 	//m_ViewProj.clear();
 	//m_Texs.clear();
@@ -418,7 +459,12 @@ void GraphicsManager::RenderDirShadowMaps(vector<DirectionalLight*>& dirLights, 
 
 				//kolla om shadowmapen får plats
 				//else light->ShadowIndex = -1 (kolla på GPU)
+
+
+
 				XMFLOAT2 shadowCoord = CalculateShadowCoord(ShadowTileIndex);
+
+				SetCurrentShadowMap(ShadowTileIndex, ShadowIndex);
 
 				//räkna ut viewport
 				D3D11_VIEWPORT vp = ShadowViewPort((int)shadowCoord.x, (int)shadowCoord.y, (int)Resolution.x, (int)Resolution.y);
@@ -487,6 +533,8 @@ void GraphicsManager::RenderPointShadowMaps(vector<PointLight*>& pointLights, XM
 			{
 				XMFLOAT2 shadowCoord = CalculateShadowCoord(ShadowTileIndex);
 
+				SetCurrentShadowMap(ShadowTileIndex, ShadowIndex);
+
 				D3D11_VIEWPORT vp = ShadowViewPort((int)shadowCoord.x, (int)shadowCoord.y, (int)Resolution.x, (int)Resolution.y);
 
 				XMMATRIX View = XMLoadFloat4x4(&Views[i]);
@@ -532,6 +580,7 @@ void GraphicsManager::RenderSpotShadowMaps(vector<SpotLight*>& spotLights, XMFLO
 			//kolla om shadowmapen får plats
 			//else light->ShadowIndex = -1 (kolla på GPU)
 			XMFLOAT2 shadowCoord = CalculateShadowCoord(ShadowTileIndex);
+			SetCurrentShadowMap(ShadowTileIndex, ShadowIndex);
 
 			//räkna ut viewport
 			D3D11_VIEWPORT vp = ShadowViewPort((int)shadowCoord.x, (int)shadowCoord.y, (int)Resolution.x, (int)Resolution.y);
@@ -569,7 +618,7 @@ void GraphicsManager::RenderSpotShadowMaps(vector<SpotLight*>& spotLights, XMFLO
 void GraphicsManager::RenderShadowMap(CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEWPORT vp, BoundingFrustum& frustum)
 {
 	m_DeviceContext->RSSetViewports( 1, &vp );
-	m_DeviceContext->OMSetRenderTargets( 0, NULL, m_ShadowMapDSV );
+	SetShadowRTV();
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	m_DeviceContext->OMSetDepthStencilState(RenderStates::LessDSS, 0);
 	m_DeviceContext->RSSetState(RenderStates::NoCullRS);	
@@ -588,7 +637,7 @@ void GraphicsManager::RenderShadowMap(CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEW
 void GraphicsManager::RenderShadowMap(CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEWPORT vp, BoundingOrientedBox& OBB)
 {
 	m_DeviceContext->RSSetViewports( 1, &vp );
-	m_DeviceContext->OMSetRenderTargets( 0, NULL, m_ShadowMapDSV );
+	SetShadowRTV();
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	m_DeviceContext->OMSetDepthStencilState(RenderStates::LessDSS, 0);
 	m_DeviceContext->RSSetState(RenderStates::NoCullRS);	
@@ -787,7 +836,10 @@ void GraphicsManager::ClearBuffers()
 {
 	m_DeviceContext->RSSetViewports( 1, &m_ViewPort );
 	m_DeviceContext->ClearDepthStencilView( m_DepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
-	m_DeviceContext->ClearDepthStencilView( m_ShadowMapDSV, D3D11_CLEAR_DEPTH, 1.0f, 0 );
+	m_DeviceContext->ClearDepthStencilView( m_ShadowMapDSV0, D3D11_CLEAR_DEPTH, 1.0f, 0 );
+	m_DeviceContext->ClearDepthStencilView( m_ShadowMapDSV1, D3D11_CLEAR_DEPTH, 1.0f, 0 );
+	m_DeviceContext->ClearDepthStencilView( m_ShadowMapDSV2, D3D11_CLEAR_DEPTH, 1.0f, 0 );
+	m_DeviceContext->ClearDepthStencilView( m_ShadowMapDSV3, D3D11_CLEAR_DEPTH, 1.0f, 0 );
 	float AlbedoClearColor[4] = {0.1f,  0.1f, 0.1f, 0.0f};
 	float ClearColor[4] = {0.0f,  0.0f, 0.0f, 0.0f};
 	//m_DeviceContext->ClearRenderTargetView( m_RenderTargetView, ClearColor );
@@ -1038,13 +1090,35 @@ void GraphicsManager::ComputeLight(vector<Camera*>& Cameras)
 		Effects::TiledLightningFX->SetInvViewProjs(&invViewProjs[0], invViewProjs.size());
 		Effects::TiledLightningFX->SetCamPositions(&camPositions[0], camPositions.size());
 		Effects::TiledLightningFX->SetResolution(XMFLOAT2((float)m_Width, (float)m_Height));
+		Effects::TiledLightningFX->SetShadowMapSwitches(m_ShadowMapSwitches);
 		Effects::TiledLightningFX->SetShadowMapResolution(XMFLOAT2((float)m_ShadowWidth, (float)m_ShadowHeight));
 
 		Effects::TiledLightningFX->SetAlbedoMap(m_AlbedoSRV);
 		Effects::TiledLightningFX->SetNormalSpecMap(m_NormalSpecSRV);
 		Effects::TiledLightningFX->SetDepthMap(m_DepthSRV);
-		Effects::TiledLightningFX->SetShadowMap(m_ShadowMapSRV);
 		Effects::TiledLightningFX->SetOutputMap(m_FinalUAV);
+
+		switch (m_CurrentShadowMap)
+		{
+		case 0:
+			Effects::TiledLightningFX->SetShadowMap0(m_ShadowMapSRV0);
+			break;
+		case 1:
+			Effects::TiledLightningFX->SetShadowMap0(m_ShadowMapSRV0);
+			Effects::TiledLightningFX->SetShadowMap1(m_ShadowMapSRV1);
+			break;
+		case 2:
+			Effects::TiledLightningFX->SetShadowMap0(m_ShadowMapSRV0);
+			Effects::TiledLightningFX->SetShadowMap1(m_ShadowMapSRV1);
+			Effects::TiledLightningFX->SetShadowMap2(m_ShadowMapSRV2);
+			break;
+		case 3:
+			Effects::TiledLightningFX->SetShadowMap0(m_ShadowMapSRV0);
+			Effects::TiledLightningFX->SetShadowMap1(m_ShadowMapSRV1);
+			Effects::TiledLightningFX->SetShadowMap2(m_ShadowMapSRV2);
+			Effects::TiledLightningFX->SetShadowMap3(m_ShadowMapSRV3);
+			break;
+		}
 
 
 		ID3D11ShaderResourceView* dirLightMap = m_DirLightBuffer == NULL ? NULL : m_DirLightBuffer->GetShaderResource();
@@ -1078,7 +1152,29 @@ void GraphicsManager::ComputeLight(vector<Camera*>& Cameras)
 	Effects::TiledLightningFX->SetAlbedoMap(NULL);
 	Effects::TiledLightningFX->SetNormalSpecMap(NULL);
 	Effects::TiledLightningFX->SetDepthMap(NULL);
-	Effects::TiledLightningFX->SetShadowMap(NULL);
+
+	switch (m_CurrentShadowMap)
+	{
+	case 0:
+		Effects::TiledLightningFX->SetShadowMap0(NULL);
+		break;
+	case 1:
+		Effects::TiledLightningFX->SetShadowMap0(NULL);
+		Effects::TiledLightningFX->SetShadowMap1(NULL);
+		break;
+	case 2:
+		Effects::TiledLightningFX->SetShadowMap0(NULL);
+		Effects::TiledLightningFX->SetShadowMap1(NULL);
+		Effects::TiledLightningFX->SetShadowMap2(NULL);
+		break;
+	case 3:
+		Effects::TiledLightningFX->SetShadowMap0(NULL);
+		Effects::TiledLightningFX->SetShadowMap1(NULL);
+		Effects::TiledLightningFX->SetShadowMap2(NULL);
+		Effects::TiledLightningFX->SetShadowMap3(NULL);
+		break;
+	}
+
 	Effects::TiledLightningFX->SetOutputMap(NULL);
 
 	tech->GetPassByIndex(0)->Apply(0, m_DeviceContext);
@@ -1095,24 +1191,39 @@ void GraphicsManager::CombineFinal()
 	m_DeviceContext->OMSetDepthStencilState(RenderStates::NoDSS, 0);
 
 	//Effects::CombineFinalFX->SetTexture(m_FinalSRV);
-	Effects::CombineFinalFX->SetTexture(m_ShadowMapSRV);
+	//Effects::CombineFinalFX->SetTexture(m_ShadowMapSRV0);
 
 	
 	D3D11_VIEWPORT shadowVP;
 	shadowVP.Width	= 400;
 	shadowVP.Height	= ((float)m_ShadowHeight / (float)m_ShadowWidth) * shadowVP.Width;
 	shadowVP.TopLeftX = 20;
-	shadowVP.TopLeftY = m_Height - (shadowVP.Height + 20);		
+	shadowVP.TopLeftY = m_Height - (shadowVP.Height + 300);		
 	shadowVP.MinDepth = 0.0f;
 	shadowVP.MaxDepth = 1.0f;
 
 	
+	std::cout << m_CurrentShadowMap << endl;
+
 	RenderQuad(m_ViewPort, m_FinalSRV, Effects::CombineFinalFX->ColorTech);
 	//Effects::CombineFinalFX->SetOpacity(0.8f);
 	//RenderQuad(shadowVP, m_ShadowMapSRV, Effects::CombineFinalFX->BlendMonoTech);
+	/*
+	RenderQuad(shadowVP, m_ShadowMapSRV0, Effects::CombineFinalFX->MonoTech);
 
-	//RenderQuad(shadowVP, m_ShadowMapSRV, Effects::CombineFinalFX->MonoTech);
+	shadowVP.TopLeftX = 600;
 
+	RenderQuad(shadowVP, m_ShadowMapSRV1, Effects::CombineFinalFX->MonoTech);
+
+	shadowVP.TopLeftY = m_Height - (shadowVP.Height + 20);
+	shadowVP.TopLeftX = 20;
+
+	RenderQuad(shadowVP, m_ShadowMapSRV2, Effects::CombineFinalFX->MonoTech);
+
+	shadowVP.TopLeftX = 600;
+
+	RenderQuad(shadowVP, m_ShadowMapSRV3, Effects::CombineFinalFX->MonoTech);
+	*/
 	m_DeviceContext->RSSetViewports( 1, &m_ViewPort );
 }
 
