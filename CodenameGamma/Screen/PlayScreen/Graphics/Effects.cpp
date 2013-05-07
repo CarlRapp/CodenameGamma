@@ -184,12 +184,16 @@ TiledLightningEffect::TiledLightningEffect(ID3D11Device* device, const std::wstr
 	InvViewProjs		= mFX->GetVariableByName("gInvViewProjs")->AsMatrix();
 	CamPositions		= mFX->GetVariableByName("gCamPositions")->AsVector();
 	Resolution			= mFX->GetVariableByName("gResolution")->AsVector();
+	ShadowMapSwitches	= mFX->GetVariableByName("gShadowMapSwitches")->AsVector();
 	ShadowMapResolution	= mFX->GetVariableByName("gShadowMapResolution")->AsVector();
 
 	AlbedoMap		= mFX->GetVariableByName("gAlbedoMap")->AsShaderResource();
 	NormalSpecMap   = mFX->GetVariableByName("gNormalSpecMap")->AsShaderResource();
 	DepthMap		= mFX->GetVariableByName("gDepthMap")->AsShaderResource();
-	ShadowMap		= mFX->GetVariableByName("gShadowMap")->AsShaderResource();
+	ShadowMap0		= mFX->GetVariableByName("gShadowMap0")->AsShaderResource();
+	ShadowMap1		= mFX->GetVariableByName("gShadowMap1")->AsShaderResource();
+	ShadowMap2		= mFX->GetVariableByName("gShadowMap2")->AsShaderResource();
+	ShadowMap3		= mFX->GetVariableByName("gShadowMap3")->AsShaderResource();
 	OutputMap		= mFX->GetVariableByName("gOutput")->AsUnorderedAccessView();
 
 	DirLightMap     = mFX->GetVariableByName("gDirLightBuffer")->AsShaderResource();

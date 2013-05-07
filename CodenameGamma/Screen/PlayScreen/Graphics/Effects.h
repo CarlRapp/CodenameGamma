@@ -223,12 +223,16 @@ public:
 	void SetInvViewProjs(const XMFLOAT4X4* M, int cnt)		{ InvViewProjs->SetMatrixArray(reinterpret_cast<const float*>(M), 0, cnt); }
 	void SetCamPositions(const XMFLOAT4* V, int cnt)		{ CamPositions->SetFloatVectorArray(reinterpret_cast<const float*>(V), 0, cnt); }
 	void SetResolution(const XMFLOAT2 v)					{ Resolution->SetRawValue(&v, 0, sizeof(XMFLOAT2)); }
+	void SetShadowMapSwitches(const XMFLOAT3 v)				{ ShadowMapSwitches->SetRawValue(&v, 0, sizeof(XMFLOAT3)); }	
 	void SetShadowMapResolution(const XMFLOAT2 v)			{ ShadowMapResolution->SetRawValue(&v, 0, sizeof(XMFLOAT2)); }
 
 	void SetAlbedoMap(ID3D11ShaderResourceView* tex)		{ AlbedoMap->SetResource(tex); }
 	void SetNormalSpecMap(ID3D11ShaderResourceView* tex)    { NormalSpecMap->SetResource(tex); }
 	void SetDepthMap(ID3D11ShaderResourceView* tex)			{ DepthMap->SetResource(tex); }
-	void SetShadowMap(ID3D11ShaderResourceView* tex)		{ ShadowMap->SetResource(tex); }
+	void SetShadowMap0(ID3D11ShaderResourceView* tex)		{ ShadowMap0->SetResource(tex); }
+	void SetShadowMap1(ID3D11ShaderResourceView* tex)		{ ShadowMap1->SetResource(tex); }
+	void SetShadowMap2(ID3D11ShaderResourceView* tex)		{ ShadowMap2->SetResource(tex); }
+	void SetShadowMap3(ID3D11ShaderResourceView* tex)		{ ShadowMap3->SetResource(tex); }
 	void SetOutputMap(ID3D11UnorderedAccessView* tex)		{ OutputMap->SetUnorderedAccessView(tex); }
 	void SetDirLightMap(ID3D11ShaderResourceView* tex)		{ DirLightMap->SetResource(tex); }
 	void SetPointLightMap(ID3D11ShaderResourceView* tex)	{ PointLightMap->SetResource(tex); }
@@ -245,12 +249,16 @@ public:
 	ID3DX11EffectMatrixVariable* InvViewProjs;	
 	ID3DX11EffectVectorVariable* CamPositions;
 	ID3DX11EffectVectorVariable* Resolution;
+	ID3DX11EffectVectorVariable* ShadowMapSwitches;
 	ID3DX11EffectVectorVariable* ShadowMapResolution;
 
 	ID3DX11EffectShaderResourceVariable* AlbedoMap;
 	ID3DX11EffectShaderResourceVariable* NormalSpecMap;
 	ID3DX11EffectShaderResourceVariable* DepthMap;
-	ID3DX11EffectShaderResourceVariable* ShadowMap;
+	ID3DX11EffectShaderResourceVariable* ShadowMap0;
+	ID3DX11EffectShaderResourceVariable* ShadowMap1;
+	ID3DX11EffectShaderResourceVariable* ShadowMap2;
+	ID3DX11EffectShaderResourceVariable* ShadowMap3;
 	ID3DX11EffectUnorderedAccessViewVariable* OutputMap;
 
 	ID3DX11EffectShaderResourceVariable* DirLightMap;
