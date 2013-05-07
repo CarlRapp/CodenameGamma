@@ -1,4 +1,6 @@
 #include "Level.h"
+#include "../Units/CrazyBitch.h"
+#include "../Structures/StructureList.h"
 
 Level::Level(){}
 Level::Level(SystemData LData)
@@ -69,12 +71,18 @@ void Level::LoadLevel(string Levelname)
 	gQuadTree = new QuadTree(world, 250 * 250);
 	gGraphicsManager->SetQuadTree(gQuadTree);
 
-	ModelManager::GetInstance()->LoadModel("Container", "export2objFT.obj", "DATA/Models/Character/");
+	ModelManager::GetInstance()->LoadModel("CrazyBitch", "export2objFT.obj", "DATA/Models/Character/");
 	ModelManager::GetInstance()->LoadModel("Pistol", "BoxWeapon.obj", "DATA/Models/obj/");
 	ModelManager::GetInstance()->LoadModel("Bullet", "GunShot.obj", "DATA/Models/obj/");
+	ModelManager::GetInstance()->LoadModel("CrowdBarrier", "CrowdBarrier.obj", "DATA/Models/CrowdBarrier/");
+	ModelManager::GetInstance()->LoadModel("TownHall", "TownHall.obj", "DATA/Models/TownHall/");
+	ModelManager::GetInstance()->LoadModel("CannedFood", "CannedFood.obj", "DATA/Models/CannedFood/");
+	ModelManager::GetInstance()->LoadModel("Canister", "Canister.obj", "DATA/Models/Canister/");
+	ModelManager::GetInstance()->LoadModel("SmallStore", "SmallStore.obj", "DATA/Models/SmallStore/");
+	ModelManager::GetInstance()->LoadModel("TrashCan", "TrashCan.obj", "DATA/Models/TrashCan/");
 
-	Model*	model	=	ModelManager::GetInstance()->GetModel("Container");
-	for (int i = 0; i < 100; ++i)
+	Model*	model	=	ModelManager::GetInstance()->GetModel("CrazyBitch");
+	for (int i = 0; i < 15; ++i)
 	{
 		float x = MathHelper::RandF(0, 4000);
 		float y = 0;
@@ -82,6 +90,28 @@ void Level::LoadLevel(string Levelname)
 
 		AddInstance(x, y, z, model);
 	}
+
+
+	GameObject*	tGO;
+	tGO	=	new CrowdBarrier();
+	tGO->MoveTo( XMFLOAT3( 2000, 0, 2000 ) );
+	AddGameObject(tGO);
+
+	tGO	=	new CrowdBarrier();
+	tGO->MoveTo( XMFLOAT3( 2000 + 2 * tGO->GetModelInstance()->GetBoundingSphere().Radius, 0, 2000 ) );
+	AddGameObject(tGO);
+
+	tGO	=	new TownHall();
+	tGO->MoveTo( XMFLOAT3( 2000, -1, 2000 + 400 ) );
+	AddGameObject(tGO);
+
+	tGO	=	new SmallStore();
+	tGO->MoveTo( XMFLOAT3( 2000 - 100, -1, 2000 + 100 ) );
+	AddGameObject(tGO);
+
+	tGO	=	new TrashCan();
+	tGO->MoveTo( XMFLOAT3( 2000 + 100, -1, 2000 + 100 ) );
+	AddGameObject(tGO);
 }
 
 
@@ -185,7 +215,6 @@ void Level::AddInstance(float x, float y, float z, Model *model)
 	Unit *go = new Unit();
 	go->MoveTo(DirectX::XMFLOAT3(x, y, z));
 	go->SetModelInstance(instance);
-	//go->SetScale(XMFLOAT3(10, 10, 10));
 
 	instance->m_World	=	go->GetFloat4x4Value(World);
 
@@ -397,11 +426,13 @@ void Level::RunCollisionTest()
 #pragma region Setup Viewports (SetNumberOfPlayers)
 void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 {
+
 	gPlayers.clear();
 	Player *player1 =  new Player(0);
 	Player *player2 = new Player(1);
 	Player *player3 = new Player(2);
 	Player *player4 = new Player(3);
+
 	switch (noPlayers)
 	{
 		case 1:
@@ -436,17 +467,19 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 
 	for (int i = 0; i < gPlayers.size(); ++i)
 	{
-
-		if (i < gGameObjects.size())
+		if ( gPlayers[i]->GetGameObject() == 0 )
 		{
-			gPlayers[i]->SetGameObject(gGameObjects[i]);
+			GameObject*	GO	=	new CrazyBitch();
+			GO->MoveTo(DirectX::XMFLOAT3(2000, 0, 2000));
+			AddGameObject(GO);
+
+			gPlayers[i]->SetGameObject(GO);
 			gPlayers[i]->GetGameObject()->SetTeam(Team1);
 
 			Pistol *pistol = new Pistol();
 			AddGameObject(pistol);
 
 			((Unit*)gPlayers[i]->GetGameObject())->SetWeapon(pistol);
-			
 		}
 	}
 
