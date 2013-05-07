@@ -498,8 +498,12 @@ ClearGBufferEffect::~ClearGBufferEffect()
 ShadowMapEffect::ShadowMapEffect(ID3D11Device* device, const std::wstring& filename)
 	: Effect(device, filename)
 {
-	BasicShadowTech		= mFX->GetTechniqueByName("BasicShadow");
-	AlphaClipShadowTech	= mFX->GetTechniqueByName("AlphaClipShadow");
+	BasicShadowDirTech		= mFX->GetTechniqueByName("BasicShadowDir");
+	BasicShadowPointTech	= mFX->GetTechniqueByName("BasicShadowPoint");
+	BasicShadowSpotTech		= mFX->GetTechniqueByName("BasicShadowSpot");
+	AlphaClipShadowDirTech	= mFX->GetTechniqueByName("AlphaClipShadowDir");
+	AlphaClipShadowPointTech= mFX->GetTechniqueByName("AlphaClipShadowPoint");
+	AlphaClipShadowSpotTech	= mFX->GetTechniqueByName("AlphaClipShadowSpot");
 
 	DiffuseMap  = mFX->GetVariableByName("gDiffuseMap")->AsShaderResource();
 
