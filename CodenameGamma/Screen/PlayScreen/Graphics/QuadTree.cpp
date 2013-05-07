@@ -125,7 +125,7 @@ void QuadTree::GetIntersectingInstances(BoundingOrientedBox OBB, vector<GameObje
 }
 
 
-void QuadTree::Insert(GameObject* instance, BoundingSphere& boundingSphere, Node* node, ContainmentType containmentType)
+void QuadTree::Insert(GameObject* instance, Node* node, ContainmentType containmentType)
 {
 	if (containmentType == DISJOINT)
 		return;
@@ -135,6 +135,7 @@ void QuadTree::Insert(GameObject* instance, BoundingSphere& boundingSphere, Node
 	{
 		node->m_Content.push_back(instance);
 		instance->GetQuadTreeType()->SetNode(node);
+		instance->GetQuadTreeType()->SetOldSphere(instance->GetQuadTreeType()->GetQuadTreeData().Current);
 		//instance->GetQuadTreeType()->GetQuadTreeData().Node = node;
 
 		//För många instanser i noden. Skapar barn till noden som vi skickar ner instanserna till.
@@ -146,7 +147,7 @@ void QuadTree::Insert(GameObject* instance, BoundingSphere& boundingSphere, Node
 			while (!node->m_Content.empty())
 			{
 				GameObject* temp = node->m_Content.back();
-				InsertToChildren(temp, GetCurrentBoundingSphere(temp), node, containmentType);
+				InsertToChildren(temp, node, containmentType);
 				node->m_Content.pop_back();
 			}			
 		}
@@ -155,31 +156,42 @@ void QuadTree::Insert(GameObject* instance, BoundingSphere& boundingSphere, Node
 	//Sätter in instansen i barnen
 	else
 	{
-		InsertToChildren(instance, boundingSphere, node, containmentType);
+		InsertToChildren(instance, node, containmentType);
 	}
 }
 
-void QuadTree::Delete(GameObject* instance, Node* node)
+void QuadTree::Delete(GameObject* instance, Node* node, ContainmentType containmentType)
 {
-	if (!node->m_BoundingBox.Intersects(GetOldBoundingSphere(instance)))
+	if (containmentType == DISJOINT)
 		return;
 
 	int size = 0;
 	//Tar bort instansen från barnen om den här noden inte har något content.
 	if (node->HasChildren())
 	{
-		Delete(instance, node->m_NW);
-		Delete(instance, node->m_NE);
-		Delete(instance, node->m_SW);
-		Delete(instance, node->m_SE);
 
+		if (containmentType == CONTAINS)
+		{
+			Delete(instance, node->m_NW, CONTAINS);
+			Delete(instance, node->m_NE, CONTAINS);
+			Delete(instance, node->m_SW, CONTAINS);
+			Delete(instance, node->m_SE, CONTAINS);
+		}
+		else if (containmentType == INTERSECTS)
+		{
+			Delete(instance, node->m_NW, GetOldBoundingSphere(instance).Contains(node->m_NW->m_BoundingBox));
+			Delete(instance, node->m_NE, GetOldBoundingSphere(instance).Contains(node->m_NE->m_BoundingBox));
+			Delete(instance, node->m_SW, GetOldBoundingSphere(instance).Contains(node->m_SW->m_BoundingBox));
+			Delete(instance, node->m_SE, GetOldBoundingSphere(instance).Contains(node->m_SE->m_BoundingBox));
+		}		
+		
 		vector<GameObject*> instances = vector<GameObject*>();
 		GetInstances(instances, node);
 		sort( instances.begin(), instances.end() );
 		instances.erase( unique( instances.begin(), instances.end() ), instances.end() );
 
 
-		if (instances.size() < maxNodeSize)
+		if (instances.size() <= maxNodeSize)
 		{
 			node->m_Content = instances;
 
@@ -197,6 +209,7 @@ void QuadTree::Delete(GameObject* instance, Node* node)
 			node->m_SW = NULL;
 			node->m_SE = NULL;
 		}
+		
 	}
 	//Tar bort instansen från noden.
 	else
@@ -246,22 +259,22 @@ void QuadTree::CreateChildNodes(Node* node)
 	node->m_SE = new Node(node, SE);
 }
 
-void QuadTree::InsertToChildren(GameObject* instance, BoundingSphere& boundingSphere, Node* node, ContainmentType containmentType)
+void QuadTree::InsertToChildren(GameObject* instance, Node* node, ContainmentType containmentType)
 {
 	if (containmentType == CONTAINS)
 	{
-		Insert(instance, boundingSphere, node->m_NW, CONTAINS);
-		Insert(instance, boundingSphere, node->m_NE, CONTAINS);	
-		Insert(instance, boundingSphere, node->m_SE, CONTAINS);	
-		Insert(instance, boundingSphere, node->m_SW, CONTAINS);	
+		Insert(instance, node->m_NW, CONTAINS);
+		Insert(instance, node->m_NE, CONTAINS);	
+		Insert(instance, node->m_SE, CONTAINS);	
+		Insert(instance, node->m_SW, CONTAINS);	
 	}
 
 	else if (containmentType == INTERSECTS)
 	{
-		Insert(instance, boundingSphere, node->m_NW, boundingSphere.Contains(node->m_NW->m_BoundingBox));
-		Insert(instance, boundingSphere, node->m_NE, boundingSphere.Contains(node->m_NE->m_BoundingBox));
-		Insert(instance, boundingSphere, node->m_SE, boundingSphere.Contains(node->m_SE->m_BoundingBox));
-		Insert(instance, boundingSphere, node->m_SW, boundingSphere.Contains(node->m_SW->m_BoundingBox));
+		Insert(instance, node->m_NW, GetCurrentBoundingSphere(instance).Contains(node->m_NW->m_BoundingBox));
+		Insert(instance, node->m_NE, GetCurrentBoundingSphere(instance).Contains(node->m_NE->m_BoundingBox));
+		Insert(instance, node->m_SE, GetCurrentBoundingSphere(instance).Contains(node->m_SE->m_BoundingBox));
+		Insert(instance, node->m_SW, GetCurrentBoundingSphere(instance).Contains(node->m_SW->m_BoundingBox));
 	}
 }
 
