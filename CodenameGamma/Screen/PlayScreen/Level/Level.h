@@ -84,11 +84,8 @@ private:
 
 	void RemoveGameObject(GameObject* go) 
 	{ 
-		if (!gGameObjects.empty()) 
-		{ 
-			gQuadTree->Delete(go); 
-			gGameObjects.erase(remove(gGameObjects.begin(), gGameObjects.end(), go), gGameObjects.end());
-		}
+		gQuadTree->Delete(go); 
+		gGameObjects.erase(remove(gGameObjects.begin(), gGameObjects.end(), go), gGameObjects.end());		
 
 		delete go;
 	}
