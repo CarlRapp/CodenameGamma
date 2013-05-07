@@ -117,6 +117,7 @@ void Level::LoadLevel(string Levelname)
 	ModelManager::GetInstance()->LoadModel("Canister", "Canister.obj", "DATA/Models/Canister/");
 	ModelManager::GetInstance()->LoadModel("SmallStore", "SmallStore.obj", "DATA/Models/SmallStore/");
 	ModelManager::GetInstance()->LoadModel("TrashCan", "TrashCan.obj", "DATA/Models/TrashCan/");
+	ModelManager::GetInstance()->LoadModel("VolvoCar", "VolvoCar.obj", "DATA/Models/VolvoCar/");
 
 	Model*	model	=	ModelManager::GetInstance()->GetModel("CrazyBitch");
 	for (int i = 0; i < 15; ++i)
@@ -130,16 +131,24 @@ void Level::LoadLevel(string Levelname)
 
 
 	GameObject*	tGO;
-	tGO	=	new CrowdBarrier();
-	tGO->MoveTo( XMFLOAT3( 2000, 0, 2000 ) );
+	tGO	=	new VolvoCar();
+	tGO->MoveTo( XMFLOAT3( 2000 + 300, 20, 2000 + 100 ) );
 	AddGameObject(tGO);
 
 	tGO	=	new CrowdBarrier();
-	tGO->MoveTo( XMFLOAT3( 2000 + 2 * tGO->GetModelInstance()->GetBoundingSphere().Radius, 0, 2000 ) );
+	tGO->MoveTo( XMFLOAT3( 2000 + 200, 0, 2000 ) );
+	tGO->SetRotation( XMFLOAT3( 0, 4, 0 ) );
+	tGO->SetScale( XMFLOAT3( 10, 10, 10 ) );
 	AddGameObject(tGO);
 
 	tGO	=	new TownHall();
 	tGO->MoveTo( XMFLOAT3( 2000, 0, 2000 + 400 ) );
+	AddGameObject(tGO);
+
+
+	//	Lilla scenen 
+	tGO	=	new CrowdBarrier();
+	tGO->MoveTo( XMFLOAT3( 2000 - 85, 0, 2000 ) );
 	AddGameObject(tGO);
 
 	tGO	=	new SmallStore();
@@ -147,7 +156,12 @@ void Level::LoadLevel(string Levelname)
 	AddGameObject(tGO);
 
 	tGO	=	new TrashCan();
-	tGO->MoveTo( XMFLOAT3( 2000 + 100, 0, 2000 + 100 ) );
+	tGO->MoveTo( XMFLOAT3( 2000 - 135, 0, 2000 - 70 ) );
+	AddGameObject(tGO);
+
+	tGO	=	new VolvoCar();
+	tGO->MoveTo( XMFLOAT3( 2000 - 350, 20, 2000 - 100 ) );
+	tGO->SetRotation( XMFLOAT3( 0, PI * 0.25f, 0 ) );
 	AddGameObject(tGO);
 }
 
