@@ -1,4 +1,5 @@
 #include "ScreenManager.h"
+#include "PrePlayScreen.h"
 
 ScreenManager::ScreenManager()
 {
@@ -114,11 +115,11 @@ void ScreenManager::ChangeScreen(ScreenType Type)
 		gCurrentScreen	=	tScreen;
 	}
 
-
 	//	Call Reset() to
 	//	let the screen know
 	//	it's been selected
-	gCurrentScreen->Reset();
+	else
+		gCurrentScreen->Reset();
 }
 
 Screen* ScreenManager::LoadScreen(ScreenType Type)
@@ -141,6 +142,9 @@ Screen* ScreenManager::LoadScreen(ScreenType Type)
 	//	Credits
 	else if(Type == CREDITS_SCREEN)
 		return	NULL;
+
+	else if(Type == PRE_PLAY_SCREEN)
+		return	new PrePlayScreen(gScreenData);
 
 	//	When this is called it means
 	//	there is a screen type that not

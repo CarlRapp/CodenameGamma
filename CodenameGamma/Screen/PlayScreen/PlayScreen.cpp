@@ -3,6 +3,7 @@
 PlayScreen::PlayScreen(ScreenData* Setup)
 {
 	LoadScreenData(Setup);
+	gScreenData	=	Setup;
 
 	SystemData	tData			=	SystemData();
 	tData.DEVICE				=	gDevice;
@@ -32,7 +33,7 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 	AddSpotLight();
 	*/
 
-	SetNumberOfPlayers(1);
+	SetNumberOfPlayers(Setup->NUMBER_OF_PLAYERS);
 	/*
 	for (int i = 0; i < gPlayers.size(); ++i)
 	{
@@ -53,12 +54,6 @@ bool PlayScreen::Load()
 
 bool PlayScreen::Unload()
 {
-	if ( gGameObjects.size() > 0)
-	{
-		for each( GameObject* GO in gGameObjects)
-			delete GO;
-		gGameObjects.clear();
-	}
 	
 	if ( gLevel )
 		delete	gLevel;
@@ -70,6 +65,11 @@ bool PlayScreen::Unload()
 void PlayScreen::Update(float DeltaTime)
 {
 	gLevel->Update(DeltaTime);
+
+
+	if ( InputManager::GetInstance()->GetController(0)->GetButtonState( START ) == PRESSED )
+		gGotoNextFrame	=	MAIN_MENU_SCREEN;
+
 }
 
 void PlayScreen::Render()
@@ -80,4 +80,9 @@ void PlayScreen::Render()
 ScreenType PlayScreen::GetScreenType()
 {
 	return PLAY_SCREEN;
+}
+
+void PlayScreen::Reset()
+{
+	SetNumberOfPlayers(gScreenData->NUMBER_OF_PLAYERS);
 }
