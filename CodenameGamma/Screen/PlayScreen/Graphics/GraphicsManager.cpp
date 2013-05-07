@@ -1202,9 +1202,6 @@ void GraphicsManager::CombineFinal()
 	shadowVP.MinDepth = 0.0f;
 	shadowVP.MaxDepth = 1.0f;
 
-	
-	std::cout << m_CurrentShadowMap << endl;
-
 	RenderQuad(m_ViewPort, m_FinalSRV, Effects::CombineFinalFX->ColorTech);
 	//Effects::CombineFinalFX->SetOpacity(0.8f);
 	//RenderQuad(shadowVP, m_ShadowMapSRV, Effects::CombineFinalFX->BlendMonoTech);
