@@ -16,6 +16,11 @@ namespace Vertex
 		XMFLOAT2 Tex;
 	};
 
+	struct PosTex
+	{
+		XMFLOAT3 Pos;
+		XMFLOAT2 Tex;
+	};
 
 	// Basic 32-byte vertex structure.
 	struct Basic32
@@ -74,6 +79,7 @@ public:
 	// Init like const int A::a[4] = {0, 1, 2, 3}; in .cpp file.
 	static const D3D11_INPUT_ELEMENT_DESC Pos[1];
 	static const D3D11_INPUT_ELEMENT_DESC Quad[2];
+	static const D3D11_INPUT_ELEMENT_DESC PosTex[2];
 	static const D3D11_INPUT_ELEMENT_DESC Basic32[3];
 	static const D3D11_INPUT_ELEMENT_DESC PosNormalTexTan[4];
 	static const D3D11_INPUT_ELEMENT_DESC PosNormalTexTanSkinned[6];
@@ -88,6 +94,7 @@ public:
 
 	static ID3D11InputLayout* Pos;
 	static ID3D11InputLayout* Quad;
+	static ID3D11InputLayout* PosTex;
 	static ID3D11InputLayout* Basic32;
 	static ID3D11InputLayout* PosNormalTexTan;
 	static ID3D11InputLayout* PosNormalTexTanSkinned;

@@ -594,8 +594,6 @@ void GraphicsManager::RenderShadowMap(CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEW
 	m_DeviceContext->RSSetState(RenderStates::NoCullRS);	
 	//m_DeviceContext->RSSetState(RenderStates::WireframeRS);	
 
-	m_DeviceContext->IASetInputLayout(InputLayouts::Pos);
-
 	Effects::ShadowMapFX->SetViewProj(View * Proj);
 
 	RenderTerrainShadowMap(View, Proj);
@@ -606,6 +604,8 @@ void GraphicsManager::RenderShadowMap(CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEW
 
 void GraphicsManager::RenderTerrainShadowMap(CXMMATRIX View, CXMMATRIX Proj)
 {
+	m_DeviceContext->IASetInputLayout(InputLayouts::Pos);
+
 	ID3DX11EffectTechnique* tech;
 	D3DX11_TECHNIQUE_DESC techDesc;
 
@@ -625,6 +625,8 @@ void GraphicsManager::RenderTerrainShadowMap(CXMMATRIX View, CXMMATRIX Proj)
 
 void GraphicsManager::RenderModelsShadowMap(CXMMATRIX View, CXMMATRIX Proj, vector<GameObject*>& instances)
 {
+	m_DeviceContext->IASetInputLayout(InputLayouts::Basic32);
+
 	ID3DX11EffectTechnique* tech;
 	D3DX11_TECHNIQUE_DESC techDesc;
 

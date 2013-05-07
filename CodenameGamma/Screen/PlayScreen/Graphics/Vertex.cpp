@@ -14,6 +14,12 @@ const D3D11_INPUT_ELEMENT_DESC InputLayoutDesc::Quad[2] =
 	{"TEXTURECOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 8, D3D11_INPUT_PER_VERTEX_DATA, 0}
 };
 
+const D3D11_INPUT_ELEMENT_DESC InputLayoutDesc::PosTex[2] = 
+{
+	{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	{"TEXTURECOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0}
+};
+
 const D3D11_INPUT_ELEMENT_DESC InputLayoutDesc::Basic32[3] = 
 {
 	{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
@@ -52,6 +58,7 @@ const D3D11_INPUT_ELEMENT_DESC InputLayoutDesc::Terrain[4] =
 #pragma region InputLayouts
 
 ID3D11InputLayout* InputLayouts::Pos = 0;
+ID3D11InputLayout* InputLayouts::PosTex = 0;
 ID3D11InputLayout* InputLayouts::Quad = 0;
 ID3D11InputLayout* InputLayouts::Basic32 = 0;
 ID3D11InputLayout* InputLayouts::PosNormalTexTan = 0;
@@ -69,6 +76,13 @@ void InputLayouts::InitAll(ID3D11Device* device)
 	Effects::SkyFX->SkyTech->GetPassByIndex(0)->GetDesc(&passDesc);
 	device->CreateInputLayout(InputLayoutDesc::Pos, 1, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, &Pos);
 		
+	//
+	// PosTex
+	//
+
+	Effects::ShadowMapFX->AlphaClipShadowTech->GetPassByIndex(0)->GetDesc(&passDesc);
+	device->CreateInputLayout(InputLayoutDesc::PosTex, 2, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, &PosTex);
+
 	//
 	// Basic32
 	//
@@ -109,6 +123,7 @@ void InputLayouts::InitAll(ID3D11Device* device)
 void InputLayouts::DestroyAll()
 {
 	ReleaseCOM(Pos);
+	ReleaseCOM(PosTex);
 	ReleaseCOM(Basic32);
 	ReleaseCOM(PosNormalTexTan);
 	ReleaseCOM(PosNormalTexTanSkinned);
