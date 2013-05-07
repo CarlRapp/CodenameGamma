@@ -90,21 +90,7 @@ LevelData LevelParser::ParseLevel(string LevelName, string LevelsRootPath)
 		}
 		else if ( tToken == "BlendMap" )
 		{
-			tStr	=	tLine.substr(tToken.size() + 1);
-
-			string	Name	=	GetToken(tStr, true);
-			LData.BlendMap.Filename	=	Name;
-
-			tStr	=	tStr.substr(Name.size() + 1);
-
-			tToken	=	GetToken(tStr, false);
-			tStr	=	tStr.substr(tToken.size() + 1);
-			LData.BlendMap.Width	=	atoi(tToken.c_str());
-
-			
-			tToken	=	GetToken(tStr, false);
-			tStr	=	tStr.substr(tToken.size());
-			LData.BlendMap.Height	=	atoi(tToken.c_str());
+			LData.BlendMap	=	tLine.substr(tToken.size() + 1);
 		}
 		else if ( tToken == "HeightMap" )
 		{
