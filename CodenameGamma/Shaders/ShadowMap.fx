@@ -60,6 +60,7 @@ void PSScene(PSSceneIn input)// : SV_Target
 struct VSInPosTex
 {
 	float3 Pos 			: POSITION;
+	float3 Normal		: NORMAL;
 	float2 Tex 			: TEXCOORD;
 };
 
