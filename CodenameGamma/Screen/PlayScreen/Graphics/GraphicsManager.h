@@ -288,16 +288,16 @@ private:
 	void RenderPointShadowMaps(vector<PointLight*>& pointLights, XMFLOAT2 Resolution, int& ShadowIndex, int& ShadowTileIndex);
 	void RenderSpotShadowMaps(vector<SpotLight*>& spotLights, XMFLOAT2 Resolution, int& ShadowIndex, int& ShadowTileIndex);
 
-	void RenderShadowMap(CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEWPORT vp, BoundingFrustum& frustum);
-	void RenderShadowMap(CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEWPORT vp, BoundingOrientedBox& OBB);
-	void RenderShadowMap(CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEWPORT vp)								{ RenderShadowMap(View, Proj, vp, MathHelper::GenerateBoundingFrustum(View, Proj)); }
-	void RenderShadowMap(CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEWPORT vp, Camera& camera)				{ RenderShadowMap(View, Proj, vp, camera.GetFrustum()); }	
+	void RenderShadowMap(UINT lightType, CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEWPORT vp, BoundingFrustum& frustum);
+	void RenderShadowMap(UINT lightType, CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEWPORT vp, BoundingOrientedBox& OBB);
+	void RenderShadowMap(UINT lightType, CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEWPORT vp)								{ RenderShadowMap(lightType, View, Proj, vp, MathHelper::GenerateBoundingFrustum(View, Proj)); }
+	void RenderShadowMap(UINT lightType, CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEWPORT vp, Camera& camera)				{ RenderShadowMap(lightType, View, Proj, vp, camera.GetFrustum()); }	
 
-	void RenderTerrainShadowMap(CXMMATRIX View, CXMMATRIX Proj);
-	void RenderModelsShadowMap(CXMMATRIX View, CXMMATRIX Proj, vector<GameObject*>& instances);
+	void RenderTerrainShadowMap(UINT lightType, CXMMATRIX View, CXMMATRIX Proj);
+	void RenderModelsShadowMap(UINT lightType, CXMMATRIX View, CXMMATRIX Proj, vector<GameObject*>& instances);
 
-	void RenderModelsShadowMap(CXMMATRIX View, CXMMATRIX Proj, BoundingFrustum& frustum) { RenderModelsShadowMap(View, Proj, GetIntersectingInstances(frustum)); }
-	void RenderModelsShadowMap(CXMMATRIX View, CXMMATRIX Proj, BoundingOrientedBox& OBB)  { RenderModelsShadowMap(View, Proj, GetIntersectingInstances(OBB)); }
+	void RenderModelsShadowMap(UINT lightType, CXMMATRIX View, CXMMATRIX Proj, BoundingFrustum& frustum) { RenderModelsShadowMap(lightType, View, Proj, GetIntersectingInstances(frustum)); }
+	void RenderModelsShadowMap(UINT lightType, CXMMATRIX View, CXMMATRIX Proj, BoundingOrientedBox& OBB)  { RenderModelsShadowMap(lightType, View, Proj, GetIntersectingInstances(OBB)); }
 
 	void RenderModelShadowMap(ModelInstance& instance, ID3DX11EffectTechnique* tech, UINT pass);	
 

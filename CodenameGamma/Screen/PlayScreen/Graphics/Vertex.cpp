@@ -80,7 +80,7 @@ void InputLayouts::InitAll(ID3D11Device* device)
 	// PosTex
 	//
 
-	Effects::ShadowMapFX->AlphaClipShadowTech->GetPassByIndex(0)->GetDesc(&passDesc);
+	Effects::ShadowMapFX->BasicShadowDirTech->GetPassByIndex(0)->GetDesc(&passDesc);
 	device->CreateInputLayout(InputLayoutDesc::PosTex, 2, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, &PosTex);
 
 	//

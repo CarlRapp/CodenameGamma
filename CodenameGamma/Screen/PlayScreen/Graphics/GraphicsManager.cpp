@@ -502,7 +502,7 @@ void GraphicsManager::RenderDirShadowMaps(vector<DirectionalLight*>& dirLights, 
 				m_Texs[ShadowIndex] = Tex;
 				
 				//drawshadowmap med vp
-				RenderShadowMap(View, Proj, vp, OBB);
+				RenderShadowMap(0, View, Proj, vp, OBB);
 
 				//Sätter ShadowIndex
 				light->ShadowIndex[i] = ShadowIndex;
@@ -553,7 +553,7 @@ void GraphicsManager::RenderPointShadowMaps(vector<PointLight*>& pointLights, XM
 				m_Texs[ShadowIndex] = Tex;
 
 				//drawshadowmap med vp
-				RenderShadowMap(View, Proj, vp);
+				RenderShadowMap(1, View, Proj, vp);
 
 				//Sätter ShadowIndex
 				light->ShadowIndex[i] = ShadowIndex;
@@ -603,7 +603,7 @@ void GraphicsManager::RenderSpotShadowMaps(vector<SpotLight*>& spotLights, XMFLO
 			m_Texs[ShadowIndex] = Tex;
 
 			//drawshadowmap med vp
-			RenderShadowMap(View, Proj, vp);
+			RenderShadowMap(2, View, Proj, vp);
 
 			//Sätter ShadowIndex
 			light->ShadowIndex = ShadowIndex;
@@ -615,7 +615,7 @@ void GraphicsManager::RenderSpotShadowMaps(vector<SpotLight*>& spotLights, XMFLO
 	}
 }
 
-void GraphicsManager::RenderShadowMap(CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEWPORT vp, BoundingFrustum& frustum)
+void GraphicsManager::RenderShadowMap(UINT lightType, CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEWPORT vp, BoundingFrustum& frustum)
 {
 	m_DeviceContext->RSSetViewports( 1, &vp );
 	SetShadowRTV();
@@ -628,13 +628,13 @@ void GraphicsManager::RenderShadowMap(CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEW
 
 	Effects::ShadowMapFX->SetViewProj(View * Proj);
 
-	RenderTerrainShadowMap(View, Proj);
-	RenderModelsShadowMap(View, Proj, frustum);
+	RenderTerrainShadowMap(lightType, View, Proj);
+	RenderModelsShadowMap(lightType, View, Proj, frustum);
 
 	m_DeviceContext->OMSetRenderTargets( 0, 0, 0 );
 }
 
-void GraphicsManager::RenderShadowMap(CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEWPORT vp, BoundingOrientedBox& OBB)
+void GraphicsManager::RenderShadowMap(UINT lightType, CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEWPORT vp, BoundingOrientedBox& OBB)
 {
 	m_DeviceContext->RSSetViewports( 1, &vp );
 	SetShadowRTV();
@@ -645,20 +645,32 @@ void GraphicsManager::RenderShadowMap(CXMMATRIX View, CXMMATRIX Proj, D3D11_VIEW
 
 	Effects::ShadowMapFX->SetViewProj(View * Proj);
 
-	RenderTerrainShadowMap(View, Proj);
-	RenderModelsShadowMap(View, Proj, OBB);
+	RenderTerrainShadowMap(lightType, View, Proj);
+	RenderModelsShadowMap(lightType, View, Proj, OBB);
 
 	m_DeviceContext->OMSetRenderTargets( 0, 0, 0 );
 }
 
-void GraphicsManager::RenderTerrainShadowMap(CXMMATRIX View, CXMMATRIX Proj)
+void GraphicsManager::RenderTerrainShadowMap(UINT lightType, CXMMATRIX View, CXMMATRIX Proj)
 {
 	m_DeviceContext->IASetInputLayout(InputLayouts::Pos);
 
 	ID3DX11EffectTechnique* tech;
 	D3DX11_TECHNIQUE_DESC techDesc;
 
-	tech = Effects::ShadowMapFX->BasicShadowTech;
+	switch (lightType)
+	{
+		case 0:
+			tech = Effects::ShadowMapFX->BasicShadowDirTech;
+			break;
+		case 1:
+			tech = Effects::ShadowMapFX->BasicShadowPointTech;
+			break;
+		case 2:
+			tech = Effects::ShadowMapFX->BasicShadowSpotTech;
+			break;
+	}
+	
 	tech->GetDesc( &techDesc );
 
 	for(UINT p = 0; p < techDesc.Passes; ++p)
@@ -672,14 +684,26 @@ void GraphicsManager::RenderTerrainShadowMap(CXMMATRIX View, CXMMATRIX Proj)
 	}
 }
 
-void GraphicsManager::RenderModelsShadowMap(CXMMATRIX View, CXMMATRIX Proj, vector<GameObject*>& instances)
+void GraphicsManager::RenderModelsShadowMap(UINT lightType, CXMMATRIX View, CXMMATRIX Proj, vector<GameObject*>& instances)
 {
 	m_DeviceContext->IASetInputLayout(InputLayouts::Basic32);
 
 	ID3DX11EffectTechnique* tech;
 	D3DX11_TECHNIQUE_DESC techDesc;
 
-	tech = Effects::ShadowMapFX->AlphaClipShadowTech;
+	switch (lightType)
+	{
+		case 0:
+			tech = Effects::ShadowMapFX->AlphaClipShadowDirTech;
+			break;
+		case 1:
+			tech = Effects::ShadowMapFX->AlphaClipShadowPointTech;
+			break;
+		case 2:
+			tech = Effects::ShadowMapFX->AlphaClipShadowSpotTech;
+			break;
+	}
+
 	tech->GetDesc( &techDesc );
 	for(UINT p = 0; p < techDesc.Passes; ++p)
 	{
@@ -1205,22 +1229,25 @@ void GraphicsManager::CombineFinal()
 	RenderQuad(m_ViewPort, m_FinalSRV, Effects::CombineFinalFX->ColorTech);
 	//Effects::CombineFinalFX->SetOpacity(0.8f);
 	//RenderQuad(shadowVP, m_ShadowMapSRV, Effects::CombineFinalFX->BlendMonoTech);
-	/*
-	RenderQuad(shadowVP, m_ShadowMapSRV0, Effects::CombineFinalFX->MonoTech);
+	
+	if (InputManager::GetInstance()->GetController(0)->GetButtonState(LEFT_BUMPER) == InputState::DOWN)
+	{
+		RenderQuad(shadowVP, m_ShadowMapSRV0, Effects::CombineFinalFX->MonoTech);
 
-	shadowVP.TopLeftX = 600;
+		shadowVP.TopLeftX = 600;
 
-	RenderQuad(shadowVP, m_ShadowMapSRV1, Effects::CombineFinalFX->MonoTech);
+		RenderQuad(shadowVP, m_ShadowMapSRV1, Effects::CombineFinalFX->MonoTech);
 
-	shadowVP.TopLeftY = m_Height - (shadowVP.Height + 20);
-	shadowVP.TopLeftX = 20;
+		shadowVP.TopLeftY = m_Height - (shadowVP.Height + 20);
+		shadowVP.TopLeftX = 20;
 
-	RenderQuad(shadowVP, m_ShadowMapSRV2, Effects::CombineFinalFX->MonoTech);
+		RenderQuad(shadowVP, m_ShadowMapSRV2, Effects::CombineFinalFX->MonoTech);
 
-	shadowVP.TopLeftX = 600;
+		shadowVP.TopLeftX = 600;
 
-	RenderQuad(shadowVP, m_ShadowMapSRV3, Effects::CombineFinalFX->MonoTech);
-	*/
+		RenderQuad(shadowVP, m_ShadowMapSRV3, Effects::CombineFinalFX->MonoTech);
+	}
+
 	m_DeviceContext->RSSetViewports( 1, &m_ViewPort );
 }
 

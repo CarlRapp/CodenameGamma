@@ -36,7 +36,7 @@ Level::Level(SystemData LData)
 		AddSpotLight(true);
 		*/
 
-	AddPointLight(true, XMFLOAT3(1800,0,2200));
+	AddPointLight(true, XMFLOAT3(1700,0,2200));
 
 	//AddPointLight(true, XMFLOAT3(1800,0,1800));
 	//AddPointLight(true, XMFLOAT3(2200,0,2800));
@@ -212,8 +212,8 @@ void Level::AddPointLight(bool hasShadow, XMFLOAT3 pos)
 	pointLight->HasShadow = hasShadow;
 	gPointLights.push_back(pointLight);
 
-	float Ox = pointLight->Position.x + MathHelper::RandF(-300.0f, 300.0f);
-	float Oz = pointLight->Position.z + MathHelper::RandF(-300.0f, 300.0f);
+	float Ox = pointLight->Position.x + 300;
+	float Oz = pointLight->Position.z + 300;
 
 	rotpos.push_back(XMFLOAT3(Ox, 0.0f, Oz));
 	angle.push_back(MathHelper::RandF(-45.0f, 45.0f));

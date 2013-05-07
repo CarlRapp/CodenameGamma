@@ -103,7 +103,7 @@ BlendState NoBlending
 	BlendEnable[0] = FALSE;
 };
 
-RasterizerState Depth2048
+RasterizerState DepthDir
 {
 	// [From MSDN]
 	// If the depth buffer currently bound to the output-merger stage has a UNORM format or
@@ -119,33 +119,26 @@ RasterizerState Depth2048
 	// Example: DepthBias = 100000 ==> Actual DepthBias = 100000/2^24 = .006
 
 	// You need to experiment with these values for your scene.
-	DepthBias = 500;
+
+	DepthBias = 1500;
     DepthBiasClamp = 0.0f;
-	SlopeScaledDepthBias = 1.0f;
+	SlopeScaledDepthBias = 8.0f;
 	CullMode = NONE;
 };
 
-RasterizerState Depth1024
+RasterizerState DepthPoint
 {
-	DepthBias = 1000.0f;
+	DepthBias = 1200.0f;
     DepthBiasClamp = 0.0f;
 	SlopeScaledDepthBias = 5.0f;
 	CullMode = NONE;
 };
 
-RasterizerState Depth512
+RasterizerState DepthSpot
 {
-	DepthBias = 2000;
+	DepthBias = 100.0f;
     DepthBiasClamp = 0.0f;
-	SlopeScaledDepthBias = 1.0f;
-	CullMode = NONE;
-};
-
-RasterizerState Depth256
-{
-	DepthBias = 4000;
-    DepthBiasClamp = 0.0f;
-	SlopeScaledDepthBias = 1.0f;
+	SlopeScaledDepthBias = 2.0f;
 	CullMode = NONE;
 };
 
@@ -153,7 +146,7 @@ RasterizerState Depth256
 //-----------------------------------------------------------------------------------------
 // Technique: RenderTextured  
 //-----------------------------------------------------------------------------------------
-technique11 BasicShadow
+technique11 BasicShadowDir
 {
     pass p0
     {
@@ -163,14 +156,43 @@ technique11 BasicShadow
         SetPixelShader( CompileShader( ps_4_0, PSScene() ) );
 	    SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 		SetDepthStencilState( DepthStencil, 0 );
-	    SetRasterizerState( Depth1024 );
+	    SetRasterizerState( DepthDir );
     }  
 }
+
+technique11 BasicShadowPoint
+{
+    pass p0
+    {
+		// Set VS, GS, and PS
+        SetVertexShader( CompileShader( vs_4_0, VSScene() ) );
+        SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_4_0, PSScene() ) );
+	    SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+		SetDepthStencilState( DepthStencil, 0 );
+	    SetRasterizerState( DepthPoint );
+    }  
+}
+
+technique11 BasicShadowSpot
+{
+    pass p0
+    {
+		// Set VS, GS, and PS
+        SetVertexShader( CompileShader( vs_4_0, VSScene() ) );
+        SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_4_0, PSScene() ) );
+	    SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+		SetDepthStencilState( DepthStencil, 0 );
+	    SetRasterizerState( DepthSpot );
+    }  
+}
+
 
 //-----------------------------------------------------------------------------------------
 // Technique: RenderTextured  
 //-----------------------------------------------------------------------------------------
-technique11 AlphaClipShadow
+technique11 AlphaClipShadowDir
 {
     pass p0
     {
@@ -180,7 +202,36 @@ technique11 AlphaClipShadow
         SetPixelShader( CompileShader( ps_4_0, PSSceneAlphaClip() ) );
 	    SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 		SetDepthStencilState( DepthStencil, 0 );
-	    SetRasterizerState( Depth1024 );
+	    SetRasterizerState( DepthDir );
     }  
 }
+
+technique11 AlphaClipShadowPoint
+{
+    pass p0
+    {
+		// Set VS, GS, and PS
+        SetVertexShader( CompileShader( vs_4_0, VSSceneAlphaClip() ) );
+        SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_4_0, PSSceneAlphaClip() ) );
+	    SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+		SetDepthStencilState( DepthStencil, 0 );
+	    SetRasterizerState( DepthPoint );
+    }  
+}
+
+technique11 AlphaClipShadowSpot
+{
+    pass p0
+    {
+		// Set VS, GS, and PS
+        SetVertexShader( CompileShader( vs_4_0, VSSceneAlphaClip() ) );
+        SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_4_0, PSSceneAlphaClip() ) );
+	    SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+		SetDepthStencilState( DepthStencil, 0 );
+	    SetRasterizerState( DepthSpot );
+    }  
+}
+
 
