@@ -27,11 +27,18 @@ class GraphicsManager
 	int						m_Width, m_Height;
 	int						m_ShadowWidth, m_ShadowHeight;
 
+	UINT					m_CurrentShadowMap;
+	XMFLOAT3				m_ShadowMapSwitches;
+
+
 	ID3D11Buffer			*m_FullSceenQuad;
 
 	ID3D11DepthStencilView		*m_DepthStencilView, *m_ShadowMapDSV;
 	ID3D11RenderTargetView		*m_AlbedoRTV, *m_NormalSpecRTV;
-	ID3D11ShaderResourceView	*m_AlbedoSRV, *m_NormalSpecSRV, *m_DepthSRV, *m_FinalSRV, *m_ShadowMapSRV;
+	ID3D11ShaderResourceView	*m_AlbedoSRV, *m_NormalSpecSRV, *m_DepthSRV, *m_FinalSRV;
+
+	ID3D11DepthStencilView		*m_ShadowMapDSV0, *m_ShadowMapDSV1, *m_ShadowMapDSV2, *m_ShadowMapDSV3;
+	ID3D11ShaderResourceView	*m_ShadowMapSRV0, *m_ShadowMapSRV1, *m_ShadowMapSRV2, *m_ShadowMapSRV3;
 
 	ID3D11UnorderedAccessView	*m_FinalUAV;
 
@@ -59,8 +66,8 @@ private:
 
 		int rest = ShadowIndex;
 
-		int row		  = rest / 256;
-		rest		  %= 256;
+		int row		  = rest / 128;
+		rest		  %= 128;
 
 		int numHuge   = rest / 64;
 		rest		  %= 64;
@@ -88,7 +95,7 @@ private:
 
 		int y = 0;
 	
-		y += row * 4096;
+		//y += row * 4096;
 
 		if (numBig == 2 || numBig == 3)
 			y += 2048;
@@ -230,6 +237,46 @@ private:
 		return instances;
 	}
 
+	void SetCurrentShadowMap(UINT shadowTileIndex, UINT shadowIndex)
+	{
+		UINT NewShadowMap = shadowTileIndex / (UINT)((m_ShadowWidth * m_ShadowHeight) / (512 * 512));
+
+		if (NewShadowMap != m_CurrentShadowMap)
+		{
+			switch (NewShadowMap)
+			{
+				case 1:
+					m_ShadowMapSwitches.x = shadowIndex;
+					break;
+				case 2:
+					m_ShadowMapSwitches.y = shadowIndex;
+					break;
+				case 3:
+					m_ShadowMapSwitches.z = shadowIndex;
+					break;
+			}
+		}
+		m_CurrentShadowMap = NewShadowMap;
+	}
+
+	void SetShadowRTV()
+	{
+		switch (m_CurrentShadowMap)
+		{
+		case 0:
+			m_DeviceContext->OMSetRenderTargets( 0, NULL, m_ShadowMapDSV0 );
+			break;
+		case 1:
+			m_DeviceContext->OMSetRenderTargets( 0, NULL, m_ShadowMapDSV1 );
+			break;
+		case 2:
+			m_DeviceContext->OMSetRenderTargets( 0, NULL, m_ShadowMapDSV2 );
+			break;
+		case 3:
+			m_DeviceContext->OMSetRenderTargets( 0, NULL, m_ShadowMapDSV3 );
+			break;
+		}
+	}
 
 	void InitFullScreenQuad();
 	void InitBuffers();
