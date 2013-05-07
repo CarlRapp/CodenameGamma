@@ -29,6 +29,7 @@ public:
 	void			SetWeapon(Weapon* Weapon) { gWeapon = Weapon; if (gWeapon) gWeapon->SetTeam(GetTeam()); }
 	void			SetHealth(UnitHealth HealthData);
 	UnitHealth		GetHealth();
+	Weapon*			GetWeapon() { return gWeapon; }
 
 	void	ReceiveDamage(float Damage);
 
