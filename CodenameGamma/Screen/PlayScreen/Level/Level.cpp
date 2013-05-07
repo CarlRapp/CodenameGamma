@@ -16,23 +16,60 @@ Level::Level(SystemData LData)
 	gGraphicsManager->SetTerrain(gTerrain);
 	gGraphicsManager->SetLights(&gDirLights, &gPointLights, &gSpotLights);
 
+	
 	for(int i = 0; i < 0; ++i)
 		AddDirectionalLight(false);
 
 	for(int i = 0; i < 1; ++i)
 		AddDirectionalLight(true);
-
+	/*
 	for( int i = 0; i < 0; ++i)	
 		AddPointLight(false);
 
-	for( int i = 0; i < 10; ++i)	
+	for( int i = 0; i < 0; ++i)	
 		AddPointLight(true);
 
 	for( int i = 0; i < 0; ++i)
 		AddSpotLight(false);
 
-	for( int i = 0; i < 10; ++i)	
+	for( int i = 0; i < 0; ++i)	
 		AddSpotLight(true);
+		*/
+
+	AddPointLight(true, XMFLOAT3(1800,0,2200));
+
+	//AddPointLight(true, XMFLOAT3(1800,0,1800));
+	//AddPointLight(true, XMFLOAT3(2200,0,2800));
+	//AddPointLight(true, XMFLOAT3(1800,0,2800));
+
+
+	AddPointLight(true, XMFLOAT3(1000,0,1000));
+	AddPointLight(true, XMFLOAT3(1000,0,3000));
+	AddPointLight(true, XMFLOAT3(3000,0,1000));
+	AddPointLight(true, XMFLOAT3(3000,0,3000));
+
+
+	AddSpotLight(true, XMFLOAT3(2200,0,2100));
+	AddSpotLight(true, XMFLOAT3(1700,0,2650));
+
+
+	AddSpotLight(true, XMFLOAT3(500,0,500));
+	AddSpotLight(true, XMFLOAT3(500,0,3500));
+	AddSpotLight(true, XMFLOAT3(3500,0,500));
+	AddSpotLight(true, XMFLOAT3(3500,0,3500));
+
+
+	/*
+
+
+	AddSpotLight(true, XMFLOAT3(0,0,0));
+	AddSpotLight(true, XMFLOAT3(0,0,0));
+	AddSpotLight(true, XMFLOAT3(0,0,0));
+	AddSpotLight(true, XMFLOAT3(0,0,0));
+	AddSpotLight(true, XMFLOAT3(0,0,0));
+	AddSpotLight(true, XMFLOAT3(0,0,0));
+	*/
+
 
 	gQuadTree = NULL;
 }
@@ -132,7 +169,7 @@ void Level::AddDirectionalLight(bool hasShadow)
 
 	DirectionalLight *dirLight = new DirectionalLight();
 	dirLight->Color = XMFLOAT4(r,g,b,1);
-	dirLight->Direction = XMFLOAT4(0.0f, -1.0f, 0.0f,0);
+	dirLight->Direction = XMFLOAT4(3.0f, -1.0f, 1.0f,0);
 	//dirLight->Direction = XMFLOAT4(x, -1.0f, z,0);
 	dirLight->HasShadow = hasShadow;
 	dirLight->Resolution = SHADOWMAP_4096;
@@ -140,7 +177,7 @@ void Level::AddDirectionalLight(bool hasShadow)
 	//dirLight->Resolution = SHADOWMAP_1024;
 	gDirLights.push_back(dirLight);
 }
-void Level::AddPointLight(bool hasShadow)
+void Level::AddPointLight(bool hasShadow, XMFLOAT3 pos)
 {
 	float x = MathHelper::RandF(0.0f, 4000.0f);
 	float z = MathHelper::RandF(0.0f, 4000.0f);
@@ -155,8 +192,9 @@ void Level::AddPointLight(bool hasShadow)
 	*/
 	PointLight *pointLight = new PointLight();
 	pointLight->Color		= XMFLOAT4(r, g, b, 0);
-	pointLight->Position	= XMFLOAT3(x, 0.0f, z);
-	pointLight->Range		= 500;
+	//pointLight->Position	= XMFLOAT3(x, 0.0f, z);
+	pointLight->Position	= pos;
+	pointLight->Range		= 300;
 	pointLight->HasShadow = hasShadow;
 	gPointLights.push_back(pointLight);
 
@@ -166,7 +204,7 @@ void Level::AddPointLight(bool hasShadow)
 	rotpos.push_back(XMFLOAT3(Ox, 0.0f, Oz));
 	angle.push_back(MathHelper::RandF(-45.0f, 45.0f));
 }
-void Level::AddSpotLight(bool hasShadow)
+void Level::AddSpotLight(bool hasShadow, XMFLOAT3 pos)
 {
 	float x = MathHelper::RandF(0.0f, 4000.0f);
 	float z = MathHelper::RandF(0.0f, 4000.0f);
@@ -187,7 +225,8 @@ void Level::AddSpotLight(bool hasShadow)
 
 	SpotLight *spotLight	= new SpotLight();
 	spotLight->Color		= XMFLOAT4(r, g, b, 0.0f);
-	spotLight->Position		= XMFLOAT3(x, 300.0f, z);
+	//spotLight->Position		= XMFLOAT3(x, 300.0f, z);
+	spotLight->Position		= pos;
 
 	//spotLight->Direction	= XMFLOAT3(MathHelper::RandF(-5.0f, 5.0f), -1, MathHelper::RandF(-5.0f, 5.0f));
 	spotLight->Direction	= XMFLOAT3(0, -1, 1);
@@ -198,7 +237,13 @@ void Level::AddSpotLight(bool hasShadow)
 	spotLight->HasShadow = hasShadow;
 	gSpotLights.push_back(spotLight);
 
-	anglespot.push_back(MathHelper::RandF(-90.0f, 90.0f));
+
+	float aspeed = MathHelper::RandF(40.0f, 90.0f);
+
+	if (MathHelper::RandF(0.0f, 1.0f) < 0.5f)
+		aspeed *= -1;
+
+	anglespot.push_back(aspeed);
 
 	//float Ox = pointLight->Position.x + MathHelper::RandF(-300.0f, 300.0f);
 	//float Oz = pointLight->Position.z + MathHelper::RandF(-300.0f, 300.0f);
@@ -284,11 +329,11 @@ void Level::Update(float DeltaTime)
 	{
 		if (InputManager::GetInstance()->GetController(0)->GetButtonState(Xbox_Button::A) == InputState::PRESSED)
 		{
-			gDirLights[i]->Direction =  XMFLOAT4(3.0f, -1.0f, 0.0f,0);
+			gDirLights[i]->Direction =  XMFLOAT4(3.0f, -1.0f, 1.0f,0);
 		}
 		else if (InputManager::GetInstance()->GetController(0)->GetButtonState(Xbox_Button::B) == InputState::PRESSED)
 		{
-			gDirLights[i]->Direction =  XMFLOAT4(-3.0f, 1.0f, 0.0f,0);
+			gDirLights[i]->Direction =  XMFLOAT4(-3.0f, 1.0f, 1.0f,0);
 		}
 		else
 		{
@@ -331,7 +376,7 @@ void Level::Update(float DeltaTime)
 		XMStoreFloat3(&pLight->Position, pos);
 
 		//pLight->Position.z -= 0.1f;
-		pLight->Position.y = gTerrain->GetHeight(pLight->Position.x, pLight->Position.z) + 200;
+		pLight->Position.y = gTerrain->GetHeight(pLight->Position.x, pLight->Position.z) + 50;
 	}
 	
 	//Updaterar spotlights	

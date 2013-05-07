@@ -474,7 +474,7 @@ void GraphicsManager::RenderDirShadowMaps(vector<DirectionalLight*>& dirLights, 
 				XMFLOAT4X4 V, P;
 				BoundingOrientedBox OBB;
 
-				light->GetViewProjOBB(camera->GetFrustum(), 0.0f, V, P, OBB);
+				light->GetViewProjOBB(camera->GetFrustum(), 1000.0f, V, P, OBB);
 				
 				XMFLOAT3 tempPos = camera->GetPosition();
 
