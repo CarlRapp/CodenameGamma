@@ -471,6 +471,19 @@ void Level::RunCollisionTest()
 #pragma region Setup Viewports (SetNumberOfPlayers)
 void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 {
+	for each (Player *player in gPlayers)
+	{
+		GameObject *go = player->GetGameObject();
+
+		if (go)
+		{
+			Weapon* w = ((Unit*)go)->GetWeapon();
+			if (w)
+				RemoveGameObject(w);
+			RemoveGameObject(go);
+		}
+	}
+
 
 	gPlayers.clear();
 	Player *player1 =  new Player(0);
