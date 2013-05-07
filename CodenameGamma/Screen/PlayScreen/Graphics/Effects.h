@@ -172,6 +172,8 @@ public:
 
 	void SetMaterial(const Material& mat)               { Mat->SetRawValue(&mat, 0, sizeof(Material)); }
 
+	void SetBlendMap(ID3D11ShaderResourceView* tex)		{ if (tex) BlendMap->SetResource(tex); }
+
 	void SetGround1Map(ID3D11ShaderResourceView* tex)   { if (tex) Ground1Map->SetResource(tex); }
 	void SetGround2Map(ID3D11ShaderResourceView* tex)   { if (tex) Ground2Map->SetResource(tex); }
 	void SetGround3Map(ID3D11ShaderResourceView* tex)   { if (tex) Ground3Map->SetResource(tex); }
@@ -193,6 +195,8 @@ public:
 	ID3DX11EffectMatrixVariable* TexTransform;
 
 	ID3DX11EffectVariable* Mat;
+
+	ID3DX11EffectShaderResourceVariable* BlendMap;
 
 	ID3DX11EffectShaderResourceVariable* Ground1Map;
 	ID3DX11EffectShaderResourceVariable* Ground2Map;

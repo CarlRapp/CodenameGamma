@@ -151,6 +151,8 @@ TerrainDeferredEffect::TerrainDeferredEffect(ID3D11Device* device, const std::ws
 
 	Mat						= mFX->GetVariableByName("gMaterial");
 
+	BlendMap				= mFX->GetVariableByName("gBlendMap")->AsShaderResource();
+
 	Ground1Map				= mFX->GetVariableByName("gGround1Map")->AsShaderResource();
 	Ground2Map				= mFX->GetVariableByName("gGround2Map")->AsShaderResource();
 	Ground3Map				= mFX->GetVariableByName("gGround3Map")->AsShaderResource();
