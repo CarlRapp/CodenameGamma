@@ -252,7 +252,7 @@ private:
 	void RenderModelsShadowMap(CXMMATRIX View, CXMMATRIX Proj, BoundingFrustum& frustum) { RenderModelsShadowMap(View, Proj, GetIntersectingInstances(frustum)); }
 	void RenderModelsShadowMap(CXMMATRIX View, CXMMATRIX Proj, BoundingOrientedBox& OBB)  { RenderModelsShadowMap(View, Proj, GetIntersectingInstances(OBB)); }
 
-	void RenderModelShadowMap(ModelInstance& instance, UINT pass);	
+	void RenderModelShadowMap(ModelInstance& instance, ID3DX11EffectTechnique* tech, UINT pass);	
 
 
 

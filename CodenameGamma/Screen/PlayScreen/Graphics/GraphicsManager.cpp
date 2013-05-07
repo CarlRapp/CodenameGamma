@@ -609,7 +609,7 @@ void GraphicsManager::RenderTerrainShadowMap(CXMMATRIX View, CXMMATRIX Proj)
 	ID3DX11EffectTechnique* tech;
 	D3DX11_TECHNIQUE_DESC techDesc;
 
-	tech = Effects::ShadowMapFX->BasicShadow;
+	tech = Effects::ShadowMapFX->BasicShadowTech;
 	tech->GetDesc( &techDesc );
 
 	for(UINT p = 0; p < techDesc.Passes; ++p)
@@ -628,9 +628,8 @@ void GraphicsManager::RenderModelsShadowMap(CXMMATRIX View, CXMMATRIX Proj, vect
 	ID3DX11EffectTechnique* tech;
 	D3DX11_TECHNIQUE_DESC techDesc;
 
-	tech = Effects::ShadowMapFX->BasicShadow;
+	tech = Effects::ShadowMapFX->AlphaClipShadowTech;
 	tech->GetDesc( &techDesc );
-
 	for(UINT p = 0; p < techDesc.Passes; ++p)
 	{
 		//for each (ModelInstance* instance in m_modelInstances)
@@ -640,26 +639,21 @@ void GraphicsManager::RenderModelsShadowMap(CXMMATRIX View, CXMMATRIX Proj, vect
 			Effects::ShadowMapFX->SetViewProj(View * Proj);
 			ModelInstance* modelInstance = instance->GetModelInstance();
 			if (modelInstance != NULL)
-				RenderModelShadowMap(*modelInstance, p);
+				RenderModelShadowMap(*modelInstance, tech, p);
 		}
 	}
+	Effects::ShadowMapFX->SetDiffuseMap(NULL);
 }
 
-void GraphicsManager::RenderModelShadowMap(ModelInstance& instance, UINT pass)
+void GraphicsManager::RenderModelShadowMap(ModelInstance& instance, ID3DX11EffectTechnique* tech, UINT pass)
 {
-	ID3DX11EffectTechnique* tech;
-	D3DX11_TECHNIQUE_DESC techDesc;
-
-	tech = Effects::ShadowMapFX->BasicShadow;
-	tech->GetDesc( &techDesc );
-	
 	XMMATRIX world;
 	world = XMLoadFloat4x4(&instance.m_World);
 	Effects::ShadowMapFX->SetWorld(world);
 
 	for(UINT subset = 0; subset < instance.m_Model->SubsetCount; ++subset)
 	{
-
+		Effects::ShadowMapFX->SetDiffuseMap(instance.m_Model->DiffuseMapSRV[subset]);
 		tech->GetPassByIndex(pass)->Apply(0, m_DeviceContext);
 		instance.m_Model->ModelMesh.Draw(m_DeviceContext, subset);
 	}
@@ -857,7 +851,7 @@ void GraphicsManager::RenderModels(Camera* tCamera)
 	D3DX11_TECHNIQUE_DESC techDesc;
 	
 	m_DeviceContext->IASetInputLayout(InputLayouts::PosNormalTexTan);
-	tech = Effects::ObjectDeferredFX->TexTech;
+	tech = Effects::ObjectDeferredFX->TexAlphaClipTech;
 	//tech = Effects::ObjectDeferredFX->TexNormalTech;
 	tech->GetDesc( &techDesc );
 
@@ -878,6 +872,8 @@ void GraphicsManager::RenderModels(Camera* tCamera)
 				RenderModel(*modelInstance, view, proj, tech, p);
 		}
 	}
+	Effects::ObjectDeferredFX->SetDiffuseMap(NULL);
+	Effects::ObjectDeferredFX->SetNormalMap(NULL);
 }
 
 void GraphicsManager::RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMATRIX proj, ID3DX11EffectTechnique* tech, UINT pass)

@@ -8,6 +8,15 @@ cbuffer Object
 	matrix 				World;
 };
 
+Texture2D gDiffuseMap;
+
+SamplerState samLinear
+{
+	Filter = MIN_MAG_MIP_LINEAR;
+	AddressU = WRAP;
+	AddressV = WRAP;
+};
+
 struct VSIn
 {
 	float3 Pos 			: POSITION;
@@ -43,7 +52,42 @@ PSSceneIn VSScene(VSIn input)
 // PixelShader: PSSceneMain
 //-----------------------------------------------------------------------------------------
 void PSScene(PSSceneIn input)// : SV_Target
-{	
+{
+}
+
+
+
+struct VSInPosTex
+{
+	float3 Pos 			: POSITION;
+	float2 Tex 			: TEXCOORD;
+};
+
+struct PSSceneInPosTex
+{
+	float4 Pos			: SV_POSITION;
+	float2 Tex 			: TEXCOORD;
+};
+//-----------------------------------------------------------------------------------------
+// VertexShader: VSScene
+//-----------------------------------------------------------------------------------------
+PSSceneInPosTex VSSceneAlphaClip(VSInPosTex input)
+{
+	PSSceneInPosTex output 	= (PSSceneInPosTex)0;
+	output.Pos				= mul(float4(input.Pos, 1), World);
+	output.Pos				= mul(output.Pos, ViewProjection);
+	output.Tex				= input.Tex;
+	//output.Pos.z			= 1.0f;
+	return output;
+}
+
+
+//-----------------------------------------------------------------------------------------
+// PixelShader: PSSceneMain
+//-----------------------------------------------------------------------------------------
+void PSSceneAlphaClip(PSSceneInPosTex input)// : SV_Target
+{
+	clip(gDiffuseMap.Sample(samLinear, input.Tex).a - 0.1f);
 }
 
 DepthStencilState DepthStencil
@@ -116,6 +160,23 @@ technique11 BasicShadow
         SetVertexShader( CompileShader( vs_4_0, VSScene() ) );
         SetGeometryShader( NULL );
         SetPixelShader( CompileShader( ps_4_0, PSScene() ) );
+	    SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+		SetDepthStencilState( DepthStencil, 0 );
+	    SetRasterizerState( Depth1024 );
+    }  
+}
+
+//-----------------------------------------------------------------------------------------
+// Technique: RenderTextured  
+//-----------------------------------------------------------------------------------------
+technique11 AlphaClipShadow
+{
+    pass p0
+    {
+		// Set VS, GS, and PS
+        SetVertexShader( CompileShader( vs_4_0, VSSceneAlphaClip() ) );
+        SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_4_0, PSSceneAlphaClip() ) );
 	    SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 		SetDepthStencilState( DepthStencil, 0 );
 	    SetRasterizerState( Depth1024 );
