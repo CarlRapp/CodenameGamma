@@ -8,5 +8,6 @@
 #include "TownHall.h"
 #include "TrashCan.h"
 #include "SmallStore.h"
+#include "VolvoCar.h"
 
 #endif
