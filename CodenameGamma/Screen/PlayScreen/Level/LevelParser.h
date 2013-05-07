@@ -29,8 +29,8 @@ struct LevelData
 	int	TextureX, TextureY;
 
 	LevelTexture	Textures[4];
-	LevelMap		BlendMap;
 	LevelMap		HeightMap;
+	string			BlendMap;
 
 	bool IsLoaded()
 	{

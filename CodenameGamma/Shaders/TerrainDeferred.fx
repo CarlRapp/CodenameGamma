@@ -10,6 +10,8 @@ cbuffer cbPerObject
 }; 
 
 // Nonnumeric values cannot be added to a cbuffer.
+Texture2D gBlendMap;
+
 Texture2D gGround1Map;
 Texture2D gGround2Map;
 Texture2D gGround3Map;
@@ -31,9 +33,8 @@ struct VertexIn
 {
 	float3 PosL     : POSITION;
 	float3 NormalL  : NORMAL;
-	float2 Tex      : TEXCOORD;
+	float2 Tex      : TEXCOORD0;
 	float4 TangentL : TANGENT;
-	float4 BlendData: BLENDDATA;
 };
 
 struct VertexOut
@@ -42,7 +43,7 @@ struct VertexOut
     float3 NormalW    : NORMAL;
 	float4 TangentW   : TANGENT;
 	float2 Tex        : TEXCOORD0;
-	float4 BlendData  : BLENDDATA;
+	float2 TexB       : TEXCOORD1;
 };
 
 struct PsOut
@@ -65,7 +66,7 @@ VertexOut VS(VertexIn vin)
 	// Output vertex attributes for interpolation across triangle.
 	vout.Tex = mul(float4(vin.Tex, 0.0f, 1.0f), gTexTransform).xy;
 
-	vout.BlendData = vin.BlendData;
+	vout.TexB = vin.Tex;
 	
 	return vout;
 }
@@ -83,7 +84,13 @@ PsOut PS(VertexOut pin,
 	*/
 	// Interpolating normal can unnormalize it, so normalize it.
 	pin.NormalW = normalize(pin.NormalW);
-
+	
+	float4 BlendData = float4(0, 0, 0, 0);
+	if(gUseTexure || gUseNormalMap)
+	{
+		BlendData = gBlendMap.Sample( samLinear, pin.TexB );
+	}
+	
     // Default to multiplicative identity.
     pout.Albedo = float4(1, 1, 1, 1);
     if(gUseTexure)
@@ -91,11 +98,12 @@ PsOut PS(VertexOut pin,
 		// Sample textures.
 		
 		float4 color1, color2, color3, color4;
+
+		color1 = BlendData.r * gGround1Map.Sample( samLinear, pin.Tex );
+		color2 = BlendData.g * gGround2Map.Sample( samLinear, pin.Tex );
+		color3 = BlendData.b * gGround3Map.Sample( samLinear, pin.Tex );
+		color4 = BlendData.a * gGround4Map.Sample( samLinear, pin.Tex );
 		
-		color1 = pin.BlendData.r * gGround1Map.Sample( samLinear, pin.Tex );
-		color2 = pin.BlendData.g * gGround2Map.Sample( samLinear, pin.Tex );
-		color3 = pin.BlendData.b * gGround3Map.Sample( samLinear, pin.Tex );
-		color4 = pin.BlendData.a * gGround4Map.Sample( samLinear, pin.Tex );
 		
 		pout.Albedo = color1 + color2 + color3 + color4;		
 
@@ -108,11 +116,12 @@ PsOut PS(VertexOut pin,
 	if (gUseNormalMap)
 	{
 		float3 normal1, normal2, normal3, normal4;
-	
-		normal1 = pin.BlendData.r * gNormal1Map.Sample( samLinear, pin.Tex ).rgb;
-		normal2 = pin.BlendData.g * gNormal2Map.Sample( samLinear, pin.Tex ).rgb;
-		normal3 = pin.BlendData.b * gNormal3Map.Sample( samLinear, pin.Tex ).rgb;
-		normal4 = pin.BlendData.a * gNormal4Map.Sample( samLinear, pin.Tex ).rgb;
+
+		normal1 = BlendData.r * gNormal1Map.Sample( samLinear, pin.Tex ).rgb;
+		normal2 = BlendData.g * gNormal2Map.Sample( samLinear, pin.Tex ).rgb;
+		normal3 = BlendData.b * gNormal3Map.Sample( samLinear, pin.Tex ).rgb;
+		normal4 = BlendData.a * gNormal4Map.Sample( samLinear, pin.Tex ).rgb;
+		
 	
 		
 		float3 normalMapSample = normal1 + normal2 + normal3 + normal4;

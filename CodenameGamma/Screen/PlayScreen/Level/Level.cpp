@@ -206,23 +206,26 @@ void Level::AddInstance(float x, float y, float z, Model *model)
 
 void Level::Update(float DeltaTime)
 {
-	for ( int i = gGameObjects.size() - 1; i >= 0; --i )
+	vector<GameObject*> trash;
+	//for ( int i = gGameObjects.size() - 1; i >= 0; --i )
+	for each (GameObject*	tObject in gGameObjects)
 	{
-		GameObject*	tObject	=	gGameObjects[i];
+		//GameObject*	tObject	=	gGameObjects[i];
 
 		if ( tObject->Update(DeltaTime, gTerrain) )
 		{
 			if ( tObject->IsAlive() )
 				gQuadTree->Update(tObject);
 			else
-				gQuadTree->Delete(tObject);
+			{
+				trash.push_back(tObject);
+			}
 		}
+	}
 
-		if ( !tObject->IsAlive() )
-		{
-			tObject	=	0;
-			gGameObjects.erase( gGameObjects.begin() + i );
-		}
+	for each (GameObject* tObject in trash)
+	{
+		RemoveGameObject(tObject);
 	}
 
 	for each (Player *p in gPlayers)
