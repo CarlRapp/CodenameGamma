@@ -139,15 +139,15 @@ void Level::LoadLevel(string Levelname)
 	AddGameObject(tGO);
 
 	tGO	=	new TownHall();
-	tGO->MoveTo( XMFLOAT3( 2000, -1, 2000 + 400 ) );
+	tGO->MoveTo( XMFLOAT3( 2000, 0, 2000 + 400 ) );
 	AddGameObject(tGO);
 
 	tGO	=	new SmallStore();
-	tGO->MoveTo( XMFLOAT3( 2000 - 100, -1, 2000 + 100 ) );
+	tGO->MoveTo( XMFLOAT3( 2000 - 200, 0, 2000 ) );
 	AddGameObject(tGO);
 
 	tGO	=	new TrashCan();
-	tGO->MoveTo( XMFLOAT3( 2000 + 100, -1, 2000 + 100 ) );
+	tGO->MoveTo( XMFLOAT3( 2000 + 100, 0, 2000 + 100 ) );
 	AddGameObject(tGO);
 }
 
