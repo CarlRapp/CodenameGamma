@@ -494,7 +494,10 @@ ClearGBufferEffect::~ClearGBufferEffect()
 ShadowMapEffect::ShadowMapEffect(ID3D11Device* device, const std::wstring& filename)
 	: Effect(device, filename)
 {
-	BasicShadow	= mFX->GetTechniqueByName("BasicShadow");
+	BasicShadowTech		= mFX->GetTechniqueByName("BasicShadow");
+	AlphaClipShadowTech	= mFX->GetTechniqueByName("AlphaClipShadow");
+
+	DiffuseMap  = mFX->GetVariableByName("gDiffuseMap")->AsShaderResource();
 
 	World		= mFX->GetVariableByName("World")->AsMatrix();
 	ViewProj	= mFX->GetVariableByName("ViewProjection")->AsMatrix();

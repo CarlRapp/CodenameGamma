@@ -616,13 +616,17 @@ public:
 	ShadowMapEffect(ID3D11Device* device, const std::wstring& filename);
 	~ShadowMapEffect();
 
-	void SetWorld(CXMMATRIX M)		{ World->SetMatrix(reinterpret_cast<const float*>(&M)); }
-	void SetViewProj(CXMMATRIX M)	{ ViewProj->SetMatrix(reinterpret_cast<const float*>(&M)); }
+	void SetWorld(CXMMATRIX M)							{ World->SetMatrix(reinterpret_cast<const float*>(&M)); }
+	void SetViewProj(CXMMATRIX M)						{ ViewProj->SetMatrix(reinterpret_cast<const float*>(&M)); }
+	void SetDiffuseMap(ID3D11ShaderResourceView* tex)   { DiffuseMap->SetResource(tex); }
 
-	ID3DX11EffectTechnique* BasicShadow;
+	ID3DX11EffectTechnique* BasicShadowTech;
+	ID3DX11EffectTechnique* AlphaClipShadowTech;
 
 	ID3DX11EffectMatrixVariable* World;
 	ID3DX11EffectMatrixVariable* ViewProj;
+
+	ID3DX11EffectShaderResourceVariable* DiffuseMap;
 };
 #pragma endregion
 
