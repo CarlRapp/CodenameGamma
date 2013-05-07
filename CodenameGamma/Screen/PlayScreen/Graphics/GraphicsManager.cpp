@@ -963,6 +963,8 @@ void GraphicsManager::RenderTerrain(Camera* tCamera)
 		//UINT subset = 6;
 		Effects::TerrainDeferredFX->SetMaterial(m_Terrain->GetMaterial());
 
+		Effects::TerrainDeferredFX->SetBlendMap(m_Terrain->GetBlendMap());
+
 		Effects::TerrainDeferredFX->SetGround1Map(m_Terrain->GetGroundTexture(0));
 		Effects::TerrainDeferredFX->SetGround2Map(m_Terrain->GetGroundTexture(1));
 		Effects::TerrainDeferredFX->SetGround3Map(m_Terrain->GetGroundTexture(2));

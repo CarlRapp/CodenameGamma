@@ -65,7 +65,6 @@ namespace Vertex
 		XMFLOAT3 Normal;
 		XMFLOAT2 Tex;
 		XMFLOAT4 TangentU;
-		XMFLOAT4 BlendData;
 	};
 }
 
@@ -78,7 +77,7 @@ public:
 	static const D3D11_INPUT_ELEMENT_DESC Basic32[3];
 	static const D3D11_INPUT_ELEMENT_DESC PosNormalTexTan[4];
 	static const D3D11_INPUT_ELEMENT_DESC PosNormalTexTanSkinned[6];
-	static const D3D11_INPUT_ELEMENT_DESC Terrain[5];
+	static const D3D11_INPUT_ELEMENT_DESC Terrain[4];
 };
 
 class InputLayouts
