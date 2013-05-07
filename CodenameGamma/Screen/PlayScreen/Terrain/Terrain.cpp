@@ -9,7 +9,6 @@ Terrain::Terrain(ID3D11Device *Device, ID3D11DeviceContext *DeviceContext)
 	m_VertexBuffer	= 0;
 	m_IndexBuffer	= 0;
 	m_HeigthMap		= 0;
-	m_BlendMap		= 0;
 
 	m_DeviceContext	= DeviceContext;
 	m_Device		= Device;
@@ -41,8 +40,6 @@ Terrain::~Terrain(void)
 
 	if ( m_HeigthMap )
 		delete	m_HeigthMap;
-	if ( m_BlendMap )
-		delete	m_BlendMap;
 
 	for ( int i = 0; i < 4; ++i )
 	{
@@ -77,8 +74,8 @@ void Terrain::LoadTerrain(LevelData TData)
 		LoadTexture(&m_NormalTextures[i], TData.LevelRootPath + "NormalMaps/" + TData.Textures[i].NormalMap);
 	}
 
-	if (TData.BlendMap.Filename != "")
-		LoadBlendMap(TData.LevelRootPath + TData.BlendMap.Filename, TData.BlendMap.Width, TData.BlendMap.Height);
+	if (TData.BlendMap != "")
+		LoadTexture(&m_BlendMap, TData.LevelRootPath + TData.BlendMap);
 
 	if (TData.HeightMap.Filename != "")
 		LoadHeightMap(TData.LevelRootPath + TData.HeightMap.Filename, TData.HeightMap.Width, TData.HeightMap.Height);
@@ -118,7 +115,6 @@ void Terrain::CreateGrid()
 			vertex.Tex		= XMFLOAT2(TexX, TexZ);
 
 			//Calculate Tangent
-			vertex.BlendData= XMFLOAT4(1,1,1,1);
 			vertex.TangentU = XMFLOAT4(0,0,0,0);
 
 			Vertices.push_back(vertex);
@@ -259,20 +255,6 @@ void Terrain::LoadHeightMap(std::string path, int Width, int Height)
 	SetVertices();
 }
 
-void Terrain::LoadBlendMap(std::string path, int Width, int Height)
-{
-	m_BlendMap = new BlendMap();
-	m_BlendMap->Load(path, Width, Height);
-
-	for (UINT i = 0; i < Vertices.size(); ++i)
-	{
-		float x = Vertices[i].Pos.x / m_Width;
-		float z = Vertices[i].Pos.z / m_Height;
-		Vertices[i].BlendData = m_BlendMap->GetBlendData(x, z);
-	}
-
-	SetVertices();
-}
 
 void Terrain::Draw(ID3D11DeviceContext* dc)
 {

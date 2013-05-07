@@ -15,10 +15,10 @@ class Terrain
 	ID3D11Device			*m_Device;
 
 	HeigthMap				*m_HeigthMap;
-	BlendMap				*m_BlendMap;
 
 	Material mat;
 
+	ID3D11ShaderResourceView* m_BlendMap;
 	ID3D11ShaderResourceView* m_GroundTextures[4];
 	ID3D11ShaderResourceView* m_NormalTextures[4];
 
@@ -48,7 +48,6 @@ public:
 
 	void CreateGrid();
 	void LoadHeightMap(std::string path, int Width, int Height);
-	void LoadBlendMap(std::string path, int Width, int Height);
 
 	void SetMaterial(Material material) { mat = material; }
 
@@ -63,6 +62,8 @@ public:
 		else
 			return 0;
 	}
+
+	ID3D11ShaderResourceView* GetBlendMap() { return m_BlendMap; }
 	ID3D11ShaderResourceView* GetGroundTexture(int index) { return m_GroundTextures[index]; }
 	ID3D11ShaderResourceView* GetGroundNormal(int index) { return m_NormalTextures[index]; }
 
