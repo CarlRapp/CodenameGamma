@@ -628,8 +628,13 @@ public:
 	void SetViewProj(CXMMATRIX M)						{ ViewProj->SetMatrix(reinterpret_cast<const float*>(&M)); }
 	void SetDiffuseMap(ID3D11ShaderResourceView* tex)   { DiffuseMap->SetResource(tex); }
 
-	ID3DX11EffectTechnique* BasicShadowTech;
-	ID3DX11EffectTechnique* AlphaClipShadowTech;
+	ID3DX11EffectTechnique* BasicShadowDirTech;
+	ID3DX11EffectTechnique* BasicShadowPointTech;
+	ID3DX11EffectTechnique* BasicShadowSpotTech;
+
+	ID3DX11EffectTechnique* AlphaClipShadowDirTech;
+	ID3DX11EffectTechnique* AlphaClipShadowPointTech;
+	ID3DX11EffectTechnique* AlphaClipShadowSpotTech;
 
 	ID3DX11EffectMatrixVariable* World;
 	ID3DX11EffectMatrixVariable* ViewProj;
