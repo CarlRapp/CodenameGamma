@@ -71,8 +71,8 @@ private:
 
 
 	void	AddDirectionalLight(bool hasShadow);
-	void	AddPointLight(bool hasShadow);
-	void	AddSpotLight(bool hasShadow);
+	void	AddPointLight(bool hasShadow, XMFLOAT3 pos);
+	void	AddSpotLight(bool hasShadow,  XMFLOAT3 pos);
 	void	AddInstance(float x, float y, float z, Model *model);
 
 	void AddGameObject(GameObject* go) 
