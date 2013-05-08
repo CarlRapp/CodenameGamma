@@ -12,25 +12,51 @@ Weapon::~Weapon(void)
 
 void Weapon::LowerCooldown(float DeltaTime)
 {
-	if ( !CanFire() )
+	if ( gCooldown.first > 0 )
 	{
 		gCooldown.first	-=	DeltaTime;
 
-		gCooldown.first	=	( gCooldown.first < 0 ) ? 0 : gCooldown.first;
+		gCooldown.first	=	( gCooldown.first <= 0 ) ? 0 : gCooldown.first;
+	}
+}
+
+void Weapon::ReloadCountdown(float DeltaTime)
+{
+	if ( gState == Reloading )
+	{
+		gReloadTime.first	-=	DeltaTime;
+
+		if ( gReloadTime.first <= 0 )
+		{
+			gClip.first			=	gClip.second;
+			gState				=	Ready;
+			gReloadTime.first	=	0;
+
+			SoundManager::GetInstance()->Play("Reload");
+		}
 	}
 }
 
 bool Weapon::Update(float deltaTime, Terrain* terrain)
 {
-	bool updated = GameObject::Update(deltaTime, terrain);
 	LowerCooldown(deltaTime);
 
-	return updated;
+	ReloadCountdown(deltaTime);
+
+	return GameObject::Update(deltaTime, terrain);
 }
 
 vector<Projectile*> Weapon::Fire()
 {
-	gCooldown.first	=	gCooldown.second;
-
 	return vector<Projectile*>();
+}
+
+void Weapon::Reload()
+{
+	if ( gState == Reloading )
+		return;
+	
+	gClip.first			=	0;
+	gReloadTime.first	=	gReloadTime.second;
+	gState				=	Reloading;
 }
