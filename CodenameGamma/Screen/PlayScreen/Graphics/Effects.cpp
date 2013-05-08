@@ -108,6 +108,19 @@ BasicEffect::~BasicEffect()
 }
 #pragma endregion
 
+#pragma region BoxDebugEffect
+BoxDebugEffect::BoxDebugEffect(ID3D11Device* device, const std::wstring& filename)
+	: Effect(device, filename)
+{
+	BasicTech			= mFX->GetTechniqueByName("BasicTech");
+	ViewProj			= mFX->GetVariableByName("gViewProj")->AsMatrix();
+}
+
+BoxDebugEffect::~BoxDebugEffect()
+{
+}
+#pragma endregion
+
 #pragma region ObjectDeferredEffect
 ObjectDeferredEffect::ObjectDeferredEffect(ID3D11Device* device, const std::wstring& filename)
 	: Effect(device, filename)
@@ -551,6 +564,7 @@ ObjectDeferredEffect*  Effects::ObjectDeferredFX  = 0;
 TerrainDeferredEffect* Effects::TerrainDeferredFX = 0;
 TiledLightningEffect*  Effects::TiledLightningFX  = 0;
 ShadowMapEffect*	   Effects::ShadowMapFX		  = 0;
+BoxDebugEffect*		   Effects::BoxDebugFX		  = 0;
 
 void Effects::InitAll(ID3D11Device* device)
 {
@@ -568,6 +582,7 @@ void Effects::InitAll(ID3D11Device* device)
 	TerrainDeferredFX = new TerrainDeferredEffect(device, L"Shaders/TerrainDeferred.fxo");
 	TiledLightningFX  = new TiledLightningEffect(device, L"Shaders/TiledLightning.fxo");
 	ShadowMapFX		  = new ShadowMapEffect(device, L"Shaders/ShadowMap.fxo");
+	BoxDebugFX		  = new BoxDebugEffect(device, L"Shaders/BoxDebug.fxo");
 }
 
 void Effects::DestroyAll()
@@ -585,6 +600,7 @@ void Effects::DestroyAll()
 	SafeDelete(ObjectDeferredFX);
 	SafeDelete(TerrainDeferredFX);
 	SafeDelete(TiledLightningFX);
+	SafeDelete(BoxDebugFX);
 }
 
 #pragma endregion

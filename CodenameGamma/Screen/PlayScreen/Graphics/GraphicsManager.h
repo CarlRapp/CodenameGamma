@@ -308,9 +308,10 @@ private:
 
 
 	void RenderTerrain(Camera* tCamera);
-	void RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMATRIX proj, ID3DX11EffectTechnique* tech, UINT pass);
 	void RenderModels(Camera* tCamera);
+	void RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMATRIX proj, ID3DX11EffectTechnique* tech, UINT pass);
 
+	void RenderDebugBox(BoundingOrientedBox& OBB, CXMMATRIX viewproj);
 
 	void UpdateLights();
 	void ClearBuffers();
