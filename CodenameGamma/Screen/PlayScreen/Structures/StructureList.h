@@ -9,5 +9,6 @@
 #include "TrashCan.h"
 #include "SmallStore.h"
 #include "VolvoCar.h"
+#include "UnitCube.h"
 
 #endif
