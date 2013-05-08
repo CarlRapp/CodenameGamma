@@ -4,11 +4,20 @@
 
 #include "Structure.h"
 
-#include "CrowdBarrier.h"
+//	Buildings
 #include "TownHall.h"
-#include "TrashCan.h"
 #include "SmallStore.h"
+
+//	Vehicles
 #include "VolvoCar.h"
+
+//	Obstacles
+#include "Container.h"
+#include "TrashCan.h"
+#include "CrowdBarrier.h"
+
+
+//	Misc
 #include "UnitCube.h"
 
 #endif
