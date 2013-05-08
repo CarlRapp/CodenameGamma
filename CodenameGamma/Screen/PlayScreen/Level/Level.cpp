@@ -110,7 +110,7 @@ void Level::LoadLevel(string Levelname)
 
 	ModelManager::GetInstance()->LoadModel("CrazyBitch", "CrazyBitch.obj", "DATA/Models/CrazyBitch/");
 	ModelManager::GetInstance()->LoadModel("Pistol", "BoxWeapon.obj", "DATA/Models/obj/");
-	ModelManager::GetInstance()->LoadModel("Bullet", "GunShot.obj", "DATA/Models/obj/");
+	ModelManager::GetInstance()->LoadModel("Bullet", "PistolBullet.obj", "DATA/Models/PistolBullet/");
 	ModelManager::GetInstance()->LoadModel("CrowdBarrier", "CrowdBarrier.obj", "DATA/Models/CrowdBarrier/");
 	ModelManager::GetInstance()->LoadModel("TownHall", "TownHall.obj", "DATA/Models/TownHall/");
 	ModelManager::GetInstance()->LoadModel("CannedFood", "CannedFood.obj", "DATA/Models/CannedFood/");
@@ -118,6 +118,8 @@ void Level::LoadLevel(string Levelname)
 	ModelManager::GetInstance()->LoadModel("SmallStore", "SmallStore.obj", "DATA/Models/SmallStore/");
 	ModelManager::GetInstance()->LoadModel("TrashCan", "TrashCan.obj", "DATA/Models/TrashCan/");
 	ModelManager::GetInstance()->LoadModel("VolvoCar", "VolvoCar.obj", "DATA/Models/VolvoCar/");
+
+	ModelManager::GetInstance()->LoadModel("Container", "Container.obj", "DATA/Models/Container/");
 
 	ModelManager::GetInstance()->LoadModel("UnitCube", "UnitCube.obj", "DATA/Models/UnitCube/");
 
@@ -140,7 +142,8 @@ void Level::LoadLevel(string Levelname)
 	tGO	=	new CrowdBarrier();
 	tGO->MoveTo( XMFLOAT3( 2000, 0, 2000 ) );
 	AddGameObject(tGO);
-	tGO->SetScale( 10 );
+
+	tGO	=	new CrowdBarrier();
 	tGO->MoveTo( XMFLOAT3( 2000 + 4 * 16.6665f, 0, 2000 ) );
 	AddGameObject(tGO);
 
@@ -167,19 +170,19 @@ void Level::LoadLevel(string Levelname)
 	tGO->SetRotation( XMFLOAT3( 0, PI * 0.25f, 0 ) );
 	AddGameObject(tGO);
 
-	tGO	=	new UnitCube();
-	tGO->MoveTo( XMFLOAT3( 2000, 0, 2000 - 400 ) );
+	tGO	=	new Container();
+	tGO->MoveTo( XMFLOAT3( 2000 + 200, 0, 2000 - 400 ) );
 	AddGameObject(tGO);
 
 
 	float	SIZE	=	2 * 16.6665f;
-	for ( int n = 1; n <= 2; ++n )
+	for ( int n = 0; n <= 4; ++n )
 	{
 		int test	=	7 - 2 * n;
 		for ( int i = 1; i <= test; ++i )
 		{
 			tGO	=	new UnitCube();
-			tGO->MoveTo( XMFLOAT3( 2000 - (i + test*0.5f) * SIZE, n * SIZE, 2000 - 400 ) );
+			tGO->MoveTo( XMFLOAT3( 2000 - (-(int)(test*0.5f) + i) * SIZE, n * SIZE, 2000 - 400 ) );
 			AddGameObject(tGO);
 		}
 
