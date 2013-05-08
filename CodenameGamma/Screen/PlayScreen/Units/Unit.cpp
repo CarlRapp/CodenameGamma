@@ -69,9 +69,6 @@ void Unit::Hit(Unit* Target)
 
 vector<Projectile*> Unit::FireWeapon()
 {
-	if ( !gWeapon->CanFire() )
-		return vector<Projectile*>();
-
 	return gWeapon->Fire();
 }
 
