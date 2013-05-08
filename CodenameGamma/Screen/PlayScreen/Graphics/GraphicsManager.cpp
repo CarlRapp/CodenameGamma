@@ -906,8 +906,8 @@ void GraphicsManager::FillGBuffer(vector<Camera*>& Cameras)
 	
 	for (int i = 0; i < (int)Cameras.size(); ++i)
 	{
-		if (m_Terrain != NULL)
-			RenderTerrain(Cameras[i]);
+		//if (m_Terrain != NULL)
+		//	RenderTerrain(Cameras[i]);
 
 		if (g_QuadTree)
 			RenderModels(Cameras[i]);
@@ -928,7 +928,6 @@ void GraphicsManager::RenderModels(Camera* tCamera)
 	ID3DX11EffectTechnique* tech;
 	D3DX11_TECHNIQUE_DESC techDesc;
 	
-	m_DeviceContext->IASetInputLayout(InputLayouts::PosNormalTexTan);
 	tech = Effects::ObjectDeferredFX->TexAlphaClipTech;
 	//tech = Effects::ObjectDeferredFX->TexNormalTech;
 	tech->GetDesc( &techDesc );
@@ -956,6 +955,9 @@ void GraphicsManager::RenderModels(Camera* tCamera)
 
 void GraphicsManager::RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMATRIX proj, ID3DX11EffectTechnique* tech, UINT pass)
 {
+	m_DeviceContext->RSSetState(RenderStates::NoCullRS);
+	m_DeviceContext->IASetInputLayout(InputLayouts::PosNormalTexTan);
+	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	XMMATRIX world;
 	XMMATRIX worldInvTranspose;
 	XMMATRIX worldView;
@@ -965,7 +967,6 @@ void GraphicsManager::RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMA
 
 	world = XMLoadFloat4x4(&instance.m_World);
 	//float a = MathHelper::InverseTranspose(world);
-	
 	
 	worldView     = XMMatrixMultiply(world, view);
 	//worldInvTranspose = MathHelper::InverseTranspose(world);
@@ -990,6 +991,99 @@ void GraphicsManager::RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMA
 		tech->GetPassByIndex(pass)->Apply(0, m_DeviceContext);
 		instance.m_Model->ModelMesh.Draw(m_DeviceContext, subset);
 	}
+	RenderDebugBox(instance.GetBoundingOrientedBox(), XMMatrixMultiply(view, proj));
+}
+
+void GraphicsManager::RenderDebugBox(BoundingOrientedBox& OBB, CXMMATRIX viewproj)
+{
+	//m_DeviceContext->RSSetState(RenderStates::WireframeRS);
+	m_DeviceContext->IASetInputLayout(InputLayouts::Pos);
+	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+	ID3DX11EffectTechnique* tech;
+	D3DX11_TECHNIQUE_DESC techDesc;
+
+	tech = Effects::BoxDebugFX->BasicTech;
+	tech->GetDesc( &techDesc );
+
+	Effects::BoxDebugFX->SetViewProj(viewproj);
+
+	ID3D11Buffer* VB;
+	ID3D11Buffer* IB;
+
+	//Indexbuffer
+	XMFLOAT3 cornersW[OBB.CORNER_COUNT];
+	OBB.GetCorners(&cornersW[0]);
+
+	UINT VertexStride = sizeof(XMFLOAT3);
+
+	D3D11_BUFFER_DESC vbd;
+    vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth = sizeof(XMFLOAT3) * OBB.CORNER_COUNT;
+    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vbd.CPUAccessFlags = 0;
+    vbd.MiscFlags = 0;
+	vbd.StructureByteStride = 0;
+
+    D3D11_SUBRESOURCE_DATA vinitData;
+    vinitData.pSysMem = cornersW;
+
+	m_Device->CreateBuffer(&vbd, &vinitData, &VB);
+
+#define iSize 24
+	//Indexbuffer
+	USHORT indices[iSize] = 
+	{	0,1,
+		1,2,
+		2,3,
+		0,3,
+
+		4,5,
+		5,6,
+		6,7,
+		4,7,
+
+		0,4,
+		1,5,
+		2,6,
+		3,7,
+		/*
+		4,5,6,
+		4,6,7,
+
+		0,4,3,
+		8,10,11,*/
+	};
+
+
+
+	D3D11_BUFFER_DESC ibd;
+    ibd.Usage = D3D11_USAGE_IMMUTABLE;
+	ibd.ByteWidth = sizeof(USHORT) * iSize;
+    ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+    ibd.CPUAccessFlags = 0;
+    ibd.MiscFlags = 0;
+	ibd.StructureByteStride = 0;
+
+    D3D11_SUBRESOURCE_DATA iinitData;
+    iinitData.pSysMem = indices;
+
+    m_Device->CreateBuffer(&ibd, &iinitData, &IB);
+
+	 UINT offset = 0;
+
+
+	for(UINT p = 0; p < techDesc.Passes; ++p)
+	{
+		tech->GetPassByIndex(p)->Apply(0, m_DeviceContext);
+		m_DeviceContext->IASetVertexBuffers(0, 1, &VB, &VertexStride, &offset);
+		m_DeviceContext->IASetIndexBuffer(IB, DXGI_FORMAT_R16_UINT, 0);
+		m_DeviceContext->DrawIndexed(iSize, 0, 0);
+	}	
+								
+
+	ReleaseCOM(VB);
+	ReleaseCOM(IB);
 }
 
 void GraphicsManager::RenderTerrain(Camera* tCamera)
