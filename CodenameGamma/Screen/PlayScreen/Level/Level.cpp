@@ -138,7 +138,7 @@ void Level::LoadLevel(string Levelname)
 	tGO	=	new CrowdBarrier();
 	tGO->MoveTo( XMFLOAT3( 2000 + 200, 0, 2000 ) );
 	tGO->SetRotation( XMFLOAT3( 0, 4, 0 ) );
-	tGO->SetScale( XMFLOAT3( 10, 10, 10 ) );
+	tGO->SetScale( 10 );
 	AddGameObject(tGO);
 
 	tGO	=	new TownHall();
