@@ -140,7 +140,7 @@ void Level::LoadLevel(string Levelname)
 	tGO	=	new CrowdBarrier();
 	tGO->MoveTo( XMFLOAT3( 2000, 0, 2000 ) );
 	AddGameObject(tGO);
-	tGO	=	new CrowdBarrier();
+	tGO->SetScale( 10 );
 	tGO->MoveTo( XMFLOAT3( 2000 + 4 * 16.6665f, 0, 2000 ) );
 	AddGameObject(tGO);
 

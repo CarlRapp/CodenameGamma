@@ -29,7 +29,13 @@ Model::Model(ID3D11Device* device, TextureManager& texMgr, const std::string& mo
 	}
 
 	BoundingSphere::CreateFromPoints(m_BoundingSphere, Vertices.size(), &Vertices[0].Pos, sizeof(Vertex::PosNormalTexTanSkinned));
-	BoundingOrientedBox::CreateFromPoints(m_BoundingOrientedBox, Vertices.size(), &Vertices[0].Pos, sizeof(Vertex::PosNormalTexTanSkinned));
+
+	BoundingBox AABB;
+	BoundingBox::CreateFromPoints(AABB, Vertices.size(), &Vertices[0].Pos, sizeof(Vertex::PosNormalTexTanSkinned));
+
+	BoundingOrientedBox::CreateFromBoundingBox(m_BoundingOrientedBox, AABB);
+
+	//BoundingOrientedBox::CreateFromPoints(m_BoundingOrientedBox, Vertices.size(), &Vertices[0].Pos, sizeof(Vertex::PosNormalTexTanSkinned));
 }
 
 
