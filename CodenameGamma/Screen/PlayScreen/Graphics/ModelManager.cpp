@@ -34,12 +34,12 @@ ModelManager* ModelManager::GetInstance()
 	return gInstance;
 }
 
-void ModelManager::LoadModel(string Name, string Filename, string Path)
+void ModelManager::LoadModel(string Name, string Filename, string ModelPath, string TexturePath)
 {
 	if ( gLoadedModels.count(Name) != 0 )
 		return;
 
-	Model*	tModel	=	new Model(gDevice, gTextureManager, Path + Filename, Path);
+	Model*	tModel	=	new Model(gDevice, gTextureManager, ModelPath + Filename, TexturePath);
 
 	if ( tModel == 0 )
 	{
@@ -50,6 +50,11 @@ void ModelManager::LoadModel(string Name, string Filename, string Path)
 	gLoadedModels.insert(pair<string, Model*>(Name, tModel));
 
 	DebugScreen::GetInstance()->AddLogMessage("Model: \"" + Filename + "\" loaded.", Green);
+}
+
+void ModelManager::LoadModel(string Name, string Filename, string Path)
+{
+	LoadModel(Name, Filename, Path, Path);
 }
 
 Model* ModelManager::GetModel(string Name)

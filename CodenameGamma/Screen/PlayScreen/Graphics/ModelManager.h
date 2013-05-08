@@ -27,6 +27,7 @@ public:
 	static	ModelManager*	GetInstance(void);
 
 	Model*	GetModel(string Name);
+	void	LoadModel(string Name, string Filename, string ModelPath, string TexturePath);
 	void	LoadModel(string Name, string Filename, string Path);
 
 	ModelInstance*	CreateModelInstance(string ModelName);
