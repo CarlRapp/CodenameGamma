@@ -122,6 +122,21 @@ public:
 };
 #pragma endregion
 
+#pragma region BoxDebugEffect
+class BoxDebugEffect : public Effect
+{
+public:
+	BoxDebugEffect(ID3D11Device* device, const std::wstring& filename);
+	~BoxDebugEffect();
+
+	void SetViewProj(CXMMATRIX M)					{ ViewProj->SetMatrix(reinterpret_cast<const float*>(&M)); }
+
+	ID3DX11EffectTechnique* BasicTech;
+
+	ID3DX11EffectMatrixVariable* ViewProj;
+};
+#pragma endregion
+
 #pragma region ObjectDeferredEffect
 class ObjectDeferredEffect : public Effect
 {
@@ -685,6 +700,7 @@ public:
 	static TerrainDeferredEffect* TerrainDeferredFX;
 	static TiledLightningEffect* TiledLightningFX;
 	static ShadowMapEffect*	ShadowMapFX;
+	static BoxDebugEffect*	BoxDebugFX;
 };
 #pragma endregion
 
