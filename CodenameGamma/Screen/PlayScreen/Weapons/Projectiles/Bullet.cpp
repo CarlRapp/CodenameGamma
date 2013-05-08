@@ -5,7 +5,6 @@
 Bullet::Bullet()
 {
 	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "Bullet" ) );
-
 	gDamage	=	ProjectileDamage(1.0f, 1.0f);
 
 	gLifeSpan	=	1.5f;
@@ -26,4 +25,9 @@ void Bullet::CollideWith(GameObject* Instance)
 		if ( IsOfType<Structure>(Instance) )
 			SetState(Dead);
 	}
+}
+
+float Bullet::GetSpeed()
+{
+	return 700.0f;
 }
