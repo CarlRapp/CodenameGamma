@@ -3,7 +3,7 @@
 CrowdBarrier::CrowdBarrier()
 {
 	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "CrowdBarrier" ) );
-	SetScale( XMFLOAT3( 10, 5, 10 ) );
+	SetScale( 7 );
 }
 
 CrowdBarrier::~CrowdBarrier()

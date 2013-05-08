@@ -48,6 +48,7 @@ class GameObject
 	XMFLOAT3	gPosition;
 	XMFLOAT3	gVelocity, gAcceleration;
 	XMFLOAT3	gRotationInFloat;
+	float		gScaleInFloat;
 
 	XMFLOAT4X4	gRotation, gTranslation, gScale, 
 				gWorld, gWorldInverseTranspose;
@@ -65,6 +66,7 @@ public:
 	ModelInstance* GetModelInstance() { return m_ModelInstance; }
 
 	float		GetRadius();
+	float		GetScale() { return gScaleInFloat; }
 	XMFLOAT3	GetFloat3Value(GOFloat3Value Value);
 	XMFLOAT4X4	GetFloat4x4Value(GOFloat4x4Value Value);
 
@@ -72,7 +74,7 @@ public:
 	void	SetRotation(XMFLOAT3 Rotation);
 	void	LookAt(XMFLOAT3 Position);
 
-	void	SetScale(XMFLOAT3 Scale);
+	void	SetScale(float Scale);
 
 	void	Move(XMFLOAT3 Delta);
 	void	MoveTo(XMFLOAT3 Location);

@@ -47,6 +47,12 @@ struct ModelInstance
 {
 	Model*							m_Model;
 	DirectX::XMFLOAT4X4				m_World;
+
+	float							m_Scale;
+	XMFLOAT4						m_Rotation;
+	XMFLOAT3						m_Translation;
+
+
 	DirectX::XMFLOAT4X4				m_WorldInverseTranspose;
 	DirectX::BoundingSphere			m_OldBoundingSphere;
 
@@ -56,6 +62,9 @@ struct ModelInstance
 	{
 		m_Model					=	NULL;
 		m_World					=	XMFLOAT4X4(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+		m_Scale					=	1;
+		m_Rotation				=	XMFLOAT4(0,0,0,0);
+		m_Translation			=	XMFLOAT3(1,1,1);
 		m_WorldInverseTranspose	=	XMFLOAT4X4(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 	}
 
@@ -75,8 +84,11 @@ struct ModelInstance
 		BoundingOrientedBox out;
 		if (m_Model)
 		{
-			XMMATRIX world = XMLoadFloat4x4(&m_World);
-			m_Model->m_BoundingOrientedBox.Transform(out, world);
+			out = m_Model->m_BoundingOrientedBox;
+			XMVECTOR rot	= XMLoadFloat4(&m_Rotation);
+			XMVECTOR trans	= XMLoadFloat3(&m_Translation);
+			out.Transform(out, m_Scale, rot, trans);
+			//out.Transform(out, world);
 		}
 		return out;
 	}

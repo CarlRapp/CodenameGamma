@@ -29,7 +29,7 @@ GameObject::GameObject(void)
 		)
 	);
 
-	SetScale(XMFLOAT3(1,1,1));
+	SetScale(1.0f);
 
 	SetState( Alive );
 
@@ -224,9 +224,10 @@ void GameObject::LookAt(XMFLOAT3 Position)
 #pragma endregion
 
 #pragma region Scale Methods
-void GameObject::SetScale(XMFLOAT3 Scale)
+void GameObject::SetScale(float Scale)
 {
-	XMStoreFloat4x4(&gScale, XMMatrixScaling(Scale.x, Scale.y, Scale.z));
+	gScaleInFloat = Scale;
+	XMStoreFloat4x4(&gScale, XMMatrixScaling(Scale, Scale, Scale));
 	UpdateWorld(true);
 }
 #pragma endregion
@@ -338,7 +339,13 @@ void GameObject::UpdateWorld(bool UpdateInverseTranspose)
 
 	if (m_ModelInstance)
 	{
-		m_ModelInstance->m_World	=	gWorld;
+		m_ModelInstance->m_World		=	gWorld;
+
+		m_ModelInstance->m_Scale		=	gScaleInFloat;
+		XMVECTOR Quaternion = XMQuaternionRotationMatrix(XMLoadFloat4x4(&gRotation));
+		XMStoreFloat4(&m_ModelInstance->m_Rotation, Quaternion);
+		m_ModelInstance->m_Translation	=	gPosition;
+
 		m_ModelInstance->m_WorldInverseTranspose	=	gWorldInverseTranspose;
 		m_QuadTreeType->Update();
 	}
