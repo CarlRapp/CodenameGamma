@@ -1,10 +1,13 @@
 #include "Pistol.h"
+#include "../../ScreenEnums.h"
 
 Pistol::Pistol()
 {
 	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "Pistol" ) );
 
-	gCooldown	=	WeaponCooldown(0.0f, 0.5f);
+	gCooldown	=	WeaponCooldown(0.0f, 0.2f);
+	gClip		=	WeaponClip(5, 9);
+	gReloadTime	=	WeaponReloadTime(0.0f, 2.5f);
 }
 
 Pistol::~Pistol()
@@ -12,31 +15,45 @@ Pistol::~Pistol()
 
 }
 
+bool Pistol::CanFire()
+{
+	return (gClip.first > 0 && gCooldown.first <= 0);
+}
+
 vector<Projectile*> Pistol::Fire()
 {
 	vector<Projectile*>	tBullets	=	vector<Projectile*>();
-	
 
-	for ( int i = 0; i < 7; ++i )
+	if ( CanFire() )
 	{
 		Bullet*	tBullet	=	new Bullet();		
 
-		float temp	=	PI * 0.125f * 0.333333f * (i - 3);
+		float	tRotationY	=	GetFloat3Value( Rotations ).y;
 
 		XMFLOAT3	tVelocity	=	XMFLOAT3(0, 0, 0);
-		tVelocity.x	=	-400.0f * cos( GetFloat3Value( Rotations ).y - PI*0.50f - temp);
-		tVelocity.z	=	400.0f * sin( GetFloat3Value( Rotations ).y - PI*0.50f - temp);
+		tVelocity.x	=	-tBullet->GetSpeed() * cos( tRotationY - PI * 0.5f );
+		tVelocity.z	=	tBullet->GetSpeed() * sin( tRotationY - PI * 0.5f );
 
+		tBullet->SetRotation( XMFLOAT3( 0, tRotationY, 0 ) );
 		tBullet->MoveTo( GetFloat3Value( Position ) );
 		tBullet->SetVelocity( tVelocity );
 		tBullet->SetTeam( GetTeam() );
 
-		tBullets.push_back(tBullet);
-	}
-
-	if ( tBullets.size() > 0 )
 		SoundManager::GetInstance()->Play("Pistol");
 
-	gCooldown.first	=	gCooldown.second;
+		gCooldown.first	=	gCooldown.second;
+		--gClip.first;
+
+		if ( gClip.first == 0 )
+			Reload();
+
+		tBullets.push_back(tBullet);
+	}
+	else if ( gClip.first == 0 && gCooldown.first <= 0)
+	{
+		SoundManager::GetInstance()->Play("EmptyClip");
+		gCooldown.first	=	gCooldown.second;
+	}
+
 	return tBullets;
 }
