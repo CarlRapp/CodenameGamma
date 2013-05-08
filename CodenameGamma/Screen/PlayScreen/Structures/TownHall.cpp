@@ -3,7 +3,7 @@
 TownHall::TownHall()
 {
 	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "TownHall" ) );
-	SetScale( XMFLOAT3( 15, 15, 15 ) );
+	SetScale( 15 );
 }
 
 TownHall::~TownHall()
