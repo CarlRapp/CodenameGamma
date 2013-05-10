@@ -67,7 +67,8 @@ void PlayScreen::Update(float DeltaTime)
 	gLevel->Update(DeltaTime);
 
 
-	if ( InputManager::GetInstance()->GetController(0)->GetButtonState( START ) == PRESSED )
+	if ( InputManager::GetInstance()->GetController(0)->GetButtonState( START ) == PRESSED ||
+		InputManager::GetInstance()->GetKeyboard()->GetKeyState(VK_ESCAPE) == PRESSED)
 		gGotoNextFrame	=	MAIN_MENU_SCREEN;
 
 }

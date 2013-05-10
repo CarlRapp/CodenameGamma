@@ -18,22 +18,27 @@ void PrePlayScreen::Update(float DeltaTime)
 {
 	gTextSizeActiveTicker	+=	DeltaTime;
 
-	Controller*	gController	=	InputManager::GetInstance()->GetController(0);
-	if(gController->GetButtonState(D_DOWN) == PRESSED)
+	Controller*	controller	=	InputManager::GetInstance()->GetController(0);
+	Keyboard*	keyboard	=	InputManager::GetInstance()->GetKeyboard();
+	if(controller->GetButtonState(D_DOWN) == PRESSED || 
+		keyboard->GetKeyState('S') == PRESSED || 
+		keyboard->GetKeyState(VK_DOWN) == PRESSED)
 	{
 		gTextSizeActiveTicker	=	0;
 
 		gCurrentIndex	=	(gCurrentIndex + 1 >= (int)gMenuEntries.size()) ? 0 : gCurrentIndex + 1;
 		SoundManager::GetInstance()->Play("MenuPick");
 	}
-	if(gController->GetButtonState(D_UP) == PRESSED)
+	if(controller->GetButtonState(D_UP) == PRESSED || 
+		keyboard->GetKeyState('W') == PRESSED || 
+		keyboard->GetKeyState(VK_UP) == PRESSED)
 	{
 		gTextSizeActiveTicker	=	0;
 
 		gCurrentIndex	=	(gCurrentIndex - 1 < 0) ? gMenuEntries.size() - 1 : gCurrentIndex - 1;
 		SoundManager::GetInstance()->Play("TEST");
 	}
-	if(gController->GetButtonState(A) == PRESSED)
+	if(controller->GetButtonState(A) == PRESSED || keyboard->GetKeyState(VK_RETURN) == PRESSED)
 	{
 		//for( int i = 0; i < gCurrentIndex + 1; ++i )
 		//{
