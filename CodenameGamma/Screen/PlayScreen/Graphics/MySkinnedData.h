@@ -125,7 +125,7 @@ public:
 
 	bool  HasAnimation(std::string name)
 	{
-		return mAnimations.find(name) != mAnimations.end();
+		return (mAnimations.find(name) != mAnimations.end() && !mBoneHierarchy.empty());
 	}
 
 	bool  HasPose(std::string name)
@@ -218,24 +218,6 @@ public:
 				bone =  joint.parent;
 		}
 
-		/*
-		if (mNameToBoneIndex.find(name) == mNameToBoneIndex.end())
-		{
-			
-			
-			XMVECTOR temp = XMLoadFloat4(&tempPos);
-
-			XMMATRIX transf = XMLoadFloat4x4(&joint.transformation);
-			XMVector3TransformCoord(temp, transf);
-			XMStoreFloat3(&pos, temp);
-			
-			
-		}
-
-		else if (mNameToBoneIndex.find(name) != mNameToBoneIndex.end())
-		{
-			bone = mNameToBoneIndex[name];
-		}*/
 		else
 			bone = -1;
 	}

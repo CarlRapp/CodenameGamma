@@ -59,17 +59,19 @@ bool Unit::Update(float DeltaTime, Terrain* TerrainInstance)
 		XMVECTOR dir = XMLoadFloat3(&GetFloat3Value( Direction ));
 		XMVECTOR lv = XMVector3Length(dir);
 
+		bool gotJointPos = false;
 		if (m_ModelInstance)
 		{
-			//position = m_ModelInstance->GetJointPosition("RightArm");
-			//position = m_ModelInstance->GetJointPosition("Head");
-			//position = m_ModelInstance->GetJointPosition("HeadEnd");
-			position = m_ModelInstance->GetJointPosition("RightHand");
-			//position = m_ModelInstance->GetJointPosition("Hips");
-			//position = m_ModelInstance->GetJointPosition("LeftFoot");
-			//position = m_ModelInstance->GetJointPosition("RightFoot");
+			//gotJointPos = m_ModelInstance->GetJointPosition("RightArm", position);
+			//gotJointPos = m_ModelInstance->GetJointPosition("Head", position);
+			//gotJointPos = m_ModelInstance->GetJointPosition("HeadEnd", position);
+			gotJointPos = m_ModelInstance->GetJointPosition("RightHand", position);
+			//gotJointPos = m_ModelInstance->GetJointPosition("Hips", position);
+			//gotJointPos = m_ModelInstance->GetJointPosition("LeftFoot", position);
+			//gotJointPos = m_ModelInstance->GetJointPosition("RightFoot", position);
 		}
-		else
+
+		if (!gotJointPos)
 		{
 			pos += dir * (GetRadius() - 10);
 

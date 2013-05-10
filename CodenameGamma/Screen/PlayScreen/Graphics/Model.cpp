@@ -44,6 +44,29 @@ Model::Model(ID3D11Device* device, TextureManager& texMgr, const std::string& mo
 		BoundingSphere::CreateFromBoundingBox(m_BoundingSphere, m_BoundingOrientedBox);
 	}
 
+	else
+	{
+		std::vector<XMFLOAT3> points;
+
+		for (int i = 0; i < m_BoneBoxes.size(); ++i)
+		{
+			XMFLOAT3 corners[BoundingOrientedBox::CORNER_COUNT];
+			m_BoneBoxes[i].GetCorners(&corners[0]);
+
+			for each (XMFLOAT3 point in corners)
+				points.push_back(point);
+		}
+		/*
+		BoundingBox AABB;
+
+		BoundingBox::CreateFromPoints(AABB, Vertices.size(), &points[0], sizeof(XMFLOAT3));
+
+		BoundingSphere::CreateFromBoundingBox(m_BoundingSphere, m_BoundingOrientedBox);
+		BoundingOrientedBox::CreateFromBoundingBox(m_BoundingOrientedBox, AABB);
+		BoundingSphere::CreateFromBoundingBox(m_BoundingSphere, m_BoundingOrientedBox);
+		*/
+	}
+
 	//BoundingOrientedBox::CreateFromPoints(m_BoundingOrientedBox, Vertices.size(), &Vertices[0].Pos, sizeof(Vertex::PosNormalTexTanSkinned));
 }
 
