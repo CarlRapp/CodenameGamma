@@ -212,9 +212,9 @@ RasterizerState DepthPoint
 
 RasterizerState DepthSpot
 {
-	DepthBias = 100.0f;
+	DepthBias = 200.0f;
     DepthBiasClamp = 0.0f;
-	SlopeScaledDepthBias = 2.0f;
+	SlopeScaledDepthBias = 3.0f;
 	CullMode = NONE;
 };
 

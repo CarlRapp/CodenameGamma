@@ -25,6 +25,8 @@ public:
 	std::vector<ID3D11ShaderResourceView*> DiffuseMapSRV;
 	std::vector<ID3D11ShaderResourceView*> NormalMapSRV;
 
+	bool HasDiffuseMaps() { return !DiffuseMapSRV.empty(); }
+	bool HasNormalMaps() { return !NormalMapSRV.empty(); }
 	
 	// Keep CPU copies of the mesh data to read from.  
 	std::vector<Vertex::PosNormalTexTanSkinned> Vertices;
@@ -44,9 +46,6 @@ public:
 	BoundingOrientedBox				m_BoundingOrientedBox;
 
 	std::vector<DirectX::BoundingOrientedBox>	m_BoneBoxes;
-
-private:
-	void LoadClipsAndPoses();
 
 };
 

@@ -23,11 +23,19 @@ Model::Model(ID3D11Device* device, TextureManager& texMgr, const std::string& mo
 	{
 		Mat.push_back(mats[i].Mat);
 
-		ID3D11ShaderResourceView* diffuseMapSRV = texMgr.CreateTexture(texturePath + mats[i].DiffuseMapName);
-		DiffuseMapSRV.push_back(diffuseMapSRV);
+		if (mats[i].DiffuseMapName != "")
+		{
+			ID3D11ShaderResourceView* diffuseMapSRV = texMgr.CreateTexture(texturePath + mats[i].DiffuseMapName);
+			if (diffuseMapSRV)
+				DiffuseMapSRV.push_back(diffuseMapSRV);
+		}
 
-		ID3D11ShaderResourceView* normalMapSRV = texMgr.CreateTexture(texturePath + mats[i].NormalMapName);
-		NormalMapSRV.push_back(normalMapSRV);
+		if (mats[i].NormalMapName != "")
+		{
+			ID3D11ShaderResourceView* normalMapSRV = texMgr.CreateTexture(texturePath + mats[i].NormalMapName);
+			if (normalMapSRV)
+				NormalMapSRV.push_back(normalMapSRV);
+		}
 	}
 	
 	m_BoneBoxes = SkinnedData.CreateBoneBoxes(Vertices);
@@ -106,11 +114,6 @@ Model::~Model(void)
 		NormalMapSRV.clear();
 	}
 	*/
-}
-
-void Model::LoadClipsAndPoses()
-{
-
 }
 
 void ModelInstance::Update(float dt)

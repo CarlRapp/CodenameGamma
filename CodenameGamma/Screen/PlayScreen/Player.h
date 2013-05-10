@@ -3,15 +3,16 @@
 #define PLAYER_H
 
 #include "../../Input/InputManager.h"
-#include "GameObject.h";
+#include "Units\Unit.h";
 #include "Camera.h"
 
 class Player
 {
 private:
-	GameObject*	m_GameObject;
+	Unit		*m_Unit;
 	Camera		*m_Camera;
 	Controller	*m_Controller;
+	UINT		m_PlayerIndex;
 
 	void UpdateCamera(float deltaTime);
 
@@ -20,7 +21,7 @@ public:
 	Player(int index);
 	~Player(void);
 
-	void Update(float deltaTime);
+	vector<Projectile*> Update(float deltaTime);
 
 	void SetScreen(int X, int Y, int Width, int Height) 
 	{ 
@@ -30,9 +31,9 @@ public:
 
 	Camera*		GetCamera()		{ return m_Camera; }
 	Controller*	GetController()	{ return m_Controller; }
-	GameObject* GetGameObject() { return m_GameObject; }
+	Unit*		GetUnit()		{ return m_Unit; }
 
-	void	SetGameObject(GameObject* Instance);
+	void	SetUnit(Unit* Instance);
 };
 
 #endif
