@@ -126,7 +126,7 @@ void Level::LoadLevel(string Levelname)
 	ModelManager::GetInstance()->LoadModel("UnitCube", "UnitCube.obj", "DATA/Models/UnitCube/");
 
 	Model*	model	=	ModelManager::GetInstance()->GetModel("CrazyBitch");
-	for (int i = 0; i < 1; ++i)
+	for (int i = 0; i < 25; ++i)
 	{
 		float x = MathHelper::RandF(0, 4000);
 		float y = 0;

@@ -108,6 +108,9 @@ struct ModelInstance
 		BoundingSphere out;
 		if (m_Model)
 		{
+			//XMMATRIX world = XMLoadFloat4x4(&m_World);
+			//m_Model->m_BoundingSphere.Transform(out, world);
+				
 			if (m_Model->m_BoneBoxes.empty())
 			{
 				XMMATRIX world = XMLoadFloat4x4(&m_World);
@@ -117,19 +120,9 @@ struct ModelInstance
 			else
 			{
 				out.CreateFromBoundingBox(out, GetBoundingOrientedBox());
-				/*
-				std::vector<XMFLOAT3> points;
-				for (int i = 0; i < m_BoneBoxes.size(); ++i)
-				{
-					XMFLOAT3 corners[BoundingOrientedBox::CORNER_COUNT];
-					m_BoneBoxes[i].GetCorners(&corners[0]);
 
-					for each (XMFLOAT3 point in corners)
-						points.push_back(point);
-				}
-				out.CreateFromPoints(out, points.size(), &points[0], sizeof(XMFLOAT3));
-				*/
 			}
+		
 		}
 		return out;
 	}
@@ -169,10 +162,10 @@ struct ModelInstance
 		return out;
 	}
 
-	XMFLOAT3 GetJointPosition(std::string name)
+	bool GetJointPosition(std::string name, XMFLOAT3& pos)
 	{
 		int bone = -1;
-		XMFLOAT3 pos(0,0,0);
+		pos = XMFLOAT3(0,0,0);
 		m_Model->SkinnedData.GetJointData(name, bone, pos);
 
 		if (bone != -1)
@@ -187,8 +180,8 @@ struct ModelInstance
 
 			XMStoreFloat3(&pos, temp);
 		}
-		
-		return pos;
+
+		return bone >= 0;
 	}
 };
 
