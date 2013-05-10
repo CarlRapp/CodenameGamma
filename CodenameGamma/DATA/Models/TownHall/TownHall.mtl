@@ -4,6 +4,7 @@ Kd 0.00 0.00 0.00
 Ka 0.00 0.00 0.00
 Tf 1.00 1.00 1.00
 map_Kd TownHall_DIF_01.jpg
+bump TownHall_NRM_01.jpg -bm 1
 Ni 1.00
 Ks 0.00 0.00 0.00
 Ns 18.00

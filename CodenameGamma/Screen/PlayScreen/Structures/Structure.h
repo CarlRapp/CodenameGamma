@@ -11,6 +11,8 @@ class Structure : public GameObject
 public:
 	Structure(void);
 	~Structure(void);
+
+	void	CollideWith(GameObject* Instance);
 };
 
 #endif
