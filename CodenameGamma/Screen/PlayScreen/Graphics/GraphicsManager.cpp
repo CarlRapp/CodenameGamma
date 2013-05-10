@@ -973,24 +973,93 @@ void GraphicsManager::RenderModels(Camera* tCamera)
 	sort( instances.begin(), instances.end() );
 	instances.erase( unique( instances.begin(), instances.end() ), instances.end() );
 
+	vector<GameObject*> BasicInstances;
+	vector<GameObject*> TexInstances;
+	vector<GameObject*> TexNormalInstances;
+
+	vector<GameObject*> BasicAnimatedInstances;
+	vector<GameObject*> TexAnimatedInstances;
+	vector<GameObject*> TexNormalAnimatedInstances;
+
+
+	for each (GameObject* instance in instances)
+	{
+		ModelInstance* modelInstance = instance->GetModelInstance();
+
+		if (modelInstance != NULL)
+		{
+			if (!modelInstance->UsingAnimationOrPose())
+			{
+				if (modelInstance->m_Model->HasDiffuseMaps())
+				{
+					if (modelInstance->m_Model->HasNormalMaps())
+						TexNormalInstances.push_back(instance);
+					else
+						TexInstances.push_back(instance);
+				}
+				
+				else
+					BasicInstances.push_back(instance);
+			}
+			else
+			{
+				if (modelInstance->m_Model->HasDiffuseMaps())
+				{
+					if (modelInstance->m_Model->HasNormalMaps())
+						TexNormalAnimatedInstances.push_back(instance);
+					else
+						TexAnimatedInstances.push_back(instance);
+				}
+				else
+					BasicAnimatedInstances.push_back(instance);
+			}
+		}
+	}
+
 	ID3DX11EffectTechnique* tech;
 	D3DX11_TECHNIQUE_DESC techDesc;
-	
-	tech = Effects::ObjectDeferredFX->TexAlphaClipTech;
-	//tech = Effects::ObjectDeferredFX->TexNormalTech;
-	tech->GetDesc( &techDesc );
 
+	//Static
+
+	tech = Effects::ObjectDeferredFX->BasicTech;
+	tech->GetDesc( &techDesc );
 	for(UINT p = 0; p < techDesc.Passes; ++p)
 	{
-		//for each (ModelInstance* instance in m_modelInstances)
-		for each (GameObject* instance in instances)
+		for each (GameObject* instance in BasicInstances)
 		{
-			ModelInstance* modelInstance = instance->GetModelInstance();
-			if (modelInstance != NULL)
-			{
-				if (!modelInstance->UsingAnimationOrPose())
-					RenderModel(*modelInstance, view, proj, tech, p);
-			}
+			RenderModel(*instance->GetModelInstance(), view, proj, tech, p);
+		}
+	}
+
+	tech = Effects::ObjectDeferredFX->TexAlphaClipTech;
+	tech->GetDesc( &techDesc );
+	for(UINT p = 0; p < techDesc.Passes; ++p)
+	{
+		for each (GameObject* instance in TexInstances)
+		{
+			RenderModel(*instance->GetModelInstance(), view, proj, tech, p);
+		}
+	}
+
+	tech = Effects::ObjectDeferredFX->TexNormalAlphaClipTech;
+	tech->GetDesc( &techDesc );
+	for(UINT p = 0; p < techDesc.Passes; ++p)
+	{
+		for each (GameObject* instance in TexNormalInstances)
+		{
+			RenderModel(*instance->GetModelInstance(), view, proj, tech, p);
+		}
+	}
+
+	//Animation
+
+	tech = Effects::ObjectDeferredFX->BasicSkinnedTech;
+	tech->GetDesc( &techDesc );
+	for(UINT p = 0; p < techDesc.Passes; ++p)
+	{
+		for each (GameObject* instance in BasicAnimatedInstances)
+		{
+			RenderAnimatedModel(*instance->GetModelInstance(), view, proj, tech, p);
 		}
 	}
 
@@ -998,15 +1067,19 @@ void GraphicsManager::RenderModels(Camera* tCamera)
 	tech->GetDesc( &techDesc );
 	for(UINT p = 0; p < techDesc.Passes; ++p)
 	{
-		//for each (ModelInstance* instance in m_modelInstances)
-		for each (GameObject* instance in instances)
+		for each (GameObject* instance in TexAnimatedInstances)
 		{
-			ModelInstance* modelInstance = instance->GetModelInstance();
-			if (modelInstance != NULL)
-			{
-				if (modelInstance->UsingAnimationOrPose())
-					RenderAnimatedModel(*modelInstance, view, proj, tech, p);
-			}
+			RenderAnimatedModel(*instance->GetModelInstance(), view, proj, tech, p);
+		}
+	}
+
+	tech = Effects::ObjectDeferredFX->TexNormalAlphaClipSkinnedTech;
+	tech->GetDesc( &techDesc );
+	for(UINT p = 0; p < techDesc.Passes; ++p)
+	{
+		for each (GameObject* instance in TexNormalAnimatedInstances)
+		{
+			RenderAnimatedModel(*instance->GetModelInstance(), view, proj, tech, p);
 		}
 	}
 
@@ -1047,12 +1120,14 @@ void GraphicsManager::RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMA
 		Effects::ObjectDeferredFX->SetMaterial(instance.m_Model->Mat[subset]);
 
 		Effects::ObjectDeferredFX->SetDiffuseMap(instance.m_Model->DiffuseMapSRV[subset]);
-		Effects::ObjectDeferredFX->SetNormalMap(instance.m_Model->NormalMapSRV[subset]);
+
+		if (instance.m_Model->HasNormalMaps())
+			Effects::ObjectDeferredFX->SetNormalMap(instance.m_Model->NormalMapSRV[subset]);
 
 		tech->GetPassByIndex(pass)->Apply(0, m_DeviceContext);
 		instance.m_Model->ModelMesh.Draw(m_DeviceContext, subset);
 	}
-	RenderDebugBox(instance.GetBoundingOrientedBox(), XMMatrixMultiply(view, proj));
+	//RenderDebugBox(instance.GetBoundingOrientedBox(), XMMatrixMultiply(view, proj));
 }
 
 void GraphicsManager::RenderAnimatedModel(ModelInstance& instance, CXMMATRIX view, CXMMATRIX proj, ID3DX11EffectTechnique* tech, UINT pass)
@@ -1089,7 +1164,9 @@ void GraphicsManager::RenderAnimatedModel(ModelInstance& instance, CXMMATRIX vie
 		Effects::ObjectDeferredFX->SetMaterial(instance.m_Model->Mat[subset]);
 
 		Effects::ObjectDeferredFX->SetDiffuseMap(instance.m_Model->DiffuseMapSRV[subset]);
-		Effects::ObjectDeferredFX->SetNormalMap(instance.m_Model->NormalMapSRV[subset]);
+
+		if (instance.m_Model->HasNormalMaps())
+			Effects::ObjectDeferredFX->SetNormalMap(instance.m_Model->NormalMapSRV[subset]);
 
 		tech->GetPassByIndex(pass)->Apply(0, m_DeviceContext);
 		instance.m_Model->ModelMesh.Draw(m_DeviceContext, subset);
