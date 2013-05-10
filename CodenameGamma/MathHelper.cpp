@@ -29,6 +29,16 @@ float MathHelper::AngleFromXY(float x, float y)
 	return theta;
 }
 
+XMFLOAT3 MathHelper::GetClosestSidePoint(BoundingOrientedBox &OBB, XMFLOAT3 &Pos)
+{
+	XMFLOAT3	result	=	XMFLOAT3(0, 0, 0);
+
+	XMFLOAT3	tCorners;
+	OBB.GetCorners(&tCorners);
+
+	return result;
+}
+
 /*
 D3DXVECTOR3 MathHelper::RandUnitVec3()
 {

@@ -13,6 +13,8 @@ public:
 	~Bullet(void);
 
 	virtual	 void	CollideWith(GameObject* Instance);
+
+	float	GetSpeed();
 };
 
 #endif
