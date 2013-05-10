@@ -209,7 +209,7 @@ void Level::AddDirectionalLight(bool hasShadow)
 
 	DirectionalLight *dirLight = new DirectionalLight();
 	dirLight->Color = XMFLOAT4(r,g,b,1);
-	dirLight->Direction = XMFLOAT4(3.0f, -1.0f, 1.0f,0);
+	dirLight->Direction = XMFLOAT4(1.0f, -2.0f, 1.0f,0);
 	//dirLight->Direction = XMFLOAT4(x, -1.0f, z,0);
 	dirLight->HasShadow = hasShadow;
 	dirLight->Resolution = SHADOWMAP_4096;
@@ -344,21 +344,9 @@ void Level::Update(float DeltaTime)
 
 	for each (Player *p in gPlayers)
 	{
-		p->Update(DeltaTime);
-	}
-
-	for each (Player *p in gPlayers)
-	{
-		if ( p->GetController()->GetButtonState( RIGHT_BUMPER ) == DOWN )
-		{
-			vector<Projectile*>	tBullets	=	((Unit*)p->GetGameObject())->FireWeapon();
-
-			if ( tBullets.size() > 0)
-				for each ( Projectile* p in tBullets )
-				{
-					AddGameObject(p);
-				}
-		}
+		vector<Projectile*>	tBullets = p->Update(DeltaTime);
+		for each ( Projectile* p in tBullets )		
+			AddGameObject(p);		
 	}
 
 	RunCollisionTest();
@@ -369,14 +357,15 @@ void Level::Update(float DeltaTime)
 	{
 		if (InputManager::GetInstance()->GetController(0)->GetButtonState(Xbox_Button::A) == InputState::PRESSED)
 		{
-			gDirLights[i]->Direction =  XMFLOAT4(3.0f, -1.0f, 1.0f,0);
+			gDirLights[i]->Direction =  XMFLOAT4(1.0f, -2.0f, 1.0f,0);
 		}
 		else if (InputManager::GetInstance()->GetController(0)->GetButtonState(Xbox_Button::B) == InputState::PRESSED)
 		{
-			gDirLights[i]->Direction =  XMFLOAT4(-3.0f, 1.0f, 1.0f,0);
+			gDirLights[i]->Direction =  XMFLOAT4(0.0f, 1.0f, 1.0f,0);
 		}
 		else
 		{
+			/*
 			DirectionalLight *dLight = gDirLights[i];
 
 			float a = -5.0f;
@@ -385,6 +374,7 @@ void Level::Update(float DeltaTime)
 			XMMATRIX rot	 = XMMatrixRotationZ(DeltaTime * XMConvertToRadians(a));
 			dir = XMVector3TransformCoord(dir, rot);
 			XMStoreFloat4(&dLight->Direction, dir);
+			*/
 		}
 	}
 
@@ -512,14 +502,14 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 {
 	for each (Player *player in gPlayers)
 	{
-		GameObject *go = player->GetGameObject();
+		Unit *unit = player->GetUnit();
 
-		if (go)
+		if (unit)
 		{
-			Weapon* w = ((Unit*)go)->GetWeapon();
+			Weapon* w = unit->GetWeapon();
 			if (w)
 				RemoveGameObject(w);
-			RemoveGameObject(go);
+			RemoveGameObject(unit);
 		}
 	}
 
@@ -564,23 +554,23 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 
 	for (int i = 0; i < gPlayers.size(); ++i)
 	{
-		if ( gPlayers[i]->GetGameObject() == 0 )
+		if ( gPlayers[i]->GetUnit() == 0 )
 		{
-			GameObject*	GO	=	new CrazyBitch();
+			Unit* unit	=	new CrazyBitch();
 			//GO->UsePose("Stand");
 			//GO->PlayAnimation("Walk");
-			GO->PlayAnimation("Back");
-			GO->MoveTo(DirectX::XMFLOAT3(2000, 0, 2000));
-			GO->SetScale(0.3f);
-			AddGameObject(GO);
+			unit->PlayAnimation("Back");
+			unit->MoveTo(DirectX::XMFLOAT3(2000, 0, 2000));
+			unit->SetScale(0.3f);
+			AddGameObject(unit);
 
-			gPlayers[i]->SetGameObject(GO);
-			gPlayers[i]->GetGameObject()->SetTeam(Team1);
+			gPlayers[i]->SetUnit(unit);
+			gPlayers[i]->GetUnit()->SetTeam(Team1);
 
 			Pistol *pistol = new Pistol();
 			AddGameObject(pistol);
 
-			((Unit*)gPlayers[i]->GetGameObject())->SetWeapon(pistol);
+			gPlayers[i]->GetUnit()->SetWeapon(pistol);
 		}
 	}
 
