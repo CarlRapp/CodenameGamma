@@ -21,6 +21,8 @@ public:
 
 	virtual	bool	Update(float DeltaTime, Terrain* terrain);
 	virtual	void	CollideWith(GameObject* Instance)	=	0;
+
+	virtual	float	GetSpeed(){	return 0.0f; }
 };
 
 #endif

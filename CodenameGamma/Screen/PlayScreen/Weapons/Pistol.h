@@ -13,6 +13,8 @@ public:
 	Pistol(void);
 	~Pistol(void);
 
+	bool	CanFire();
+
 	vector<Projectile*> Fire();
 };
 

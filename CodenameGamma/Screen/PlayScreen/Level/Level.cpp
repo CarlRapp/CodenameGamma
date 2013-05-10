@@ -112,7 +112,7 @@ void Level::LoadLevel(string Levelname)
 	ModelManager::GetInstance()->LoadModel("CrazyBitch", "dae export 2.dae", "DATA/Models/TestChar/");
 	//ModelManager::GetInstance()->LoadModel("CrazyBitch", "export2objFT.obj", "DATA/Models/Character/");
 	ModelManager::GetInstance()->LoadModel("Pistol", "BoxWeapon.obj", "DATA/Models/obj/");
-	ModelManager::GetInstance()->LoadModel("Bullet", "GunShot.obj", "DATA/Models/obj/");
+	ModelManager::GetInstance()->LoadModel("Bullet", "PistolBullet.obj", "DATA/Models/PistolBullet/");
 	ModelManager::GetInstance()->LoadModel("CrowdBarrier", "CrowdBarrier.obj", "DATA/Models/CrowdBarrier/");
 	ModelManager::GetInstance()->LoadModel("TownHall", "TownHall.obj", "DATA/Models/TownHall/");
 	ModelManager::GetInstance()->LoadModel("CannedFood", "CannedFood.obj", "DATA/Models/CannedFood/");
@@ -120,6 +120,10 @@ void Level::LoadLevel(string Levelname)
 	ModelManager::GetInstance()->LoadModel("SmallStore", "SmallStore.obj", "DATA/Models/SmallStore/");
 	ModelManager::GetInstance()->LoadModel("TrashCan", "TrashCan.obj", "DATA/Models/TrashCan/");
 	ModelManager::GetInstance()->LoadModel("VolvoCar", "VolvoCar.obj", "DATA/Models/VolvoCar/");
+
+	ModelManager::GetInstance()->LoadModel("Container", "Container.obj", "DATA/Models/Container/");
+
+	ModelManager::GetInstance()->LoadModel("UnitCube", "UnitCube.obj", "DATA/Models/UnitCube/");
 
 	Model*	model	=	ModelManager::GetInstance()->GetModel("CrazyBitch");
 	for (int i = 0; i < 1; ++i)
@@ -138,9 +142,11 @@ void Level::LoadLevel(string Levelname)
 	AddGameObject(tGO);
 
 	tGO	=	new CrowdBarrier();
-	tGO->MoveTo( XMFLOAT3( 2000 + 200, 0, 2000 ) );
-	tGO->SetRotation( XMFLOAT3( 0, 4, 0 ) );
-	tGO->SetScale( 10 );
+	tGO->MoveTo( XMFLOAT3( 2000, 0, 2000 ) );
+	AddGameObject(tGO);
+
+	tGO	=	new CrowdBarrier();
+	tGO->MoveTo( XMFLOAT3( 2000 + 4 * 16.6665f, 0, 2000 ) );
 	AddGameObject(tGO);
 
 	tGO	=	new TownHall();
@@ -165,6 +171,24 @@ void Level::LoadLevel(string Levelname)
 	tGO->MoveTo( XMFLOAT3( 2000 - 350, 20, 2000 - 100 ) );
 	tGO->SetRotation( XMFLOAT3( 0, PI * 0.25f, 0 ) );
 	AddGameObject(tGO);
+
+	tGO	=	new Container();
+	tGO->MoveTo( XMFLOAT3( 2000 + 200, 0, 2000 - 400 ) );
+	AddGameObject(tGO);
+
+
+	float	SIZE	=	2 * 16.6665f;
+	for ( int n = 0; n <= 4; ++n )
+	{
+		int test	=	7 - 2 * n;
+		for ( int i = 1; i <= test; ++i )
+		{
+			tGO	=	new UnitCube();
+			tGO->MoveTo( XMFLOAT3( 2000 - (-(int)(test*0.5f) + i) * SIZE, n * SIZE, 2000 - 400 ) );
+			AddGameObject(tGO);
+		}
+
+	}
 }
 
 
@@ -442,7 +466,6 @@ void Level::RunCollisionTest()
 {
 	vector<CollisionEvent>	tCollisionEvents	=	vector<CollisionEvent>();
 
-	BoundingSphere As, Bs;
 	for each (GameObject* A in gGameObjects)
 	{
 		vector<GameObject*>	collidingWith	=	vector<GameObject*>();
