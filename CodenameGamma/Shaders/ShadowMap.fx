@@ -1,11 +1,12 @@
-cbuffer Camera
-{
-	matrix 				ViewProjection;
-};
-
 cbuffer Object
 {
-	matrix 				World;
+	matrix				gWorldViewProj;
+	matrix				gTexTransform;
+};
+
+cbuffer cbSkinned
+{
+	float4x4 gBoneTransforms[96];
 };
 
 Texture2D gDiffuseMap;
@@ -19,12 +20,22 @@ SamplerState samLinear
 
 struct VSIn
 {
-	float3 Pos 			: POSITION;
+	float3 PosL 			: POSITION;
+};
+
+struct SkinnedVertexIn
+{
+	float3 PosL       : POSITION;
+	float3 NormalL    : NORMAL;
+	float2 Tex        : TEXCOORD;
+	float4 TangentL   : TANGENT;
+	float3 Weights    : WEIGHTS;
+	uint4 BoneIndices : BONEINDICES;
 };
 
 struct PSSceneIn
 {
-	float4 Pos			: SV_POSITION;
+	float4 PosH			: SV_POSITION;
 };
 
 
@@ -42,10 +53,38 @@ RasterizerState NoCulling
 PSSceneIn VSScene(VSIn input)
 {
 	PSSceneIn output 	= (PSSceneIn)0;
-	output.Pos			= mul(float4(input.Pos, 1), World);
-	output.Pos			= mul(output.Pos, ViewProjection);
+	//output.PosH			= mul(float4(input.Pos, 1), World);
+	//output.PosH			= mul(output.Pos, ViewProjection);
+	output.PosH			= mul(float4(input.PosL, 1.0f), gWorldViewProj);
 	//output.Pos.z		= 1.0f;
 	return output;
+}
+
+PSSceneIn VSSkinned(SkinnedVertexIn vin)
+{
+    PSSceneIn vout;
+
+	// Init array or else we get strange warnings about SV_POSITION.
+	float weights[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+	weights[0] = vin.Weights.x;
+	weights[1] = vin.Weights.y;
+	weights[2] = vin.Weights.z;
+	//weights[3] = vin.Weights.w;
+	weights[3] = 1.0f - weights[0] - weights[1] - weights[2];
+
+	float3 posL     = float3(0.0f, 0.0f, 0.0f);
+	float3 normalL  = float3(0.0f, 0.0f, 0.0f);
+	float3 tangentL = float3(0.0f, 0.0f, 0.0f);
+	for(int i = 0; i < 4; ++i)
+	{
+	    // Assume no nonuniform scaling when transforming normals, so 
+		// that we do not have to use the inverse-transpose.
+	    posL     += weights[i]*mul(float4(vin.PosL, 1.0f), gBoneTransforms[vin.BoneIndices[i]]).xyz;
+	}
+	// Transform to homogeneous clip space.
+	vout.PosH = mul(float4(posL, 1.0f), gWorldViewProj);
+
+	return vout;
 }
 
 //-----------------------------------------------------------------------------------------
@@ -59,14 +98,17 @@ void PSScene(PSSceneIn input)// : SV_Target
 
 struct VSInPosTex
 {
-	float3 Pos 			: POSITION;
+	float3 PosL 		: POSITION;
 	float3 Normal		: NORMAL;
 	float2 Tex 			: TEXCOORD;
 };
 
+
+
+
 struct PSSceneInPosTex
 {
-	float4 Pos			: SV_POSITION;
+	float4 PosH			: SV_POSITION;
 	float2 Tex 			: TEXCOORD;
 };
 //-----------------------------------------------------------------------------------------
@@ -75,11 +117,45 @@ struct PSSceneInPosTex
 PSSceneInPosTex VSSceneAlphaClip(VSInPosTex input)
 {
 	PSSceneInPosTex output 	= (PSSceneInPosTex)0;
-	output.Pos				= mul(float4(input.Pos, 1), World);
-	output.Pos				= mul(output.Pos, ViewProjection);
-	output.Tex				= input.Tex;
+	//output.PosH				= mul(float4(input.Pos, 1), World);
+	//output.PosH				= mul(output.Pos, ViewProjection);
+
+	output.PosH				= mul(float4(input.PosL, 1.0f), gWorldViewProj);
+
+	//output.Tex				= input.Tex;
+	output.Tex				= mul(float4(input.Tex, 0.0f, 1.0f), gTexTransform).xy;
 	//output.Pos.z			= 1.0f;
 	return output;
+}
+
+PSSceneInPosTex VSSkinnedAlphaClip(SkinnedVertexIn vin)
+{
+    PSSceneInPosTex vout;
+
+	// Init array or else we get strange warnings about SV_POSITION.
+	float weights[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+	weights[0] = vin.Weights.x;
+	weights[1] = vin.Weights.y;
+	weights[2] = vin.Weights.z;
+	//weights[3] = vin.Weights.w;
+	weights[3] = 1.0f - weights[0] - weights[1] - weights[2];
+
+	float3 posL     = float3(0.0f, 0.0f, 0.0f);
+	float3 normalL  = float3(0.0f, 0.0f, 0.0f);
+	float3 tangentL = float3(0.0f, 0.0f, 0.0f);
+	for(int i = 0; i < 4; ++i)
+	{
+	    // Assume no nonuniform scaling when transforming normals, so 
+		// that we do not have to use the inverse-transpose.
+	    posL     += weights[i]*mul(float4(vin.PosL, 1.0f), gBoneTransforms[vin.BoneIndices[i]]).xyz;
+	}
+	// Transform to homogeneous clip space.
+	vout.PosH = mul(float4(posL, 1.0f), gWorldViewProj);
+	
+	// Output vertex attributes for interpolation across triangle.
+	vout.Tex = mul(float4(vin.Tex, 0.0f, 1.0f), gTexTransform).xy;
+
+	return vout;
 }
 
 
@@ -234,4 +310,103 @@ technique11 AlphaClipShadowSpot
     }  
 }
 
+
+
+
+
+
+
+//ANIMATION
+
+
+//-----------------------------------------------------------------------------------------
+// Technique: RenderTextured  
+//-----------------------------------------------------------------------------------------
+technique11 SkinnedBasicShadowDir
+{
+    pass p0
+    {
+		// Set VS, GS, and PS
+        SetVertexShader( CompileShader( vs_4_0, VSSkinned() ) );
+        SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_4_0, PSScene() ) );
+	    SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+		SetDepthStencilState( DepthStencil, 0 );
+	    SetRasterizerState( DepthDir );
+    }  
+}
+
+technique11 SkinnedBasicShadowPoint
+{
+    pass p0
+    {
+		// Set VS, GS, and PS
+        SetVertexShader( CompileShader( vs_4_0, VSSkinned() ) );
+        SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_4_0, PSScene() ) );
+	    SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+		SetDepthStencilState( DepthStencil, 0 );
+	    SetRasterizerState( DepthPoint );
+    }  
+}
+
+technique11 SkinnedBasicShadowSpot
+{
+    pass p0
+    {
+		// Set VS, GS, and PS
+        SetVertexShader( CompileShader( vs_4_0, VSSkinned() ) );
+        SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_4_0, PSScene() ) );
+	    SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+		SetDepthStencilState( DepthStencil, 0 );
+	    SetRasterizerState( DepthSpot );
+    }  
+}
+
+
+//-----------------------------------------------------------------------------------------
+// Technique: RenderTextured  
+//-----------------------------------------------------------------------------------------
+technique11 SkinnedAlphaClipShadowDir
+{
+    pass p0
+    {
+		// Set VS, GS, and PS
+        SetVertexShader( CompileShader( vs_4_0, VSSkinnedAlphaClip() ) );
+        SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_4_0, PSSceneAlphaClip() ) );
+	    SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+		SetDepthStencilState( DepthStencil, 0 );
+	    SetRasterizerState( DepthDir );
+    }  
+}
+
+technique11 SkinnedAlphaClipShadowPoint
+{
+    pass p0
+    {
+		// Set VS, GS, and PS
+        SetVertexShader( CompileShader( vs_4_0, VSSkinnedAlphaClip() ) );
+        SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_4_0, PSSceneAlphaClip() ) );
+	    SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+		SetDepthStencilState( DepthStencil, 0 );
+	    SetRasterizerState( DepthPoint );
+    }  
+}
+
+technique11 SkinnedAlphaClipShadowSpot
+{
+    pass p0
+    {
+		// Set VS, GS, and PS
+        SetVertexShader( CompileShader( vs_4_0, VSSkinnedAlphaClip() ) );
+        SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_4_0, PSSceneAlphaClip() ) );
+	    SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+		SetDepthStencilState( DepthStencil, 0 );
+	    SetRasterizerState( DepthSpot );
+    }  
+}
 

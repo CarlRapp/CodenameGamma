@@ -57,10 +57,13 @@ namespace Vertex
 		XMFLOAT3 Normal;
 		XMFLOAT2 Tex;
 		XMFLOAT4 TangentU;
-		BoneInfo boneInfos[4];
+
+		XMFLOAT4 Weight;
+		UINT	 BoneIndex[4];
 
 		PosNormalTexTanSkinned()
 		{
+			Weight = XMFLOAT4(0,0,0,0);
 		}
 	};
 

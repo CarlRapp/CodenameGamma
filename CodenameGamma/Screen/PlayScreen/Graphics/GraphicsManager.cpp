@@ -474,7 +474,7 @@ void GraphicsManager::RenderDirShadowMaps(vector<DirectionalLight*>& dirLights, 
 				XMFLOAT4X4 V, P;
 				BoundingOrientedBox OBB;
 
-				light->GetViewProjOBB(camera->GetFrustum(), 1000.0f, V, P, OBB);
+				light->GetViewProjOBB(camera->GetFrustum(), 4000.0f, V, P, OBB);
 				
 				XMFLOAT3 tempPos = camera->GetPosition();
 
@@ -626,8 +626,6 @@ void GraphicsManager::RenderShadowMap(UINT lightType, CXMMATRIX View, CXMMATRIX 
 
 	m_DeviceContext->IASetInputLayout(InputLayouts::Pos);
 
-	Effects::ShadowMapFX->SetViewProj(View * Proj);
-
 	RenderTerrainShadowMap(lightType, View, Proj);
 	RenderModelsShadowMap(lightType, View, Proj, frustum);
 
@@ -642,8 +640,6 @@ void GraphicsManager::RenderShadowMap(UINT lightType, CXMMATRIX View, CXMMATRIX 
 	m_DeviceContext->OMSetDepthStencilState(RenderStates::LessDSS, 0);
 	m_DeviceContext->RSSetState(RenderStates::NoCullRS);	
 	//m_DeviceContext->RSSetState(RenderStates::WireframeRS);	
-
-	Effects::ShadowMapFX->SetViewProj(View * Proj);
 
 	RenderTerrainShadowMap(lightType, View, Proj);
 	RenderModelsShadowMap(lightType, View, Proj, OBB);
@@ -676,8 +672,8 @@ void GraphicsManager::RenderTerrainShadowMap(UINT lightType, CXMMATRIX View, CXM
 	for(UINT p = 0; p < techDesc.Passes; ++p)
 	{
 		XMMATRIX world = XMMatrixTranslation(0, 0, 0);
-		Effects::ShadowMapFX->SetViewProj(View * Proj);
-		Effects::ShadowMapFX->SetWorld(world);
+
+		Effects::ShadowMapFX->SetWorldViewProj(world * View * Proj);
 
 		tech->GetPassByIndex(p)->Apply(0, m_DeviceContext);
 		m_Terrain->Draw(m_DeviceContext);		
@@ -686,21 +682,24 @@ void GraphicsManager::RenderTerrainShadowMap(UINT lightType, CXMMATRIX View, CXM
 
 void GraphicsManager::RenderModelsShadowMap(UINT lightType, CXMMATRIX View, CXMMATRIX Proj, vector<GameObject*>& instances)
 {
-	m_DeviceContext->IASetInputLayout(InputLayouts::Basic32);
 
 	ID3DX11EffectTechnique* tech;
+	ID3DX11EffectTechnique* tech2;
 	D3DX11_TECHNIQUE_DESC techDesc;
 
 	switch (lightType)
 	{
 		case 0:
 			tech = Effects::ShadowMapFX->AlphaClipShadowDirTech;
+			tech2 = Effects::ShadowMapFX->SkinnedAlphaClipShadowDirTech;
 			break;
 		case 1:
 			tech = Effects::ShadowMapFX->AlphaClipShadowPointTech;
+			tech2 = Effects::ShadowMapFX->SkinnedAlphaClipShadowPointTech;
 			break;
 		case 2:
 			tech = Effects::ShadowMapFX->AlphaClipShadowSpotTech;
+			tech2 = Effects::ShadowMapFX->SkinnedAlphaClipShadowSpotTech;
 			break;
 	}
 
@@ -710,21 +709,64 @@ void GraphicsManager::RenderModelsShadowMap(UINT lightType, CXMMATRIX View, CXMM
 		//for each (ModelInstance* instance in m_modelInstances)
 		for each (GameObject* instance in instances)
 		{
-
-			Effects::ShadowMapFX->SetViewProj(View * Proj);
 			ModelInstance* modelInstance = instance->GetModelInstance();
 			if (modelInstance != NULL)
-				RenderModelShadowMap(*modelInstance, tech, p);
+			{
+				if (!modelInstance->UsingAnimationOrPose())
+					RenderModelShadowMap(*modelInstance, View, Proj, tech, p);
+			}
 		}
 	}
+
+	tech2->GetDesc( &techDesc );
+	for(UINT p = 0; p < techDesc.Passes; ++p)
+	{
+		//for each (ModelInstance* instance in m_modelInstances)
+		for each (GameObject* instance in instances)
+		{
+			ModelInstance* modelInstance = instance->GetModelInstance();
+			if (modelInstance != NULL)
+			{
+				if (modelInstance->UsingAnimationOrPose())
+					RenderAnimatedModelShadowMap(*modelInstance, View, Proj, tech2, p);
+			}
+		}
+	}
+
+
 	Effects::ShadowMapFX->SetDiffuseMap(NULL);
 }
 
-void GraphicsManager::RenderModelShadowMap(ModelInstance& instance, ID3DX11EffectTechnique* tech, UINT pass)
+void GraphicsManager::RenderModelShadowMap(ModelInstance& instance, CXMMATRIX view, CXMMATRIX proj, ID3DX11EffectTechnique* tech, UINT pass)
 {
+	m_DeviceContext->IASetInputLayout(InputLayouts::Basic32);
 	XMMATRIX world;
 	world = XMLoadFloat4x4(&instance.m_World);
-	Effects::ShadowMapFX->SetWorld(world);
+
+	XMMATRIX tex = XMMatrixTranslation(1, 1, 1);
+
+	Effects::ShadowMapFX->SetWorldViewProj(world * view * proj);
+	Effects::ShadowMapFX->SetTexTransform(tex);
+
+	for(UINT subset = 0; subset < instance.m_Model->SubsetCount; ++subset)
+	{
+		Effects::ShadowMapFX->SetDiffuseMap(instance.m_Model->DiffuseMapSRV[subset]);
+		tech->GetPassByIndex(pass)->Apply(0, m_DeviceContext);
+		instance.m_Model->ModelMesh.Draw(m_DeviceContext, subset);
+	}
+}
+
+void GraphicsManager::RenderAnimatedModelShadowMap(ModelInstance& instance, CXMMATRIX view, CXMMATRIX proj, ID3DX11EffectTechnique* tech, UINT pass)
+{
+	m_DeviceContext->IASetInputLayout(InputLayouts::PosNormalTexTanSkinned);
+	XMMATRIX world;
+	world = XMLoadFloat4x4(&instance.m_World);
+
+	XMMATRIX tex = XMMatrixTranslation(1, 1, 1);
+
+	Effects::ShadowMapFX->SetWorldViewProj(world * view * proj);
+	Effects::ShadowMapFX->SetTexTransform(tex);
+	Effects::ShadowMapFX->SetBoneTransforms(&instance.FinalTransforms[0], instance.FinalTransforms.size());
 
 	for(UINT subset = 0; subset < instance.m_Model->SubsetCount; ++subset)
 	{
@@ -896,18 +938,17 @@ void GraphicsManager::ClearBuffers()
 void GraphicsManager::FillGBuffer(vector<Camera*>& Cameras)
 {
 	m_DeviceContext->OMSetRenderTargets( 2, GBuffer, m_DepthStencilView );
-
-	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	
 
 	m_DeviceContext->OMSetDepthStencilState(RenderStates::LessDSS, 0);
 
-	m_DeviceContext->RSSetState(RenderStates::NoCullRS);
+	//m_DeviceContext->RSSetState(RenderStates::NoCullRS);
 	//m_DeviceContext->RSSetState(RenderStates::WireframeRS);
 	
 	for (int i = 0; i < (int)Cameras.size(); ++i)
 	{
-		//if (m_Terrain != NULL)
-		//	RenderTerrain(Cameras[i]);
+		if (m_Terrain != NULL)
+			RenderTerrain(Cameras[i]);
 
 		if (g_QuadTree)
 			RenderModels(Cameras[i]);
@@ -925,19 +966,19 @@ void GraphicsManager::RenderModels(Camera* tCamera)
 	view = XMLoadFloat4x4(&tCamera->GetView());
 	proj = XMLoadFloat4x4(&tCamera->GetProjection());
 
+
+	vector<GameObject*> instances;
+	BoundingFrustum frustum = tCamera->GetFrustum();	
+	g_QuadTree->GetIntersectingInstances(frustum, instances);
+	sort( instances.begin(), instances.end() );
+	instances.erase( unique( instances.begin(), instances.end() ), instances.end() );
+
 	ID3DX11EffectTechnique* tech;
 	D3DX11_TECHNIQUE_DESC techDesc;
 	
 	tech = Effects::ObjectDeferredFX->TexAlphaClipTech;
 	//tech = Effects::ObjectDeferredFX->TexNormalTech;
 	tech->GetDesc( &techDesc );
-
-	
-	vector<GameObject*> instances;
-	BoundingFrustum frustum = tCamera->GetFrustum();	
-	g_QuadTree->GetIntersectingInstances(frustum, instances);
-	sort( instances.begin(), instances.end() );
-	instances.erase( unique( instances.begin(), instances.end() ), instances.end() );
 
 	for(UINT p = 0; p < techDesc.Passes; ++p)
 	{
@@ -946,9 +987,29 @@ void GraphicsManager::RenderModels(Camera* tCamera)
 		{
 			ModelInstance* modelInstance = instance->GetModelInstance();
 			if (modelInstance != NULL)
-				RenderModel(*modelInstance, view, proj, tech, p);
+			{
+				if (!modelInstance->UsingAnimationOrPose())
+					RenderModel(*modelInstance, view, proj, tech, p);
+			}
 		}
 	}
+
+	tech = Effects::ObjectDeferredFX->TexAlphaClipSkinnedTech;
+	tech->GetDesc( &techDesc );
+	for(UINT p = 0; p < techDesc.Passes; ++p)
+	{
+		//for each (ModelInstance* instance in m_modelInstances)
+		for each (GameObject* instance in instances)
+		{
+			ModelInstance* modelInstance = instance->GetModelInstance();
+			if (modelInstance != NULL)
+			{
+				if (modelInstance->UsingAnimationOrPose())
+					RenderAnimatedModel(*modelInstance, view, proj, tech, p);
+			}
+		}
+	}
+
 	Effects::ObjectDeferredFX->SetDiffuseMap(NULL);
 	Effects::ObjectDeferredFX->SetNormalMap(NULL);
 }
@@ -994,6 +1055,53 @@ void GraphicsManager::RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMA
 	RenderDebugBox(instance.GetBoundingOrientedBox(), XMMatrixMultiply(view, proj));
 }
 
+void GraphicsManager::RenderAnimatedModel(ModelInstance& instance, CXMMATRIX view, CXMMATRIX proj, ID3DX11EffectTechnique* tech, UINT pass)
+{
+	m_DeviceContext->RSSetState(RenderStates::NoCullRS);
+	m_DeviceContext->IASetInputLayout(InputLayouts::PosNormalTexTanSkinned);
+	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	XMMATRIX world;
+	XMMATRIX worldInvTranspose;
+	XMMATRIX worldView;
+	XMMATRIX worldInvTransposeView;
+	XMMATRIX worldViewProj;
+	XMMATRIX tex = XMMatrixTranslation(1, 1, 1);
+
+	world = XMLoadFloat4x4(&instance.m_World);
+	//float a = MathHelper::InverseTranspose(world);
+	
+	worldView     = XMMatrixMultiply(world, view);
+	//worldInvTranspose = MathHelper::InverseTranspose(world);
+	worldInvTranspose	=	XMLoadFloat4x4(&instance.m_WorldInverseTranspose);
+	
+	//worldInvTransposeView = worldInvTranspose*view;
+	worldViewProj = XMMatrixMultiply(worldView, proj);
+
+	Effects::ObjectDeferredFX->SetWorld(world);
+	Effects::ObjectDeferredFX->SetWorldInvTranspose(worldInvTranspose);
+	Effects::ObjectDeferredFX->SetTexTransform(tex);
+	Effects::ObjectDeferredFX->SetWorldViewProj(worldViewProj);
+	Effects::ObjectDeferredFX->SetBoneTransforms(&instance.FinalTransforms[0], instance.FinalTransforms.size());
+
+	for(UINT subset = 0; subset < instance.m_Model->SubsetCount; ++subset)
+	{
+		//UINT subset = 6;
+		Effects::ObjectDeferredFX->SetMaterial(instance.m_Model->Mat[subset]);
+
+		Effects::ObjectDeferredFX->SetDiffuseMap(instance.m_Model->DiffuseMapSRV[subset]);
+		Effects::ObjectDeferredFX->SetNormalMap(instance.m_Model->NormalMapSRV[subset]);
+
+		tech->GetPassByIndex(pass)->Apply(0, m_DeviceContext);
+		instance.m_Model->ModelMesh.Draw(m_DeviceContext, subset);
+	}
+	RenderDebugBox(instance.GetBoundingOrientedBox(), XMMatrixMultiply(view, proj));
+
+	for each (BoundingOrientedBox OBB in instance.m_BoneBoxes)
+	{
+		RenderDebugBox(OBB, XMMatrixMultiply(view, proj));
+	}
+}
+
 void GraphicsManager::RenderDebugBox(BoundingOrientedBox& OBB, CXMMATRIX viewproj)
 {
 	//m_DeviceContext->RSSetState(RenderStates::WireframeRS);
@@ -1005,7 +1113,7 @@ void GraphicsManager::RenderDebugBox(BoundingOrientedBox& OBB, CXMMATRIX viewpro
 
 	tech = Effects::BoxDebugFX->BasicTech;
 	tech->GetDesc( &techDesc );
-
+	
 	Effects::BoxDebugFX->SetViewProj(viewproj);
 
 	ID3D11Buffer* VB;
@@ -1088,6 +1196,8 @@ void GraphicsManager::RenderDebugBox(BoundingOrientedBox& OBB, CXMMATRIX viewpro
 
 void GraphicsManager::RenderTerrain(Camera* tCamera)
 {
+	m_DeviceContext->RSSetState(RenderStates::NoCullRS);
+	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	m_DeviceContext->RSSetViewports( 1, &tCamera->GetViewPort() );
 	XMMATRIX view;
 	XMMATRIX proj;

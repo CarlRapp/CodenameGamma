@@ -132,10 +132,18 @@ ObjectDeferredEffect::ObjectDeferredEffect(ID3D11Device* device, const std::wstr
 	TexNormalAlphaClipTech	= mFX->GetTechniqueByName("TexNormalAlphaClipTech");
 	NormalTech				= mFX->GetTechniqueByName("NormalTech");
 
+	BasicSkinnedTech				= mFX->GetTechniqueByName("BasicSkinnedTech");
+	TexSkinnedTech					= mFX->GetTechniqueByName("TexSkinnedTech");
+	TexNormalSkinnedTech			= mFX->GetTechniqueByName("TexNormalSkinnedTech");
+	TexAlphaClipSkinnedTech			= mFX->GetTechniqueByName("TexAlphaClipSkinnedTech");
+	TexNormalAlphaClipSkinnedTech	= mFX->GetTechniqueByName("TexNormalAlphaClipSkinnedTech");
+	NormalSkinnedTech				= mFX->GetTechniqueByName("NormalSkinnedTech");
+
 	WorldViewProj			= mFX->GetVariableByName("gWorldViewProj")->AsMatrix();
 	World					= mFX->GetVariableByName("gWorld")->AsMatrix();
 	WorldInvTranspose		= mFX->GetVariableByName("gWorldInvTranspose")->AsMatrix();
 	TexTransform			= mFX->GetVariableByName("gTexTransform")->AsMatrix();
+	BoneTransforms			= mFX->GetVariableByName("gBoneTransforms")->AsMatrix();
 
 	Mat						= mFX->GetVariableByName("gMaterial");
 
@@ -518,10 +526,18 @@ ShadowMapEffect::ShadowMapEffect(ID3D11Device* device, const std::wstring& filen
 	AlphaClipShadowPointTech= mFX->GetTechniqueByName("AlphaClipShadowPoint");
 	AlphaClipShadowSpotTech	= mFX->GetTechniqueByName("AlphaClipShadowSpot");
 
+	SkinnedBasicShadowDirTech		= mFX->GetTechniqueByName("SkinnedBasicShadowDir");
+	SkinnedBasicShadowPointTech		= mFX->GetTechniqueByName("SkinnedBasicShadowPoint");
+	SkinnedBasicShadowSpotTech		= mFX->GetTechniqueByName("SkinnedBasicShadowSpot");
+	SkinnedAlphaClipShadowDirTech	= mFX->GetTechniqueByName("SkinnedAlphaClipShadowDir");
+	SkinnedAlphaClipShadowPointTech	= mFX->GetTechniqueByName("SkinnedAlphaClipShadowPoint");
+	SkinnedAlphaClipShadowSpotTech	= mFX->GetTechniqueByName("SkinnedAlphaClipShadowSpot");
+
 	DiffuseMap  = mFX->GetVariableByName("gDiffuseMap")->AsShaderResource();
 
-	World		= mFX->GetVariableByName("World")->AsMatrix();
-	ViewProj	= mFX->GetVariableByName("ViewProjection")->AsMatrix();
+	TexTransform	= mFX->GetVariableByName("gTexTransform")->AsMatrix();
+	WorldViewProj	= mFX->GetVariableByName("gWorldViewProj")->AsMatrix();
+	BoneTransforms	= mFX->GetVariableByName("gBoneTransforms")->AsMatrix();
 }
 
 ShadowMapEffect::~ShadowMapEffect()

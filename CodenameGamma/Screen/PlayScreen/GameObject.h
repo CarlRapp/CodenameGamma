@@ -41,7 +41,6 @@ enum GOFloat4x4Value
 class GameObject
 {
 	QuadTreeType *m_QuadTreeType;
-	ModelInstance *m_ModelInstance;
 
 	GOState		gState;
 	GOTeam		gTeam;
@@ -55,6 +54,10 @@ class GameObject
 
 
 	void	UpdateWorld(bool UpdateInverseTranspose);
+
+protected:
+	ModelInstance *m_ModelInstance;
+
 public:
 	GameObject(void);
 	~GameObject(void);
@@ -82,8 +85,14 @@ public:
 	void	SetVelocity(XMFLOAT3 Velocity);
 
 	void	SetState(GOState Value);
+
+	bool	PlayAnimation(string name);
+
+	bool	UsePose(string name);
+
+	string  CurrentAnimationOrPose();
 	
-	bool	Intersects(GameObject* go);
+	static bool	Intersects(const GameObject* A, const GameObject* B);
 
 	bool	IsAlive(){ return (gState != Dead); }
 

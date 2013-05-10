@@ -158,11 +158,18 @@ UINT SkinnedData::BoneCount()const
 
 void SkinnedData::Set(std::vector<int>& boneHierarchy, 
 		              std::vector<XMFLOAT4X4>& boneOffsets,
-		              std::map<std::string, AnimationClip>& animations)
+		              std::map<std::string, AnimationClip>& animations,
+					  std::map<std::string, int>		NameToBoneIndex,
+					  std::map<int, std::string>		BoneIndexToName,
+					  std::map<std::string, Joint>		Joints)
 {
 	mBoneHierarchy = boneHierarchy;
 	mBoneOffsets   = boneOffsets;
 	mAnimations    = animations;
+
+	mNameToBoneIndex = NameToBoneIndex;
+	mBoneIndexToName = BoneIndexToName;
+	mJoints			 = Joints;
 }
  
 void SkinnedData::GetFinalTransforms(const std::string& clipName, float timePos,  std::vector<XMFLOAT4X4>& finalTransforms)const
@@ -204,5 +211,140 @@ void SkinnedData::GetFinalTransforms(const std::string& clipName, float timePos,
 		XMMATRIX offset = XMLoadFloat4x4(&mBoneOffsets[i]);
 		XMMATRIX toRoot = XMLoadFloat4x4(&toRootTransforms[i]);
 		XMStoreFloat4x4(&finalTransforms[i], XMMatrixMultiply(offset, toRoot));
+
+		//XMStoreFloat4x4(&finalTransforms[i], toRoot);
+
+		//XMStoreFloat4x4(&finalTransforms[i], XMMatrixScaling(1,1,1));
+		//XMMATRIX globalInverseTransform = XMLoadFloat4x4(&mGlobalInverseTransform);
+
+		//XMMATRIX temp = XMMatrixMultiply(offset, toRoot);
+		//XMStoreFloat4x4(&finalTransforms[i], XMMatrixMultiply(temp, globalInverseTransform));
 	}
+}
+
+void SkinnedData::GetFinalTransforms(const std::string& clipName,  std::vector<XMFLOAT4X4>& finalTransforms)const
+{
+	UINT numBones = mBoneOffsets.size();
+
+	std::vector<XMFLOAT4X4> toParentTransforms(numBones);
+
+	// Interpolate all the bones of this clip at the given time instance.
+	auto clip = mPoses.find(clipName);
+
+	for (int i = 0; i < numBones; ++i)
+	{
+		Keyframe kFrame = clip->second.BoneAnimations[i].Keyframes[0];
+
+		XMVECTOR S = XMLoadFloat3(&kFrame.Scale);
+		XMVECTOR P = XMLoadFloat3(&kFrame.Translation);
+		XMVECTOR Q = XMLoadFloat4(&kFrame.RotationQuat);
+
+		XMVECTOR zero = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+		XMStoreFloat4x4(&toParentTransforms[i], XMMatrixAffineTransformation(S, zero, Q, P));
+	}
+
+	//
+	// Traverse the hierarchy and transform all the bones to the root space.
+	//
+
+	std::vector<XMFLOAT4X4> toRootTransforms(numBones);
+
+	// The root bone has index 0.  The root bone has no parent, so its toRootTransform
+	// is just its local bone transform.
+	toRootTransforms[0] = toParentTransforms[0];
+
+	// Now find the toRootTransform of the children.
+	for(UINT i = 1; i < numBones; ++i)
+	{
+		XMMATRIX toParent = XMLoadFloat4x4(&toParentTransforms[i]);
+
+		int parentIndex = mBoneHierarchy[i];
+		XMMATRIX parentToRoot = XMLoadFloat4x4(&toRootTransforms[parentIndex]);
+
+		XMMATRIX toRoot = XMMatrixMultiply(toParent, parentToRoot);
+
+		XMStoreFloat4x4(&toRootTransforms[i], toRoot);
+	}
+
+	// Premultiply by the bone offset transform to get the final transform.
+	for(UINT i = 0; i < numBones; ++i)
+	{
+		XMMATRIX offset = XMLoadFloat4x4(&mBoneOffsets[i]);
+		XMMATRIX toRoot = XMLoadFloat4x4(&toRootTransforms[i]);
+		XMStoreFloat4x4(&finalTransforms[i], XMMatrixMultiply(offset, toRoot));
+
+		//XMStoreFloat4x4(&finalTransforms[i], toRoot);
+
+		//XMStoreFloat4x4(&finalTransforms[i], XMMatrixScaling(1,1,1));
+		//XMMATRIX globalInverseTransform = XMLoadFloat4x4(&mGlobalInverseTransform);
+
+		//XMMATRIX temp = XMMatrixMultiply(offset, toRoot);
+		//XMStoreFloat4x4(&finalTransforms[i], XMMatrixMultiply(temp, globalInverseTransform));
+	}
+}
+
+void SkinnedData::CreateClip(std::string name, int firstFrame, int lastFrame)
+{
+	AnimationClip all = mAnimations["ALL"];
+	AnimationClip clip;
+
+	float offset = all.BoneAnimations[0].Keyframes[firstFrame].TimePos;
+
+	if (lastFrame > firstFrame)
+	{
+		for (UINT i = 0; i < all.BoneAnimations.size(); i++)
+		{
+			BoneAnimation boneAni;
+			for (int j = firstFrame; j <= lastFrame; ++j)
+			{
+				Keyframe kframe = all.BoneAnimations[i].Keyframes[j];
+
+				kframe.TimePos -= offset;
+
+				boneAni.Keyframes.push_back(kframe);
+			}
+			clip.BoneAnimations.push_back(boneAni);
+		}
+	}
+
+	else if (lastFrame < firstFrame)
+	{
+		for (UINT i = 0; i < all.BoneAnimations.size(); i++)
+		{
+			BoneAnimation boneAni;
+			for (int j = firstFrame; j >= lastFrame; --j)
+			{
+				Keyframe kframe = all.BoneAnimations[i].Keyframes[j];
+
+				kframe.TimePos = abs( kframe.TimePos - offset );
+
+				boneAni.Keyframes.push_back(kframe);
+			}
+			clip.BoneAnimations.push_back(boneAni);
+		}
+	}
+
+	else
+		return;
+
+	mAnimations.insert(std::pair<std::string, AnimationClip>(name, clip));
+}
+
+void SkinnedData::CreatePose(std::string name, int frame)
+{
+	AnimationClip all = mAnimations["ALL"];
+	Pose pose;
+
+	float offset = all.BoneAnimations[0].Keyframes[frame].TimePos;
+
+	for (UINT i = 0; i < all.BoneAnimations.size(); i++)
+	{
+		BoneAnimation boneAni;
+		Keyframe kframe = all.BoneAnimations[i].Keyframes[frame];
+		kframe.TimePos -= offset;
+		boneAni.Keyframes.push_back(kframe);
+
+		pose.BoneAnimations.push_back(boneAni);
+	}
+	mPoses.insert(std::pair<std::string, Pose>(name, pose));
 }

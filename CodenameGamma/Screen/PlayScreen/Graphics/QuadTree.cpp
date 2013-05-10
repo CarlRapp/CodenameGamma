@@ -381,7 +381,7 @@ void QuadTree::GetObjectsCollidingWith(GameObject* go, vector<GameObject*> &Game
 		{
 			for each (GameObject* go2 in node->m_Content)
 			{
-				if (go->Intersects(go2))
+				if (go->Intersects(go, go2))
 					GameObjects.push_back(go2);
 			}
 		}

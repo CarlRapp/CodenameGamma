@@ -69,7 +69,8 @@ ModelInstance* ModelManager::CreateModelInstance(string ModelName)
 		return 0;
 
 	ModelInstance*	tInstance	=	new ModelInstance();
-	tInstance->m_Model	=	tModel;
+	tInstance->SetModel(tModel);
+	//tInstance->m_Model	=	tModel;
 
 	return	tInstance;
 }

@@ -98,6 +98,9 @@ bool GameObject::Update(float deltaTime, Terrain* terrain)
 
 	//Move(XMFLOAT3(gVelocity.x * deltaTime, 0, gVelocity.z * deltaTime));
 
+	if (m_ModelInstance)
+		m_ModelInstance->Update(deltaTime);
+
 	return !MathHelper::BoundingSphereEqual(m_QuadTreeType->GetQuadTreeData().Old, m_QuadTreeType->GetQuadTreeData().Current);
 }
 
@@ -274,35 +277,111 @@ void GameObject::SetState(GOState Value)
 	gState	=	Value;
 }
 
-bool GameObject::Intersects(GameObject* go)
+bool GameObject::PlayAnimation(string name)
 {
-	BoundingSphere As = m_QuadTreeType->GetQuadTreeData().Current;
-	BoundingSphere Bs = go->m_QuadTreeType->GetQuadTreeData().Current;
+	if (m_ModelInstance)
+	{
+		if (m_ModelInstance->m_Model->SkinnedData.HasAnimation(name))
+		{
+			m_ModelInstance->ClipName  = name;
+			m_ModelInstance->TimePos   = 0.0;
+			m_ModelInstance->Animating = true;
+			return true;
+		}
+	}
+	return false;
+}
+
+string GameObject::CurrentAnimationOrPose()
+{
+	if (m_ModelInstance)
+	{
+		return m_ModelInstance->ClipName;
+	}
+	return "";
+}
+
+bool GameObject::UsePose(string name)
+{
+	if (m_ModelInstance)
+	{
+		if (m_ModelInstance->m_Model->SkinnedData.HasPose(name))
+		{
+			m_ModelInstance->ClipName = name;
+			m_ModelInstance->Animating = false;			
+			m_ModelInstance->UpdatePose();
+			return true;
+		}
+	}
+	return false;
+}
+
+bool GameObject::Intersects(const GameObject* A, const GameObject* B)
+{
+	if (A == B)
+		return false;
+
+	BoundingSphere As = A->m_QuadTreeType->GetQuadTreeData().Current;
+	BoundingSphere Bs = B->m_QuadTreeType->GetQuadTreeData().Current;
 
 
 	if (As.Intersects(Bs))
 	{
 
-		if (m_ModelInstance != NULL && go->m_ModelInstance != NULL)
+		if (A->m_ModelInstance != NULL && B->m_ModelInstance != NULL)
 		{
-			BoundingOrientedBox Ab = m_ModelInstance->GetBoundingOrientedBox();
-			BoundingOrientedBox Bb = go->m_ModelInstance->GetBoundingOrientedBox();
-			return Ab.Intersects(Bb);
+			BoundingOrientedBox Ab = A->m_ModelInstance->GetBoundingOrientedBox();
+			BoundingOrientedBox Bb = B->m_ModelInstance->GetBoundingOrientedBox();
+
+			if (Ab.Intersects(Bb))
+			{
+				if (!A->m_ModelInstance->m_BoneBoxes.empty())
+				{
+					for each (BoundingOrientedBox Abb in A->m_ModelInstance->m_BoneBoxes)
+					{
+						if (!B->m_ModelInstance->m_BoneBoxes.empty())
+						{
+							for each (BoundingOrientedBox Bbb in B->m_ModelInstance->m_BoneBoxes)
+							{
+								if (Abb.Intersects(Bbb))
+									return true;
+							}
+						}
+						else
+						{
+							if (Abb.Intersects(Bb))
+									return true;
+						}
+					}
+				}
+
+				else if (!B->m_ModelInstance->m_BoneBoxes.empty())
+				{
+					for each (BoundingOrientedBox Bbb in B->m_ModelInstance->m_BoneBoxes)
+					{
+						if (Ab.Intersects(Bbb))
+							return true;
+					}
+				}
+
+				else
+					return true;
+			}
 		}
 
-		else if (m_ModelInstance != NULL && go->m_ModelInstance == NULL)
+		else if (A->m_ModelInstance != NULL && B->m_ModelInstance == NULL)
 		{
-			BoundingOrientedBox Ab = m_ModelInstance->GetBoundingOrientedBox();
+			BoundingOrientedBox Ab = A->m_ModelInstance->GetBoundingOrientedBox();
 			return Ab.Intersects(Bs);
 		}
 
-		else if (m_ModelInstance == NULL && go->m_ModelInstance != NULL)
+		else if (A->m_ModelInstance == NULL && B->m_ModelInstance != NULL)
 		{
-			BoundingOrientedBox Bb = go->m_ModelInstance->GetBoundingOrientedBox();
+			BoundingOrientedBox Bb = B->m_ModelInstance->GetBoundingOrientedBox();
 			return Bb.Intersects(As);
 		}
-
-		return true;
+		else
+			return true;
 	}
 	return false;
 }

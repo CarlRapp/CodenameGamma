@@ -30,20 +30,21 @@ struct MaterialLoader
 class ModelLoader
 {
 private:
-
-	std::map<std::string, int> m_Bones;
+	std::map<std::string, int>				m_BoneToIndex;
+	std::map<int, std::string>				m_IndexToBone;
+	std::map<std::string, Joint>			m_Joints;
+	/*
 	std::map<std::string, AnimationNode> m_AnimationNodes;
 	std::map<std::string, AnimationClip> m_Animations;
+	*/
 
-	int NumberOfBones(const aiScene* scene, aiNode *node);
+	//int NumberOfBones(const aiScene* scene, aiNode *node);
 
 	void GetVerts(const aiScene* scene, aiNode *node, 
 		std::vector<Vertex::PosNormalTexTanSkinned>& vertices, 
 		std::vector<UINT>& indices, 
 		std::vector<Mesh::Subset>& subsets,
-		std::vector<MaterialLoader>& mats,
-		std::vector<int> boneHierarchy,
-		int parent);
+		std::vector<MaterialLoader>& matst);
 	
 	void GetVerts(const aiScene* scene, 
 		aiMesh *mesh, 
@@ -52,11 +53,17 @@ private:
 		std::vector<Mesh::Subset>& subsets,
 		std::vector<MaterialLoader>& mats);
 	
-	void LoadBones(const aiScene* scene, aiNode* node);
+	void LoadBones(const aiScene* scene, aiNode* node, std::vector<XMFLOAT4X4>& boneOffsets);
 
-	void ModelLoader::LoadAnimationNodes(const aiScene*	scene, aiNode* node);
+	void LoadBoneHierarchy(const aiScene* scene, aiNode* node, std::vector<int>& boneIndexToParentIndex, int parrentIndex, std::vector<XMFLOAT4X4> boneOffsets);
 
-	void LoadAnimations(const aiScene* scene);
+	void LoadAnimation(const aiScene* scene, AnimationClip& animationClip);
+
+	void LoadAnimationClipsAndPoses(const std::string& filename, SkinnedData& skinInfo);
+
+	//void ModelLoader::LoadAnimationNodes(const aiScene*	scene, aiNode* node);
+
+	//void LoadAnimations(const aiScene* scene);
 
 	/*
 	void GetBonesFromNode(const aiScene*			scene,
@@ -88,7 +95,8 @@ public:
 		std::vector<Vertex::PosNormalTexTanSkinned>& vertices,
 		std::vector<UINT>& indices,
 		std::vector<Mesh::Subset>& subsets,
-		std::vector<MaterialLoader>& mats);
+		std::vector<MaterialLoader>& mats,
+		SkinnedData& skinInfo);
 
 	//Animation
 	/*

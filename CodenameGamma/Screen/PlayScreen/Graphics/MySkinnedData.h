@@ -4,6 +4,7 @@
 #include "..\..\..\stdafx.h"
 #include <map>
 #include "Mesh.h"
+#include "Vertex.h"
 
 ///<summary>
 /// A Keyframe defines the bone transformation at an instant in time.
@@ -61,9 +62,11 @@ struct BoneAnimation
     void Interpolate(float t, XMFLOAT4X4& M)const;
 
 	std::vector<Keyframe> Keyframes;	//ta bort
+	/*
 	std::vector<PosKeyframe> PosKeyframes; 
 	std::vector<ScaleKeyframe> ScaleKeyframes; 
 	std::vector<RotationKeyframe> RoatationKeyframes; 
+	*/
 };
 
 struct AnimationNode
@@ -87,8 +90,32 @@ struct AnimationClip
 	//std::map<std::string, BoneAnimation> BoneAnimations;	//använd
 };
 
+struct Pose
+{
+    std::vector<BoneAnimation> BoneAnimations;
+};
+
+struct Joint
+{
+	XMFLOAT3 position;
+	int parent;
+};
+
 class SkinnedData
 {
+private:
+    // Gives parentIndex of ith bone.
+	std::vector<int> mBoneHierarchy;
+
+	std::vector<XMFLOAT4X4> mBoneOffsets;
+   
+	std::map<std::string, AnimationClip>	mAnimations;
+	std::map<std::string, Pose>				mPoses;
+
+	std::map<std::string, int>				mNameToBoneIndex;
+	std::map<int, std::string>				mBoneIndexToName;
+	std::map<std::string, Joint>			mJoints;
+
 public:
 
 	UINT BoneCount()const;
@@ -96,10 +123,23 @@ public:
 	float GetClipStartTime(const std::string& clipName)const;
 	float GetClipEndTime(const std::string& clipName)const;
 
+	bool  HasAnimation(std::string name)
+	{
+		return mAnimations.find(name) != mAnimations.end();
+	}
+
+	bool  HasPose(std::string name)
+	{
+		return mPoses.find(name) != mPoses.end();
+	}
+
 	void Set(
 		std::vector<int>& boneHierarchy, 
 		std::vector<XMFLOAT4X4>& boneOffsets,
-		std::map<std::string, AnimationClip>& animations);
+		std::map<std::string, AnimationClip>& animations,
+		std::map<std::string, int>		NameToBoneIndex,
+		std::map<int, std::string>		BoneIndexToName,
+		std::map<std::string, Joint>	Joints);
 
 	 // In a real project, you'd want to cache the result if there was a chance
 	 // that you were calling this several times with the same clipName at 
@@ -107,14 +147,103 @@ public:
     void GetFinalTransforms(const std::string& clipName, float timePos, 
 		 std::vector<XMFLOAT4X4>& finalTransforms)const;
 
-private:
-    // Gives parentIndex of ith bone.
-	std::vector<int> mBoneHierarchy;
-	std::map<std::string, int> mBones;	//använd
+	void GetFinalTransforms(const std::string& clipName, 
+		 std::vector<XMFLOAT4X4>& finalTransforms)const;
 
-	std::vector<XMFLOAT4X4> mBoneOffsets;
-   
-	std::map<std::string, AnimationClip> mAnimations;
+	void CreateClip(std::string, int firstFrame, int lastFrame);
+	void CreatePose(std::string, int frame);
+
+	std::vector<BoundingOrientedBox> CreateBoneBoxes(std::vector<Vertex::PosNormalTexTanSkinned>& vertices)
+	{
+		std::vector<BoundingOrientedBox> result;
+
+		int numBones = BoneCount();
+
+		if (numBones > 0)
+		{
+			if (mAnimations.size() > 0)
+			{
+				//std::vector<XMFLOAT4X4> finalTransforms(BoneCount());
+				//GetFinalTransforms("ALL", 0.0f, finalTransforms);			
+
+				for (int i = 0; i < numBones; ++i)
+				{
+					std::vector<Vertex::PosNormalTexTanSkinned> vertexPart;
+
+					for each (Vertex::PosNormalTexTanSkinned v in vertices)
+					{
+						if (v.BoneIndex[0] == i || v.BoneIndex[1] == i || v.BoneIndex[2] == i || v.BoneIndex[3] == i)						
+							vertexPart.push_back(v);						
+					}
+					BoundingBox AABB;
+					BoundingOrientedBox OBB;
+					BoundingBox::CreateFromPoints(AABB, vertexPart.size(), &vertexPart[0].Pos, sizeof(Vertex::PosNormalTexTanSkinned));
+					BoundingOrientedBox::CreateFromBoundingBox(OBB, AABB);
+
+					//OBB.Transform(OBB, XMLoadFloat4x4(&finalTransforms[i]));
+
+					result.push_back(OBB);
+				}
+			}
+		}
+		/*
+		else
+		{
+			BoundingOrientedBox OBB;
+			BoundingBox::CreateFromPoints(AABB, vertices.size(), &vertices[0].Pos, sizeof(Vertex::PosNormalTexTanSkinned));
+			BoundingOrientedBox::CreateFromBoundingBox(OBB, AABB);
+
+			result.push_back(OBB);
+		}
+
+		*/
+
+		return result;
+	}
+
+	void GetJointData(std::string name, int& bone, XMFLOAT3& pos)
+	{
+		pos = XMFLOAT3(0,0,0);
+
+		//XMFLOAT4 tempPos = XMFLOAT4(0,0,0,1);
+
+		if (mJoints.find(name) != mJoints.end())
+		{
+			Joint joint = mJoints[name];
+			pos = joint.position;
+
+			if (mNameToBoneIndex.find(name) != mNameToBoneIndex.end())
+				bone = mNameToBoneIndex[name];
+			else
+				bone =  joint.parent;
+		}
+
+		/*
+		if (mNameToBoneIndex.find(name) == mNameToBoneIndex.end())
+		{
+			
+			
+			XMVECTOR temp = XMLoadFloat4(&tempPos);
+
+			XMMATRIX transf = XMLoadFloat4x4(&joint.transformation);
+			XMVector3TransformCoord(temp, transf);
+			XMStoreFloat3(&pos, temp);
+			
+			
+		}
+
+		else if (mNameToBoneIndex.find(name) != mNameToBoneIndex.end())
+		{
+			bone = mNameToBoneIndex[name];
+		}*/
+		else
+			bone = -1;
+	}
+
+	//XMFLOAT4X4 mGlobalInverseTransform;
+
+
+
 };
  
 #endif // SKINNEDDATA_H

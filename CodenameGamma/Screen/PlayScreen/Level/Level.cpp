@@ -107,8 +107,10 @@ void Level::LoadLevel(string Levelname)
 	BoundingBox world = BoundingBox(XMFLOAT3(halfWorldSize.x, 0, halfWorldSize.y), XMFLOAT3(halfWorldSize.x, 2000, halfWorldSize.y));
 	gQuadTree = new QuadTree(world, 250 * 250);
 	gGraphicsManager->SetQuadTree(gQuadTree);
+	
 
-	ModelManager::GetInstance()->LoadModel("CrazyBitch", "export2objFT.obj", "DATA/Models/Character/");
+	ModelManager::GetInstance()->LoadModel("CrazyBitch", "dae export 2.dae", "DATA/Models/TestChar/");
+	//ModelManager::GetInstance()->LoadModel("CrazyBitch", "export2objFT.obj", "DATA/Models/Character/");
 	ModelManager::GetInstance()->LoadModel("Pistol", "BoxWeapon.obj", "DATA/Models/obj/");
 	ModelManager::GetInstance()->LoadModel("Bullet", "GunShot.obj", "DATA/Models/obj/");
 	ModelManager::GetInstance()->LoadModel("CrowdBarrier", "CrowdBarrier.obj", "DATA/Models/CrowdBarrier/");
@@ -120,7 +122,7 @@ void Level::LoadLevel(string Levelname)
 	ModelManager::GetInstance()->LoadModel("VolvoCar", "VolvoCar.obj", "DATA/Models/VolvoCar/");
 
 	Model*	model	=	ModelManager::GetInstance()->GetModel("CrazyBitch");
-	for (int i = 0; i < 15; ++i)
+	for (int i = 0; i < 1; ++i)
 	{
 		float x = MathHelper::RandF(0, 4000);
 		float y = 0;
@@ -269,14 +271,14 @@ void Level::AddSpotLight(bool hasShadow, XMFLOAT3 pos)
 void Level::AddInstance(float x, float y, float z, Model *model)
 {
 	ModelInstance *instance = new ModelInstance();
-	instance->m_Model = model;
+	instance->SetModel(model);
+	//instance->m_Model = model;
 
 	Unit *go = new Unit();
 	go->MoveTo(DirectX::XMFLOAT3(x, y, z));
+	go->SetScale(0.3f);	
 	go->SetModelInstance(instance);
-
-	instance->m_World	=	go->GetFloat4x4Value(World);
-
+	go->PlayAnimation("ALL");
 	float speed = 160;
 
 	if (MathHelper::RandF(0, 1) > 0.0f)
@@ -542,7 +544,11 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 		if ( gPlayers[i]->GetGameObject() == 0 )
 		{
 			GameObject*	GO	=	new CrazyBitch();
+			//GO->UsePose("Stand");
+			//GO->PlayAnimation("Walk");
+			GO->PlayAnimation("Back");
 			GO->MoveTo(DirectX::XMFLOAT3(2000, 0, 2000));
+			GO->SetScale(0.3f);
 			AddGameObject(GO);
 
 			gPlayers[i]->SetGameObject(GO);

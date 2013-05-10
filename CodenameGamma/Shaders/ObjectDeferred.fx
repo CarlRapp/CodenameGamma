@@ -9,6 +9,11 @@ cbuffer cbPerObject
 	Material gMaterial;
 }; 
 
+cbuffer cbSkinned
+{
+	float4x4 gBoneTransforms[96];
+};
+
 // Nonnumeric values cannot be added to a cbuffer.
 Texture2D gDiffuseMap;
 Texture2D gNormalMap;
@@ -26,6 +31,16 @@ struct VertexIn
 	float3 NormalL  : NORMAL;
 	float2 Tex      : TEXCOORD;
 	float4 TangentL : TANGENT;
+};
+
+struct SkinnedVertexIn
+{
+	float3 PosL       : POSITION;
+	float3 NormalL    : NORMAL;
+	float2 Tex        : TEXCOORD;
+	float4 TangentL   : TANGENT;
+	float3 Weights    : WEIGHTS;
+	uint4 BoneIndices : BONEINDICES;
 };
 
 struct VertexOut
@@ -58,6 +73,45 @@ VertexOut VS(VertexIn vin)
 
 	return vout;
 }
+
+VertexOut SkinnedVS(SkinnedVertexIn vin)
+{
+    VertexOut vout;
+
+	// Init array or else we get strange warnings about SV_POSITION.
+	float weights[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+	weights[0] = vin.Weights.x;
+	weights[1] = vin.Weights.y;
+	weights[2] = vin.Weights.z;
+	//weights[3] = vin.Weights.w;
+	weights[3] = 1.0f - weights[0] - weights[1] - weights[2];
+
+	float3 posL     = float3(0.0f, 0.0f, 0.0f);
+	float3 normalL  = float3(0.0f, 0.0f, 0.0f);
+	float3 tangentL = float3(0.0f, 0.0f, 0.0f);
+	for(int i = 0; i < 4; ++i)
+	{
+	    // Assume no nonuniform scaling when transforming normals, so 
+		// that we do not have to use the inverse-transpose.
+
+	    posL     += weights[i]*mul(float4(vin.PosL, 1.0f), gBoneTransforms[vin.BoneIndices[i]]).xyz;
+		normalL  += weights[i]*mul(vin.NormalL,  (float3x3)gBoneTransforms[vin.BoneIndices[i]]);
+		tangentL += weights[i]*mul(vin.TangentL.xyz, (float3x3)gBoneTransforms[vin.BoneIndices[i]]);
+	}
+ 
+	// Transform to world space space.
+	vout.NormalW  = mul(normalL, (float3x3)gWorldInvTranspose);
+	vout.TangentW = float4(mul(tangentL, (float3x3)gWorld), vin.TangentL.w);
+
+	// Transform to homogeneous clip space.
+	vout.PosH = mul(float4(posL, 1.0f), gWorldViewProj);
+	
+	// Output vertex attributes for interpolation across triangle.
+	vout.Tex = mul(float4(vin.Tex, 0.0f, 1.0f), gTexTransform).xy;
+
+	return vout;
+}
+
 
 PsOut PS(VertexOut pin, 
 		  uniform bool gUseTexure, 
@@ -156,6 +210,58 @@ technique11 NormalTech
     pass P0
     {
         SetVertexShader( CompileShader( vs_5_0, VS() ) );
+		SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_5_0, PS(false, true, false) ) );
+    }
+}
+
+
+///ANIMATION
+technique11 TexSkinnedTech
+{
+    pass P0
+    {
+        SetVertexShader( CompileShader( vs_5_0, SkinnedVS() ) );
+		SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_5_0, PS(true, false, false) ) );
+    }
+}
+
+technique11 TexNormalSkinnedTech
+{
+    pass P0
+    {
+        SetVertexShader( CompileShader( vs_5_0, SkinnedVS() ) );
+		SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_5_0, PS(true, true, false) ) );
+    }
+}
+
+technique11 TexAlphaClipSkinnedTech
+{
+    pass P0
+    {
+        SetVertexShader( CompileShader( vs_5_0, SkinnedVS() ) );
+		SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_5_0, PS(true, false, true) ) );
+    }
+}
+
+technique11 TexNormalAlphaClipSkinnedTech
+{
+    pass P0
+    {
+        SetVertexShader( CompileShader( vs_5_0, SkinnedVS() ) );
+		SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_5_0, PS(true, true, true) ) );
+    }
+}
+
+technique11 NormalSkinnedTech
+{
+    pass P0
+    {
+        SetVertexShader( CompileShader( vs_5_0, SkinnedVS() ) );
 		SetGeometryShader( NULL );
         SetPixelShader( CompileShader( ps_5_0, PS(false, true, false) ) );
     }

@@ -299,8 +299,8 @@ private:
 	void RenderModelsShadowMap(UINT lightType, CXMMATRIX View, CXMMATRIX Proj, BoundingFrustum& frustum) { RenderModelsShadowMap(lightType, View, Proj, GetIntersectingInstances(frustum)); }
 	void RenderModelsShadowMap(UINT lightType, CXMMATRIX View, CXMMATRIX Proj, BoundingOrientedBox& OBB)  { RenderModelsShadowMap(lightType, View, Proj, GetIntersectingInstances(OBB)); }
 
-	void RenderModelShadowMap(ModelInstance& instance, ID3DX11EffectTechnique* tech, UINT pass);	
-
+	void RenderModelShadowMap(ModelInstance& instance, CXMMATRIX view, CXMMATRIX proj, ID3DX11EffectTechnique* tech, UINT pass);	
+	void RenderAnimatedModelShadowMap(ModelInstance& instance, CXMMATRIX view, CXMMATRIX proj, ID3DX11EffectTechnique* tech, UINT pass);
 
 
 	//void RenderModels(Player* player);	
@@ -310,6 +310,8 @@ private:
 	void RenderTerrain(Camera* tCamera);
 	void RenderModels(Camera* tCamera);
 	void RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMATRIX proj, ID3DX11EffectTechnique* tech, UINT pass);
+
+	void RenderAnimatedModel(ModelInstance& instance, CXMMATRIX view, CXMMATRIX proj, ID3DX11EffectTechnique* tech, UINT pass);
 
 	void RenderDebugBox(BoundingOrientedBox& OBB, CXMMATRIX viewproj);
 
