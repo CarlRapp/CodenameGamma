@@ -106,6 +106,8 @@ public:
 	Terrain*	GetTerrain();
 
 	vector<GameObject*>	GetGameObjects() { return gGameObjects; }
+
+	vector<Player*>		GetPlayers()	{ return gPlayers; }
 };
 
 #endif

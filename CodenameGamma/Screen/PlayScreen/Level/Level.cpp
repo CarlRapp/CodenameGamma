@@ -1,6 +1,7 @@
 #include "Level.h"
 #include "../Units/CrazyBitch.h"
 #include "../Structures/StructureList.h"
+#include "../Items/ItemList.h"
 
 Level::Level(){}
 Level::Level(SystemData LData)
@@ -111,11 +112,16 @@ void Level::LoadLevel(string Levelname)
 
 	ModelManager::GetInstance()->LoadModel("CrazyBitch", "dae export 2.dae", "DATA/Models/TestChar/");
 	//ModelManager::GetInstance()->LoadModel("CrazyBitch", "export2objFT.obj", "DATA/Models/Character/");
-	ModelManager::GetInstance()->LoadModel("Pistol", "BoxWeapon.obj", "DATA/Models/obj/");
+
+	ModelManager::GetInstance()->LoadModel("Shotgun", "Glock.obj", "DATA/Models/Glock/");
+	ModelManager::GetInstance()->LoadModel("Glock", "Shotgun.obj", "DATA/Models/Shotgun/");
+
+	ModelManager::GetInstance()->LoadModel("CannedFood", "CannedFood.obj", "DATA/Models/CannedFood/");
+
 	ModelManager::GetInstance()->LoadModel("Bullet", "PistolBullet.obj", "DATA/Models/PistolBullet/");
 	ModelManager::GetInstance()->LoadModel("CrowdBarrier", "CrowdBarrier.obj", "DATA/Models/CrowdBarrier/");
 	ModelManager::GetInstance()->LoadModel("TownHall", "TownHall.obj", "DATA/Models/TownHall/");
-	ModelManager::GetInstance()->LoadModel("CannedFood", "CannedFood.obj", "DATA/Models/CannedFood/");
+
 	ModelManager::GetInstance()->LoadModel("Canister", "Canister.obj", "DATA/Models/Canister/");
 	ModelManager::GetInstance()->LoadModel("SmallStore", "SmallStore.obj", "DATA/Models/SmallStore/");
 	ModelManager::GetInstance()->LoadModel("TrashCan", "TrashCan.obj", "DATA/Models/TrashCan/");
@@ -126,7 +132,7 @@ void Level::LoadLevel(string Levelname)
 	ModelManager::GetInstance()->LoadModel("UnitCube", "UnitCube.obj", "DATA/Models/UnitCube/");
 
 	Model*	model	=	ModelManager::GetInstance()->GetModel("CrazyBitch");
-	for (int i = 0; i < 25; ++i)
+	for (int i = 0; i < 0; ++i)
 	{
 		float x = MathHelper::RandF(0, 4000);
 		float y = 0;
@@ -137,21 +143,6 @@ void Level::LoadLevel(string Levelname)
 
 
 	GameObject*	tGO;
-	tGO	=	new VolvoCar();
-	tGO->MoveTo( XMFLOAT3( 2000 + 300, 20, 2000 + 100 ) );
-	AddGameObject(tGO);
-
-	tGO	=	new CrowdBarrier();
-	tGO->MoveTo( XMFLOAT3( 2000, 0, 2000 ) );
-	AddGameObject(tGO);
-
-	tGO	=	new CrowdBarrier();
-	tGO->MoveTo( XMFLOAT3( 2000 + 4 * 16.6665f, 0, 2000 ) );
-	AddGameObject(tGO);
-
-	tGO	=	new TownHall();
-	tGO->MoveTo( XMFLOAT3( 2000, 0, 2000 + 400 ) );
-	AddGameObject(tGO);
 
 
 	//	Lilla scenen 
@@ -174,6 +165,10 @@ void Level::LoadLevel(string Levelname)
 
 	tGO	=	new Container();
 	tGO->MoveTo( XMFLOAT3( 2000 + 200, 0, 2000 - 400 ) );
+	AddGameObject(tGO);
+
+	tGO	=	new CannedFood();
+	tGO->MoveTo( XMFLOAT3( 2000, 0, 2000 - 100 ) );
 	AddGameObject(tGO);
 
 
@@ -430,6 +425,7 @@ void Level::Update(float DeltaTime)
 		sLight->Position.y = gTerrain->GetHeight(sLight->Position.x, sLight->Position.z) + 100.0f;
 	}
 }
+
 void Level::Render()
 {
 	vector<Camera*> tCams = vector<Camera*>();
@@ -491,7 +487,7 @@ void Level::RunCollisionTest()
 			{	
 				tEvent.A->CollideWith( tEvent.B );
 				tEvent.B->CollideWith( tEvent.A );
-				}
+			}
 		}
 	}
 
@@ -556,7 +552,7 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 	{
 		if ( gPlayers[i]->GetUnit() == 0 )
 		{
-			Unit* unit	=	new CrazyBitch();
+			PlayerUnit* unit	=	new CrazyBitch();
 			//GO->UsePose("Stand");
 			//GO->PlayAnimation("Walk");
 			unit->PlayAnimation("Back");
