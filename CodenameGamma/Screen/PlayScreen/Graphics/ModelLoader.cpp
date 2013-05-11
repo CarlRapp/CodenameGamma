@@ -71,7 +71,8 @@ bool ModelLoader::Load(const std::string& filename,
 	AnimationClip animationClip;
 	LoadAnimation(scene, animationClip);
 
-	animations["ALL"] = animationClip;
+	if (!animationClip.BoneAnimations.empty())
+		animations["ALL"] = animationClip;
 
 	//LoadBones(scene, scene->mRootNode);	
 
@@ -113,14 +114,14 @@ bool ModelLoader::Load(const std::string& filename,
 
 
 
-	/*
+	
 	XMFLOAT4X4 globalInverseTransform = aiMatrixToXMFloat4x4(scene->mRootNode->mTransformation);
 	XMMATRIX temp = XMLoadFloat4x4(&globalInverseTransform);
 	XMVECTOR detV = XMMatrixDeterminant(temp);
 	temp = XMMatrixInverse(&detV, temp);
 	XMStoreFloat4x4(&globalInverseTransform, temp);
 	skinInfo.mGlobalInverseTransform = globalInverseTransform;
-	*/
+	
 	//Ladda ben		map a
 	//Ladda noder	map b
 
@@ -289,6 +290,7 @@ void ModelLoader::LoadAnimation(const aiScene* scene, AnimationClip& animationCl
 
 void ModelLoader::LoadAnimationClipsAndPoses(const std::string& filename, SkinnedData& skinInfo)
 {
+	skinInfo.CreatePose("StartPose", 0);
 	//read file
 	UINT lastIndex = filename.find_last_of('.');
 	std::string path = filename.substr(0, lastIndex) + ".txt";
