@@ -51,19 +51,26 @@ public:
 
 };
 
-struct ModelInstance
+class ModelInstance
 {
-	Model							*m_Model;
-	DirectX::XMFLOAT4X4				m_World;
+private:
+	Model					*m_Model;
+	XMFLOAT4X4				m_World;
+	float					m_Scale;
+public:
+
+
 
 	float TimePos;
 	bool  Animating;
 	std::string ClipName;
 	std::vector<XMFLOAT4X4> FinalTransforms;
+
+	void UpdateBoxes();
 	void Update(float dt);
 
 
-	float							m_Scale;
+	
 	XMFLOAT4						m_Rotation;
 	XMFLOAT3						m_Translation;
 
@@ -83,10 +90,25 @@ struct ModelInstance
 		FinalTransforms.clear();
 		if (m_Model)
 		{
-			FinalTransforms.resize(m_Model->SkinnedData.BoneCount());
+			XMFLOAT4X4 dummyTransform;
+			XMStoreFloat4x4(&dummyTransform, XMMatrixTranslation(0,0,0));
+			FinalTransforms.resize(m_Model->SkinnedData.BoneCount(), dummyTransform);
+			//FinalTransforms.resize(m_Model->SkinnedData.BoneCount());
 			m_BoneBoxes.resize(m_Model->SkinnedData.BoneCount());
 		}
 	}
+
+	Model* GetModel() { return m_Model; }
+
+	void SetWorld(XMFLOAT4X4 World, XMFLOAT4X4 WorldInvTrans, float Scale)
+	{
+		m_World = World;
+		m_WorldInverseTranspose = WorldInvTrans;
+		m_Scale = Scale;
+		UpdateBoxes();
+	}
+
+	XMFLOAT4X4 GetWorld() { return m_World; }
 
 	void UpdatePose();
 
@@ -95,8 +117,8 @@ struct ModelInstance
 		m_Model					=	NULL;
 		m_World					=	XMFLOAT4X4(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 		m_Scale					=	1;
-		m_Rotation				=	XMFLOAT4(0,0,0,0);
-		m_Translation			=	XMFLOAT3(1,1,1);
+		//m_Rotation				=	XMFLOAT4(0,0,0,0);
+		//m_Translation			=	XMFLOAT3(1,1,1);
 		m_WorldInverseTranspose	=	XMFLOAT4X4(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 
 		TimePos = 0;
@@ -139,6 +161,9 @@ struct ModelInstance
 			{
 				out	= m_Model->m_BoundingOrientedBox;				
 				out.Transform(out, m_Scale, rot, trans);
+
+				//XMMATRIX World	= XMLoadFloat4x4(&m_World);
+				//out.Transform(out, World);
 			}
 			
 			else
@@ -188,6 +213,18 @@ struct ModelInstance
 		}
 
 		return bone >= 0;
+	}
+
+	std::string GetBoneName(UINT index)
+	{
+		return m_Model->SkinnedData.GetBoneName(index);
+		/*
+		std::string name = m_Model->SkinnedData.GetBoneName(index);
+		if (name != "")
+			return name;
+		else
+			return "body";
+			*/
 	}
 };
 

@@ -62,7 +62,7 @@ Model::Model(ID3D11Device* device, TextureManager& texMgr, const std::string& mo
 		if (AC)
 		{
 			UINT numKeyFrames = AC->BoneAnimations[0].Keyframes.size();
-			m_SmallestRadiusInBox = 9999999999;
+			m_SmallestRadiusInBox = 99999;
 			for (int i = 0; i < numKeyFrames; ++i)
 			{
 				float time = AC->BoneAnimations[0].Keyframes[i].TimePos;
@@ -143,6 +143,27 @@ Model::~Model(void)
 	*/
 }
 
+void ModelInstance::UpdateBoxes()
+{
+	if (m_Model)
+	{	
+		std::vector<XMFLOAT3> points;
+		for (int i = 0; i < m_Model->m_BoneBoxes.size(); ++i)
+		{
+			XMVECTOR rot	= XMLoadFloat4(&m_Rotation);
+			XMVECTOR trans	= XMLoadFloat3(&m_Translation);
+
+			//m_BoneBoxes[i] = m_Model->m_BoneBoxes[i];
+			m_Model->m_BoneBoxes[i].Transform(m_BoneBoxes[i], XMLoadFloat4x4(&FinalTransforms[i]));
+			m_BoneBoxes[i].Transform(m_BoneBoxes[i], m_Scale, rot, trans);
+
+			//XMMATRIX World	= XMLoadFloat4x4(&m_World);
+			//m_BoneBoxes[i].Transform(m_BoneBoxes[i], World);
+		}
+		
+	}
+}
+
 void ModelInstance::Update(float dt)
 {
 	if (UsingAnimationOrPose() && Animating)
@@ -155,20 +176,7 @@ void ModelInstance::Update(float dt)
 		if(TimePos > m_Model->SkinnedData.GetClipEndTime(ClipName))
 			TimePos = 0.0f;	
 	}
-
-	if (m_Model)
-	{	
-		std::vector<XMFLOAT3> points;
-		for (int i = 0; i < m_Model->m_BoneBoxes.size(); ++i)
-		{
-			XMVECTOR rot	= XMLoadFloat4(&m_Rotation);
-			XMVECTOR trans	= XMLoadFloat3(&m_Translation);
-
-			m_Model->m_BoneBoxes[i].Transform(m_BoneBoxes[i], XMLoadFloat4x4(&FinalTransforms[i]));
-			m_BoneBoxes[i].Transform(m_BoneBoxes[i], m_Scale, rot, trans);
-		}
-		
-	}
+	//UpdateBoxes();	
 }
 
 void ModelInstance::UpdatePose()
