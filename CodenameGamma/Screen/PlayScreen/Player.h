@@ -3,13 +3,13 @@
 #define PLAYER_H
 
 #include "../../Input/InputManager.h"
-#include "Units\Unit.h";
+#include "Units\PlayerUnit.h";
 #include "Camera.h"
 
 class Player
 {
 private:
-	Unit		*m_Unit;
+	PlayerUnit	*m_Unit;
 	Camera		*m_Camera;
 	Controller	*m_Controller;
 	UINT		m_PlayerIndex;
@@ -31,9 +31,9 @@ public:
 
 	Camera*		GetCamera()		{ return m_Camera; }
 	Controller*	GetController()	{ return m_Controller; }
-	Unit*		GetUnit()		{ return m_Unit; }
+	PlayerUnit*	GetUnit()		{ return m_Unit; }
 
-	void	SetUnit(Unit* Instance);
+	void	SetUnit(PlayerUnit* Instance);
 };
 
 #endif
