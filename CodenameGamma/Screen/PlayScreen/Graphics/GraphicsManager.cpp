@@ -527,7 +527,7 @@ void GraphicsManager::RenderPointShadowMaps(vector<PointLight*>& pointLights, XM
 		if (XMVector2Equal(LightRes, CurrentRes))
 		{
 			std::vector<XMFLOAT4X4> Views = light->GetViewMatrixes();
-			XMMATRIX Proj = light->GetProjectionMatrix(1.0f, light->Range);
+			XMMATRIX Proj = light->GetProjectionMatrix(/*1.0f, light->Range*/);
 
 			for (int i = 0; i < Views.size(); ++i)
 			{
@@ -588,7 +588,7 @@ void GraphicsManager::RenderSpotShadowMaps(vector<SpotLight*>& spotLights, XMFLO
 			//räkna ut ViewProj-matris.
 			//1.0f, light->Range ska vara närsta avstånd till objekt, största avstånd. Terräng? GOLDPLATING! Drar prestanda, ökar kvalité på skuggorna.
 			XMMATRIX View = light->GetViewMatrix();
-			XMMATRIX Proj = light->GetProjectionMatrix(1.0f, light->Range);
+			XMMATRIX Proj = light->GetProjectionMatrix(/*1.0f, light->Range*/);
 			XMMATRIX ViewProj = View * Proj;
 
 			//räkna ut viewprojtex
