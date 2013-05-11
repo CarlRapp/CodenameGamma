@@ -3,7 +3,7 @@
 
 Pistol::Pistol()
 {
-	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "Pistol" ) );
+	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "Glock" ) );
 
 	gCooldown	=	WeaponCooldown(0.0f, 0.2f);
 	gClip		=	WeaponClip(5, 9);
