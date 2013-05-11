@@ -17,7 +17,8 @@ void Structure::CollideWith(GameObject* Instance)
 	if ( IsOfType<Unit>(Instance) )
 	{
 		XMFLOAT3	Extents		=	Instance->GetModelInstance()->GetBoundingOrientedBox().Extents;
-		float		Radius		=	( Extents.x > Extents.z ) ? Extents.z : Extents.x;
+		//float		Radius		=	( Extents.x > Extents.z ) ? Extents.z : Extents.x;
+		float Radius = Instance->GetModelInstance()->GetSmallestRaduisInBox();
 		XMFLOAT3	CenterPos	=	Instance->GetFloat3Value( Position );
 
 		MathHelper::CollisionResult		Result	=	MathHelper::CheckCollision(GetModelInstance()->GetBoundingOrientedBox(), BoundingSphere(CenterPos, Radius));

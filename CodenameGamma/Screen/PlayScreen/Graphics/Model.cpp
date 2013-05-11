@@ -49,11 +49,56 @@ Model::Model(ID3D11Device* device, TextureManager& texMgr, const std::string& mo
 
 		BoundingOrientedBox::CreateFromBoundingBox(m_BoundingOrientedBox, AABB);
 
+		XMFLOAT3 Extents = m_BoundingOrientedBox.Extents;
+		m_SmallestRadiusInBox =	( Extents.x > Extents.z ) ? Extents.z : Extents.x;
+
 		BoundingSphere::CreateFromBoundingBox(m_BoundingSphere, m_BoundingOrientedBox);
 	}
 
 	else
 	{
+		AnimationClip* AC = SkinnedData.GetAnimation("ALL");
+
+		if (AC)
+		{
+			//AC.
+		}
+		/*
+		SkinnedData.mAnimations["ALL"].BoneAnimations[0].Keyframes[
+		SkinnedData.GetClipStartTime("ALL");
+		SkinnedData.GetFinalTransforms("ALL", TimePos, FinalTransforms);
+
+		// Loop animation
+		if(TimePos > m_Model->SkinnedData.GetClipEndTime(ClipName))
+			TimePos = 0.0f;	
+		
+
+		if (m_Model)
+		{	
+			std::vector<XMFLOAT3> points;
+			for (int i = 0; i < m_Model->m_BoneBoxes.size(); ++i)
+			{
+				XMVECTOR rot	= XMLoadFloat4(&m_Rotation);
+				XMVECTOR trans	= XMLoadFloat3(&m_Translation);
+
+				m_Model->m_BoneBoxes[i].Transform(m_BoneBoxes[i], XMLoadFloat4x4(&FinalTransforms[i]));
+				m_BoneBoxes[i].Transform(m_BoneBoxes[i], m_Scale, rot, trans);
+			}
+		
+		}
+
+
+
+
+
+
+
+
+
+		*/
+
+
+
 		std::vector<XMFLOAT3> points;
 
 		for (int i = 0; i < m_BoneBoxes.size(); ++i)
@@ -64,11 +109,15 @@ Model::Model(ID3D11Device* device, TextureManager& texMgr, const std::string& mo
 			for each (XMFLOAT3 point in corners)
 				points.push_back(point);
 		}
-		/*
+		//m_SmallestRadiusInBox = 10;
+		
 		BoundingBox AABB;
 
 		BoundingBox::CreateFromPoints(AABB, Vertices.size(), &points[0], sizeof(XMFLOAT3));
 
+		XMFLOAT3 Extents = AABB.Extents;
+		m_SmallestRadiusInBox = min(min(Extents.x, Extents.z), Extents.y);
+		/*
 		BoundingSphere::CreateFromBoundingBox(m_BoundingSphere, m_BoundingOrientedBox);
 		BoundingOrientedBox::CreateFromBoundingBox(m_BoundingOrientedBox, AABB);
 		BoundingSphere::CreateFromBoundingBox(m_BoundingSphere, m_BoundingOrientedBox);
@@ -78,6 +127,10 @@ Model::Model(ID3D11Device* device, TextureManager& texMgr, const std::string& mo
 	//BoundingOrientedBox::CreateFromPoints(m_BoundingOrientedBox, Vertices.size(), &Vertices[0].Pos, sizeof(Vertex::PosNormalTexTanSkinned));
 }
 
+BoundingOrientedBox CreateBoundingOrientedBox()
+{
+
+}
 
 Model::~Model(void)
 {

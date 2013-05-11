@@ -128,9 +128,22 @@ public:
 		return (mAnimations.find(name) != mAnimations.end() && !mBoneHierarchy.empty());
 	}
 
+	bool  HasAnimations()
+	{
+		return (!mAnimations.empty() && !mBoneHierarchy.empty());
+	}
+
 	bool  HasPose(std::string name)
 	{
 		return mPoses.find(name) != mPoses.end();
+	}
+
+	AnimationClip* GetAnimation(std::string name) 
+	{ 
+		if (HasAnimation(name))
+			return &mAnimations[name];
+		else
+			return NULL;
 	}
 
 	void Set(
