@@ -48,7 +48,7 @@ struct DirectionalLight : public Light
 	bool	 HasShadow;
 
 	XMMATRIX GetViewMatrix(BoundingFrustum& frustum, float offset);
-	XMMATRIX GetProjectionMatrix(float nearZ, float farZ);
+	XMMATRIX GetProjectionMatrix(/*float nearZ, float farZ*/);
 
 	void GetViewProjOBB(BoundingFrustum& frustum, float offset, XMFLOAT4X4& View, XMFLOAT4X4& Proj, BoundingOrientedBox& OBB);
 
@@ -77,14 +77,14 @@ struct PointLight : public Light
 	bool	 HasShadow;
 	
 	std::vector<XMFLOAT4X4> GetViewMatrixes();
-	XMMATRIX GetProjectionMatrix(float nearZ, float farZ);
+	XMMATRIX GetProjectionMatrix(/*float nearZ, float farZ*/);
 	
 	std::vector<BoundingFrustum> GetBoundingFrustums()
 	{
 		std::vector<BoundingFrustum> frustums;
 		
 		std::vector<XMFLOAT4X4> Views = GetViewMatrixes();;
-		XMMATRIX Proj = GetProjectionMatrix(0.0f, Range);
+		XMMATRIX Proj = GetProjectionMatrix(/*0.0f, Range*/);
 		
 		for (int i = 0; i < Views.size(); ++i)
 		{
@@ -120,11 +120,11 @@ struct SpotLight : public Light
 	bool	 HasShadow;
 
 	XMMATRIX GetViewMatrix();
-	XMMATRIX GetProjectionMatrix(float nearZ, float farZ);
+	XMMATRIX GetProjectionMatrix(/*float nearZ, float farZ*/);
 
 	BoundingFrustum GetBoundingFrustum()
 	{
-		return MathHelper::GenerateBoundingFrustum(GetViewMatrix(), GetProjectionMatrix(0.0f, Range));
+		return MathHelper::GenerateBoundingFrustum(GetViewMatrix(), GetProjectionMatrix(/*0.0f, Range*/));
 		//return BoundingFrustum(Position, Range);
 	}
 };
