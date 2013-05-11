@@ -24,7 +24,10 @@ void Unit::SetHealth(UnitHealth HealthData)
 bool Unit::Update(float DeltaTime, Terrain* TerrainInstance)
 {
 	if ( gHealth.first <= 0 )
+	{
 		SetState( Dead );
+		return true;
+	}
 
 	bool updated = GameObject::Update(DeltaTime, TerrainInstance);
 
@@ -111,8 +114,4 @@ vector<Projectile*> Unit::FireWeapon()
 
 void Unit::CollideWith(GameObject* Instance)
 {
-	if (strcmp(typeid(*Instance).name(), "class Unit") == 0)
-	{
-
-	}
 }

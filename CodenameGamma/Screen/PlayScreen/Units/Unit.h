@@ -10,10 +10,11 @@ using namespace DirectX;
 
 //	Is arranged like <Current, Max>
 typedef pair<float, float>	UnitHealth;
+static	float	MeterPerUnits	=	1 / 33.333f;
 
 class Unit : public GameObject
 {
-private:
+protected:
 	UnitHealth	gHealth;
 	Weapon*		gWeapon;
 
@@ -38,6 +39,18 @@ public:
 	vector<Projectile*>	FireWeapon();
 
 	void	CollideWith(GameObject* Instance);
+
+
+	float	GetSpeed()
+	{
+		float	speed;
+		XMStoreFloat(
+			&speed,
+			XMVector3Length( XMLoadFloat3( &GetFloat3Value( Velocity ) ) )
+		);
+
+		return speed * MeterPerUnits;
+	}
 };
 
 #endif
