@@ -684,52 +684,122 @@ void GraphicsManager::RenderModelsShadowMap(UINT lightType, CXMMATRIX View, CXMM
 {
 
 	ID3DX11EffectTechnique* tech;
-	ID3DX11EffectTechnique* tech2;
 	D3DX11_TECHNIQUE_DESC techDesc;
+
+
+	vector<GameObject*> BasicInstances;
+	vector<GameObject*> TexInstances;
+
+	vector<GameObject*> BasicAnimatedInstances;
+	vector<GameObject*> TexAnimatedInstances;
+
+	for each (GameObject* instance in instances)
+	{
+		ModelInstance* modelInstance = instance->GetModelInstance();
+
+		if (modelInstance != NULL)
+		{
+			if (!modelInstance->UsingAnimationOrPose())
+			{
+				if (modelInstance->m_Model->HasDiffuseMaps())				
+					TexInstances.push_back(instance);
+				else
+					BasicInstances.push_back(instance);
+			}
+			else
+			{
+				if (modelInstance->m_Model->HasDiffuseMaps())
+					TexAnimatedInstances.push_back(instance);
+				else
+					BasicAnimatedInstances.push_back(instance);
+			}
+		}
+	}
+	
+	//Static objects
+	switch (lightType)
+	{
+		case 0:
+			tech = Effects::ShadowMapFX->BasicShadowDirTech;
+			break;
+		case 1:
+			tech = Effects::ShadowMapFX->BasicShadowPointTech;
+			break;
+		case 2:
+			tech = Effects::ShadowMapFX->BasicShadowSpotTech;
+			break;
+	}
+	tech->GetDesc( &techDesc );
+	for(UINT p = 0; p < techDesc.Passes; ++p)
+	{
+		for each (GameObject* instance in BasicInstances)
+		{
+			RenderModelShadowMap(*instance->GetModelInstance(), View, Proj, tech, p);			
+		}
+	}
+
 
 	switch (lightType)
 	{
 		case 0:
 			tech = Effects::ShadowMapFX->AlphaClipShadowDirTech;
-			tech2 = Effects::ShadowMapFX->SkinnedAlphaClipShadowDirTech;
 			break;
 		case 1:
 			tech = Effects::ShadowMapFX->AlphaClipShadowPointTech;
-			tech2 = Effects::ShadowMapFX->SkinnedAlphaClipShadowPointTech;
 			break;
 		case 2:
 			tech = Effects::ShadowMapFX->AlphaClipShadowSpotTech;
-			tech2 = Effects::ShadowMapFX->SkinnedAlphaClipShadowSpotTech;
 			break;
 	}
-
 	tech->GetDesc( &techDesc );
 	for(UINT p = 0; p < techDesc.Passes; ++p)
 	{
-		//for each (ModelInstance* instance in m_modelInstances)
-		for each (GameObject* instance in instances)
+		for each (GameObject* instance in TexInstances)
 		{
-			ModelInstance* modelInstance = instance->GetModelInstance();
-			if (modelInstance != NULL)
-			{
-				if (!modelInstance->UsingAnimationOrPose())
-					RenderModelShadowMap(*modelInstance, View, Proj, tech, p);
-			}
+			RenderModelShadowMap(*instance->GetModelInstance(), View, Proj, tech, p);			
 		}
 	}
 
-	tech2->GetDesc( &techDesc );
+	//Animated objects
+	switch (lightType)
+	{
+		case 0:
+			tech = Effects::ShadowMapFX->SkinnedBasicShadowDirTech;
+			break;
+		case 1:
+			tech = Effects::ShadowMapFX->SkinnedBasicShadowPointTech;
+			break;
+		case 2:
+			tech = Effects::ShadowMapFX->SkinnedBasicShadowSpotTech;
+			break;
+	}
+	tech->GetDesc( &techDesc );
 	for(UINT p = 0; p < techDesc.Passes; ++p)
 	{
-		//for each (ModelInstance* instance in m_modelInstances)
-		for each (GameObject* instance in instances)
+		for each (GameObject* instance in TexAnimatedInstances)
 		{
-			ModelInstance* modelInstance = instance->GetModelInstance();
-			if (modelInstance != NULL)
-			{
-				if (modelInstance->UsingAnimationOrPose())
-					RenderAnimatedModelShadowMap(*modelInstance, View, Proj, tech2, p);
-			}
+			RenderAnimatedModelShadowMap(*instance->GetModelInstance(), View, Proj, tech, p);			
+		}
+	}
+
+	switch (lightType)
+	{
+		case 0:
+			tech = Effects::ShadowMapFX->SkinnedAlphaClipShadowDirTech;
+			break;
+		case 1:
+			tech = Effects::ShadowMapFX->SkinnedAlphaClipShadowPointTech;
+			break;
+		case 2:
+			tech = Effects::ShadowMapFX->SkinnedAlphaClipShadowSpotTech;
+			break;
+	}
+	tech->GetDesc( &techDesc );
+	for(UINT p = 0; p < techDesc.Passes; ++p)
+	{
+		for each (GameObject* instance in TexAnimatedInstances)
+		{
+			RenderAnimatedModelShadowMap(*instance->GetModelInstance(), View, Proj, tech, p);			
 		}
 	}
 
@@ -750,7 +820,9 @@ void GraphicsManager::RenderModelShadowMap(ModelInstance& instance, CXMMATRIX vi
 
 	for(UINT subset = 0; subset < instance.m_Model->SubsetCount; ++subset)
 	{
-		Effects::ShadowMapFX->SetDiffuseMap(instance.m_Model->DiffuseMapSRV[subset]);
+		if (instance.m_Model->HasDiffuseMaps())
+			Effects::ShadowMapFX->SetDiffuseMap(instance.m_Model->DiffuseMapSRV[subset]);
+
 		tech->GetPassByIndex(pass)->Apply(0, m_DeviceContext);
 		instance.m_Model->ModelMesh.Draw(m_DeviceContext, subset);
 	}
@@ -770,7 +842,9 @@ void GraphicsManager::RenderAnimatedModelShadowMap(ModelInstance& instance, CXMM
 
 	for(UINT subset = 0; subset < instance.m_Model->SubsetCount; ++subset)
 	{
-		Effects::ShadowMapFX->SetDiffuseMap(instance.m_Model->DiffuseMapSRV[subset]);
+		if (instance.m_Model->HasDiffuseMaps())
+			Effects::ShadowMapFX->SetDiffuseMap(instance.m_Model->DiffuseMapSRV[subset]);
+
 		tech->GetPassByIndex(pass)->Apply(0, m_DeviceContext);
 		instance.m_Model->ModelMesh.Draw(m_DeviceContext, subset);
 	}
@@ -944,7 +1018,6 @@ void GraphicsManager::FillGBuffer(vector<Camera*>& Cameras)
 
 	//m_DeviceContext->RSSetState(RenderStates::NoCullRS);
 	//m_DeviceContext->RSSetState(RenderStates::WireframeRS);
-	
 	for (int i = 0; i < (int)Cameras.size(); ++i)
 	{
 		if (m_Terrain != NULL)
@@ -1119,7 +1192,8 @@ void GraphicsManager::RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMA
 		//UINT subset = 6;
 		Effects::ObjectDeferredFX->SetMaterial(instance.m_Model->Mat[subset]);
 
-		Effects::ObjectDeferredFX->SetDiffuseMap(instance.m_Model->DiffuseMapSRV[subset]);
+		if (instance.m_Model->HasDiffuseMaps())
+			Effects::ObjectDeferredFX->SetDiffuseMap(instance.m_Model->DiffuseMapSRV[subset]);
 
 		if (instance.m_Model->HasNormalMaps())
 			Effects::ObjectDeferredFX->SetNormalMap(instance.m_Model->NormalMapSRV[subset]);
@@ -1163,7 +1237,8 @@ void GraphicsManager::RenderAnimatedModel(ModelInstance& instance, CXMMATRIX vie
 		//UINT subset = 6;
 		Effects::ObjectDeferredFX->SetMaterial(instance.m_Model->Mat[subset]);
 
-		Effects::ObjectDeferredFX->SetDiffuseMap(instance.m_Model->DiffuseMapSRV[subset]);
+		if (instance.m_Model->HasDiffuseMaps())
+			Effects::ObjectDeferredFX->SetDiffuseMap(instance.m_Model->DiffuseMapSRV[subset]);
 
 		if (instance.m_Model->HasNormalMaps())
 			Effects::ObjectDeferredFX->SetNormalMap(instance.m_Model->NormalMapSRV[subset]);
