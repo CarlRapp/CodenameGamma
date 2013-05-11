@@ -19,7 +19,7 @@ public:
 
 	virtual	bool	Update(float DeltaTime, Terrain* terrain);
 
-	void	CollideWith(GameObject* Instance);
+	void	CollideWith(GameObject* Instance, vector<CollisionData> CD);
 };
 
 #endif

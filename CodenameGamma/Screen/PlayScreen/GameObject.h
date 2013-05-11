@@ -11,6 +11,35 @@
 #include <typeinfo>
 using namespace DirectX;
 
+struct HitBox
+{
+	std::string				name;
+	BoundingOrientedBox box;
+
+	HitBox(void)
+	{
+	}
+
+	HitBox(std::string n, BoundingOrientedBox b)
+	{
+		name = n;
+		box  = b;
+	}
+};
+
+struct CollisionData
+{
+	HitBox A;
+	HitBox B;
+	
+	void Swap()
+	{
+		HitBox temp = A;
+		A = B;
+		B = temp;
+	}
+};
+
 enum GOState
 {
 	Alive,
@@ -92,7 +121,7 @@ public:
 
 	string  CurrentAnimationOrPose();
 	
-	static bool	Intersects(const GameObject* A, const GameObject* B);
+	static bool	Intersects(const GameObject* A, const GameObject* B, vector<CollisionData>& CD);
 
 	bool	IsAlive(){ return (gState != Dead); }
 
@@ -100,7 +129,7 @@ public:
 	virtual void	SetTeam(GOTeam Value);
 	GOTeam	GetTeam();
 
-	virtual	void	CollideWith(GameObject* Instance);
+	virtual	void	CollideWith(GameObject* Instance, vector<CollisionData> CD);
 
 	template<class T>
 	bool IsOfType(GameObject* Instance)

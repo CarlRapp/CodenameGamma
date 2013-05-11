@@ -12,7 +12,7 @@ public:
 	Structure(void);
 	~Structure(void);
 
-	void	CollideWith(GameObject* Instance);
+	void	CollideWith(GameObject* Instance, vector<CollisionData> CD);
 };
 
 #endif

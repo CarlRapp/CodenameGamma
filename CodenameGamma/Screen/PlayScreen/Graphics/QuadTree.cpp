@@ -369,7 +369,7 @@ bool QuadTree::NeedUpdate(GameObject* instance)
 
 }
 
-void QuadTree::GetObjectsCollidingWith(GameObject* go, vector<GameObject*> &GameObjects, Node* node, ContainmentType containmentType)
+void QuadTree::GetObjectsCollidingWith(GameObject* go, vector<GameObject*> &GameObjects, vector<vector<CollisionData>> &collisionData, Node* node, ContainmentType containmentType)
 {
 	switch (containmentType)
 	{
@@ -378,21 +378,25 @@ void QuadTree::GetObjectsCollidingWith(GameObject* go, vector<GameObject*> &Game
 		break;
 	case INTERSECTS:
 		if (node->m_NW == NULL)
-		{
+		{			
 			for each (GameObject* go2 in node->m_Content)
 			{
-				if (go->Intersects(go, go2))
+				vector<CollisionData> CD;
+				if (go->Intersects(go, go2, CD))
+				{
 					GameObjects.push_back(go2);
+					collisionData.push_back(CD);
+				}
 			}
 		}
 
 		else
 		{
 			BoundingSphere goSphere = GetCurrentBoundingSphere(go);
-			GetObjectsCollidingWith(go, GameObjects, node->m_NW, goSphere.Contains(node->m_NW->m_BoundingBox));
-			GetObjectsCollidingWith(go, GameObjects, node->m_NE, goSphere.Contains(node->m_NE->m_BoundingBox));
-			GetObjectsCollidingWith(go, GameObjects, node->m_SW, goSphere.Contains(node->m_SW->m_BoundingBox));
-			GetObjectsCollidingWith(go, GameObjects, node->m_SE, goSphere.Contains(node->m_SE->m_BoundingBox));
+			GetObjectsCollidingWith(go, GameObjects, collisionData, node->m_NW, goSphere.Contains(node->m_NW->m_BoundingBox));
+			GetObjectsCollidingWith(go, GameObjects, collisionData, node->m_NE, goSphere.Contains(node->m_NE->m_BoundingBox));
+			GetObjectsCollidingWith(go, GameObjects, collisionData, node->m_SW, goSphere.Contains(node->m_SW->m_BoundingBox));
+			GetObjectsCollidingWith(go, GameObjects, collisionData, node->m_SE, goSphere.Contains(node->m_SE->m_BoundingBox));
 		}
 
 		break;

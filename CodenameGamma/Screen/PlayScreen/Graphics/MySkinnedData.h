@@ -146,6 +146,13 @@ public:
 			return NULL;
 	}
 
+	std::string GetBoneName(UINT i)
+	{
+		if (i < mBoneIndexToName.size())
+			return 	mBoneIndexToName[i];
+		return "";
+	}
+
 	void Set(
 		std::vector<int>& boneHierarchy, 
 		std::vector<XMFLOAT4X4>& boneOffsets,
@@ -193,6 +200,8 @@ public:
 					BoundingBox::CreateFromPoints(AABB, vertexPart.size(), &vertexPart[0].Pos, sizeof(Vertex::PosNormalTexTanSkinned));
 					BoundingOrientedBox::CreateFromBoundingBox(OBB, AABB);
 
+					//BoundingOrientedBox::CreateFromPoints(OBB, vertexPart.size(), &vertexPart[0].Pos, sizeof(Vertex::PosNormalTexTanSkinned));
+
 					//OBB.Transform(OBB, XMLoadFloat4x4(&finalTransforms[i]));
 
 					result.push_back(OBB);
@@ -235,7 +244,7 @@ public:
 			bone = -1;
 	}
 
-	//XMFLOAT4X4 mGlobalInverseTransform;
+	XMFLOAT4X4 mGlobalInverseTransform;
 
 
 

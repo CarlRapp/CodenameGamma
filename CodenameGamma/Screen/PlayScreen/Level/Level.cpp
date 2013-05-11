@@ -3,6 +3,8 @@
 #include "../Structures/StructureList.h"
 #include "../Items/ItemList.h"
 
+#define TESTSCALE 0.3f
+
 Level::Level(){}
 Level::Level(SystemData LData)
 {
@@ -111,7 +113,7 @@ void Level::LoadLevel(string Levelname)
 	
 
 	ModelManager::GetInstance()->LoadModel("CrazyBitch", "dae export 2.dae", "DATA/Models/TestChar/");
-	//ModelManager::GetInstance()->LoadModel("CrazyBitch", "export2objFT.obj", "DATA/Models/Character/");
+	//ModelManager::GetInstance()->LoadModel("CrazyBitch", "CrazyBitch.obj", "DATA/Models/CrazyBitch/");
 
 	ModelManager::GetInstance()->LoadModel("Shotgun", "Glock.obj", "DATA/Models/Glock/");
 	ModelManager::GetInstance()->LoadModel("Glock", "Shotgun.obj", "DATA/Models/Shotgun/");
@@ -120,7 +122,8 @@ void Level::LoadLevel(string Levelname)
 
 	ModelManager::GetInstance()->LoadModel("Bullet", "PistolBullet.obj", "DATA/Models/PistolBullet/");
 	ModelManager::GetInstance()->LoadModel("CrowdBarrier", "CrowdBarrier.obj", "DATA/Models/CrowdBarrier/");
-	ModelManager::GetInstance()->LoadModel("TownHall", "TownHall.obj", "DATA/Models/TownHall/");
+	//ModelManager::GetInstance()->LoadModel("TownHall", "TownHall.obj", "DATA/Models/TownHall/");
+	ModelManager::GetInstance()->LoadModel("TownHall", "TownHall.dae", "DATA/Models/TownHall/");
 
 	ModelManager::GetInstance()->LoadModel("Canister", "Canister.obj", "DATA/Models/Canister/");
 	ModelManager::GetInstance()->LoadModel("SmallStore", "SmallStore.obj", "DATA/Models/SmallStore/");
@@ -132,7 +135,7 @@ void Level::LoadLevel(string Levelname)
 	ModelManager::GetInstance()->LoadModel("UnitCube", "UnitCube.obj", "DATA/Models/UnitCube/");
 
 	Model*	model	=	ModelManager::GetInstance()->GetModel("CrazyBitch");
-	for (int i = 0; i < 0; ++i)
+	for (int i = 0; i < 10; ++i)
 	{
 		float x = MathHelper::RandF(0, 4000);
 		float y = 0;
@@ -144,33 +147,36 @@ void Level::LoadLevel(string Levelname)
 
 	GameObject*	tGO;
 
-
+	tGO	=	new TownHall();
+	tGO->MoveTo( XMFLOAT3( 2000, 0, 2000 + 600 ) );
+	AddGameObject(tGO);
+	
 	//	Lilla scenen 
 	tGO	=	new CrowdBarrier();
 	tGO->MoveTo( XMFLOAT3( 2000 - 85, 0, 2000 ) );
 	AddGameObject(tGO);
-
+	
 	tGO	=	new SmallStore();
 	tGO->MoveTo( XMFLOAT3( 2000 - 200, 0, 2000 ) );
 	AddGameObject(tGO);
-
+	
 	tGO	=	new TrashCan();
-	tGO->MoveTo( XMFLOAT3( 2000 - 135, 0, 2000 - 70 ) );
+	tGO->MoveTo( XMFLOAT3( 2000 - 130, 0, 2000 - 80 ) );
 	AddGameObject(tGO);
-
+	
 	tGO	=	new VolvoCar();
-	tGO->MoveTo( XMFLOAT3( 2000 - 350, 20, 2000 - 100 ) );
+	tGO->MoveTo( XMFLOAT3( 2000 - 350, 0, 2000 - 100 ) );
 	tGO->SetRotation( XMFLOAT3( 0, PI * 0.25f, 0 ) );
 	AddGameObject(tGO);
-
+	
 	tGO	=	new Container();
 	tGO->MoveTo( XMFLOAT3( 2000 + 200, 0, 2000 - 400 ) );
 	AddGameObject(tGO);
-
+	
 	tGO	=	new CannedFood();
 	tGO->MoveTo( XMFLOAT3( 2000, 0, 2000 - 100 ) );
 	AddGameObject(tGO);
-
+	
 
 	float	SIZE	=	2 * 16.6665f;
 	for ( int n = 0; n <= 4; ++n )
@@ -295,7 +301,7 @@ void Level::AddInstance(float x, float y, float z, Model *model)
 
 	Unit *go = new Unit();
 	go->MoveTo(DirectX::XMFLOAT3(x, y, z));
-	go->SetScale(0.3f);	
+	go->SetScale(TESTSCALE);	
 	go->SetModelInstance(instance);
 	go->PlayAnimation("ALL");
 	float speed = 160;
@@ -454,16 +460,19 @@ void Level::RunCollisionTest()
 
 	for each (GameObject* A in gGameObjects)
 	{
-		vector<GameObject*>	collidingWith	=	vector<GameObject*>();
+		vector<GameObject*>				collidingWith	=	vector<GameObject*>();
+		vector<vector<CollisionData>>	CD				=	vector<vector<CollisionData>>();
 
-		gQuadTree->GetObjectsCollidingWith(A, collidingWith);
+		gQuadTree->GetObjectsCollidingWith(A, collidingWith, CD);
 
-		for each (GameObject* B in collidingWith)
+		//for each (GameObject* B in collidingWith)
+		for (int i = 0; i < collidingWith.size(); ++i)
 		{
+			GameObject* B = collidingWith[i];
 			if ( A == B || !A->IsAlive() || !B->IsAlive() )
 				continue;
 
-			CollisionEvent	tEvent(A, B);
+			CollisionEvent	tEvent(A, B, CD[i]);
 
 			bool	hasOccured	=	false;
 			for each ( CollisionEvent Event in tCollisionEvents )
@@ -482,11 +491,27 @@ void Level::RunCollisionTest()
 		{
 			//cout << typeid( *tEvent.A ).name() << " - " << typeid( *tEvent.B ).name() << endl;
 			if ( typeid( *tEvent.A ) == typeid( *tEvent.B ) )
-				tEvent.A->CollideWith( tEvent.B );
+				tEvent.A->CollideWith( tEvent.B, tEvent.CD );
 			else
 			{	
-				tEvent.A->CollideWith( tEvent.B );
-				tEvent.B->CollideWith( tEvent.A );
+				tEvent.A->CollideWith( tEvent.B, tEvent.CD );
+
+
+				//for each (CollisionData cd in tEvent.CD)				
+				//	cd.Swap();
+
+				for (int i = 0; i < tEvent.CD.size(); ++i)
+				{
+					HitBox temp = tEvent.CD[i].A;
+					tEvent.CD[i].A = tEvent.CD[i].B;
+					tEvent.CD[i].B = temp;
+				}
+
+
+				//HitBox temp = tEvent.CD.A;
+				//tEvent.CD.A = tEvent.CD.B;
+				//tEvent.CD.B = temp;
+				tEvent.B->CollideWith( tEvent.A, tEvent.CD );
 			}
 		}
 	}
@@ -557,7 +582,7 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 			//GO->PlayAnimation("Walk");
 			unit->PlayAnimation("Back");
 			unit->MoveTo(DirectX::XMFLOAT3(2000, 0, 2000));
-			unit->SetScale(0.3f);
+			unit->SetScale(TESTSCALE);
 			AddGameObject(unit);
 
 			gPlayers[i]->SetUnit(unit);

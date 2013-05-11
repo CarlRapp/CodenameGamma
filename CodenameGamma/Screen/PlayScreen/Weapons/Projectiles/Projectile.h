@@ -20,7 +20,7 @@ public:
 	~Projectile(void);
 
 	virtual	bool	Update(float DeltaTime, Terrain* terrain);
-	virtual	void	CollideWith(GameObject* Instance)	=	0;
+	virtual	void	CollideWith(GameObject* Instance, vector<CollisionData> CD)	=	0;
 
 	virtual	float	GetSpeed(){	return 0.0f; }
 };

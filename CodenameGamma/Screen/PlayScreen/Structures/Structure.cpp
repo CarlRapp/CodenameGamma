@@ -12,16 +12,38 @@ Structure::~Structure()
 
 }
 
-void Structure::CollideWith(GameObject* Instance)
+void Structure::CollideWith(GameObject* Instance, vector<CollisionData> CD)
 {
 	if ( IsOfType<Unit>(Instance) )
 	{
-		XMFLOAT3	Extents		=	Instance->GetModelInstance()->GetBoundingOrientedBox().Extents;
+		for each (CollisionData cd in CD)
+		{
+			float Radius = Instance->GetModelInstance()->GetSmallestRaduisInBox();
+			XMFLOAT3	CenterPos	=	Instance->GetFloat3Value( Position );
+
+			MathHelper::CollisionResult		Result	=	MathHelper::CheckCollision(cd.A.box, BoundingSphere(CenterPos, Radius));
+
+			if ( Result.IsColliding )
+			{
+				XMFLOAT3	deltaMove;
+				XMStoreFloat3(
+					&deltaMove, 
+					Result.PenetrationLength * XMLoadFloat3( &Result.Normal )
+				);
+
+				Instance->Move( deltaMove );
+			}
+		}
+		/*
+		//cout << "Stucture hit " << CD.B.name << endl;
+
+		//XMFLOAT3	Extents		=	Instance->GetModelInstance()->GetBoundingOrientedBox().Extents;
 		//float		Radius		=	( Extents.x > Extents.z ) ? Extents.z : Extents.x;
 		float Radius = Instance->GetModelInstance()->GetSmallestRaduisInBox();
 		XMFLOAT3	CenterPos	=	Instance->GetFloat3Value( Position );
 
 		MathHelper::CollisionResult		Result	=	MathHelper::CheckCollision(GetModelInstance()->GetBoundingOrientedBox(), BoundingSphere(CenterPos, Radius));
+		//MathHelper::CollisionResult		Result	=	MathHelper::CheckCollision(CD.A.box, BoundingSphere(CenterPos, Radius));
 
 		if ( Result.IsColliding )
 		{
@@ -33,5 +55,6 @@ void Structure::CollideWith(GameObject* Instance)
 
 			Instance->Move( deltaMove );
 		}
+		*/
 	}
 }

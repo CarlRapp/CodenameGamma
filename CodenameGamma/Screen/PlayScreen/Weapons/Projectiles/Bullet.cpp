@@ -14,7 +14,7 @@ Bullet::~Bullet()
 
 }
 
-void Bullet::CollideWith(GameObject* Instance)
+void Bullet::CollideWith(GameObject* Instance, vector<CollisionData> CD)
 {
 
 	if (IsEnemy(Instance))

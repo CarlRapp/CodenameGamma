@@ -69,7 +69,7 @@ private:
 
 	void GetInstances(vector<GameObject*> &instances, Node* node);
 
-	void GetObjectsCollidingWith(GameObject* go, vector<GameObject*> &GameObjects, Node* node, ContainmentType containmentType);
+	void GetObjectsCollidingWith(GameObject* go, vector<GameObject*> &GameObjects, vector<vector<CollisionData>> &collisionData, Node* node, ContainmentType containmentType);
 
 	BoundingSphere GetCurrentBoundingSphere(GameObject* go)
 	{
@@ -115,9 +115,9 @@ public:
 		GetIntersectingInstances(OBB, instances, m_RootNode, INTERSECTS); 
 	}
 
-	void GetObjectsCollidingWith(GameObject* go, vector<GameObject*> &GameObjects)
+	void GetObjectsCollidingWith(GameObject* go, vector<GameObject*> &GameObjects, vector<vector<CollisionData>> &collisionData)
 	{
-		return GetObjectsCollidingWith(go, GameObjects, m_RootNode, INTERSECTS); 
+		return GetObjectsCollidingWith(go, GameObjects, collisionData, m_RootNode, INTERSECTS); 
 	}
 };
 

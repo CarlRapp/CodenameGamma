@@ -31,10 +31,13 @@ struct CollisionEvent
 	GameObject* A;
 	GameObject* B;
 
-	CollisionEvent(GameObject* InstanceA, GameObject* InstanceB)
+	vector<CollisionData> CD;
+
+	CollisionEvent(GameObject* InstanceA, GameObject* InstanceB, vector<CollisionData> collisionData)
 	{
 		A	=	InstanceA;
 		B	=	InstanceB;
+		CD  =   collisionData;
 	}
 
 	bool operator==(CollisionEvent Event)
