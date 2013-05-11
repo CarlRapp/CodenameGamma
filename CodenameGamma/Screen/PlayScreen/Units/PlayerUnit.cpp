@@ -3,8 +3,8 @@
 
 PlayerUnit::PlayerUnit()
 {
-	gHunger	=	UnitHunger(100.0f, 100.0f);
-	gThirst	=	UnitThirst(100.0f, 100.0f);
+	gHunger	=	UnitHunger(5.0f, 100.0f);
+	gThirst	=	UnitThirst(50.0f, 100.0f);
 }
 
 PlayerUnit::~PlayerUnit()
@@ -13,14 +13,20 @@ PlayerUnit::~PlayerUnit()
 
 bool PlayerUnit::Update(float DeltaTime, Terrain* terrain)
 {
-	float	speed;
-	XMStoreFloat(
-		&speed,
-		0.01f * XMVector3Length( XMLoadFloat3( &GetFloat3Value( Velocity ) ) )
-	);
-
-	gHunger.first	-=	DeltaTime * speed;
-	gThirst.first	-=	DeltaTime * speed;
+	UpdateMeters(DeltaTime);
 
 	return Unit::Update(DeltaTime, terrain);
+}
+
+void PlayerUnit::UpdateMeters(float DeltaTime)
+{
+	float	speed	=	GetSpeed();
+
+	//	TODO
+	//	Make the reduction
+	//	speed based on
+	//	how fast the unit
+	//	is going.
+	gHunger.first	-=	DeltaTime;
+	gThirst.first	-=	DeltaTime;
 }
