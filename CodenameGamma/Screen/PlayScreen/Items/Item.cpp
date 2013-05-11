@@ -2,7 +2,7 @@
 
 Item::Item()
 {
-
+	SetTeam( Neutral );
 }
 
 Item::~Item()

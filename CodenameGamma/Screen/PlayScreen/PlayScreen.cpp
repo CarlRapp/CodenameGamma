@@ -61,7 +61,7 @@ bool PlayScreen::Unload()
 	return true;
 }
 #pragma endregion
-
+float lol = 0;
 void PlayScreen::Update(float DeltaTime)
 {
 	gLevel->Update(DeltaTime);
@@ -71,6 +71,10 @@ void PlayScreen::Update(float DeltaTime)
 		InputManager::GetInstance()->GetKeyboard()->GetKeyState(VK_ESCAPE) == PRESSED)
 		gGotoNextFrame	=	MAIN_MENU_SCREEN;
 
+	if ( InputManager::GetInstance()->GetController(0)->GetButtonState( X ) == DOWN )
+		lol += DeltaTime;
+	if ( InputManager::GetInstance()->GetController(0)->GetButtonState( Y ) == PRESSED )
+		lol = 0;
 }
 
 void PlayScreen::Render()
@@ -79,23 +83,53 @@ void PlayScreen::Render()
 
 
 	PlayerUnit*	DERP	=	gLevel->GetPlayers()[0]->GetUnit();
+	UnitHealth	HEALTH	=	DERP->GetHealth();
 	UnitHunger	HUNGER	=	DERP->GetHungerMeter();
 	UnitThirst	THIRST	=	DERP->GetThirstMeter();
-	DrawString(
-		*gTextInstance,
-		"Foods: " + to_string((long double)HUNGER.first) + " / " + to_string((long double)HUNGER.second),
-		10,
-		10,
-		20,
-		White,
-		0
-	);
+
+	for ( int i = 0; i < 4; ++i)
+	{
+		float	a, b;
+		string title;
+		if ( i == 0 )
+		{
+			title	=	"Health: ";
+			a = HEALTH.first;
+			b = HEALTH.second;
+		}
+		else if ( i == 1 )
+		{
+			title	=	"Hunger: ";
+			a = HUNGER.first;
+			b = HUNGER.second;
+		}
+		else if ( i == 2)
+		{
+			title	=	"Thirst: ";
+			a = THIRST.first;
+			b = THIRST.second;
+		}
+		else
+		{
+			a	=	DERP->GetSpeed();
+			b	=	0;
+		}
+		DrawString(
+			*gTextInstance,
+			title + to_string((long double)a) + " / " + to_string((long double)b),
+			10,
+			10 + i * 20,
+			20,
+			White,
+			0
+		);
+	}
 
 	DrawString(
 		*gTextInstance,
-		"THIRSTZ: " + to_string((long double)THIRST.first) + " / " + to_string((long double)THIRST.second),
+		"Time: " + to_string((long double)lol),
 		10,
-		40,
+		10 + 5 * 20,
 		20,
 		White,
 		0
