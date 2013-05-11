@@ -93,7 +93,9 @@ vector<Projectile*> Player::Update(float deltaTime)
 		}
 		return tBullets;
 		//m_Camera->SetFarZ(tPosition.y + 700.0f);
-	}	
+	}
+
+	return vector<Projectile*>();
 }
 
 void Player::UpdateCamera(float deltaTime)
@@ -122,7 +124,7 @@ void Player::UpdateCamera(float deltaTime)
 	m_Camera->Rotate(-dy, dx);
 }
 
-void Player::SetUnit(Unit* Instance)
+void Player::SetUnit(PlayerUnit* Instance)
 {
 	m_Unit	=	Instance;
 }

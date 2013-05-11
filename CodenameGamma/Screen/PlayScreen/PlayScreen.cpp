@@ -76,6 +76,30 @@ void PlayScreen::Update(float DeltaTime)
 void PlayScreen::Render()
 {
 	gLevel->Render();
+
+
+	PlayerUnit*	DERP	=	gLevel->GetPlayers()[0]->GetUnit();
+	UnitHunger	HUNGER	=	DERP->GetHungerMeter();
+	UnitThirst	THIRST	=	DERP->GetThirstMeter();
+	DrawString(
+		*gTextInstance,
+		"Foods: " + to_string((long double)HUNGER.first) + " / " + to_string((long double)HUNGER.second),
+		10,
+		10,
+		20,
+		White,
+		0
+	);
+
+	DrawString(
+		*gTextInstance,
+		"THIRSTZ: " + to_string((long double)THIRST.first) + " / " + to_string((long double)THIRST.second),
+		10,
+		40,
+		20,
+		White,
+		0
+	);
 }
 
 ScreenType PlayScreen::GetScreenType()
