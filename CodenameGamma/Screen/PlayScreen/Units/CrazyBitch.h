@@ -2,11 +2,11 @@
 #ifndef CRAZYBITCH_H
 #define CRAZYBITCH_H
 
-#include "Unit.h"
+#include "PlayerUnit.h"
 
 using namespace DirectX;
 
-class CrazyBitch : public Unit
+class CrazyBitch : public PlayerUnit
 {
 public:
 	CrazyBitch(void);
