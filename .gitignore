@@ -152,6 +152,7 @@ $RECYCLE.BIN/
 CodenameGamma/CodenameGamma.vcxproj
 CodenameGamma/CodenameGamma.vcxproj.filters
 !CodenameGamma/DATA/Models/obj/*.obj
+CodenameGamma/DATA/
 CodenameGamma/DATA/Models/CrowdBarrierFallen/CrowdBarrierFallen.mtl
 CodenameGamma/DATA/Models/CrowdBarrierFallen/CrowdBarrierFallen_DIF_01.png
 CodenameGamma/DATA/Models/TestChar/dae export 2.dae
