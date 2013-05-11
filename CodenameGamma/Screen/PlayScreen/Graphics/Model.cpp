@@ -61,62 +61,41 @@ Model::Model(ID3D11Device* device, TextureManager& texMgr, const std::string& mo
 
 		if (AC)
 		{
-			//AC.
-		}
-		/*
-		SkinnedData.mAnimations["ALL"].BoneAnimations[0].Keyframes[
-		SkinnedData.GetClipStartTime("ALL");
-		SkinnedData.GetFinalTransforms("ALL", TimePos, FinalTransforms);
-
-		// Loop animation
-		if(TimePos > m_Model->SkinnedData.GetClipEndTime(ClipName))
-			TimePos = 0.0f;	
-		
-
-		if (m_Model)
-		{	
-			std::vector<XMFLOAT3> points;
-			for (int i = 0; i < m_Model->m_BoneBoxes.size(); ++i)
+			UINT numKeyFrames = AC->BoneAnimations[0].Keyframes.size();
+			m_SmallestRadiusInBox = 9999999999;
+			for (int i = 0; i < numKeyFrames; ++i)
 			{
-				XMVECTOR rot	= XMLoadFloat4(&m_Rotation);
-				XMVECTOR trans	= XMLoadFloat3(&m_Translation);
+				float time = AC->BoneAnimations[0].Keyframes[i].TimePos;
 
-				m_Model->m_BoneBoxes[i].Transform(m_BoneBoxes[i], XMLoadFloat4x4(&FinalTransforms[i]));
-				m_BoneBoxes[i].Transform(m_BoneBoxes[i], m_Scale, rot, trans);
+				std::vector<XMFLOAT4X4> FinalTransforms(AC->BoneAnimations.size());
+				SkinnedData.GetFinalTransforms("ALL", time, FinalTransforms);
+
+				std::vector<DirectX::BoundingOrientedBox>	tempboxes(m_BoneBoxes.size());
+				for (int i = 0; i < m_BoneBoxes.size(); ++i)
+				{
+					m_BoneBoxes[i].Transform(tempboxes[i], XMLoadFloat4x4(&FinalTransforms[i]));
+				}
+
+				std::vector<XMFLOAT3> points;
+				for (int i = 0; i < tempboxes.size(); ++i)
+				{
+					XMFLOAT3 corners[BoundingOrientedBox::CORNER_COUNT];
+					tempboxes[i].GetCorners(&corners[0]);
+
+					for each (XMFLOAT3 point in corners)
+						points.push_back(point);
+				}
+				BoundingBox AABB;
+				BoundingBox::CreateFromPoints(AABB, points.size(), &points[0], sizeof(XMFLOAT3));
+
+				XMFLOAT3 Extents = AABB.Extents;
+				m_SmallestRadiusInBox = min(m_SmallestRadiusInBox, min(min(Extents.x, Extents.z), Extents.y));
 			}
+
+		}
+
 		
-		}
-
-
-
-
-
-
-
-
-
-		*/
-
-
-
-		std::vector<XMFLOAT3> points;
-
-		for (int i = 0; i < m_BoneBoxes.size(); ++i)
-		{
-			XMFLOAT3 corners[BoundingOrientedBox::CORNER_COUNT];
-			m_BoneBoxes[i].GetCorners(&corners[0]);
-
-			for each (XMFLOAT3 point in corners)
-				points.push_back(point);
-		}
 		//m_SmallestRadiusInBox = 10;
-		
-		BoundingBox AABB;
-
-		BoundingBox::CreateFromPoints(AABB, Vertices.size(), &points[0], sizeof(XMFLOAT3));
-
-		XMFLOAT3 Extents = AABB.Extents;
-		m_SmallestRadiusInBox = min(min(Extents.x, Extents.z), Extents.y);
 		/*
 		BoundingSphere::CreateFromBoundingBox(m_BoundingSphere, m_BoundingOrientedBox);
 		BoundingOrientedBox::CreateFromBoundingBox(m_BoundingOrientedBox, AABB);
@@ -125,11 +104,6 @@ Model::Model(ID3D11Device* device, TextureManager& texMgr, const std::string& mo
 	}
 
 	//BoundingOrientedBox::CreateFromPoints(m_BoundingOrientedBox, Vertices.size(), &Vertices[0].Pos, sizeof(Vertex::PosNormalTexTanSkinned));
-}
-
-BoundingOrientedBox CreateBoundingOrientedBox()
-{
-
 }
 
 Model::~Model(void)
