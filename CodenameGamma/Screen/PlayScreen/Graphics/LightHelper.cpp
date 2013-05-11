@@ -34,17 +34,18 @@ XMMATRIX DirectionalLight::GetViewMatrix(BoundingFrustum& frustum, float offset)
 }
 
 
-XMMATRIX DirectionalLight::GetProjectionMatrix(float nearZ, float farZ)
+XMMATRIX DirectionalLight::GetProjectionMatrix(/*float nearZ, float farZ*/)
 {
 
 	float n = 1.0f;
 	float f = DIRECTION_MAXRANGE;
-
+	/*
 	if (!(nearZ < 1.0f || farZ > DIRECTION_MAXRANGE || nearZ > farZ))
 	{
 		n = nearZ;
 		f = farZ;
 	}
+	*/
 	//XMMatrixOrthographicOffCenterLH(
 	return XMMatrixOrthographicLH(1000, 1000, n, f);
 }
@@ -189,19 +190,19 @@ std::vector<XMFLOAT4X4> PointLight::GetViewMatrixes()
 	return views;
 }
 
-XMMATRIX PointLight::GetProjectionMatrix(float nearZ, float farZ)
+XMMATRIX PointLight::GetProjectionMatrix(/*float nearZ, float farZ*/)
 {
 	XMMATRIX projcetion;
 	float fovY = PI * 0.505f;
-	float n = 1.0f;
+	float n = 0.05f;
 	float f = Range;
-
+/*
 	if (!(nearZ < 1.0f || farZ > Range || nearZ > farZ))
 	{
 		n = nearZ;
 		f = farZ;
 	}
-
+	*/
 	return XMMatrixPerspectiveFovLH(fovY, 1, n, f);
 }
 
@@ -227,18 +228,18 @@ XMMATRIX SpotLight::GetViewMatrix()
 	*/
 }
 
-XMMATRIX SpotLight::GetProjectionMatrix(float nearZ, float farZ)
+XMMATRIX SpotLight::GetProjectionMatrix(/*float nearZ, float farZ*/)
 {
 	XMMATRIX projcetion;
 	float fovY = 2 * angle;
-	float n = 1.0f;
+	float n = 0.05f;
 	float f = Range;
-
+	/*
 	if (!(nearZ < 1.0f || farZ > Range || nearZ > farZ))
 	{
 		n = nearZ;
 		f = farZ;
 	}
-
+	*/
 	return XMMatrixPerspectiveFovLH(fovY, 1, n, f);
 }
