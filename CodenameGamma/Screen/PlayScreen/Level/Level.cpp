@@ -113,8 +113,8 @@ void Level::LoadLevel(string Levelname)
 	ModelManager::GetInstance()->LoadModel("CrazyBitch", "dae export 2.dae", "DATA/Models/TestChar/");
 	//ModelManager::GetInstance()->LoadModel("CrazyBitch", "export2objFT.obj", "DATA/Models/Character/");
 
-	ModelManager::GetInstance()->LoadModel("Shotgun", "Glock.obj", "DATA/Models/Glock/");
-	ModelManager::GetInstance()->LoadModel("Glock", "Shotgun.obj", "DATA/Models/Shotgun/");
+	ModelManager::GetInstance()->LoadModel("Glock", "Glock.obj", "DATA/Models/Glock/");
+	ModelManager::GetInstance()->LoadModel("Shotgun", "Shotgun.obj", "DATA/Models/Shotgun/");
 
 	ModelManager::GetInstance()->LoadModel("CannedFood", "CannedFood.obj", "DATA/Models/CannedFood/");
 
@@ -143,7 +143,13 @@ void Level::LoadLevel(string Levelname)
 
 
 	GameObject*	tGO;
+	tGO	=	new TownHall();
+	tGO->MoveTo( XMFLOAT3( 2000, 0, 2000 + 400 ) );
+	AddGameObject(tGO);
 
+	tGO	=	new Pistol();
+	tGO->MoveTo( XMFLOAT3( 800, 0, 800 ) );
+	AddGameObject(tGO);
 
 	//	Lilla scenen 
 	tGO	=	new CrowdBarrier();
@@ -167,9 +173,18 @@ void Level::LoadLevel(string Levelname)
 	tGO->MoveTo( XMFLOAT3( 2000 + 200, 0, 2000 - 400 ) );
 	AddGameObject(tGO);
 
-	tGO	=	new CannedFood();
-	tGO->MoveTo( XMFLOAT3( 2000, 0, 2000 - 100 ) );
-	AddGameObject(tGO);
+	for (int i = 0; i < 20; ++i)
+	{
+		float x = MathHelper::RandF(0, 500);
+		float y = 0;
+		float z = MathHelper::RandF(0, 500);
+
+		tGO	=	new CannedFood();
+		tGO->MoveTo( XMFLOAT3( x, 0, z ) );
+		AddGameObject(tGO);
+	}
+
+
 
 
 	float	SIZE	=	2 * 16.6665f;
@@ -183,6 +198,13 @@ void Level::LoadLevel(string Levelname)
 			AddGameObject(tGO);
 		}
 
+	}
+
+	for( int n = 0; n < 10; ++n )
+	{
+		tGO	=	new UnitCube();
+		tGO->MoveTo( XMFLOAT3( 2000 - n * SIZE, 0, 2000 - 800 ) );
+		AddGameObject(tGO);
 	}
 }
 
@@ -556,7 +578,7 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 			//GO->UsePose("Stand");
 			//GO->PlayAnimation("Walk");
 			unit->PlayAnimation("Back");
-			unit->MoveTo(DirectX::XMFLOAT3(2000, 0, 2000));
+			unit->MoveTo(DirectX::XMFLOAT3(600, 0, 600));
 			unit->SetScale(0.3f);
 			AddGameObject(unit);
 
