@@ -218,7 +218,7 @@ void SkinnedData::GetFinalTransforms(const std::string& clipName, float timePos,
 		//XMMATRIX globalInverseTransform = XMLoadFloat4x4(&mGlobalInverseTransform);
 
 		//XMMATRIX temp = XMMatrixMultiply(offset, toRoot);
-		//XMStoreFloat4x4(&finalTransforms[i], XMMatrixMultiply(temp, globalInverseTransform));
+		//XMStoreFloat4x4(&finalTransforms[i], XMMatrixMultiply(globalInverseTransform, temp));
 	}
 }
 
@@ -285,6 +285,8 @@ void SkinnedData::GetFinalTransforms(const std::string& clipName,  std::vector<X
 
 void SkinnedData::CreateClip(std::string name, int firstFrame, int lastFrame)
 {
+	if (mAnimations.empty())
+		return;
 	AnimationClip all = mAnimations["ALL"];
 	AnimationClip clip;
 
@@ -332,6 +334,8 @@ void SkinnedData::CreateClip(std::string name, int firstFrame, int lastFrame)
 
 void SkinnedData::CreatePose(std::string name, int frame)
 {
+	if (mAnimations.empty())
+		return;
 	AnimationClip all = mAnimations["ALL"];
 	Pose pose;
 
@@ -347,4 +351,5 @@ void SkinnedData::CreatePose(std::string name, int frame)
 		pose.BoneAnimations.push_back(boneAni);
 	}
 	mPoses.insert(std::pair<std::string, Pose>(name, pose));
+	
 }
