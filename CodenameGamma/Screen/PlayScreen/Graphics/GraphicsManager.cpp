@@ -701,14 +701,14 @@ void GraphicsManager::RenderModelsShadowMap(UINT lightType, CXMMATRIX View, CXMM
 		{
 			if (!modelInstance->UsingAnimationOrPose())
 			{
-				if (modelInstance->m_Model->HasDiffuseMaps())				
+				if (modelInstance->GetModel()->HasDiffuseMaps())				
 					TexInstances.push_back(instance);
 				else
 					BasicInstances.push_back(instance);
 			}
 			else
 			{
-				if (modelInstance->m_Model->HasDiffuseMaps())
+				if (modelInstance->GetModel()->HasDiffuseMaps())
 					TexAnimatedInstances.push_back(instance);
 				else
 					BasicAnimatedInstances.push_back(instance);
@@ -811,20 +811,20 @@ void GraphicsManager::RenderModelShadowMap(ModelInstance& instance, CXMMATRIX vi
 {
 	m_DeviceContext->IASetInputLayout(InputLayouts::Basic32);
 	XMMATRIX world;
-	world = XMLoadFloat4x4(&instance.m_World);
+	world = XMLoadFloat4x4(&instance.GetWorld());
 
 	XMMATRIX tex = XMMatrixTranslation(1, 1, 1);
 
 	Effects::ShadowMapFX->SetWorldViewProj(world * view * proj);
 	Effects::ShadowMapFX->SetTexTransform(tex);
 
-	for(UINT subset = 0; subset < instance.m_Model->SubsetCount; ++subset)
+	for(UINT subset = 0; subset < instance.GetModel()->SubsetCount; ++subset)
 	{
-		if (instance.m_Model->HasDiffuseMaps())
-			Effects::ShadowMapFX->SetDiffuseMap(instance.m_Model->DiffuseMapSRV[subset]);
+		if (instance.GetModel()->HasDiffuseMaps())
+			Effects::ShadowMapFX->SetDiffuseMap(instance.GetModel()->DiffuseMapSRV[subset]);
 
 		tech->GetPassByIndex(pass)->Apply(0, m_DeviceContext);
-		instance.m_Model->ModelMesh.Draw(m_DeviceContext, subset);
+		instance.GetModel()->ModelMesh.Draw(m_DeviceContext, subset);
 	}
 }
 
@@ -832,7 +832,7 @@ void GraphicsManager::RenderAnimatedModelShadowMap(ModelInstance& instance, CXMM
 {
 	m_DeviceContext->IASetInputLayout(InputLayouts::PosNormalTexTanSkinned);
 	XMMATRIX world;
-	world = XMLoadFloat4x4(&instance.m_World);
+	world = XMLoadFloat4x4(&instance.GetWorld());
 
 	XMMATRIX tex = XMMatrixTranslation(1, 1, 1);
 
@@ -840,13 +840,13 @@ void GraphicsManager::RenderAnimatedModelShadowMap(ModelInstance& instance, CXMM
 	Effects::ShadowMapFX->SetTexTransform(tex);
 	Effects::ShadowMapFX->SetBoneTransforms(&instance.FinalTransforms[0], instance.FinalTransforms.size());
 
-	for(UINT subset = 0; subset < instance.m_Model->SubsetCount; ++subset)
+	for(UINT subset = 0; subset < instance.GetModel()->SubsetCount; ++subset)
 	{
-		if (instance.m_Model->HasDiffuseMaps())
-			Effects::ShadowMapFX->SetDiffuseMap(instance.m_Model->DiffuseMapSRV[subset]);
+		if (instance.GetModel()->HasDiffuseMaps())
+			Effects::ShadowMapFX->SetDiffuseMap(instance.GetModel()->DiffuseMapSRV[subset]);
 
 		tech->GetPassByIndex(pass)->Apply(0, m_DeviceContext);
-		instance.m_Model->ModelMesh.Draw(m_DeviceContext, subset);
+		instance.GetModel()->ModelMesh.Draw(m_DeviceContext, subset);
 	}
 }
 
@@ -1016,7 +1016,7 @@ void GraphicsManager::FillGBuffer(vector<Camera*>& Cameras)
 
 	m_DeviceContext->OMSetDepthStencilState(RenderStates::LessDSS, 0);
 
-	//m_DeviceContext->RSSetState(RenderStates::NoCullRS);
+	m_DeviceContext->RSSetState(RenderStates::NoCullRS);
 	//m_DeviceContext->RSSetState(RenderStates::WireframeRS);
 	for (int i = 0; i < (int)Cameras.size(); ++i)
 	{
@@ -1063,9 +1063,9 @@ void GraphicsManager::RenderModels(Camera* tCamera)
 		{
 			if (!modelInstance->UsingAnimationOrPose())
 			{
-				if (modelInstance->m_Model->HasDiffuseMaps())
+				if (modelInstance->GetModel()->HasDiffuseMaps())
 				{
-					if (modelInstance->m_Model->HasNormalMaps())
+					if (modelInstance->GetModel()->HasNormalMaps())
 						TexNormalInstances.push_back(instance);
 					else
 						TexInstances.push_back(instance);
@@ -1076,9 +1076,9 @@ void GraphicsManager::RenderModels(Camera* tCamera)
 			}
 			else
 			{
-				if (modelInstance->m_Model->HasDiffuseMaps())
+				if (modelInstance->GetModel()->HasDiffuseMaps())
 				{
-					if (modelInstance->m_Model->HasNormalMaps())
+					if (modelInstance->GetModel()->HasNormalMaps())
 						TexNormalAnimatedInstances.push_back(instance);
 					else
 						TexAnimatedInstances.push_back(instance);
@@ -1163,6 +1163,7 @@ void GraphicsManager::RenderModels(Camera* tCamera)
 void GraphicsManager::RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMATRIX proj, ID3DX11EffectTechnique* tech, UINT pass)
 {
 	m_DeviceContext->RSSetState(RenderStates::NoCullRS);
+	//m_DeviceContext->RSSetState(RenderStates::WireframeRS);
 	m_DeviceContext->IASetInputLayout(InputLayouts::PosNormalTexTan);
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	XMMATRIX world;
@@ -1172,7 +1173,7 @@ void GraphicsManager::RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMA
 	XMMATRIX worldViewProj;
 	XMMATRIX tex = XMMatrixTranslation(1, 1, 1);
 
-	world = XMLoadFloat4x4(&instance.m_World);
+	world = XMLoadFloat4x4(&instance.GetWorld());
 	//float a = MathHelper::InverseTranspose(world);
 	
 	worldView     = XMMatrixMultiply(world, view);
@@ -1187,26 +1188,27 @@ void GraphicsManager::RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMA
 	Effects::ObjectDeferredFX->SetTexTransform(tex);
 	Effects::ObjectDeferredFX->SetWorldViewProj(worldViewProj);
 
-	for(UINT subset = 0; subset < instance.m_Model->SubsetCount; ++subset)
+	for(UINT subset = 0; subset < instance.GetModel()->SubsetCount; ++subset)
 	{
 		//UINT subset = 6;
-		Effects::ObjectDeferredFX->SetMaterial(instance.m_Model->Mat[subset]);
+		Effects::ObjectDeferredFX->SetMaterial(instance.GetModel()->Mat[subset]);
 
-		if (instance.m_Model->HasDiffuseMaps())
-			Effects::ObjectDeferredFX->SetDiffuseMap(instance.m_Model->DiffuseMapSRV[subset]);
+		if (instance.GetModel()->HasDiffuseMaps())
+			Effects::ObjectDeferredFX->SetDiffuseMap(instance.GetModel()->DiffuseMapSRV[subset]);
 
-		if (instance.m_Model->HasNormalMaps())
-			Effects::ObjectDeferredFX->SetNormalMap(instance.m_Model->NormalMapSRV[subset]);
+		if (instance.GetModel()->HasNormalMaps())
+			Effects::ObjectDeferredFX->SetNormalMap(instance.GetModel()->NormalMapSRV[subset]);
 
 		tech->GetPassByIndex(pass)->Apply(0, m_DeviceContext);
-		instance.m_Model->ModelMesh.Draw(m_DeviceContext, subset);
+		instance.GetModel()->ModelMesh.Draw(m_DeviceContext, subset);
 	}
-	//RenderDebugBox(instance.GetBoundingOrientedBox(), XMMatrixMultiply(view, proj));
+	RenderDebugBox(instance.GetBoundingOrientedBox(), XMMatrixMultiply(view, proj));
 }
 
 void GraphicsManager::RenderAnimatedModel(ModelInstance& instance, CXMMATRIX view, CXMMATRIX proj, ID3DX11EffectTechnique* tech, UINT pass)
 {
 	m_DeviceContext->RSSetState(RenderStates::NoCullRS);
+	//m_DeviceContext->RSSetState(RenderStates::WireframeRS);
 	m_DeviceContext->IASetInputLayout(InputLayouts::PosNormalTexTanSkinned);
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	XMMATRIX world;
@@ -1216,7 +1218,7 @@ void GraphicsManager::RenderAnimatedModel(ModelInstance& instance, CXMMATRIX vie
 	XMMATRIX worldViewProj;
 	XMMATRIX tex = XMMatrixTranslation(1, 1, 1);
 
-	world = XMLoadFloat4x4(&instance.m_World);
+	world = XMLoadFloat4x4(&instance.GetWorld());
 	//float a = MathHelper::InverseTranspose(world);
 	
 	worldView     = XMMatrixMultiply(world, view);
@@ -1232,19 +1234,19 @@ void GraphicsManager::RenderAnimatedModel(ModelInstance& instance, CXMMATRIX vie
 	Effects::ObjectDeferredFX->SetWorldViewProj(worldViewProj);
 	Effects::ObjectDeferredFX->SetBoneTransforms(&instance.FinalTransforms[0], instance.FinalTransforms.size());
 
-	for(UINT subset = 0; subset < instance.m_Model->SubsetCount; ++subset)
+	for(UINT subset = 0; subset < instance.GetModel()->SubsetCount; ++subset)
 	{
 		//UINT subset = 6;
-		Effects::ObjectDeferredFX->SetMaterial(instance.m_Model->Mat[subset]);
+		Effects::ObjectDeferredFX->SetMaterial(instance.GetModel()->Mat[subset]);
 
-		if (instance.m_Model->HasDiffuseMaps())
-			Effects::ObjectDeferredFX->SetDiffuseMap(instance.m_Model->DiffuseMapSRV[subset]);
+		if (instance.GetModel()->HasDiffuseMaps())
+			Effects::ObjectDeferredFX->SetDiffuseMap(instance.GetModel()->DiffuseMapSRV[subset]);
 
-		if (instance.m_Model->HasNormalMaps())
-			Effects::ObjectDeferredFX->SetNormalMap(instance.m_Model->NormalMapSRV[subset]);
+		if (instance.GetModel()->HasNormalMaps())
+			Effects::ObjectDeferredFX->SetNormalMap(instance.GetModel()->NormalMapSRV[subset]);
 
 		tech->GetPassByIndex(pass)->Apply(0, m_DeviceContext);
-		instance.m_Model->ModelMesh.Draw(m_DeviceContext, subset);
+		instance.GetModel()->ModelMesh.Draw(m_DeviceContext, subset);
 	}
 	RenderDebugBox(instance.GetBoundingOrientedBox(), XMMatrixMultiply(view, proj));
 
@@ -1361,7 +1363,19 @@ void GraphicsManager::RenderTerrain(Camera* tCamera)
 	D3DX11_TECHNIQUE_DESC techDesc;
 	
 	m_DeviceContext->IASetInputLayout(InputLayouts::Terrain);
-	tech = Effects::TerrainDeferredFX->TexTech;
+
+
+	if (m_Terrain->HasDiffuseMaps())
+	{
+		if (m_Terrain->HasNormalMaps())
+			tech = Effects::TerrainDeferredFX->TexNormalTech;
+		else
+			tech = Effects::TerrainDeferredFX->TexTech;
+	}
+	else
+		tech = Effects::TerrainDeferredFX->BasicTech;
+
+	//tech = Effects::TerrainDeferredFX->TexTech;
 	//tech = Effects::TerrainDeferredFX->TexNormalTech;
 	tech->GetDesc( &techDesc );
 	

@@ -53,6 +53,8 @@ public:
 
 	void Draw(ID3D11DeviceContext* dc);
 
+	bool HasDiffuseMaps() { return m_GroundTextures[0] != NULL; }
+	bool HasNormalMaps() { return m_NormalTextures[0] != NULL; }
 
 	Material	GetMaterial() { return mat; }
 	float		GetHeight(float x, float z)		

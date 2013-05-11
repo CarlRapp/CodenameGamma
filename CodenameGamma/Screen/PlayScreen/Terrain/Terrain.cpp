@@ -2,6 +2,15 @@
 
 Terrain::Terrain(void)
 {
+	m_GroundTextures[0] = NULL;
+	m_GroundTextures[1] = NULL;
+	m_GroundTextures[2] = NULL;
+	m_GroundTextures[3] = NULL;
+
+	m_NormalTextures[0] = NULL;
+	m_NormalTextures[1] = NULL;
+	m_NormalTextures[2] = NULL;
+	m_NormalTextures[3] = NULL;
 }
 
 Terrain::Terrain(ID3D11Device *Device, ID3D11DeviceContext *DeviceContext)
@@ -20,6 +29,16 @@ Terrain::Terrain(ID3D11Device *Device, ID3D11DeviceContext *DeviceContext)
 
 	mat.SpecIntensity = 0.0f;
 	mat.SpecPower = 1;
+
+	m_GroundTextures[0] = NULL;
+	m_GroundTextures[1] = NULL;
+	m_GroundTextures[2] = NULL;
+	m_GroundTextures[3] = NULL;
+
+	m_NormalTextures[0] = NULL;
+	m_NormalTextures[1] = NULL;
+	m_NormalTextures[2] = NULL;
+	m_NormalTextures[3] = NULL;
 
 	XMStoreFloat4x4(&m_TexTransform, XMMatrixScaling(1, 1, 1));
 }
@@ -87,8 +106,7 @@ void Terrain::LoadTerrain(LevelData TData)
 
 void Terrain::LoadTexture(ID3D11ShaderResourceView** SRV, std::string path)
 {
-	if(D3DX11CreateShaderResourceViewFromFile(m_Device, path.c_str(), 0, 0, SRV, 0 ))
-		::MessageBox(0, "Failed to create ShaderResourceView (Terrain)", "Error", MB_OK);
+	D3DX11CreateShaderResourceViewFromFile(m_Device, path.c_str(), 0, 0, SRV, 0 );
 }
 
 void Terrain::CreateGrid()
@@ -115,7 +133,7 @@ void Terrain::CreateGrid()
 			vertex.Tex		= XMFLOAT2(TexX, TexZ);
 
 			//Calculate Tangent
-			vertex.TangentU = XMFLOAT4(0,0,0,0);
+			vertex.TangentU = XMFLOAT4(0,0,1,0);
 
 			Vertices.push_back(vertex);
 		}
@@ -244,12 +262,17 @@ void Terrain::LoadHeightMap(std::string path, int Width, int Height)
 		XMStoreFloat3(&Vertices[i2].Normal, i2Normal);
 	}
 	
+	XMVECTOR YAXIS = XMLoadFloat3(&XMFLOAT3(0,0,1));
 	//Normaliserar vertexpunktens normal.
 	for (UINT i = 0; i < Vertices.size(); ++i)
 	{
 		XMVECTOR Normal = XMLoadFloat3(&Vertices[i].Normal);
 		Normal = XMVector3Normalize(Normal);
 		XMStoreFloat3(&Vertices[i].Normal, Normal);
+
+		XMVECTOR Tangent = XMVector3Cross(YAXIS, Normal);
+		Tangent = XMVector3Normalize(Tangent);
+		XMStoreFloat4(&Vertices[i].TangentU, Tangent);
 	}
 	
 	SetVertices();
