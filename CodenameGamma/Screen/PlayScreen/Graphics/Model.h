@@ -45,6 +45,8 @@ public:
 	BoundingSphere					m_BoundingSphere;
 	BoundingOrientedBox				m_BoundingOrientedBox;
 
+	float							m_SmallestRadiusInBox;
+
 	std::vector<DirectX::BoundingOrientedBox>	m_BoneBoxes;
 
 };
@@ -159,6 +161,11 @@ struct ModelInstance
 			//out.Transform(out, world);
 		}
 		return out;
+	}
+
+	float GetSmallestRaduisInBox()
+	{
+		return m_Model->m_SmallestRadiusInBox * m_Scale;
 	}
 
 	bool GetJointPosition(std::string name, XMFLOAT3& pos)

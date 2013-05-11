@@ -53,6 +53,11 @@ private:
 		std::vector<Mesh::Subset>& subsets,
 		std::vector<MaterialLoader>& mats);
 	
+	bool PlayAnimation(std::string name)
+	{
+
+	}
+
 	void LoadBones(const aiScene* scene, aiNode* node, std::vector<XMFLOAT4X4>& boneOffsets);
 
 	void LoadBoneHierarchy(const aiScene* scene, aiNode* node, std::vector<int>& boneIndexToParentIndex, int parrentIndex, std::vector<XMFLOAT4X4> boneOffsets);
