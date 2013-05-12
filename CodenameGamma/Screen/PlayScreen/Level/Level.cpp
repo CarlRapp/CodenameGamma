@@ -228,11 +228,11 @@ void Level::AddDirectionalLight(bool hasShadow)
 	
 
 	DirectionalLight *dirLight = new DirectionalLight();
-	dirLight->Color = XMFLOAT4(r,g,b,1);
-	dirLight->Direction = XMFLOAT4(1.0f, -2.0f, 1.0f,0);
+	dirLight->GetGPULight()->Color = XMFLOAT4(r,g,b,1);
+	dirLight->GetGPULight()->Direction = XMFLOAT4(1.0f, -2.0f, 1.0f,0);
 	//dirLight->Direction = XMFLOAT4(x, -1.0f, z,0);
-	dirLight->HasShadow = hasShadow;
-	dirLight->Resolution = SHADOWMAP_4096;
+	dirLight->GetGPULight()->HasShadow = hasShadow;
+	dirLight->GetGPULight()->Resolution = SHADOWMAP_4096;
 	//dirLight->Resolution = SHADOWMAP_2048;
 	//dirLight->Resolution = SHADOWMAP_1024;
 
@@ -254,17 +254,17 @@ void Level::AddPointLight(bool hasShadow, XMFLOAT3 pos)
 	float b = 1.0f;
 	*/
 	PointLight *pointLight = new PointLight();
-	pointLight->Color		= XMFLOAT4(r, g, b, 0);
+	pointLight->GetGPULight()->Color		= XMFLOAT4(r, g, b, 0);
 	//pointLight->Position	= XMFLOAT3(x, 0.0f, z);
-	pointLight->Position	= pos;
-	pointLight->Range		= 300;
-	pointLight->HasShadow = hasShadow;
+	pointLight->GetGPULight()->Position	= pos;
+	pointLight->GetGPULight()->Range		= 300;
+	pointLight->GetGPULight()->HasShadow = hasShadow;
 
 	AddLight(pointLight);
 	//gPointLights.push_back(pointLight);
 
-	float Ox = pointLight->Position.x + 300;
-	float Oz = pointLight->Position.z + 300;
+	float Ox = pointLight->GetGPULight()->Position.x + 300;
+	float Oz = pointLight->GetGPULight()->Position.z + 300;
 
 	rotpos.push_back(XMFLOAT3(Ox, 0.0f, Oz));
 	angle.push_back(MathHelper::RandF(-45.0f, 45.0f));
@@ -289,17 +289,17 @@ void Level::AddSpotLight(bool hasShadow, XMFLOAT3 pos)
 	}
 
 	SpotLight *spotLight	= new SpotLight();
-	spotLight->Color		= XMFLOAT4(r, g, b, 0.0f);
+	spotLight->GetGPULight()->Color		= XMFLOAT4(r, g, b, 0.0f);
 	//spotLight->Position		= XMFLOAT3(x, 300.0f, z);
-	spotLight->Position		= pos;
+	spotLight->GetGPULight()->Position		= pos;
 
 	//spotLight->Direction	= XMFLOAT3(MathHelper::RandF(-5.0f, 5.0f), -1, MathHelper::RandF(-5.0f, 5.0f));
-	spotLight->Direction	= XMFLOAT3(0, -1, 1);
+	spotLight->GetGPULight()->Direction	= XMFLOAT3(0, -1, 1);
 
-	spotLight->angle		= XMConvertToRadians(45);
-	spotLight->Range		= 1000.0f;
+	spotLight->GetGPULight()->angle		= XMConvertToRadians(45);
+	spotLight->GetGPULight()->Range		= 1000.0f;
 
-	spotLight->HasShadow = hasShadow;
+	spotLight->GetGPULight()->HasShadow = hasShadow;
 	AddLight(spotLight);
 	//gSpotLights.push_back(spotLight);
 
@@ -383,11 +383,11 @@ void Level::Update(float DeltaTime)
 	{
 		if (InputManager::GetInstance()->GetController(0)->GetButtonState(Xbox_Button::A) == InputState::PRESSED)
 		{
-			gDirLights[i]->Direction =  XMFLOAT4(1.0f, -2.0f, 1.0f,0);
+			gDirLights[i]->GetGPULight()->Direction =  XMFLOAT4(1.0f, -2.0f, 1.0f,0);
 		}
 		else if (InputManager::GetInstance()->GetController(0)->GetButtonState(Xbox_Button::B) == InputState::PRESSED)
 		{
-			gDirLights[i]->Direction =  XMFLOAT4(0.0f, 1.0f, 1.0f,0);
+			gDirLights[i]->GetGPULight()->Direction =  XMFLOAT4(0.0f, 1.0f, 1.0f,0);
 		}
 		else
 		{
@@ -414,7 +414,7 @@ void Level::Update(float DeltaTime)
 		float a		= angle[i];
 
 
-		XMVECTOR pos  = XMLoadFloat3(&pLight->Position);
+		XMVECTOR pos  = XMLoadFloat3(&pLight->GetGPULight()->Position);
 		//XMVECTOR move = XMLoadFloat3(&XMFLOAT3(0,0,0.1f));
 
 		
@@ -429,10 +429,10 @@ void Level::Update(float DeltaTime)
 
 		//pos = pos + move;
 
-		XMStoreFloat3(&pLight->Position, pos);
+		XMStoreFloat3(&pLight->GetGPULight()->Position, pos);
 
 		//pLight->Position.z -= 0.1f;
-		pLight->Position.y = gTerrain->GetHeight(pLight->Position.x, pLight->Position.z) + 50;
+		pLight->GetGPULight()->Position.y = gTerrain->GetHeight(pLight->GetGPULight()->Position.x, pLight->GetGPULight()->Position.z) + 50;
 	}
 	
 	//Updaterar spotlights	
@@ -442,7 +442,7 @@ void Level::Update(float DeltaTime)
 
 		float a		= anglespot[i];
 
-		XMVECTOR dir  = XMLoadFloat3(&sLight->Direction);
+		XMVECTOR dir  = XMLoadFloat3(&sLight->GetGPULight()->Direction);
 
 		//XMMATRIX transl1 = XMMatrixTranslation(-sLight->Position.x, -2000.0f, -sLight->Position.z);
 		//XMMATRIX transl2 = XMMatrixTranslation(sLight->Position.x, 2000.0f, sLight->Position.z);
@@ -450,10 +450,10 @@ void Level::Update(float DeltaTime)
 
 		dir = XMVector3TransformCoord(dir, rot);
 
-		XMStoreFloat3(&sLight->Direction, dir);
+		XMStoreFloat3(&sLight->GetGPULight()->Direction, dir);
 		//XMMATRIX transf = transl1 * rot * transl2;
 
-		sLight->Position.y = gTerrain->GetHeight(sLight->Position.x, sLight->Position.z) + 100.0f;
+		sLight->GetGPULight()->Position.y = gTerrain->GetHeight(sLight->GetGPULight()->Position.x, sLight->GetGPULight()->Position.z) + 100.0f;
 	}
 }
 

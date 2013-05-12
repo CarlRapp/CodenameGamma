@@ -60,39 +60,41 @@ struct GPUPointLight : GPULight
 	bool	 HasShadow;
 };
 
+struct GPUSpotLight : GPULight
+{
+	XMFLOAT3 Position;
+	float Range;
+	// Packed into 4D vector: (Direction, Spot)
+	XMFLOAT3 Direction;
+	float angle;
+	//shadow info
+	XMFLOAT2 Resolution;
+	UINT	 ShadowIndex;
+	bool	 HasShadow;
+};
+
 
 class Light
 {
+protected:
 public:
 	Light(void) { }
-
-	XMFLOAT4 Color;
-	/*
-	template<class T>
-	bool IsOfType(Light* Instance)
-	{
-		return (dynamic_cast<T*>(Instance) != 0);
-	}
-	*/
+	virtual ~Light(){ }
+	//GPULight* GetGPULight() { return gpuLight; }
 };
 
 class DirectionalLight : public Light
 {
+	GPUDirectionalLight* gpuLight;
 public:
-	DirectionalLight(void) { ZeroMemory(this, sizeof(this)); }
-
-	XMFLOAT4 Direction;
-
-	//shadow info	
-	UINT	 ShadowIndex[4];
-	XMFLOAT2 Resolution;
-	bool	 HasShadow;
+	DirectionalLight(void) { gpuLight = new GPUDirectionalLight(); }
 
 	XMMATRIX GetViewMatrix(BoundingFrustum& frustum, float offset);
 	XMMATRIX GetProjectionMatrix(/*float nearZ, float farZ*/);
 
 	void GetViewProjOBB(BoundingFrustum& frustum, float offset, XMFLOAT4X4& View, XMFLOAT4X4& Proj, BoundingOrientedBox& OBB);
 
+	GPUDirectionalLight* GetGPULight() { return gpuLight; }
 	/*
 	BoundingFrustum GetBoundingOrientedBox(BoundingFrustum& frustum, float offset)
 	{
@@ -105,18 +107,10 @@ public:
 
 class PointLight : public Light
 {
+	GPUPointLight* gpuLight;
 public:
-	PointLight(void) { ZeroMemory(this, sizeof(this)); }
+	PointLight(void) { gpuLight = new GPUPointLight(); }
 
-	// Packed into 4D vector: (Position, Range)
-	XMFLOAT3 Position;
-	float Range;
-
-	//shadow info	
-	UINT	 ShadowIndex[6];
-	XMFLOAT2 Resolution;
-	bool	 HasShadow;
-	
 	std::vector<XMFLOAT4X4> GetViewMatrixes();
 	XMMATRIX GetProjectionMatrix(/*float nearZ, float farZ*/);
 	
@@ -138,27 +132,17 @@ public:
 
 	BoundingSphere GetBoundingSphere()
 	{
-		return BoundingSphere(Position, Range);
+		return BoundingSphere(gpuLight->Position, gpuLight->Range);
 	}
+
+	GPUPointLight* GetGPULight() { return gpuLight; }
 };
 
 class SpotLight : public Light
 {
+	GPUSpotLight* gpuLight;
 public:
-	SpotLight(void) { ZeroMemory(this, sizeof(this)); }
-
-	// Packed into 4D vector: (Position, Range)
-	XMFLOAT3 Position;
-	float Range;
-
-	// Packed into 4D vector: (Direction, Spot)
-	XMFLOAT3 Direction;
-	float angle;
-
-	//shadow info
-	XMFLOAT2 Resolution;
-	UINT	 ShadowIndex;
-	bool	 HasShadow;
+	SpotLight(void) { gpuLight = new GPUSpotLight(); }
 
 	XMMATRIX GetViewMatrix();
 	XMMATRIX GetProjectionMatrix(/*float nearZ, float farZ*/);
@@ -168,6 +152,8 @@ public:
 		return MathHelper::GenerateBoundingFrustum(GetViewMatrix(), GetProjectionMatrix(/*0.0f, Range*/));
 		//return BoundingFrustum(Position, Range);
 	}
+
+	virtual GPUSpotLight* GetGPULight() { return gpuLight; }
 };
 
 struct Material
