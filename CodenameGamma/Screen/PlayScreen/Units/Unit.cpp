@@ -107,9 +107,9 @@ void Unit::Hit(Unit* Target)
 	ReceiveDamage(-1.0f);
 }
 
-vector<Projectile*> Unit::FireWeapon()
+void Unit::FireWeapon()
 {
-	return gWeapon->Fire();
+	gWeapon->Fire();
 }
 
 void Unit::CollideWith(GameObject* Instance)

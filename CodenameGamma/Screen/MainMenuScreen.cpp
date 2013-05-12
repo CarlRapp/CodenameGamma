@@ -30,6 +30,7 @@ MainMenuScreen::MainMenuScreen(ScreenData* Setup)
 	SoundManager::GetInstance()->Load("Pistol", "DATA/Sounds/Pistol.wav", FMOD_SOFTWARE | FMOD_2D);
 	SoundManager::GetInstance()->Load("Reload", "DATA/Sounds/Reload.wav", FMOD_SOFTWARE | FMOD_2D);
 	SoundManager::GetInstance()->Load("EmptyClip", "DATA/Sounds/EmptyClip.wav", FMOD_SOFTWARE | FMOD_2D);
+	SoundManager::GetInstance()->Load("Shotgun_Fire", "DATA/Sounds/Shotgun_Fire.mp3", FMOD_SOFTWARE | FMOD_2D);
 
 	//SoundManager::GetInstance()->Play("Theme", true);
 }

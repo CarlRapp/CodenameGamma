@@ -199,8 +199,10 @@ void Level::LoadLevel(string Levelname)
 		float y = 10;
 		float z = MathHelper::RandF(450, 850);
 
-		Weapon*	DERP	=	new Pistol();
-		tGO	=	new WeaponOnGround( DERP );
+		Weapon*	tWeapon	=	new Pistol();
+		tWeapon->SetAddGameObject(std::bind(&Level::AddGameObject, this, std::placeholders::_1));
+
+		tGO	=	new WeaponOnGround( tWeapon );
 
 
 		//Hur man sätter callbackmetoden.
@@ -209,7 +211,7 @@ void Level::LoadLevel(string Levelname)
 
 		tGO->MoveTo( XMFLOAT3( x, y, z ) );
 		AddGameObject(tGO);
-		AddGameObject(DERP);
+		AddGameObject(tWeapon);
 	}
 
 
@@ -372,8 +374,10 @@ void Level::AddInstance(float x, float y, float z, Model *model)
 void Level::Update(float DeltaTime)
 {
 	vector<GameObject*> trash;
+	vector<GameObject*>	tempGameObjects	=	gGameObjects;
+
 	//for ( int i = gGameObjects.size() - 1; i >= 0; --i )
-	for each (GameObject*	tObject in gGameObjects)
+	for each (GameObject*	tObject in tempGameObjects)
 	{
 		//GameObject*	tObject	=	gGameObjects[i];
 
@@ -395,9 +399,7 @@ void Level::Update(float DeltaTime)
 
 	for each (Player *p in gPlayers)
 	{
-		vector<Projectile*>	tBullets = p->Update(DeltaTime);
-		for each ( Projectile* p in tBullets )		
-			AddGameObject(p);		
+		p->Update(DeltaTime);
 	}
 
 	RunCollisionTest();
@@ -642,11 +644,11 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 
 			gPlayers[i]->SetUnit(unit);
 			gPlayers[i]->GetUnit()->SetTeam(Team1);
-
+			/*
 			Pistol *pistol = new Pistol();
 			AddGameObject(pistol);
 
-			gPlayers[i]->GetUnit()->SetWeapon(pistol);
+			gPlayers[i]->GetUnit()->SetWeapon(pistol);*/
 		}
 	}
 

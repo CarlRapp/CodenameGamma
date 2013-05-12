@@ -1,17 +1,17 @@
 #pragma once
-#ifndef PISTOL_H
-#define PISTOL_H
+#ifndef SHOTGUN_H
+#define SHOTGUN_H
 
 #include "Weapon.h"
 #include "Projectiles/Bullet.h"
 
 using namespace DirectX;
 
-class Pistol : public Weapon
+class Shotgun : public Weapon
 {
 public:
-	Pistol(void);
-	~Pistol(void);
+	Shotgun(void);
+	~Shotgun(void);
 
 	bool	CanFire();
 

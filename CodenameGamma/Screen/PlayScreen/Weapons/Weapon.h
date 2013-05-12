@@ -37,11 +37,11 @@ public:
 	~Weapon(void);
 
 	//	This will be "master update"
-	virtual bool Update(float deltaTime, Terrain* terrain);
+	virtual bool	Update(float deltaTime, Terrain* terrain);
 
 	virtual	bool	CanFire() { return (gCooldown.first <= 0); }
 
-	virtual vector<Projectile*> Fire();
+	virtual void	Fire();
 
 	virtual	void	Reload();
 };
