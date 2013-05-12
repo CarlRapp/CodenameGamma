@@ -32,12 +32,6 @@ WeaponOnGround::~WeaponOnGround()
 
 bool WeaponOnGround::Update(float DeltaTime, Terrain* terrain)
 {
-	if ( gWeapon == 0 )
-	{
-		SetState( Dead );
-		return true;
-	}
-
 	XMFLOAT3	newPos	=	GetFloat3Value( Position );
 
 	if ( !gPointLight )
@@ -54,6 +48,8 @@ bool WeaponOnGround::Update(float DeltaTime, Terrain* terrain)
 	gTimeSpan	+=	DeltaTime;
 	
 	newPos.y	=	gOffset.y + ( gOffset.y - 2 ) * sin( 8 * gTimeSpan );
+
+	gWeapon->MoveTo( newPos );
 	MoveTo( newPos );
 	AddRotation( XMFLOAT3( 0, DeltaTime, 0 ) );
 
