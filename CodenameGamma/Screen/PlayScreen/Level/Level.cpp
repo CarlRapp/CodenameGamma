@@ -608,6 +608,11 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 			unit->PlayAnimation("Back");
 			unit->MoveTo(DirectX::XMFLOAT3(600, 0, 600));
 			unit->SetScale(TESTSCALE);
+
+			//Hur man sätter callbackmetoden.
+			//unit->SetAddLight(std::bind(&Level::AddLight, this, std::placeholders::_1));
+			//unit->SetRemoveLight(std::bind(&Level::RemoveLight, this, std::placeholders::_1));
+
 			AddGameObject(unit);
 
 			gPlayers[i]->SetUnit(unit);
