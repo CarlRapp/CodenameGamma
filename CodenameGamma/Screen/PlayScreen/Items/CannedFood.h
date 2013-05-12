@@ -4,11 +4,19 @@
 
 #include "Item.h"
 #include "../Units/Unit.h"
+#include "../Graphics/LightHelper.h"
 
 using namespace DirectX;
 
 class CannedFood : public Item
 {
+private:
+	XMFLOAT3	gOffset;
+	float		gTimeSpan;
+
+	PointLight*	gPointLight;
+
+
 public:
 	CannedFood(void);
 	~CannedFood(void);
