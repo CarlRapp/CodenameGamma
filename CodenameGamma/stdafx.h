@@ -87,5 +87,10 @@
 
 #define SafeDelete(x) { delete x; x = 0; }
 
+template<class A, class B>
+bool IsOfType(B* Instance)
+{
+ return (dynamic_cast<A*>(Instance) != 0);
+}
 
 #endif

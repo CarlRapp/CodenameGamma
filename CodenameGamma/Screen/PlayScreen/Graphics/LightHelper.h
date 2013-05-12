@@ -31,14 +31,55 @@ static int ShadowTileSize(XMFLOAT2 resolution)
 	else return 0;
 }
 
-struct Light
+
+struct GPULight
 {
+	GPULight(void) { ZeroMemory(this, sizeof(this)); }
 	XMFLOAT4 Color;
 };
 
-struct DirectionalLight : public Light
+struct GPUDirectionalLight : GPULight
 {
-	//DirectionalLight() { ZeroMemory(this, sizeof(this)); }
+	GPUDirectionalLight(void) { ZeroMemory(this, sizeof(this)); }
+	XMFLOAT4 Direction;
+	//shadow info	
+	UINT	 ShadowIndex[4];
+	XMFLOAT2 Resolution;
+	bool	 HasShadow;
+};
+
+struct GPUPointLight : GPULight
+{
+	GPUPointLight(void) { ZeroMemory(this, sizeof(this)); }
+	// Packed into 4D vector: (Position, Range)
+	XMFLOAT3 Position;
+	float Range;
+	//shadow info	
+	UINT	 ShadowIndex[6];
+	XMFLOAT2 Resolution;
+	bool	 HasShadow;
+};
+
+
+class Light
+{
+public:
+	Light(void) { }
+
+	XMFLOAT4 Color;
+	/*
+	template<class T>
+	bool IsOfType(Light* Instance)
+	{
+		return (dynamic_cast<T*>(Instance) != 0);
+	}
+	*/
+};
+
+class DirectionalLight : public Light
+{
+public:
+	DirectionalLight(void) { ZeroMemory(this, sizeof(this)); }
 
 	XMFLOAT4 Direction;
 
@@ -62,10 +103,10 @@ struct DirectionalLight : public Light
 	
 };
 
-struct PointLight : public Light
+class PointLight : public Light
 {
-	PointLight() { ZeroMemory(this, sizeof(this)); }
-
+public:
+	PointLight(void) { ZeroMemory(this, sizeof(this)); }
 
 	// Packed into 4D vector: (Position, Range)
 	XMFLOAT3 Position;
@@ -101,10 +142,10 @@ struct PointLight : public Light
 	}
 };
 
-struct SpotLight : public Light
+class SpotLight : public Light
 {
-	SpotLight() { ZeroMemory(this, sizeof(this)); }
-
+public:
+	SpotLight(void) { ZeroMemory(this, sizeof(this)); }
 
 	// Packed into 4D vector: (Position, Range)
 	XMFLOAT3 Position;
