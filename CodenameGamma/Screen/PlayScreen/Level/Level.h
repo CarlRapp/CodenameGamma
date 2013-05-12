@@ -83,14 +83,19 @@ private:
 		sort( gGameObjects.begin(), gGameObjects.end() );
 		gQuadTree->Insert(go); 
 	}
-
+	
 	void RemoveGameObject(GameObject* go) 
 	{ 
 		gQuadTree->Delete(go); 
 		gGameObjects.erase(remove(gGameObjects.begin(), gGameObjects.end(), go), gGameObjects.end());		
-
+	}
+	
+	void DeleteGameObject(GameObject* go)
+	{
+		RemoveGameObject(go);
 		delete go;
 	}
+
 	/*
 	void AddLight(DirectionalLight* light) { gDirLights.push_back(light); }
 	void AddLight(PointLight* light) { gPointLights.push_back(light); }

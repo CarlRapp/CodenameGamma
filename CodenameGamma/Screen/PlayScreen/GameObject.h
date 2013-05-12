@@ -14,6 +14,7 @@ using namespace DirectX;
 
 //typedef std::function<void(Light*)> LightCallback
 #define LightCallback std::function<void(Light*)>
+#define GameObjectCallback std::function<void(GameObject*)>
 
 struct HitBox
 {
@@ -91,6 +92,9 @@ class GameObject
 protected:
 	LightCallback AddLight;
 	LightCallback RemoveLight;
+	GameObjectCallback AddGameObject;
+	GameObjectCallback RemoveGameObject;
+	GameObjectCallback DeleteGameObject;
 	ModelInstance *m_ModelInstance;
 
 public:
@@ -110,6 +114,10 @@ public:
 
 	void	SetAddLight(LightCallback callback) { AddLight = callback; }
 	void	SetRemoveLight(LightCallback callback) { RemoveLight = callback; }
+
+	void	SetAddGameObject(GameObjectCallback callback) { AddGameObject = callback; }
+	void	SetRemoveGameObject(GameObjectCallback callback) { RemoveGameObject = callback; }
+	void	SetDeleteGameObject(GameObjectCallback callback) { DeleteGameObject = callback; }
 
 	void	AddRotation(XMFLOAT3 Delta);
 	void	SetRotation(XMFLOAT3 Rotation);
