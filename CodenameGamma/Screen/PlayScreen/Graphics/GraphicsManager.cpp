@@ -358,28 +358,28 @@ void GraphicsManager::RenderShadowMaps(vector<Camera*>& cameras)
 	//Add directionallights with shadows
 	for each (DirectionalLight* light in *m_DirLights)
 	{
-		light->ShadowIndex[0] = 9999;
-		light->ShadowIndex[1] = 9999;
-		light->ShadowIndex[2] = 9999;
-		light->ShadowIndex[3] = 9999;
-		if (light->HasShadow)
+		light->GetGPULight()->ShadowIndex[0] = 9999;
+		light->GetGPULight()->ShadowIndex[1] = 9999;
+		light->GetGPULight()->ShadowIndex[2] = 9999;
+		light->GetGPULight()->ShadowIndex[3] = 9999;
+		if (light->GetGPULight()->HasShadow)
 			dirLights.push_back(light);
 	}
 
 	//Add pointlights with shadows
 	for each (PointLight* light in *m_PointLights)
 	{
-		light->ShadowIndex[0] = 9999;
-		light->ShadowIndex[1] = 9999;
-		light->ShadowIndex[2] = 9999;
-		light->ShadowIndex[3] = 9999;
-		light->ShadowIndex[4] = 9999;
-		light->ShadowIndex[5] = 9999;
-		if (light->HasShadow)
+		light->GetGPULight()->ShadowIndex[0] = 9999;
+		light->GetGPULight()->ShadowIndex[1] = 9999;
+		light->GetGPULight()->ShadowIndex[2] = 9999;
+		light->GetGPULight()->ShadowIndex[3] = 9999;
+		light->GetGPULight()->ShadowIndex[4] = 9999;
+		light->GetGPULight()->ShadowIndex[5] = 9999;
+		if (light->GetGPULight()->HasShadow)
 		{
 			BoundingSphere lightBounds = light->GetBoundingSphere();
 			bool added = false;
-			light->Resolution = SHADOWMAP_512;
+			light->GetGPULight()->Resolution = SHADOWMAP_512;
 			for each (Camera* camera in cameras)
 			{
 				if (camera->GetFrustum().Intersects(lightBounds))
@@ -388,7 +388,7 @@ void GraphicsManager::RenderShadowMaps(vector<Camera*>& cameras)
 						pointLights.push_back(light);
 
 					XMFLOAT2 tempRes = ChooseResolution(light, camera->GetPosition());
-					light->Resolution = HighestRes(light->Resolution, tempRes);
+					light->GetGPULight()->Resolution = HighestRes(light->GetGPULight()->Resolution, tempRes);
 
 					break;
 				}
@@ -399,12 +399,12 @@ void GraphicsManager::RenderShadowMaps(vector<Camera*>& cameras)
 	//Add spotlights with shadows
 	for each (SpotLight* light in *m_SpotLights)
 	{
-		light->ShadowIndex = 9999;
-		if (light->HasShadow)
+		light->GetGPULight()->ShadowIndex = 9999;
+		if (light->GetGPULight()->HasShadow)
 		{
 			BoundingFrustum lightBounds = light->GetBoundingFrustum();
 			bool added = false;
-			light->Resolution = SHADOWMAP_512;
+			light->GetGPULight()->Resolution = SHADOWMAP_512;
 			for each (Camera* camera in cameras)
 			{
 				if (camera->GetFrustum().Intersects(lightBounds))
@@ -413,7 +413,7 @@ void GraphicsManager::RenderShadowMaps(vector<Camera*>& cameras)
 						spotLights.push_back(light);
 
 					XMFLOAT2 tempRes = ChooseResolution(light, camera->GetPosition());
-					light->Resolution = HighestRes(light->Resolution, tempRes);
+					light->GetGPULight()->Resolution = HighestRes(light->GetGPULight()->Resolution, tempRes);
 
 					break;
 				}
@@ -448,7 +448,7 @@ void GraphicsManager::RenderDirShadowMaps(vector<DirectionalLight*>& dirLights, 
 	//spotlights för vald upplösning ritats ut.
 	for each (DirectionalLight* light in dirLights)
 	{	
-		XMVECTOR LightRes = XMLoadFloat2(&light->Resolution);
+		XMVECTOR LightRes = XMLoadFloat2(&light->GetGPULight()->Resolution);
 
 		if (XMVector2Equal(LightRes, CurrentRes))
 		{
@@ -505,7 +505,7 @@ void GraphicsManager::RenderDirShadowMaps(vector<DirectionalLight*>& dirLights, 
 				RenderShadowMap(0, View, Proj, vp, OBB);
 
 				//Sätter ShadowIndex
-				light->ShadowIndex[i] = ShadowIndex;
+				light->GetGPULight()->ShadowIndex[i] = ShadowIndex;
 
 				//Räknar upp ShadowIndex
 				++ShadowIndex;
@@ -522,7 +522,7 @@ void GraphicsManager::RenderPointShadowMaps(vector<PointLight*>& pointLights, XM
 	//spotlights för vald upplösning ritats ut.
 	for each (PointLight* light in pointLights)
 	{					
-		XMVECTOR LightRes = XMLoadFloat2(&light->Resolution);
+		XMVECTOR LightRes = XMLoadFloat2(&light->GetGPULight()->Resolution);
 
 		if (XMVector2Equal(LightRes, CurrentRes))
 		{
@@ -556,7 +556,7 @@ void GraphicsManager::RenderPointShadowMaps(vector<PointLight*>& pointLights, XM
 				RenderShadowMap(1, View, Proj, vp);
 
 				//Sätter ShadowIndex
-				light->ShadowIndex[i] = ShadowIndex;
+				light->GetGPULight()->ShadowIndex[i] = ShadowIndex;
 
 				//Räknar upp ShadowIndex
 				++ShadowIndex;
@@ -573,7 +573,7 @@ void GraphicsManager::RenderSpotShadowMaps(vector<SpotLight*>& spotLights, XMFLO
 	//spotlights för vald upplösning ritats ut.
 	for each (SpotLight* light in spotLights)
 	{					
-		XMVECTOR LightRes = XMLoadFloat2(&light->Resolution);
+		XMVECTOR LightRes = XMLoadFloat2(&light->GetGPULight()->Resolution);
 
 		if (XMVector2Equal(LightRes, CurrentRes))
 		{
@@ -606,7 +606,7 @@ void GraphicsManager::RenderSpotShadowMaps(vector<SpotLight*>& spotLights, XMFLO
 			RenderShadowMap(2, View, Proj, vp);
 
 			//Sätter ShadowIndex
-			light->ShadowIndex = ShadowIndex;
+			light->GetGPULight()->ShadowIndex = ShadowIndex;
 
 			//Räknar upp ShadowIndex
 			++ShadowIndex;
@@ -864,23 +864,23 @@ void GraphicsManager::UpdateLights()
 				delete m_DirLightBuffer;
 
 				if (m_DirLights->size() > 0)
-					m_DirLightBuffer = new StructuredBuffer<DirectionalLight>(m_Device, m_DirLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
+					m_DirLightBuffer = new StructuredBuffer<GPUDirectionalLight>(m_Device, m_DirLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
 				else
 					m_DirLightBuffer = NULL;
 			}
 		}
 		else if (m_DirLights->size() > 0)
-			m_DirLightBuffer = new StructuredBuffer<DirectionalLight>(m_Device, m_DirLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
+			m_DirLightBuffer = new StructuredBuffer<GPUDirectionalLight>(m_Device, m_DirLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
 
 		//Update lights in m_DirLightBuffer
 		if (m_DirLightBuffer != NULL)
 		{
 			if (m_DirLightBuffer->Size() > 0)
 			{
-				DirectionalLight* dirLight = m_DirLightBuffer->MapDiscard(m_DeviceContext);
+				GPUDirectionalLight* dirLight = m_DirLightBuffer->MapDiscard(m_DeviceContext);
 				for (unsigned int i = 0; i < m_DirLights->size(); ++i) 
 				{
-					dirLight[i] = *m_DirLights->at(i);
+					dirLight[i] = *m_DirLights->at(i)->GetGPULight();
 				}
 				m_DirLightBuffer->Unmap(m_DeviceContext);
 			}
@@ -903,13 +903,13 @@ void GraphicsManager::UpdateLights()
 				delete m_PointLightBuffer;
 
 				if (m_PointLights->size() > 0)
-					m_PointLightBuffer = new StructuredBuffer<PointLight>(m_Device, m_PointLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
+					m_PointLightBuffer = new StructuredBuffer<GPUPointLight>(m_Device, m_PointLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
 				else
 					m_PointLightBuffer = NULL;
 			}
 		}
 		else if (m_PointLights->size() > 0)
-			m_PointLightBuffer = new StructuredBuffer<PointLight>(m_Device, m_PointLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
+			m_PointLightBuffer = new StructuredBuffer<GPUPointLight>(m_Device, m_PointLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
 
 
 		//Update lights in m_PointLightBuffer
@@ -917,10 +917,10 @@ void GraphicsManager::UpdateLights()
 		{
 			if (m_PointLightBuffer->Size() > 0)
 			{
-				PointLight* pointLight = m_PointLightBuffer->MapDiscard(m_DeviceContext);
+				GPUPointLight* pointLight = m_PointLightBuffer->MapDiscard(m_DeviceContext);
 				for (unsigned int i = 0; i < m_PointLights->size(); ++i) 
 				{
-					pointLight[i] = *m_PointLights->at(i);
+					pointLight[i] = *m_PointLights->at(i)->GetGPULight();
 				}
 				m_PointLightBuffer->Unmap(m_DeviceContext);
 			}
@@ -943,23 +943,23 @@ void GraphicsManager::UpdateLights()
 				delete m_SpotLightBuffer;
 
 				if (m_SpotLights->size() > 0)
-					m_SpotLightBuffer = new StructuredBuffer<SpotLight>(m_Device, m_SpotLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
+					m_SpotLightBuffer = new StructuredBuffer<GPUSpotLight>(m_Device, m_SpotLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
 				else
 					m_SpotLightBuffer = NULL;
 			}
 		}
 		else if (m_SpotLights->size() > 0)
-			m_SpotLightBuffer = new StructuredBuffer<SpotLight>(m_Device, m_SpotLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
+			m_SpotLightBuffer = new StructuredBuffer<GPUSpotLight>(m_Device, m_SpotLights->size(), D3D11_BIND_SHADER_RESOURCE, true);
 
 		//Update lights in m_SpotLightBuffer
 		if (m_SpotLightBuffer != NULL)
 		{
 			if (m_SpotLightBuffer->Size() > 0)
 			{
-				SpotLight* spotLight = m_SpotLightBuffer->MapDiscard(m_DeviceContext);
+				GPUSpotLight* spotLight = m_SpotLightBuffer->MapDiscard(m_DeviceContext);
 				for (unsigned int i = 0; i < m_SpotLights->size(); ++i) 
 				{
-					spotLight[i] = *m_SpotLights->at(i);
+					spotLight[i] = *m_SpotLights->at(i)->GetGPULight();
 				}
 				m_SpotLightBuffer->Unmap(m_DeviceContext);
 			}

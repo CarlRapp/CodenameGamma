@@ -7,7 +7,7 @@ XMMATRIX DirectionalLight::GetViewMatrix(BoundingFrustum& frustum, float offset)
 	sphere.CreateFromFrustum(sphere, frustum);
 
 	XMVECTOR center = XMLoadFloat3(&sphere.Center);
-	XMVECTOR dir	= XMLoadFloat3(&XMFLOAT3(Direction.x, Direction.y, Direction.z));
+	XMVECTOR dir	= XMLoadFloat3(&XMFLOAT3(gpuLight->Direction.x, gpuLight->Direction.y, gpuLight->Direction.z));
 	dir = XMVector3Normalize(dir);
 
 	offset += sphere.Radius;
@@ -64,7 +64,7 @@ void DirectionalLight::GetViewProjOBB(BoundingFrustum& frustum, float offset, XM
 	}
 	centerW /= 8;
 	
-	XMVECTOR lightDirW	= XMLoadFloat3(&XMFLOAT3(Direction.x, Direction.y, Direction.z));
+	XMVECTOR lightDirW	= XMLoadFloat3(&XMFLOAT3(gpuLight->Direction.x, gpuLight->Direction.y, gpuLight->Direction.z));
 	lightDirW = XMVector3Normalize(lightDirW);
 
 	XMVECTOR lightPosW = centerW - (frustum.Far * lightDirW);
@@ -158,32 +158,32 @@ std::vector<XMFLOAT4X4> PointLight::GetViewMatrixes()
 	XMMATRIX temp;
 
 	//höger
-	temp = CalculateViewMatrix(Position, XMFLOAT3(1,0,0));
+	temp = CalculateViewMatrix(gpuLight->Position, XMFLOAT3(1,0,0));
 	XMStoreFloat4x4(&view, temp);
 	views.push_back(view);
 
 	//upp
-	temp = CalculateViewMatrix(Position, XMFLOAT3(0,1,0));
+	temp = CalculateViewMatrix(gpuLight->Position, XMFLOAT3(0,1,0));
 	XMStoreFloat4x4(&view, temp);
 	views.push_back(view);
 
 	//fram
-	temp = CalculateViewMatrix(Position, XMFLOAT3(0,0,1));
+	temp = CalculateViewMatrix(gpuLight->Position, XMFLOAT3(0,0,1));
 	XMStoreFloat4x4(&view, temp);
 	views.push_back(view);
 
 	//vänster
-	temp = CalculateViewMatrix(Position, XMFLOAT3(-1,0,0));
+	temp = CalculateViewMatrix(gpuLight->Position, XMFLOAT3(-1,0,0));
 	XMStoreFloat4x4(&view, temp);
 	views.push_back(view);
 
 	//ner
-	temp = CalculateViewMatrix(Position, XMFLOAT3(0,-1,0));
+	temp = CalculateViewMatrix(gpuLight->Position, XMFLOAT3(0,-1,0));
 	XMStoreFloat4x4(&view, temp);
 	views.push_back(view);
 
 	//bak
-	temp = CalculateViewMatrix(Position, XMFLOAT3(0,0,-1));
+	temp = CalculateViewMatrix(gpuLight->Position, XMFLOAT3(0,0,-1));
 	XMStoreFloat4x4(&view, temp);
 	views.push_back(view);
 
@@ -195,7 +195,7 @@ XMMATRIX PointLight::GetProjectionMatrix(/*float nearZ, float farZ*/)
 	XMMATRIX projcetion;
 	float fovY = PI * 0.505f;
 	float n = 0.05f;
-	float f = Range;
+	float f = gpuLight->Range;
 /*
 	if (!(nearZ < 1.0f || farZ > Range || nearZ > farZ))
 	{
@@ -208,7 +208,7 @@ XMMATRIX PointLight::GetProjectionMatrix(/*float nearZ, float farZ*/)
 
 XMMATRIX SpotLight::GetViewMatrix()
 {
-	return CalculateViewMatrix(Position, Direction);
+	return CalculateViewMatrix(gpuLight->Position, gpuLight->Direction);
 	/*
 	XMVECTOR pos = XMLoadFloat3(&Position);
 	XMVECTOR dir = XMLoadFloat3(&Direction);	
@@ -231,9 +231,9 @@ XMMATRIX SpotLight::GetViewMatrix()
 XMMATRIX SpotLight::GetProjectionMatrix(/*float nearZ, float farZ*/)
 {
 	XMMATRIX projcetion;
-	float fovY = 2 * angle;
+	float fovY = 2 * gpuLight->angle;
 	float n = 0.05f;
-	float f = Range;
+	float f = gpuLight->Range;
 	/*
 	if (!(nearZ < 1.0f || farZ > Range || nearZ > farZ))
 	{

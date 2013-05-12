@@ -51,9 +51,9 @@ class GraphicsManager
 	vector<PointLight*>					*m_PointLights;
 	vector<SpotLight*>					*m_SpotLights;
 
-	StructuredBuffer<DirectionalLight>	*m_DirLightBuffer;
-	StructuredBuffer<PointLight>		*m_PointLightBuffer;
-	StructuredBuffer<SpotLight>			*m_SpotLightBuffer;
+	StructuredBuffer<GPUDirectionalLight>	*m_DirLightBuffer;
+	StructuredBuffer<GPUPointLight>		*m_PointLightBuffer;
+	StructuredBuffer<GPUSpotLight>			*m_SpotLightBuffer;
 
 	XMFLOAT4X4 m_ViewProjTexs[MAX_SHADOWMAPS];
 	XMFLOAT4X4 m_ViewProj[MAX_SHADOWMAPS];
@@ -193,7 +193,7 @@ private:
 
 	XMFLOAT2 ChooseResolution(PointLight* light, XMFLOAT3 cameraPos)
 	{
-		float dist = PosToLightDist(cameraPos, light->Position, light->Range);
+		float dist = PosToLightDist(cameraPos, light->GetGPULight()->Position, light->GetGPULight()->Range);
 
 		if (dist < -1200)
 			return SHADOWMAP_4096;
@@ -207,7 +207,7 @@ private:
 
 	XMFLOAT2 ChooseResolution(SpotLight* light, XMFLOAT3 cameraPos)
 	{
-		float dist = PosToLightDist(cameraPos, light->Position, light->Range);
+		float dist = PosToLightDist(cameraPos, light->GetGPULight()->Position, light->GetGPULight()->Range);
 
 		if (dist < -700)
 			return SHADOWMAP_4096;

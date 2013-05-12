@@ -92,16 +92,16 @@ private:
 
 		delete go;
 	}
-
+	/*
 	void AddLight(DirectionalLight* light) { gDirLights.push_back(light); }
 	void AddLight(PointLight* light) { gPointLights.push_back(light); }
 	void AddLight(SpotLight* light) { gSpotLights.push_back(light); }
-
+	
 	void RemoveLight(DirectionalLight* light) { gDirLights.erase(remove(gDirLights.begin(), gDirLights.end(), light), gDirLights.end()); delete light; }
 	void RemoveLight(PointLight* light) { gPointLights.erase(remove(gPointLights.begin(), gPointLights.end(), light), gPointLights.end()); delete light; }
 	void RemoveLight(SpotLight* light) { gSpotLights.erase(remove(gSpotLights.begin(), gSpotLights.end(), light), gSpotLights.end()); delete light; }
-
-	/*
+	*/
+	
 	void AddLight(Light* light)
 	{
 		
@@ -117,9 +117,25 @@ private:
 	
 	void RemoveLight(Light* light)
 	{
+		if (IsOfType<DirectionalLight>(light))
+		{
+			gDirLights.erase(remove(gDirLights.begin(), gDirLights.end(), light), gDirLights.end()); 
+			SAFE_DELETE(light);
+		}
 
+		else if (IsOfType<PointLight>(light))
+		{
+			gPointLights.erase(remove(gPointLights.begin(), gPointLights.end(), light), gPointLights.end()); 
+			SAFE_DELETE(light);
+		}
+
+		else if (IsOfType<SpotLight>(light))
+		{
+			gSpotLights.erase(remove(gSpotLights.begin(), gSpotLights.end(), light), gSpotLights.end()); 
+			SAFE_DELETE(light);
+		}
 	}
-	*/
+	
 	void RunCollisionTest();
 
 public:
