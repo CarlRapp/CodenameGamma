@@ -14,8 +14,7 @@
 #include "LevelParser.h"
 #include "../Units/Unit.h"
 #include "../Player.h"
-
-
+#include <functional>
 struct SystemData
 {
 	SystemData(){}
