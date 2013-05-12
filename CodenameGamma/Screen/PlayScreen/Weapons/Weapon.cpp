@@ -2,7 +2,11 @@
 
 Weapon::Weapon(void)
 {
-	gCooldown	=	WeaponCooldown(0.0f, 0.0f);
+	gCooldown	=	WeaponCooldown( 0.0f, 0.0f );
+	gClip		=	WeaponClip( 0, 0 );
+	gReloadTime	=	WeaponReloadTime( 0.0f, 0.0f );
+
+	gState		=	Ready;
 }
 
 Weapon::~Weapon(void)
