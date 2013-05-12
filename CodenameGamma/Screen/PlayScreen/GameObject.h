@@ -95,7 +95,7 @@ protected:
 
 public:
 	GameObject(void);
-	~GameObject(void);
+	virtual ~GameObject(void);
 
 	virtual bool Update(float deltaTime, Terrain* terrain);
 	QuadTreeType* GetQuadTreeType() { return m_QuadTreeType; }
