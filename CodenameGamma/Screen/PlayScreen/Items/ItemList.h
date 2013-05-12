@@ -7,4 +7,7 @@
 //	Foodz
 #include "CannedFood.h"
 
+//	Weaponz
+#include "WeaponOnGround.h"
+
 #endif
