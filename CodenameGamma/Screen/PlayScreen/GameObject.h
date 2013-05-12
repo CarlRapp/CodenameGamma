@@ -9,7 +9,11 @@
 #include "../../MathHelper.h"
 #include "Graphics\ModelManager.h"
 #include <typeinfo>
+#include <functional>
 using namespace DirectX;
+
+//typedef std::function<void(Light*)> LightCallback
+#define LightCallback std::function<void(Light*)>
 
 struct HitBox
 {
@@ -85,6 +89,8 @@ class GameObject
 	void	UpdateWorld(bool UpdateInverseTranspose);
 
 protected:
+	LightCallback AddLight;
+	LightCallback RemoveLight;
 	ModelInstance *m_ModelInstance;
 
 public:
@@ -101,6 +107,9 @@ public:
 	float		GetScale() { return gScaleInFloat; }
 	XMFLOAT3	GetFloat3Value(GOFloat3Value Value);
 	XMFLOAT4X4	GetFloat4x4Value(GOFloat4x4Value Value);
+
+	void	SetAddLight(LightCallback callback) { AddLight = callback; }
+	void	SetRemoveLight(LightCallback callback) { RemoveLight = callback; }
 
 	void	AddRotation(XMFLOAT3 Delta);
 	void	SetRotation(XMFLOAT3 Rotation);
