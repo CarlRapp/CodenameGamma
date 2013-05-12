@@ -67,10 +67,14 @@ void WeaponOnGround::OnPickUp(Unit* Instance)
 	if ( !IsOfType<PlayerUnit>(Instance) )
 		return;
 
-	SetScale( 1 );
-	PlayerUnit*	pUnit	=	(PlayerUnit*)Instance;
-	pUnit->SetWeapon( gWeapon );
 	
-	SetState( Dead );
-	RemoveLight( gPointLight );
+	PlayerUnit*	pUnit	=	(PlayerUnit*)Instance;
+	if (!pUnit->HasWeapon())
+	{
+		SetScale( 1 );
+		pUnit->SetWeapon( gWeapon );
+	
+		SetState( Dead );
+		RemoveLight( gPointLight );
+	}
 }

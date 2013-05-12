@@ -39,17 +39,17 @@ Level::Level(SystemData LData)
 		AddSpotLight(true);
 		*/
 
-	AddPointLight(true, XMFLOAT3(1700,0,2200));
+	AddPointLight(true, XMFLOAT3(1700,120,2200));
 
 	//AddPointLight(true, XMFLOAT3(1800,0,1800));
 	//AddPointLight(true, XMFLOAT3(2200,0,2800));
 	//AddPointLight(true, XMFLOAT3(1800,0,2800));
 
 
-	AddPointLight(true, XMFLOAT3(1000,0,1000));
-	AddPointLight(true, XMFLOAT3(1000,0,3000));
-	AddPointLight(true, XMFLOAT3(3000,0,1000));
-	AddPointLight(true, XMFLOAT3(3000,0,3000));
+	AddPointLight(true, XMFLOAT3(1000,120,1000));
+	AddPointLight(true, XMFLOAT3(1000,120,3000));
+	AddPointLight(true, XMFLOAT3(3000,120,1000));
+	AddPointLight(true, XMFLOAT3(3000,120,3000));
 
 
 	AddSpotLight(true, XMFLOAT3(2200,0,2100));

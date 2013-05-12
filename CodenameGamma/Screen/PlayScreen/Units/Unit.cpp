@@ -12,10 +12,32 @@ Unit::~Unit(void)
 {
 }
 
+void Unit::DropWeapon()
+{
+	if (gWeapon)
+	{
+		gWeapon->SetState( Dead );
+		gWeapon = NULL;
+	}
+}
+
+void Unit::SetWeapon(Weapon* Weapon)
+{
+	if (gWeapon)
+		gWeapon->SetState( Dead );
+
+	gWeapon = Weapon; 
+
+	if (gWeapon) 
+		gWeapon->SetTeam(GetTeam()); 
+}
+
+
 UnitHealth Unit::GetHealth()
 {
 	return gHealth;
 }
+
 void Unit::SetHealth(UnitHealth HealthData)
 {
 	gHealth	=	HealthData;
@@ -109,7 +131,8 @@ void Unit::Hit(Unit* Target)
 
 void Unit::FireWeapon()
 {
-	gWeapon->Fire();
+	if (gWeapon)
+		gWeapon->Fire();
 }
 
 void Unit::CollideWith(GameObject* Instance)

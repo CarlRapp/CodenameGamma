@@ -8,6 +8,8 @@ Pistol::Pistol()
 	gCooldown	=	WeaponCooldown(0.0f, 0.2f);
 	gClip		=	WeaponClip(5, 9);
 	gReloadTime	=	WeaponReloadTime(0.0f, 2.5f);
+
+	SetScale(2.0f);
 }
 
 Pistol::~Pistol()
