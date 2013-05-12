@@ -178,13 +178,38 @@ void Level::LoadLevel(string Levelname)
 	
 	for (int i = 0; i < 20; ++i)
 	{
-		float x = MathHelper::RandF(0, 500);
-		float y = 0;
-		float z = MathHelper::RandF(0, 500);
+		float x = MathHelper::RandF(100, 500);
+		float y = 10;
+		float z = MathHelper::RandF(100, 500);
 
 		tGO	=	new CannedFood();
-		tGO->MoveTo( XMFLOAT3( x, 0, z ) );
+
+
+		//Hur man sätter callbackmetoden.
+		tGO->SetAddLight(std::bind(&Level::AddLight, this, std::placeholders::_1));
+		tGO->SetRemoveLight(std::bind(&Level::RemoveLight, this, std::placeholders::_1));
+
+		tGO->MoveTo( XMFLOAT3( x, y, z ) );
 		AddGameObject(tGO);
+	}
+
+	for (int i = 0; i < 20; ++i)
+	{
+		float x = MathHelper::RandF(450, 850);
+		float y = 10;
+		float z = MathHelper::RandF(450, 850);
+
+		Weapon*	DERP	=	new Pistol();
+		tGO	=	new WeaponOnGround( DERP );
+
+
+		//Hur man sätter callbackmetoden.
+		tGO->SetAddLight(std::bind(&Level::AddLight, this, std::placeholders::_1));
+		tGO->SetRemoveLight(std::bind(&Level::RemoveLight, this, std::placeholders::_1));
+
+		tGO->MoveTo( XMFLOAT3( x, y, z ) );
+		AddGameObject(tGO);
+		AddGameObject(DERP);
 	}
 
 
@@ -409,7 +434,7 @@ void Level::Update(float DeltaTime)
 	for (int i = 0; i < (int)gPointLights.size(); ++i)
 	{
 		PointLight *pLight = gPointLights[i];
-
+/*
 		XMFLOAT3 rp = rotpos[i];
 		float a		= angle[i];
 
@@ -426,13 +451,13 @@ void Level::Update(float DeltaTime)
 
 
 		pos = XMVector3TransformCoord(pos, transf);
-
+		*/
 		//pos = pos + move;
 
-		XMStoreFloat3(&pLight->GetGPULight()->Position, pos);
+		//XMStoreFloat3(&pLight->GetGPULight()->Position, pos);
 
 		//pLight->Position.z -= 0.1f;
-		pLight->GetGPULight()->Position.y = gTerrain->GetHeight(pLight->GetGPULight()->Position.x, pLight->GetGPULight()->Position.z) + 50;
+		//pLight->GetGPULight()->Position.y = gTerrain->GetHeight(pLight->GetGPULight()->Position.x, pLight->GetGPULight()->Position.z) + 50;
 	}
 	
 	//Updaterar spotlights	

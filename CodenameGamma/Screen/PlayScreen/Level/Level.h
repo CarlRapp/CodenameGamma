@@ -119,20 +119,22 @@ private:
 		if (IsOfType<DirectionalLight>(light))
 		{
 			gDirLights.erase(remove(gDirLights.begin(), gDirLights.end(), light), gDirLights.end()); 
-			SAFE_DELETE(light);
 		}
 
 		else if (IsOfType<PointLight>(light))
 		{
 			gPointLights.erase(remove(gPointLights.begin(), gPointLights.end(), light), gPointLights.end()); 
-			SAFE_DELETE(light);
 		}
 
 		else if (IsOfType<SpotLight>(light))
 		{
 			gSpotLights.erase(remove(gSpotLights.begin(), gSpotLights.end(), light), gSpotLights.end()); 
-			SAFE_DELETE(light);
 		}
+	}
+	void DeleteLight(Light *light)
+	{
+		RemoveLight( light );
+		SAFE_DELETE( light );
 	}
 	
 	void RunCollisionTest();
