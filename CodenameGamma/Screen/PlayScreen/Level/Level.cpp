@@ -235,7 +235,10 @@ void Level::AddDirectionalLight(bool hasShadow)
 	dirLight->Resolution = SHADOWMAP_4096;
 	//dirLight->Resolution = SHADOWMAP_2048;
 	//dirLight->Resolution = SHADOWMAP_1024;
-	gDirLights.push_back(dirLight);
+
+	AddLight(dirLight);
+
+	//gDirLights.push_back(dirLight);
 }
 void Level::AddPointLight(bool hasShadow, XMFLOAT3 pos)
 {
@@ -256,7 +259,9 @@ void Level::AddPointLight(bool hasShadow, XMFLOAT3 pos)
 	pointLight->Position	= pos;
 	pointLight->Range		= 300;
 	pointLight->HasShadow = hasShadow;
-	gPointLights.push_back(pointLight);
+
+	AddLight(pointLight);
+	//gPointLights.push_back(pointLight);
 
 	float Ox = pointLight->Position.x + 300;
 	float Oz = pointLight->Position.z + 300;
@@ -295,7 +300,8 @@ void Level::AddSpotLight(bool hasShadow, XMFLOAT3 pos)
 	spotLight->Range		= 1000.0f;
 
 	spotLight->HasShadow = hasShadow;
-	gSpotLights.push_back(spotLight);
+	AddLight(spotLight);
+	//gSpotLights.push_back(spotLight);
 
 
 	float aspeed = MathHelper::RandF(40.0f, 90.0f);

@@ -130,12 +130,13 @@ public:
 	GOTeam	GetTeam();
 
 	virtual	void	CollideWith(GameObject* Instance, vector<CollisionData> CD);
-
+	/*
 	template<class T>
 	bool IsOfType(GameObject* Instance)
 	{
 		return (dynamic_cast<T*>(Instance) != 0);
 	}
+	*/
 };
 
 #endif
