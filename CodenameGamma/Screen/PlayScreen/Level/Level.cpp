@@ -365,7 +365,7 @@ void Level::Update(float DeltaTime)
 
 	for each (GameObject* tObject in trash)
 	{
-		RemoveGameObject(tObject);
+		DeleteGameObject(tObject);
 	}
 
 	for each (Player *p in gPlayers)
@@ -554,8 +554,8 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 		{
 			Weapon* w = unit->GetWeapon();
 			if (w)
-				RemoveGameObject(w);
-			RemoveGameObject(unit);
+				DeleteGameObject(w);
+			DeleteGameObject(unit);
 		}
 	}
 
