@@ -1,25 +1,28 @@
 #pragma once
-#ifndef CANNEDFOOD_H
-#define CANNEDFOOD_H
+#ifndef WEAPONONGROUND_H
+#define WEAPONONGROUND_H
 
 #include "Item.h"
+#include "../Weapons/Weapon.h"
 #include "../Units/Unit.h"
 #include "../Graphics/LightHelper.h"
 
 using namespace DirectX;
 
-class CannedFood : public Item
+class WeaponOnGround : public Item
 {
 private:
+	Weapon*		gWeapon;
+
 	XMFLOAT3	gOffset;
 	float		gTimeSpan;
 
 	PointLight*	gPointLight;
 
-
 public:
-	CannedFood(void);
-	~CannedFood(void);
+	WeaponOnGround(void);
+	WeaponOnGround(Weapon* Instance);
+	~WeaponOnGround(void);
 
 	bool	Update(float DeltaTime, Terrain* terrain);
 	void	OnPickUp(Unit* Instance);
