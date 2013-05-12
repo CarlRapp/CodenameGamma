@@ -24,7 +24,7 @@ Player::~Player(void)
 
 }
 
-vector<Projectile*> Player::Update(float deltaTime)
+void Player::Update(float deltaTime)
 {
 	UpdateCamera(deltaTime);
 	
@@ -85,17 +85,14 @@ vector<Projectile*> Player::Update(float deltaTime)
 		m_Camera->SetLookAt(tPosition);
 
 
-		vector<Projectile*>	tBullets;
 		if ( m_Controller->GetButtonState( RIGHT_BUMPER ) == DOWN ||
 			(m_PlayerIndex == 0 && InputManager::GetInstance()->GetMouse()->GetButtonState(M_LEFT) == DOWN))
 		{
-			tBullets=	m_Unit->FireWeapon();
+			m_Unit->FireWeapon();
 		}
-		return tBullets;
+
 		//m_Camera->SetFarZ(tPosition.y + 700.0f);
 	}
-
-	return vector<Projectile*>();
 }
 
 void Player::UpdateCamera(float deltaTime)

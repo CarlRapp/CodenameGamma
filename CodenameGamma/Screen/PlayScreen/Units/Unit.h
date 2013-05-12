@@ -36,7 +36,7 @@ public:
 
 	void	Hit(Unit* Target);
 
-	vector<Projectile*>	FireWeapon();
+	void	FireWeapon();
 
 	void	CollideWith(GameObject* Instance);
 

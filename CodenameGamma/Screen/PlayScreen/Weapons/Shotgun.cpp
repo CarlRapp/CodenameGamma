@@ -1,26 +1,27 @@
-#include "Pistol.h"
+#include "Shotgun.h"
 #include "../../ScreenEnums.h"
 
-Pistol::Pistol()
+Shotgun::Shotgun()
 {
-	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "Glock" ) );
+	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "Shotgun" ) );
 
-	gCooldown	=	WeaponCooldown(0.0f, 0.2f);
-	gClip		=	WeaponClip(5, 9);
-	gReloadTime	=	WeaponReloadTime(0.0f, 2.5f);
+	gCooldown	=	WeaponCooldown(0.0f, 0.4f);
+	gClip		=	WeaponClip(8, 8);
+
+	gReloadTime	=	WeaponReloadTime(0.0f, 4.0f);
 }
 
-Pistol::~Pistol()
+Shotgun::~Shotgun()
 {
 
 }
 
-bool Pistol::CanFire()
+bool Shotgun::CanFire()
 {
 	return (gClip.first > 0 && gCooldown.first <= 0);
 }
 
-void Pistol::Fire()
+void Shotgun::Fire()
 {
 	if ( CanFire() )
 	{
@@ -37,7 +38,7 @@ void Pistol::Fire()
 		tBullet->SetVelocity( tVelocity );
 		tBullet->SetTeam( GetTeam() );
 
-		SoundManager::GetInstance()->Play("Pistol");
+		SoundManager::GetInstance()->Play("Shotgun_Fire");
 
 		gCooldown.first	=	gCooldown.second;
 		--gClip.first;
