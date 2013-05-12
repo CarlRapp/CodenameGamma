@@ -1202,7 +1202,7 @@ void GraphicsManager::RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMA
 		tech->GetPassByIndex(pass)->Apply(0, m_DeviceContext);
 		instance.GetModel()->ModelMesh.Draw(m_DeviceContext, subset);
 	}
-	RenderDebugBox(instance.GetBoundingOrientedBox(), XMMatrixMultiply(view, proj));
+	//RenderDebugBox(instance.GetBoundingOrientedBox(), XMMatrixMultiply(view, proj));
 }
 
 void GraphicsManager::RenderAnimatedModel(ModelInstance& instance, CXMMATRIX view, CXMMATRIX proj, ID3DX11EffectTechnique* tech, UINT pass)
@@ -1248,11 +1248,11 @@ void GraphicsManager::RenderAnimatedModel(ModelInstance& instance, CXMMATRIX vie
 		tech->GetPassByIndex(pass)->Apply(0, m_DeviceContext);
 		instance.GetModel()->ModelMesh.Draw(m_DeviceContext, subset);
 	}
-	RenderDebugBox(instance.GetBoundingOrientedBox(), XMMatrixMultiply(view, proj));
+	//RenderDebugBox(instance.GetBoundingOrientedBox(), XMMatrixMultiply(view, proj));
 
 	for each (BoundingOrientedBox OBB in instance.m_BoneBoxes)
 	{
-		RenderDebugBox(OBB, XMMatrixMultiply(view, proj));
+		//RenderDebugBox(OBB, XMMatrixMultiply(view, proj));
 	}
 }
 
