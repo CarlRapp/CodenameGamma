@@ -50,9 +50,9 @@ bool Weapon::Update(float deltaTime, Terrain* terrain)
 	return GameObject::Update(deltaTime, terrain);
 }
 
-vector<Projectile*> Weapon::Fire()
+void Weapon::Fire()
 {
-	return vector<Projectile*>();
+
 }
 
 void Weapon::Reload()

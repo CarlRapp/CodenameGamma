@@ -20,10 +20,8 @@ bool Pistol::CanFire()
 	return (gClip.first > 0 && gCooldown.first <= 0);
 }
 
-vector<Projectile*> Pistol::Fire()
+void Pistol::Fire()
 {
-	vector<Projectile*>	tBullets	=	vector<Projectile*>();
-
 	if ( CanFire() )
 	{
 		Bullet*	tBullet	=	new Bullet();		
@@ -47,13 +45,11 @@ vector<Projectile*> Pistol::Fire()
 		if ( gClip.first == 0 )
 			Reload();
 
-		tBullets.push_back(tBullet);
+		AddGameObject( tBullet );
 	}
 	else if ( gClip.first == 0 && gCooldown.first <= 0)
 	{
 		SoundManager::GetInstance()->Play("EmptyClip");
 		gCooldown.first	=	gCooldown.second;
 	}
-
-	return tBullets;
 }

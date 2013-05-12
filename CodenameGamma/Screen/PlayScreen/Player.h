@@ -21,7 +21,7 @@ public:
 	Player(int index);
 	~Player(void);
 
-	vector<Projectile*> Update(float deltaTime);
+	void	Update(float deltaTime);
 
 	void SetScreen(int X, int Y, int Width, int Height) 
 	{ 

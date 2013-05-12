@@ -15,7 +15,7 @@ public:
 
 	bool	CanFire();
 
-	vector<Projectile*> Fire();
+	void	Fire();
 };
 
 #endif
