@@ -27,7 +27,10 @@ public:
 
 	virtual void	SetTeam(GOTeam Value) { GameObject::SetTeam(Value); if (gWeapon) gWeapon->SetTeam(GetTeam()); }
 
-	void			SetWeapon(Weapon* Weapon) { gWeapon = Weapon; if (gWeapon) gWeapon->SetTeam(GetTeam()); }
+	void			DropWeapon();
+	void			SetWeapon(Weapon* Weapon);
+	bool			HasWeapon() { return gWeapon; }
+
 	void			SetHealth(UnitHealth HealthData);
 	UnitHealth		GetHealth();
 	Weapon*			GetWeapon() { return gWeapon; }

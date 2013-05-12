@@ -91,6 +91,12 @@ void Player::Update(float deltaTime)
 			m_Unit->FireWeapon();
 		}
 
+		if ( m_Controller->GetButtonState( X ) == PRESSED ||
+			(m_PlayerIndex == 0 && InputManager::GetInstance()->GetKeyboard()->GetKeyState('G') == PRESSED))
+		{
+			m_Unit->DropWeapon();
+		}
+
 		//m_Camera->SetFarZ(tPosition.y + 700.0f);
 	}
 }
