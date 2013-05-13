@@ -140,28 +140,24 @@ void QuadTree::GetIntersectingInstances(BoundingOrientedBox OBB, vector<GameObje
 	}
 }
 
-void QuadTree::Insert(GameObject* instance, BoundingSphere& instanceSphere, Node* node, bool UpdateOld)
+void QuadTree::Insert(GameObject* instance, BoundingSphere& instanceSphere, Node* node)
 {
 	if (node->m_NW != NULL)
 	{
-		if		(node->m_NW->m_BoundingBox.Contains(instanceSphere) == CONTAINS) Insert(instance, instanceSphere, node->m_NW, UpdateOld);
-		else if (node->m_NE->m_BoundingBox.Contains(instanceSphere) == CONTAINS) Insert(instance, instanceSphere, node->m_NE, UpdateOld);
-		else if (node->m_SW->m_BoundingBox.Contains(instanceSphere) == CONTAINS) Insert(instance, instanceSphere, node->m_SW, UpdateOld);
-		else if (node->m_SE->m_BoundingBox.Contains(instanceSphere) == CONTAINS) Insert(instance, instanceSphere, node->m_SE, UpdateOld);
+		if		(node->m_NW->m_BoundingBox.Contains(instanceSphere) == CONTAINS) Insert(instance, instanceSphere, node->m_NW);
+		else if (node->m_NE->m_BoundingBox.Contains(instanceSphere) == CONTAINS) Insert(instance, instanceSphere, node->m_NE);
+		else if (node->m_SW->m_BoundingBox.Contains(instanceSphere) == CONTAINS) Insert(instance, instanceSphere, node->m_SW);
+		else if (node->m_SE->m_BoundingBox.Contains(instanceSphere) == CONTAINS) Insert(instance, instanceSphere, node->m_SE);
 		else
 		{
 			node->m_Content.push_back(instance);
 			instance->GetQuadTreeType()->SetNode(node);
-			if (UpdateOld)
-				instance->GetQuadTreeType()->SetOldSphere(GetCurrentBoundingSphere(instance));
 		}
 	}
 	else
 	{
 		node->m_Content.push_back(instance);
 		instance->GetQuadTreeType()->SetNode(node);
-		if (UpdateOld)
-			instance->GetQuadTreeType()->SetOldSphere(GetCurrentBoundingSphere(instance));
 
 		float area = (node->m_BoundingBox.Extents.x * node->m_BoundingBox.Extents.z) / 4;
 		if (node->m_Content.size() > m_MaxNodeSize && area >= m_MinNodeArea)
@@ -172,11 +168,50 @@ void QuadTree::Insert(GameObject* instance, BoundingSphere& instanceSphere, Node
 			node->m_Content.clear();
 
 			for each (GameObject* go in temp)
-				Insert(go, GetOldBoundingSphere(go), node, false);
+				Insert(go, GetCurrentBoundingSphere(go), node);
 		}
 	}
 }
 
+void QuadTree::Delete(GameObject* instance)
+{
+	if (!instance)
+		return;
+
+	Node* node = (Node*)instance->GetQuadTreeType()->GetNode();
+
+	//Delete from node
+	node->m_Content.erase(remove(node->m_Content.begin(), node->m_Content.end(), instance), node->m_Content.end());
+
+	if (node->m_NW != NULL)
+	{			
+		//int size = node->m_Content.size() + node->m_NW->m_Content.size() + node->m_NE->m_Content.size() + node->m_SW->m_Content.size() + node->m_SE->m_Content.size();
+		int size = Size(node);
+		if (size <= m_MaxNodeSize)
+		{
+			/*
+			node->m_Content.insert(node->m_Content.end(), node->m_NW->m_Content.begin(), node->m_NW->m_Content.end());
+			node->m_Content.insert(node->m_Content.end(), node->m_NE->m_Content.begin(), node->m_NE->m_Content.end());
+			node->m_Content.insert(node->m_Content.end(), node->m_SW->m_Content.begin(), node->m_SW->m_Content.end());
+			node->m_Content.insert(node->m_Content.end(), node->m_SE->m_Content.begin(), node->m_SE->m_Content.end());
+			*/
+
+			GetInstances(node->m_Content, node->m_NW);
+			GetInstances(node->m_Content, node->m_NE);
+			GetInstances(node->m_Content, node->m_SW);
+			GetInstances(node->m_Content, node->m_SE);
+
+			for each (GameObject* go in node->m_Content)
+			{
+				go->GetQuadTreeType()->SetNode(node);
+			}
+
+			DeleteChildren(node);
+		}
+	}
+}
+
+/*
 void QuadTree::Delete(GameObject* instance, BoundingSphere& instanceSphere, Node* node)
 {
 	if (node->m_NW != NULL)
@@ -195,13 +230,6 @@ void QuadTree::Delete(GameObject* instance, BoundingSphere& instanceSphere, Node
 			int size = Size(node);
 			if (size <= m_MaxNodeSize)
 			{
-				/*
-				node->m_Content.insert(node->m_Content.end(), node->m_NW->m_Content.begin(), node->m_NW->m_Content.end());
-				node->m_Content.insert(node->m_Content.end(), node->m_NE->m_Content.begin(), node->m_NE->m_Content.end());
-				node->m_Content.insert(node->m_Content.end(), node->m_SW->m_Content.begin(), node->m_SW->m_Content.end());
-				node->m_Content.insert(node->m_Content.end(), node->m_SE->m_Content.begin(), node->m_SE->m_Content.end());
-				*/
-
 				GetInstances(node->m_Content, node->m_NW);
 				GetInstances(node->m_Content, node->m_NE);
 				GetInstances(node->m_Content, node->m_SW);
@@ -214,17 +242,6 @@ void QuadTree::Delete(GameObject* instance, BoundingSphere& instanceSphere, Node
 
 				DeleteChildren(node);
 
-				/*
-				delete node->m_NW;
-				delete node->m_NE;
-				delete node->m_SW;
-				delete node->m_SE;		
-
-				node->m_NW = NULL;
-				node->m_NE = NULL;
-				node->m_SW = NULL;
-				node->m_SE = NULL;
-				*/
 			}
 		}
 	}
@@ -234,7 +251,7 @@ void QuadTree::Delete(GameObject* instance, BoundingSphere& instanceSphere, Node
 		node->m_Content.erase(remove(node->m_Content.begin(), node->m_Content.end(), instance), node->m_Content.end());
 	}
 }
-
+*/
 void QuadTree::DeleteChildren(Node* node)
 {
 	if (!node)
@@ -378,6 +395,20 @@ bool QuadTree::Empty(Node* node)
 	
 }
 
+void QuadTree::Update(GameObject* instance)
+{
+	if (!instance)
+		return;
+	Node* node = (Node*)instance->GetQuadTreeType()->GetNode();
+	BoundingSphere objectSphere = GetCurrentBoundingSphere(instance);
+
+	if (node->m_BoundingBox.Contains(objectSphere) != CONTAINS)
+	{
+		Delete(instance);
+		Insert(instance, objectSphere, m_RootNode);
+	}
+}
+/*
 bool QuadTree::NeedUpdate(GameObject* instance)
 {		
 	Node* node = (Node*)instance->GetQuadTreeType()->GetNode();
@@ -386,7 +417,7 @@ bool QuadTree::NeedUpdate(GameObject* instance)
 			return false;
 	return true;
 }
-
+*/
 void QuadTree::GetObjectsCollidingWith(GameObject* go, BoundingSphere& instanceSphere, vector<GameObject*> &GameObjects, vector<vector<CollisionData>> &collisionData, Node* node, ContainmentType containmentType)
 {
 	if (containmentType == DISJOINT)

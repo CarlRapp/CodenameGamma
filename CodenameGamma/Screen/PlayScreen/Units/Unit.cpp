@@ -54,15 +54,15 @@ void Unit::SetHealth(UnitHealth HealthData)
 	gHealth	=	HealthData;
 }
 
-bool Unit::Update(float DeltaTime, Terrain* TerrainInstance)
+void Unit::Update(float DeltaTime, Terrain* TerrainInstance)
 {
 	if ( gHealth.first <= 0 )
 	{
 		SetState( Dead );
-		return true;
+		return;
 	}
 
-	bool updated = GameObject::Update(DeltaTime, TerrainInstance);
+	GameObject::Update(DeltaTime, TerrainInstance);
 
 	XMVECTOR vel = XMLoadFloat3(&GetFloat3Value( Velocity ));
 	if (!XMVector3Equal(vel, XMVectorZero()))
@@ -120,8 +120,6 @@ bool Unit::Update(float DeltaTime, Terrain* TerrainInstance)
 		gCurrentWeapon->MoveTo( position );
 		gCurrentWeapon->SetRotation( GetFloat3Value( Rotations ) );
 	}
-
-	return updated;
 }
 
 void Unit::ReceiveDamage(float Damage)
@@ -138,6 +136,12 @@ void Unit::Hit(Unit* Target)
 
 	Target->ReceiveDamage(1.0f);
 	ReceiveDamage(-1.0f);
+}
+
+void Unit::ReloadWeapon()
+{
+	if ( gCurrentWeapon )
+		gCurrentWeapon->Reload();
 }
 
 void Unit::FireWeapon()

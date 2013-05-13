@@ -4,9 +4,7 @@ QuadTreeTypeModel::QuadTreeTypeModel(ModelInstance* modelInstance)
 {
 	m_ModelInstance = modelInstance;
 	BoundingSphere sphere = modelInstance->GetBoundingSphere();
-	m_QuadTreeData.Current = sphere;
-	m_QuadTreeData.Old = sphere;
-}
+	m_QuadTreeData.Current = sphere;}
 
 QuadTreeTypePoint::QuadTreeTypePoint(XMFLOAT3 *point)
 {
@@ -14,5 +12,4 @@ QuadTreeTypePoint::QuadTreeTypePoint(XMFLOAT3 *point)
 
 	BoundingSphere sphere = BoundingSphere(*m_Point, 0);
 	m_QuadTreeData.Current = sphere;
-	m_QuadTreeData.Old = sphere;
 }

@@ -24,7 +24,7 @@ public:
 	WeaponOnGround(Weapon* Instance);
 	~WeaponOnGround(void);
 
-	bool	Update(float DeltaTime, Terrain* terrain);
+	void	Update(float DeltaTime, Terrain* terrain);
 	void	OnPickUp(Unit* Instance);
 };
 

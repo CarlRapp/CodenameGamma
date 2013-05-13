@@ -103,7 +103,7 @@ public:
 	GameObject(void);
 	virtual ~GameObject(void);
 
-	virtual bool Update(float deltaTime, Terrain* terrain);
+	virtual void Update(float deltaTime, Terrain* terrain);
 	QuadTreeType* GetQuadTreeType() { return m_QuadTreeType; }
 	
 	void SetModelInstance(ModelInstance *modelInstance);	

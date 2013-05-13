@@ -12,11 +12,11 @@ Projectile::~Projectile(void)
 
 }
 
-bool Projectile::Update(float DeltaTime, Terrain* terrain)
+void Projectile::Update(float DeltaTime, Terrain* terrain)
 {
 	gLifeSpan	-=	DeltaTime;
 	if ( gLifeSpan <= 0 )
 		SetState( Dead );
 
-	return GameObject::Update(DeltaTime, terrain);
+	GameObject::Update(DeltaTime, terrain);
 }

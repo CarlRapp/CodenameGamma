@@ -17,7 +17,7 @@ public:
 	Item(void);
 	~Item(void);
 
-	virtual	bool	Update(float DeltaTime, Terrain* terrain);
+	virtual	void	Update(float DeltaTime, Terrain* terrain);
 
 	void	CollideWith(GameObject* Instance, vector<CollisionData> CD);
 };

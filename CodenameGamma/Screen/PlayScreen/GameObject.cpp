@@ -40,10 +40,10 @@ GameObject::~GameObject(void)
 {
 }
 
-bool GameObject::Update(float deltaTime, Terrain* terrain)
+void GameObject::Update(float deltaTime, Terrain* terrain)
 {
 	if ( !IsAlive() )
-		return true;
+		return;
 
 	float heigth = gPosition.y - terrain->GetHeight(gPosition.x, gPosition.z);
 
@@ -100,10 +100,6 @@ bool GameObject::Update(float deltaTime, Terrain* terrain)
 	MoveTo(newPos);
 
 	//Move(XMFLOAT3(gVelocity.x * deltaTime, 0, gVelocity.z * deltaTime));
-
-
-
-	return !MathHelper::BoundingSphereEqual(m_QuadTreeType->GetQuadTreeData().Old, m_QuadTreeType->GetQuadTreeData().Current);
 }
 
 void GameObject::SetModelInstance(ModelInstance *modelInstance)
