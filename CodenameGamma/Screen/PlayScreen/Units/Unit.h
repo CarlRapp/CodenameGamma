@@ -24,7 +24,7 @@ public:
 	Unit(void);
 	~Unit(void);
 
-	bool	Update(float deltaTime, Terrain* terrain);
+	void	Update(float deltaTime, Terrain* terrain);
 
 
 	virtual void	SetTeam(GOTeam Value) { GameObject::SetTeam(Value); if ( gCurrentWeapon ) gCurrentWeapon->SetTeam(GetTeam()); }
@@ -41,6 +41,7 @@ public:
 
 	void	Hit(Unit* Target);
 
+	void	ReloadWeapon();
 	void	FireWeapon();
 
 	void	CollideWith(GameObject* Instance);
