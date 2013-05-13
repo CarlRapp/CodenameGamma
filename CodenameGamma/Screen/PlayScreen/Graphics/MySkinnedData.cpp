@@ -283,7 +283,7 @@ void SkinnedData::GetFinalTransforms(const std::string& clipName,  std::vector<X
 	}
 }
 
-void SkinnedData::CreateClip(std::string name, int firstFrame, int lastFrame)
+void SkinnedData::CreateClip(std::string name, int firstFrame, int lastFrame, float TimeScale)
 {
 	if (mAnimations.empty())
 		return;
@@ -291,6 +291,8 @@ void SkinnedData::CreateClip(std::string name, int firstFrame, int lastFrame)
 	AnimationClip clip;
 
 	float offset = all.BoneAnimations[0].Keyframes[firstFrame].TimePos;
+
+	TimeScale = 1.0f / TimeScale;
 
 	if (lastFrame > firstFrame)
 	{
@@ -302,6 +304,7 @@ void SkinnedData::CreateClip(std::string name, int firstFrame, int lastFrame)
 				Keyframe kframe = all.BoneAnimations[i].Keyframes[j];
 
 				kframe.TimePos -= offset;
+				kframe.TimePos *= TimeScale;
 
 				boneAni.Keyframes.push_back(kframe);
 			}
@@ -319,6 +322,7 @@ void SkinnedData::CreateClip(std::string name, int firstFrame, int lastFrame)
 				Keyframe kframe = all.BoneAnimations[i].Keyframes[j];
 
 				kframe.TimePos = abs( kframe.TimePos - offset );
+				kframe.TimePos *= TimeScale;
 
 				boneAni.Keyframes.push_back(kframe);
 			}
