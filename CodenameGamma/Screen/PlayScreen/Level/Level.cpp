@@ -2,8 +2,9 @@
 #include "../Units/CrazyBitch.h"
 #include "../Structures/StructureList.h"
 #include "../Items/ItemList.h"
+#include "../Weapons/WeaponList.h"
 
-#define TESTSCALE 0.3f
+#define TESTSCALE 1.0f
 
 Level::Level(){}
 Level::Level(SystemData LData)
@@ -18,6 +19,8 @@ Level::Level(SystemData LData)
 	gGraphicsManager	=	new GraphicsManager(LData.DEVICE, LData.DEVICE_CONTEXT, LData.RENDER_TARGET_VIEW, LData.SCREEN_WIDTH, LData.SCREEN_HEIGHT);
 	gGraphicsManager->SetTerrain(gTerrain);
 	gGraphicsManager->SetLights(&gDirLights, &gPointLights, &gSpotLights);
+
+	//GameObject.SetTestar( std::bind(&Level::AddGameObject, this, std::placeholders::_1) );
 
 	
 	for(int i = 0; i < 0; ++i)
@@ -112,8 +115,8 @@ void Level::LoadLevel(string Levelname)
 	gGraphicsManager->SetQuadTree(gQuadTree);
 	
 
-	ModelManager::GetInstance()->LoadModel("CrazyBitch", "dae export 2.dae", "DATA/Models/TestChar/");
-	//ModelManager::GetInstance()->LoadModel("CrazyBitch", "CrazyBitch.obj", "DATA/Models/CrazyBitch/");
+	//ModelManager::GetInstance()->LoadModel("CrazyBitch", "dae export 2.dae", "DATA/Models/TestChar/");
+	//ModelManager::GetInstance()->LoadModel("CrazyBitch", "CrazyBitch.dae", "DATA/Models/CrazyBitch/");
 
 	ModelManager::GetInstance()->LoadModel("Glock", "Glock.obj", "DATA/Models/Glock/");
 	ModelManager::GetInstance()->LoadModel("Shotgun", "Shotgun.obj", "DATA/Models/Shotgun/");
@@ -134,8 +137,11 @@ void Level::LoadLevel(string Levelname)
 
 	ModelManager::GetInstance()->LoadModel("UnitCube", "UnitCube.obj", "DATA/Models/UnitCube/");
 
+	ModelManager::GetInstance()->LoadModel("CrazyBitch", "CrazyBitch.dae", "DATA/Models/CrazyBitch/");
+	//ModelManager::GetInstance()->LoadModel("CrazyBitch", "dae export 2.dae", "DATA/Models/TestChar/");
+
 	Model*	model	=	ModelManager::GetInstance()->GetModel("CrazyBitch");
-	for (int i = 0; i < 10; ++i)
+	for (int i = 0; i < 0; ++i)
 	{
 		float x = MathHelper::RandF(0, 4000);
 		float y = 0;
@@ -186,32 +192,34 @@ void Level::LoadLevel(string Levelname)
 
 
 		//Hur man sätter callbackmetoden.
-		tGO->SetAddLight(std::bind(&Level::AddLight, this, std::placeholders::_1));
-		tGO->SetRemoveLight(std::bind(&Level::RemoveLight, this, std::placeholders::_1));
+		//tGO->SetAddLight(std::bind(&Level::AddLight, this, std::placeholders::_1));
+		//tGO->SetRemoveLight(std::bind(&Level::RemoveLight, this, std::placeholders::_1));
 
 		tGO->MoveTo( XMFLOAT3( x, y, z ) );
 		AddGameObject(tGO);
 	}
 
-	for (int i = 0; i < 20; ++i)
+	for (int i = 0; i < 200; ++i)
 	{
-		float x = MathHelper::RandF(450, 850);
+		float x = MathHelper::RandF(450, 1200);
 		float y = 10;
 		float z = MathHelper::RandF(450, 850);
 
-		Weapon*	tWeapon	=	new Pistol();
-		tWeapon->SetAddGameObject(std::bind(&Level::AddGameObject, this, std::placeholders::_1));
+		//tWeapon->SetAddGameObject(std::bind(&Level::AddGameObject, this, std::placeholders::_1));
 
-		tGO	=	new WeaponOnGround( tWeapon );
-
-
-		//Hur man sätter callbackmetoden.
-		tGO->SetAddLight(std::bind(&Level::AddLight, this, std::placeholders::_1));
-		tGO->SetRemoveLight(std::bind(&Level::RemoveLight, this, std::placeholders::_1));
+		if ( i % 2 == 0 )
+			tGO	=	new WeaponOnGround( new Pistol() );
+		else
+			tGO	=	new WeaponOnGround( new Shotgun() );
 
 		tGO->MoveTo( XMFLOAT3( x, y, z ) );
+
+		//Hur man sätter callbackmetoden.
+		//tGO->SetAddLight(std::bind(&Level::AddLight, this, std::placeholders::_1));
+		//tGO->SetRemoveLight(std::bind(&Level::RemoveLight, this, std::placeholders::_1));
+
+		
 		AddGameObject(tGO);
-		AddGameObject(tWeapon);
 	}
 
 
@@ -406,7 +414,7 @@ void Level::Update(float DeltaTime)
 
 	//Updaterar ljus
 	//Updaterar dirlights	
-	for (int i = 0; i < (int)gDirLights.size(); ++i)
+	/*for (int i = 0; i < (int)gDirLights.size(); ++i)
 	{
 		if (InputManager::GetInstance()->GetController(0)->GetButtonState(Xbox_Button::A) == InputState::PRESSED)
 		{
@@ -418,7 +426,7 @@ void Level::Update(float DeltaTime)
 		}
 		else
 		{
-			/*
+			
 			DirectionalLight *dLight = gDirLights[i];
 
 			float a = -5.0f;
@@ -427,9 +435,9 @@ void Level::Update(float DeltaTime)
 			XMMATRIX rot	 = XMMatrixRotationZ(DeltaTime * XMConvertToRadians(a));
 			dir = XMVector3TransformCoord(dir, rot);
 			XMStoreFloat4(&dLight->Direction, dir);
-			*/
+			
 		}
-	}
+	}*/
 
 
 	//Updaterar pointlights
@@ -654,3 +662,14 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 
 }
 #pragma endregion
+
+void Level::AddGameObject(GameObject* go)
+{ 
+	go->SetAddLight(std::bind(&Level::AddLight, this, std::placeholders::_1));
+	go->SetRemoveLight(std::bind(&Level::RemoveLight, this, std::placeholders::_1));
+	go->SetAddGameObject(std::bind(&Level::AddGameObject, this, std::placeholders::_1));
+
+	gGameObjects.push_back(go); 
+	sort( gGameObjects.begin(), gGameObjects.end() );
+	gQuadTree->Insert(go); 
+}
