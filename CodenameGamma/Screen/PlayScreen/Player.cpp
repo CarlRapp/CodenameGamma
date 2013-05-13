@@ -89,7 +89,7 @@ void Player::Update(float deltaTime)
 			m_Unit->FireWeapon();
 
 		if ( IsButtonState( XReload, PRESSED ) || IsButtonState( KReload, PRESSED ) )
-			m_Unit->GetWeapon()->Reload();
+			m_Unit->ReloadWeapon();
 
 		if ( IsButtonState( XDrop, PRESSED ) || IsButtonState( KDrop, PRESSED ) )
 			m_Unit->DropWeapon();
