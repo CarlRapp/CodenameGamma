@@ -31,7 +31,7 @@ WeaponOnGround::~WeaponOnGround()
 	delete	gPointLight;
 }
 
-bool WeaponOnGround::Update(float DeltaTime, Terrain* terrain)
+void WeaponOnGround::Update(float DeltaTime, Terrain* terrain)
 {
 	XMFLOAT3	newPos	=	GetFloat3Value( Position );
 
@@ -58,8 +58,6 @@ bool WeaponOnGround::Update(float DeltaTime, Terrain* terrain)
 
 	if ( gPointLight != 0 )
 		gPointLight->GetGPULight()->Position	=	newPos;
-
-	return true;
 }
 
 

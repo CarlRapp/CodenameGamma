@@ -21,7 +21,7 @@ public:
 	CannedFood(void);
 	~CannedFood(void);
 
-	bool	Update(float DeltaTime, Terrain* terrain);
+	void	Update(float DeltaTime, Terrain* terrain);
 	void	OnPickUp(Unit* Instance);
 };
 

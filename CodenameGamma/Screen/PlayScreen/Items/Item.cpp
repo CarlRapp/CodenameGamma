@@ -10,10 +10,9 @@ Item::~Item()
 
 }
 
-bool Item::Update(float DeltaTime, Terrain* terrain)
+void Item::Update(float DeltaTime, Terrain* terrain)
 {
-
-	return GameObject::Update(DeltaTime, terrain);
+	GameObject::Update(DeltaTime, terrain);
 }
 
 void Item::CollideWith(GameObject* Instance, vector<CollisionData> CD)

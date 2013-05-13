@@ -16,7 +16,7 @@ CannedFood::~CannedFood()
 	delete	gPointLight;
 }
 
-bool CannedFood::Update(float DeltaTime, Terrain* terrain)
+void CannedFood::Update(float DeltaTime, Terrain* terrain)
 {
 	XMFLOAT3	newPos	=	GetFloat3Value( Position );
 
@@ -38,8 +38,6 @@ bool CannedFood::Update(float DeltaTime, Terrain* terrain)
 	newPos.y	-=	1.0f;
 	if ( gPointLight )
 		gPointLight->GetGPULight()->Position	=	newPos;
-
-	return true;
 }
 
 
