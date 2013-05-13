@@ -170,7 +170,7 @@ public:
 	void GetFinalTransforms(const std::string& clipName, 
 		 std::vector<XMFLOAT4X4>& finalTransforms)const;
 
-	void CreateClip(std::string, int firstFrame, int lastFrame);
+	void CreateClip(std::string, int firstFrame, int lastFrame, float TimeScale);
 	void CreatePose(std::string, int frame);
 
 	std::vector<BoundingOrientedBox> CreateBoneBoxes(std::vector<Vertex::PosNormalTexTanSkinned>& vertices)
