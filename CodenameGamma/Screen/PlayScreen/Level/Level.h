@@ -77,12 +77,7 @@ private:
 	void	AddSpotLight(bool hasShadow,  XMFLOAT3 pos);
 	void	AddInstance(float x, float y, float z, Model *model);
 
-	void AddGameObject(GameObject* go) 
-	{ 
-		gGameObjects.push_back(go); 
-		sort( gGameObjects.begin(), gGameObjects.end() );
-		gQuadTree->Insert(go); 
-	}
+	void AddGameObject(GameObject* go);
 	
 	void RemoveGameObject(GameObject* go) 
 	{ 
@@ -93,7 +88,9 @@ private:
 	void DeleteGameObject(GameObject* go)
 	{
 		RemoveGameObject(go);
-		delete go;
+
+		if ( go->GetState() != Hidden )
+			delete go;
 	}
 
 	/*

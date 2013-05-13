@@ -1,11 +1,11 @@
 #include "Unit.h"
-
+#include "../Items/WeaponOnGround.h"
 
 Unit::Unit(void)
 {
 	gHealth	=	UnitHealth(10.0f, 10.0f);
 
-	gWeapon	=	NULL;
+	gCurrentWeapon	=	NULL;
 }
 
 Unit::~Unit(void)
@@ -14,22 +14,33 @@ Unit::~Unit(void)
 
 void Unit::DropWeapon()
 {
-	if (gWeapon)
+	if ( gCurrentWeapon )
 	{
-		gWeapon->SetState( Dead );
-		gWeapon = NULL;
+		WeaponOnGround*	tWoG	=	new WeaponOnGround( gCurrentWeapon );
+		tWoG->MoveTo( gCurrentWeapon->GetFloat3Value( Position ) );
+
+		AddGameObject( tWoG );
+		tWoG->Update(0, 0);
+
+		gCurrentWeapon	=	0;
 	}
 }
 
 void Unit::SetWeapon(Weapon* Weapon)
 {
-	if (gWeapon)
-		gWeapon->SetState( Dead );
+	if ( !Weapon )
+		return;
 
-	gWeapon = Weapon; 
+	if ( gCurrentWeapon )
+		DropWeapon();
 
-	if (gWeapon) 
-		gWeapon->SetTeam(GetTeam()); 
+	gCurrentWeapon = Weapon; 
+
+	if (gCurrentWeapon) 
+		gCurrentWeapon->SetTeam(GetTeam());
+
+	if ( !Weapon->CanFire() )
+		Weapon->Reload();
 }
 
 
@@ -76,7 +87,7 @@ bool Unit::Update(float DeltaTime, Terrain* TerrainInstance)
 			UsePose(pose);
 	}
 
-	if (gWeapon)
+	if ( gCurrentWeapon )
 	{
 		XMFLOAT3 position;
 
@@ -106,8 +117,8 @@ bool Unit::Update(float DeltaTime, Terrain* TerrainInstance)
 
 		//gWeapon->Update(DeltaTime);
 		//gWeapon->MoveTo( position );
-		gWeapon->MoveTo( position );
-		gWeapon->SetRotation( GetFloat3Value( Rotations ) );
+		gCurrentWeapon->MoveTo( position );
+		gCurrentWeapon->SetRotation( GetFloat3Value( Rotations ) );
 	}
 
 	return updated;
@@ -120,10 +131,10 @@ void Unit::ReceiveDamage(float Damage)
 
 void Unit::Hit(Unit* Target)
 {
-	if ( !gWeapon->CanFire() )
+	if ( !gCurrentWeapon->CanFire() )
 		return;
 
-	gWeapon->Fire();
+	gCurrentWeapon->Fire();
 
 	Target->ReceiveDamage(1.0f);
 	ReceiveDamage(-1.0f);
@@ -131,10 +142,11 @@ void Unit::Hit(Unit* Target)
 
 void Unit::FireWeapon()
 {
-	if (gWeapon)
-		gWeapon->Fire();
+	if ( gCurrentWeapon )
+		gCurrentWeapon->Fire();
 }
 
 void Unit::CollideWith(GameObject* Instance)
 {
+
 }
