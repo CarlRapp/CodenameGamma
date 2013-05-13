@@ -23,12 +23,14 @@ public:
 
 		BoundingBox m_BoundingBox;
 
-		Node(Node *parent, BoundingBox boundingBox)
+		Node(Node *parent, BoundingBox boundingBox, int maxNodeSize)
 		{
 			m_Parent		= parent;
 			m_BoundingBox	= boundingBox;
 
 			m_Content		= vector<GameObject*>();
+			m_Content.reserve(maxNodeSize);
+			//m_Content.resize(maxNodeSize);
 
 			m_NW			= NULL;
 			m_NE			= NULL;
@@ -45,16 +47,17 @@ public:
 	void DestroyTree(Node* Instance);
 
 private:
-	static const int maxNodeSize = 8;
-	float minNodeArea;
+	int m_MaxNodeSize;
+	float m_MinNodeArea;
 	Node *m_RootNode;
 	BoundingBox m_WorldBounds;
 
-	void Insert(GameObject* instance, Node* node, ContainmentType containmentType);
-	void Delete(GameObject* instance, Node* node, ContainmentType containmentType);
+	void Insert(GameObject* instance, BoundingSphere& instanceSphere, Node* node, bool UpdateOld);
+	void Delete(GameObject* instance, BoundingSphere& instanceSphere, Node* node);
+
+	void DeleteChildren(Node* node);
 
 	void CreateChildNodes(Node* node);
-	void InsertToChildren(GameObject* instance, Node* node, ContainmentType containmentType);
 
 	void Clean(Node* node);
 
@@ -69,7 +72,7 @@ private:
 
 	void GetInstances(vector<GameObject*> &instances, Node* node);
 
-	void GetObjectsCollidingWith(GameObject* go, vector<GameObject*> &GameObjects, vector<vector<CollisionData>> &collisionData, Node* node, ContainmentType containmentType);
+	void GetObjectsCollidingWith(GameObject* go, BoundingSphere& instanceSphere, vector<GameObject*> &GameObjects, vector<vector<CollisionData>> &collisionData, Node* node, ContainmentType containmentType);
 
 	BoundingSphere GetCurrentBoundingSphere(GameObject* go)
 	{
@@ -82,17 +85,17 @@ private:
 	}
 
 public:
-	QuadTree(BoundingBox world, float minNodeArea);
+	QuadTree(BoundingBox world, float minNodeArea, int maxNodeSize);
 	~QuadTree(void);
 
 	void Insert(GameObject* instance) 
 	{ 
-		Insert(instance, m_RootNode, INTERSECTS); 
+		Insert(instance, GetCurrentBoundingSphere(instance), m_RootNode, true); 
 	}
 
 	void Delete(GameObject* instance) 
 	{ 
-		if (instance) Delete(instance, m_RootNode, INTERSECTS); 
+		if (instance) Delete(instance, GetOldBoundingSphere(instance), m_RootNode); 
 	}
 
 	void Update(GameObject* instance) 
@@ -117,7 +120,7 @@ public:
 
 	void GetObjectsCollidingWith(GameObject* go, vector<GameObject*> &GameObjects, vector<vector<CollisionData>> &collisionData)
 	{
-		return GetObjectsCollidingWith(go, GameObjects, collisionData, m_RootNode, INTERSECTS); 
+		return GetObjectsCollidingWith(go, GetCurrentBoundingSphere(go), GameObjects, collisionData, m_RootNode, INTERSECTS); 
 	}
 };
 
