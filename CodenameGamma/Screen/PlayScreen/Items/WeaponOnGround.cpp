@@ -16,6 +16,7 @@ WeaponOnGround::WeaponOnGround( Weapon* Instance )
 	SetModelInstance( Instance->GetModelInstance() );
 	SetScale( 2 );
 	gWeapon	=	Instance;
+	gWeapon->SetState( Hidden );
 
 
 	gPointLight	=	0;
@@ -55,7 +56,7 @@ bool WeaponOnGround::Update(float DeltaTime, Terrain* terrain)
 
 	newPos.y	-=	1.0f;
 
-	if ( gPointLight )
+	if ( gPointLight != 0 )
 		gPointLight->GetGPULight()->Position	=	newPos;
 
 	return true;
@@ -76,5 +77,8 @@ void WeaponOnGround::OnPickUp(Unit* Instance)
 	
 		SetState( Dead );
 		RemoveLight( gPointLight );
+
+		gWeapon->SetState( Alive );
+		AddGameObject( gWeapon );
 	}
 }
