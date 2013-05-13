@@ -49,7 +49,8 @@ enum GOState
 {
 	Alive,
 	Idle,
-	Dead
+	Hidden,	//	When an object wants to be removed from tree, but not from game
+	Dead	//	Will remove the object from the game, and hence DELETE it
 };
 
 enum GOTeam
@@ -95,6 +96,7 @@ protected:
 	GameObjectCallback AddGameObject;
 	GameObjectCallback RemoveGameObject;
 	GameObjectCallback DeleteGameObject;
+
 	ModelInstance *m_ModelInstance;
 
 public:
@@ -140,7 +142,8 @@ public:
 	
 	static bool	Intersects(const GameObject* A, const GameObject* B, vector<CollisionData>& CD);
 
-	bool	IsAlive(){ return (gState != Dead); }
+	GOState	GetState()	{ return gState; }
+	bool	IsAlive()	{ return (gState != Dead) && (gState != Hidden); }
 
 	bool	IsEnemy(GameObject* Instance);
 	virtual void	SetTeam(GOTeam Value);
