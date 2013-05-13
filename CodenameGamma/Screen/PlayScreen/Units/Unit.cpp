@@ -16,11 +16,11 @@ void Unit::DropWeapon()
 {
 	if ( gCurrentWeapon )
 	{
-		gCurrentWeapon->SetState( Dead );
-
 		WeaponOnGround*	tWoG	=	new WeaponOnGround( gCurrentWeapon );
-		tWoG->MoveTo( GetFloat3Value( Position ) );
+		tWoG->MoveTo( gCurrentWeapon->GetFloat3Value( Position ) );
+
 		AddGameObject( tWoG );
+		tWoG->Update(0, 0);
 
 		gCurrentWeapon	=	0;
 	}
@@ -28,13 +28,19 @@ void Unit::DropWeapon()
 
 void Unit::SetWeapon(Weapon* Weapon)
 {
+	if ( !Weapon )
+		return;
+
 	if ( gCurrentWeapon )
-		gCurrentWeapon->SetState( Dead );
+		DropWeapon();
 
 	gCurrentWeapon = Weapon; 
 
 	if (gCurrentWeapon) 
-		gCurrentWeapon->SetTeam(GetTeam()); 
+		gCurrentWeapon->SetTeam(GetTeam());
+
+	if ( !Weapon->CanFire() )
+		Weapon->Reload();
 }
 
 
