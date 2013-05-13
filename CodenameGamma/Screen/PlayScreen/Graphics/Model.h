@@ -76,7 +76,6 @@ public:
 
 
 	DirectX::XMFLOAT4X4				m_WorldInverseTranspose;
-	DirectX::BoundingSphere			m_OldBoundingSphere;
 
 	std::vector<DirectX::BoundingOrientedBox>	m_BoneBoxes;
 

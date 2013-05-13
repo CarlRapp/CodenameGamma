@@ -156,10 +156,6 @@ void Level::LoadLevel(string Levelname)
 	tGO->MoveTo( XMFLOAT3( 2000, 0, 2000 + 400 ) );
 	AddGameObject(tGO);
 
-	tGO	=	new Pistol();
-	tGO->MoveTo( XMFLOAT3( 800, 0, 800 ) );
-	AddGameObject(tGO);
-	
 	//	Lilla scenen 
 	tGO	=	new CrowdBarrier();
 	tGO->MoveTo( XMFLOAT3( 2000 - 85, 0, 2000 ) );
@@ -182,11 +178,11 @@ void Level::LoadLevel(string Levelname)
 	tGO->MoveTo( XMFLOAT3( 2000 + 200, 0, 2000 - 400 ) );
 	AddGameObject(tGO);
 	
-	for (int i = 0; i < 20; ++i)
+	for (int i = 0; i < 200; ++i)
 	{
-		float x = MathHelper::RandF(100, 500);
+		float x = MathHelper::RandF(100, 3900);
 		float y = 10;
-		float z = MathHelper::RandF(100, 500);
+		float z = MathHelper::RandF(100, 3900);
 
 		tGO	=	new CannedFood();
 
@@ -201,9 +197,9 @@ void Level::LoadLevel(string Levelname)
 
 	for (int i = 0; i < 200; ++i)
 	{
-		float x = MathHelper::RandF(450, 1200);
+		float x = MathHelper::RandF(100, 3900);
 		float y = 10;
-		float z = MathHelper::RandF(450, 850);
+		float z = MathHelper::RandF(100, 3900);
 
 		//tWeapon->SetAddGameObject(std::bind(&Level::AddGameObject, this, std::placeholders::_1));
 
@@ -369,8 +365,6 @@ void Level::AddInstance(float x, float y, float z, Model *model)
 	if (MathHelper::RandF(0, 1) > 0.0f)
 		go->SetVelocity(DirectX::XMFLOAT3(MathHelper::RandF(-speed, speed), 0, MathHelper::RandF(-speed, speed)));
 
-	instance->m_OldBoundingSphere = instance->GetBoundingSphere();
-
 	int a = (int)(MathHelper::RandF(0, 1) * 4) + 1;
 
 	go->SetTeam((GOTeam)a);
@@ -389,15 +383,11 @@ void Level::Update(float DeltaTime)
 	{
 		//GameObject*	tObject	=	gGameObjects[i];
 
-		if ( tObject->Update(DeltaTime, gTerrain) )
-		{
-			if ( tObject->IsAlive() )
-				gQuadTree->Update(tObject);
-			else
-			{
-				trash.push_back(tObject);
-			}
-		}
+		tObject->Update(DeltaTime, gTerrain);
+		if ( tObject->IsAlive() )
+			gQuadTree->Update(tObject);
+		else		
+			trash.push_back(tObject);
 	}
 
 	for each (GameObject* tObject in trash)

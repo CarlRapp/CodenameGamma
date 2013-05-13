@@ -52,8 +52,8 @@ private:
 	Node *m_RootNode;
 	BoundingBox m_WorldBounds;
 
-	void Insert(GameObject* instance, BoundingSphere& instanceSphere, Node* node, bool UpdateOld);
-	void Delete(GameObject* instance, BoundingSphere& instanceSphere, Node* node);
+	void Insert(GameObject* instance, BoundingSphere& instanceSphere, Node* node);
+	//void Delete(GameObject* instance, BoundingSphere& instanceSphere, Node* node);
 
 	void DeleteChildren(Node* node);
 
@@ -64,8 +64,8 @@ private:
 	int	 Size(Node* node);
 
 	bool Empty(Node* node);
-
-	bool NeedUpdate(GameObject* instance);
+	
+	//bool NeedUpdate(GameObject* instance);
 
 	void GetIntersectingInstances(BoundingFrustum frustum, vector<GameObject*> &instances, Node* node, ContainmentType containmentType);
 	void GetIntersectingInstances(BoundingOrientedBox OBB, vector<GameObject*> &instances, Node* node, ContainmentType containmentType);
@@ -79,20 +79,19 @@ private:
 		return go->GetQuadTreeType()->GetQuadTreeData().Current;
 	}
 
-	BoundingSphere GetOldBoundingSphere(GameObject* go)
-	{
-		return go->GetQuadTreeType()->GetQuadTreeData().Old;
-	}
-
 public:
 	QuadTree(BoundingBox world, float minNodeArea, int maxNodeSize);
 	~QuadTree(void);
 
 	void Insert(GameObject* instance) 
 	{ 
-		Insert(instance, GetCurrentBoundingSphere(instance), m_RootNode, true); 
+		Insert(instance, GetCurrentBoundingSphere(instance), m_RootNode); 
 	}
 
+	void Delete(GameObject* instance);
+	void Update(GameObject* instance);
+
+	/*
 	void Delete(GameObject* instance) 
 	{ 
 		if (instance) Delete(instance, GetOldBoundingSphere(instance), m_RootNode); 
@@ -107,7 +106,7 @@ public:
 				Insert(instance); 
 			}
 	}
-
+	*/
 	void GetIntersectingInstances(BoundingFrustum frustum, vector<GameObject*> &instances) 
 	{ 
 		GetIntersectingInstances(frustum, instances, m_RootNode, INTERSECTS); 

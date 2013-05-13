@@ -11,11 +11,11 @@ PlayerUnit::~PlayerUnit()
 {
 }
 
-bool PlayerUnit::Update(float DeltaTime, Terrain* terrain)
+void PlayerUnit::Update(float DeltaTime, Terrain* terrain)
 {
 	UpdateMeters(DeltaTime);
 
-	return Unit::Update(DeltaTime, terrain);
+	Unit::Update(DeltaTime, terrain);
 }
 
 void PlayerUnit::UpdateMeters(float DeltaTime)

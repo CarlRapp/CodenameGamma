@@ -8,7 +8,6 @@
 struct QuadTreeData
 {
 	BoundingSphere Current;
-	BoundingSphere Old;
 	void* Node;
 	
 	QuadTreeData()
@@ -24,8 +23,6 @@ protected:
 	
 public:
 	QuadTreeData GetQuadTreeData() { return m_QuadTreeData; }
-	void  SetOldSphere(BoundingSphere sphere) { m_QuadTreeData.Old = sphere; }
-	void  SetOldPoint(XMFLOAT3 point) { m_QuadTreeData.Old = BoundingSphere(point, 0); }
 	void  SetNode(void* node) { m_QuadTreeData.Node = node; }
 	void* GetNode() { return m_QuadTreeData.Node; }
 

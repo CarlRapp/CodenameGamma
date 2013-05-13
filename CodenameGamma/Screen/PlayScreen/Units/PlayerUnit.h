@@ -20,7 +20,7 @@ public:
 	PlayerUnit(void);
 	~PlayerUnit(void);
 
-	bool	Update(float deltaTime, Terrain* terrain);
+	void	Update(float deltaTime, Terrain* terrain);
 
 	UnitHunger	GetHungerMeter()	{ return gHunger; }
 	UnitThirst	GetThirstMeter()	{ return gThirst; }
