@@ -108,7 +108,7 @@ void Level::LoadLevel(string Levelname)
 	halfWorldSize.x /= 2.0f;
 	halfWorldSize.y /= 2.0f;
 	BoundingBox world = BoundingBox(XMFLOAT3(halfWorldSize.x, 0, halfWorldSize.y), XMFLOAT3(halfWorldSize.x, 2000, halfWorldSize.y));
-	gQuadTree = new QuadTree(world, 250 * 250);
+	gQuadTree = new QuadTree(world, 0, 4);
 	gGraphicsManager->SetQuadTree(gQuadTree);
 	
 
