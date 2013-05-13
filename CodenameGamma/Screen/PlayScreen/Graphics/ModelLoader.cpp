@@ -312,12 +312,14 @@ void ModelLoader::LoadAnimationClipsAndPoses(const std::string& filename, Skinne
 			std::string name;
 			int firstFrame;
 			int lastFrame;
+			float TimeScale;
 
 			file >> name;
 			file >> firstFrame;
 			file >> lastFrame;
+			file >> TimeScale;
 
-			skinInfo.CreateClip(name, firstFrame, lastFrame);
+			skinInfo.CreateClip(name, firstFrame, lastFrame, TimeScale);
 		}
 		else if (token == "Pose")
 		{
