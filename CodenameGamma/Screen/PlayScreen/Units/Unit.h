@@ -16,7 +16,9 @@ class Unit : public GameObject
 {
 protected:
 	UnitHealth	gHealth;
-	Weapon*		gWeapon;
+
+	vector<Weapon*>	gWeaponList;
+	Weapon*			gCurrentWeapon;
 
 public:
 	Unit(void);
@@ -25,15 +27,15 @@ public:
 	bool	Update(float deltaTime, Terrain* terrain);
 
 
-	virtual void	SetTeam(GOTeam Value) { GameObject::SetTeam(Value); if (gWeapon) gWeapon->SetTeam(GetTeam()); }
+	virtual void	SetTeam(GOTeam Value) { GameObject::SetTeam(Value); if ( gCurrentWeapon ) gCurrentWeapon->SetTeam(GetTeam()); }
 
 	void			DropWeapon();
 	void			SetWeapon(Weapon* Weapon);
-	bool			HasWeapon() { return gWeapon; }
+	bool			HasWeapon() { return gCurrentWeapon != 0; }
 
 	void			SetHealth(UnitHealth HealthData);
 	UnitHealth		GetHealth();
-	Weapon*			GetWeapon() { return gWeapon; }
+	Weapon*			GetWeapon() { return gCurrentWeapon; }
 
 	void	ReceiveDamage(float Damage);
 

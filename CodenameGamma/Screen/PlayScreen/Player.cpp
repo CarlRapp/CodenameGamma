@@ -49,7 +49,7 @@ void Player::Update(float deltaTime)
 		if (m_PlayerIndex == 0)
 		{			
 			//if (InputManager::GetInstance()->GetKeyboard()->GetKeyState(VK_SPACE) == DOWN)
-			if (InputManager::GetInstance()->GetMouse()->GetButtonState(M_RIGHT) == DOWN)
+			if ( IsButtonState( MLook, DOWN ) )
 			{
 				D3D11_VIEWPORT vp	= m_Camera->GetViewPort();
 				XMVECTOR center		= XMLoadFloat2(&XMFLOAT2((float)(vp.TopLeftX + vp.Width / 2), (float)(vp.TopLeftY + vp.Height / 2)));
@@ -60,20 +60,21 @@ void Player::Update(float deltaTime)
 				m_Unit->LookAt(XMFLOAT3(tPosition.x - mouseDir.x, 0, tPosition.z + mouseDir.y));
 			}
 
-			XMFLOAT2 walkdir = XMFLOAT2(0,0);
-			if (InputManager::GetInstance()->GetKeyboard()->GetKeyState('W') == DOWN)
-				walkdir.y += 1;
-			if (InputManager::GetInstance()->GetKeyboard()->GetKeyState('S') == DOWN)
-				walkdir.y -= 1;
-			if (InputManager::GetInstance()->GetKeyboard()->GetKeyState('A') == DOWN)
-				walkdir.x -= 1;
-			if (InputManager::GetInstance()->GetKeyboard()->GetKeyState('D') == DOWN)
-				walkdir.x += 1;
 
+			XMFLOAT2 walkdir = XMFLOAT2(0,0);
 			float speed = 160;
 
-			if (InputManager::GetInstance()->GetKeyboard()->GetKeyState(VK_SHIFT) == DOWN)
-				speed *= 2;
+			if ( IsButtonState( KWalkUp, DOWN ) )
+				walkdir.y += 1;
+			if ( IsButtonState( KWalkDown, DOWN ) )
+				walkdir.y -= 1;
+			if ( IsButtonState( KWalkLeft, DOWN ) )
+				walkdir.x -= 1;
+			if ( IsButtonState( KWalkRight, DOWN ) )
+				walkdir.x += 1;
+
+			if ( IsButtonState( KRun, DOWN ) )
+				speed	*=	2;
 
 			if (walkdir.x != 0 || walkdir.y != 0)
 				newVel	=	XMFLOAT3(walkdir.x * speed, 0, walkdir.y * speed);
@@ -84,20 +85,14 @@ void Player::Update(float deltaTime)
 		m_Camera->SetPosition(tPosition.x, tPosition.y + 200, tPosition.z - 100);
 		m_Camera->SetLookAt(tPosition);
 
-
-		if ( m_Controller->GetButtonState( RIGHT_BUMPER ) == DOWN ||
-			(m_PlayerIndex == 0 && InputManager::GetInstance()->GetMouse()->GetButtonState(M_LEFT) == DOWN))
-		{
+		if ( IsButtonState( XShoot, DOWN ) || IsButtonState( MShoot, DOWN ) )
 			m_Unit->FireWeapon();
-		}
 
-		if ( m_Controller->GetButtonState( X ) == PRESSED ||
-			(m_PlayerIndex == 0 && InputManager::GetInstance()->GetKeyboard()->GetKeyState('G') == PRESSED))
-		{
+		if ( IsButtonState( XReload, PRESSED ) || IsButtonState( KReload, PRESSED ) )
+			m_Unit->GetWeapon()->Reload();
+
+		if ( IsButtonState( XDrop, PRESSED ) || IsButtonState( KDrop, PRESSED ) )
 			m_Unit->DropWeapon();
-		}
-
-		//m_Camera->SetFarZ(tPosition.y + 700.0f);
 	}
 }
 
@@ -131,3 +126,18 @@ void Player::SetUnit(PlayerUnit* Instance)
 {
 	m_Unit	=	Instance;
 }
+
+#pragma region Player controller methods
+bool Player::IsButtonState( XboxBinds Key, InputState State )
+{
+	return m_Controller->GetButtonState( (Xbox_Button)Key ) == State;
+}
+bool Player::IsButtonState( KeyboardBinds Key, InputState State )
+{
+	return m_PlayerIndex == 0 && InputManager::GetInstance()->GetKeyboard()->GetKeyState( Key ) == State;
+}
+bool Player::IsButtonState( MouseBinds Key, InputState State )
+{
+	return m_PlayerIndex == 0 && InputManager::GetInstance()->GetMouse()->GetButtonState( (MouseButton)Key ) == State;
+}
+#pragma endregion

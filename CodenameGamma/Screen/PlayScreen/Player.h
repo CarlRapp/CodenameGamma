@@ -3,6 +3,7 @@
 #define PLAYER_H
 
 #include "../../Input/InputManager.h"
+#include "../../Input/InputBinds.h"
 #include "Units\PlayerUnit.h";
 #include "Camera.h"
 
@@ -14,7 +15,11 @@ private:
 	Controller	*m_Controller;
 	UINT		m_PlayerIndex;
 
-	void UpdateCamera(float deltaTime);
+	void	UpdateCamera(float deltaTime);
+
+	bool	IsButtonState( XboxBinds Key, InputState State );
+	bool	IsButtonState( KeyboardBinds Key, InputState State );
+	bool	IsButtonState( MouseBinds Key, InputState State );
 
 public:
 	Player(void);
