@@ -23,8 +23,6 @@ bool ModelLoader::Load(const std::string& filename,
 	aiProcess_PreTransformVertices*/);
 	//aiProcess_
 
-
-
 	std::cout << "Starting to load " << filename << std::endl;
 
 	// If the import failed, report it
@@ -45,7 +43,6 @@ bool ModelLoader::Load(const std::string& filename,
 	XMStoreFloat4x4(&toParrent, XMMatrixTranslation(0,0,0));
 
 	LoadBoneHierarchy(scene, scene->mRootNode, boneIndexToParentIndex, -1, boneOffsets);
-
 
 	typedef std::map<std::string, int>::iterator it_type;
 	for(it_type iterator1 = m_BoneToIndex.begin(); iterator1 != m_BoneToIndex.end(); iterator1++) 
@@ -80,27 +77,35 @@ bool ModelLoader::Load(const std::string& filename,
 	//LoadAnimationNodes(scene, scene->mRootNode);	
 	//LoadAnimations(scene);
 
-	GetVerts(scene, scene->mRootNode, vertices, indices, subsets, mats);
+
+	std::vector<Vertex::PosNormalTexTanSkinnedTemp> tempVerts;
+	GetVerts(scene, scene->mRootNode, tempVerts, indices, subsets, mats);
 
 
-	for each (Vertex::PosNormalTexTanSkinned vertex in vertices)
+	for each (Vertex::PosNormalTexTanSkinnedTemp vertex in tempVerts)
 	{		
 		float sum = vertex.Weight.x + vertex.Weight.y + vertex.Weight.z + vertex.Weight.w;
 		if (sum != 0.0f)
-		{
+		{			
 			XMVECTOR w = XMLoadFloat4(&vertex.Weight);
 			w /= sum;
-			XMStoreFloat4(&vertex.Weight, w);
-
-			if (sum != 1.0f)
-				std::cout << vertex.BoneIndex[0] << " - " << vertex.BoneIndex[1] << " - " << vertex.BoneIndex[2] << " - " << vertex.BoneIndex[3] << std::endl;
-
+			XMStoreFloat4(&vertex.Weight, w);	
 		}
 
-		sum = (int)vertex.Weight.x + (int)vertex.Weight.y + (int)vertex.Weight.z + (int)vertex.Weight.w;
+		Vertex::PosNormalTexTanSkinned v;
+		v.Pos			= vertex.Pos;
+		v.Normal		= vertex.Normal;
+		v.Tex			= vertex.Tex;
+		v.TangentU		= vertex.TangentU;
+		v.BoneIndex[0]	= vertex.BoneIndex[0];
+		v.BoneIndex[1]	= vertex.BoneIndex[1];
+		v.BoneIndex[2]	= vertex.BoneIndex[2];
+		v.BoneIndex[3]	= vertex.BoneIndex[3];
+		v.Weight.x		= vertex.Weight.x;
+		v.Weight.y		= vertex.Weight.y;
+		v.Weight.z		= vertex.Weight.z;
 
-		//if (sum != 1.0f)
-		//	std::cout << vertex.Weight.x << " - " << vertex.Weight.y << " - " << vertex.Weight.z << " - " << vertex.Weight.w << std::endl;
+		vertices.push_back(v);
 	}
 
 	USHORT numBoneAnimation = animationClip.BoneAnimations.size();
@@ -111,9 +116,7 @@ bool ModelLoader::Load(const std::string& filename,
 	skinInfo.Set(boneIndexToParentIndex, boneOffsets, animations, m_BoneToIndex, m_IndexToBone, m_Joints);
 
 	LoadAnimationClipsAndPoses(filename, skinInfo);
-
-
-
+	
 	
 	XMFLOAT4X4 globalInverseTransform = aiMatrixToXMFloat4x4(scene->mRootNode->mTransformation);
 	XMMATRIX temp = XMLoadFloat4x4(&globalInverseTransform);
@@ -121,29 +124,6 @@ bool ModelLoader::Load(const std::string& filename,
 	temp = XMMatrixInverse(&detV, temp);
 	XMStoreFloat4x4(&globalInverseTransform, temp);
 	skinInfo.mGlobalInverseTransform = globalInverseTransform;
-	
-	//Ladda ben		map a
-	//Ladda noder	map b
-
-	//convert from node to bones using b
-	//convert from bonename to boneindex using a
-	//convert from node to boneindices using b followed by a
-
-
-	//load animations							 nodename
-
-
-	//save keyframes for each node		std::map<string , vector<poskf>>
-	//									std::map<string , vector<scalekf>>
-	//									std::map<string , vector<rotkf>>
-
-	//extract keyframes and insert the for each bone somehow -.-
-
-	//extract keyframes and insert the for each node instead usning map a,b
-
-	//load positions, normals, texcoords, tangents
-	//load boneweights, boneindicies
-
 
 	std::cout << std::endl << std::endl << std::endl;
 	return true;
@@ -338,7 +318,7 @@ void ModelLoader::LoadAnimationClipsAndPoses(const std::string& filename, Skinne
 
 
 void ModelLoader::GetVerts(const aiScene* scene, aiNode *node, 
-		std::vector<Vertex::PosNormalTexTanSkinned>& vertices, 
+		std::vector<Vertex::PosNormalTexTanSkinnedTemp>& vertices, 
 		std::vector<UINT>& indices, 
 		std::vector<Mesh::Subset>& subsets,
 		std::vector<MaterialLoader>& mats)
@@ -373,7 +353,7 @@ void ModelLoader::GetVerts(const aiScene* scene, aiNode *node,
 
 void  ModelLoader::GetVerts(const aiScene* scene, 
 		aiMesh *mesh, 
-		std::vector<Vertex::PosNormalTexTanSkinned>& vertices, 
+		std::vector<Vertex::PosNormalTexTanSkinnedTemp>& vertices, 
 		std::vector<UINT>& indices, 
 		std::vector<Mesh::Subset>& subsets,
 		std::vector<MaterialLoader>& mats)
@@ -448,7 +428,7 @@ void  ModelLoader::GetVerts(const aiScene* scene,
 	for (int i = 0; i < numVerts; i++)
 	{
 		
-		Vertex::PosNormalTexTanSkinned vertex;
+		Vertex::PosNormalTexTanSkinnedTemp vertex;
 		vertex.Pos		= aiVector3DToXMFLOAT3(mesh->mVertices[i]);
 		
 		
@@ -498,7 +478,7 @@ void  ModelLoader::GetVerts(const aiScene* scene,
 			float weight	= mesh->mBones[i]->mWeights[j].mWeight;
 			
 			
-			Vertex::PosNormalTexTanSkinned *v = &vertices[offset + index];
+			Vertex::PosNormalTexTanSkinnedTemp *v = &vertices[offset + index];
 			//v.Normal.x = 1;
 			//vertices[offset + index] = v;			
 			
