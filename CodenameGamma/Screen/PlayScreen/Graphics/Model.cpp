@@ -208,7 +208,7 @@ bool ModelInstance::PlayAnimation(string clipName, bool loop)
 				StopAnimation(animation->ClipName);
 			}
 		}
-		cout << "Starting animation " << clipName << "\t Number of animations: " << ActiveAnimations.size() + 1 << endl;
+		//cout << "Starting animation " << clipName << "\t Number of animations: " << ActiveAnimations.size() + 1 << endl;
 		ActiveAnimations.push_back(animation);
 		SortAnimations();
 		return true;
@@ -224,7 +224,7 @@ void ModelInstance::StopAnimation(string clipName)
 		if (animation->ClipName == clipName)
 		{
 			temp = animation;
-			cout << "Stopping animation " << clipName << "\t Number of animations: " << ActiveAnimations.size() - 1 << endl;
+			//cout << "Stopping animation " << clipName << "\t Number of animations: " << ActiveAnimations.size() - 1 << endl;
 			break;
 		}
 	}
@@ -287,7 +287,7 @@ void ModelInstance::Update(float dt, float AnimationSpeed, bool UpdateAnimation)
 				{
 					if (animation->Loop)
 					{
-						cout << "Restarting animation: " << animation->ClipName << endl;
+						//cout << "Restarting animation: " << animation->ClipName << endl;
 						animation->TimePos = 0.0f;
 					}
 					else
