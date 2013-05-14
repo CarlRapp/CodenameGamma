@@ -25,6 +25,8 @@ public:
 	UnitHunger	GetHungerMeter()	{ return gHunger; }
 	UnitThirst	GetThirstMeter()	{ return gThirst; }
 
+	void	Hurt(float Damage);
+
 	void	Eat(float Value)
 	{
 		gHunger.first	+=	Value;
@@ -35,6 +37,8 @@ public:
 		gThirst.first	+=	Value;
 		gThirst.first	=	(gThirst.first > gThirst.second) ? gThirst.second : gThirst.first;
 	}
+
+	void	SetVelocity(XMFLOAT3 Velocity);
 
 };
 
