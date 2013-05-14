@@ -94,20 +94,20 @@ void PlayScreen::Render()
 		if ( i == 0 )
 		{
 			title	=	"Health: ";
-			a = HEALTH.first;
-			b = HEALTH.second;
+			a = (int)HEALTH.first;
+			b = (int)HEALTH.second;
 		}
 		else if ( i == 1 )
 		{
 			title	=	"Hunger: ";
-			a = HUNGER.first;
-			b = HUNGER.second;
+			a = (int)HUNGER.first;
+			b = (int)HUNGER.second;
 		}
 		else if ( i == 2)
 		{
 			title	=	"Thirst: ";
-			a = THIRST.first;
-			b = THIRST.second;
+			a = (int)THIRST.first;
+			b = (int)THIRST.second;
 		}
 		else
 		{

@@ -16,6 +16,7 @@ private:
 
 	XMFLOAT3	gOffset;
 	float		gTimeSpan;
+	float		gCooldown;
 
 	PointLight*	gPointLight;
 

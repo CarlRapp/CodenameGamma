@@ -3,26 +3,35 @@
 
 WeaponOnGround::WeaponOnGround()
 {
-	gWeapon		=	0;
-	gPointLight	=	0;
-	gOffset		=	XMFLOAT3( 0, 3, 0 );
-	gTimeSpan	=	MathHelper::RandF( 0.0f, 8000.0f );
-
-	SetRotation( XMFLOAT3( 0, MathHelper::RandF( -PI, PI ), 0 ) );
+	SetState( Dead );
 }
 
 WeaponOnGround::WeaponOnGround( Weapon* Instance )
 {
+	//	Null the light pointer
+	gPointLight	=	0;
+
+	//	Set the initial values on offset, cooldown and
+	//	a random "life span" that will give it an offset
+	//	in position methods, making every new drop look
+	//	unique
+	gCooldown	=	0.5f;
+	gOffset		=	XMFLOAT3( 0, 3, 0 );
+	gTimeSpan	=	MathHelper::RandF( 0.0f, 8000.0f );
+
+	//	Set the current modelinstance
+	//	and scale it to look better
 	SetModelInstance( Instance->GetModelInstance() );
 	SetScale( 2 );
+
+	//	Update the instance
+	//	to hidden so it will
+	//	be removed from the tree.
 	gWeapon	=	Instance;
 	gWeapon->SetState( Hidden );
 
 
-	gPointLight	=	0;
-	gOffset		=	XMFLOAT3( 0, 3, 0 );
-	gTimeSpan	=	MathHelper::RandF( 0.0f, 8000.0f );
-
+	//	Give it a random rotation
 	SetRotation( XMFLOAT3( 0, MathHelper::RandF( -PI, PI ), 0 ) );
 }
 
@@ -33,6 +42,9 @@ WeaponOnGround::~WeaponOnGround()
 
 void WeaponOnGround::Update(float DeltaTime, Terrain* terrain)
 {
+	if ( !IsAlive() )
+		return;
+
 	XMFLOAT3	newPos	=	GetFloat3Value( Position );
 
 	if ( !gPointLight )
@@ -58,11 +70,20 @@ void WeaponOnGround::Update(float DeltaTime, Terrain* terrain)
 
 	if ( gPointLight != 0 )
 		gPointLight->GetGPULight()->Position	=	newPos;
+
+	if ( gCooldown > 0 )
+	{
+		gCooldown	-=	DeltaTime;
+		gCooldown	=	( gCooldown < 0 ) ? 0 : gCooldown;
+	}
 }
 
 
 void WeaponOnGround::OnPickUp(Unit* Instance)
 {
+	if ( gCooldown != 0 )
+		return;
+
 	if ( !IsOfType<PlayerUnit>(Instance) )
 		return;
 
