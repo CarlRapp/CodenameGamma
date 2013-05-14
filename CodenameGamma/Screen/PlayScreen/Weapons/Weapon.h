@@ -44,6 +44,8 @@ public:
 	virtual void	Fire();
 
 	virtual	void	Reload();
+
+	virtual bool Intersects(GameObject* B, vector<CollisionData>& CD);
 };
 
 #endif
