@@ -132,7 +132,7 @@ public:
 	void	Move(XMFLOAT3 Delta);
 	void	MoveTo(XMFLOAT3 Location);
 
-	void	SetVelocity(XMFLOAT3 Velocity);
+	virtual	void	SetVelocity(XMFLOAT3 Velocity);
 
 	void	SetState(GOState Value);
 

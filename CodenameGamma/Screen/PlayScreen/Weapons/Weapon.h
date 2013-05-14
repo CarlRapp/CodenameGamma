@@ -7,6 +7,8 @@
 
 using namespace DirectX;
 
+
+
 //	Is arranged like <Current, Cooldown>
 typedef pair<float, float>	WeaponCooldown;
 
@@ -21,6 +23,7 @@ enum WeaponState
 	Ready,
 	Reloading
 };
+
 
 class Weapon : public GameObject
 {
@@ -46,6 +49,30 @@ public:
 	virtual	void	Reload();
 
 	virtual bool Intersects(GameObject* B, vector<CollisionData>& CD);
+
+	/*
+	To make it easier for the GUI
+	to get info about a weapon, this
+	will be returned when calling
+	GetInfo()
+	*/
+	struct WeaponInfo
+	{
+		WeaponCooldown		Cooldown;
+		WeaponClip			Magazine;
+		WeaponReloadTime	ReloadTime;
+
+		WeaponInfo( Weapon* Instance )
+		{
+			Cooldown	=	Instance->gCooldown;
+			Magazine	=	Instance->gClip;
+			ReloadTime	=	Instance->gReloadTime;
+		}
+	};
+	WeaponInfo	GetInfo()
+	{
+		return	WeaponInfo( this );
+	}
 };
 
 #endif
