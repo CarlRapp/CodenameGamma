@@ -8,8 +8,7 @@
 #include "Vertex.h"
 #include "ModelLoader.h"
 
-#include <string>
-
+using namespace std;
 
 class Model
 {
@@ -21,17 +20,17 @@ public:
 
 	UINT SubsetCount;
 
-	std::vector<Material> Mat;
-	std::vector<ID3D11ShaderResourceView*> DiffuseMapSRV;
-	std::vector<ID3D11ShaderResourceView*> NormalMapSRV;
+	vector<Material> Mat;
+	vector<ID3D11ShaderResourceView*> DiffuseMapSRV;
+	vector<ID3D11ShaderResourceView*> NormalMapSRV;
 
 	bool HasDiffuseMaps() { return !DiffuseMapSRV.empty(); }
 	bool HasNormalMaps() { return !NormalMapSRV.empty(); }
 	
 	// Keep CPU copies of the mesh data to read from.  
-	std::vector<Vertex::PosNormalTexTanSkinned> Vertices;
-	std::vector<UINT> Indices;
-	std::vector<Mesh::Subset> Subsets;
+	vector<Vertex::PosNormalTexTanSkinned> Vertices;
+	vector<UINT> Indices;
+	vector<Mesh::Subset> Subsets;
 	
 	/*
 	// Keep CPU copies of the mesh data to read from.  
@@ -47,7 +46,7 @@ public:
 
 	float							m_SmallestRadiusInBox;
 
-	std::vector<DirectX::BoundingOrientedBox>	m_BoneBoxes;
+	vector<DirectX::BoundingOrientedBox>	m_BoneBoxes;
 
 };
 
@@ -55,22 +54,23 @@ public:
 class ModelInstance
 {
 private:
-	Model					*m_Model;
-	XMFLOAT4X4				m_World;
-	float					m_Scale;
+	Model			*m_Model;
+	XMFLOAT4X4		m_World;
+	float			m_Scale;
 
-	bool					BoxesNeedsUpdate;
+	bool			BoxesNeedsUpdate;
+	float			UpdateTimer;
 
-	float					UpdateTimer;
+	void SortAnimations();
 
 public:
 
-
-
 	float TimePos;
 	bool  Animating;
-	std::string ClipName;
-	std::vector<XMFLOAT4X4> FinalTransforms;
+	string ClipName;
+	vector<XMFLOAT4X4>	FinalTransforms;
+	vector<Animation*>	ActiveAnimations;
+
 
 	void UpdateBoxes();
 	void Update(float dt, float AnimationSpeed, bool UpdateAnimation);
@@ -79,15 +79,16 @@ public:
 	
 	XMFLOAT4						m_Rotation;
 	XMFLOAT3						m_Translation;
-
-
 	DirectX::XMFLOAT4X4				m_WorldInverseTranspose;
-
-	std::vector<DirectX::BoundingOrientedBox>	m_BoneBoxes;
-
+	vector<BoundingOrientedBox>		m_BoneBoxes;
 	void							*m_Node;
 
-	bool UsingAnimationOrPose() { return ClipName != ""; }
+	bool PlayingAnimation(string clipName);
+	bool PlayAnimation(string clipName, bool loop);
+	void StopAnimation(string clipName);
+	void StopAllAnimations();
+
+	bool UsingAnimationOrPose() { return !ActiveAnimations.empty(); }
 
 	void SetModel(Model* Model)
 	{
@@ -199,7 +200,7 @@ public:
 		return m_Model->m_SmallestRadiusInBox * m_Scale;
 	}
 
-	bool GetJointPosition(std::string name, XMFLOAT3& pos)
+	bool GetJointPosition(string name, XMFLOAT3& pos)
 	{
 		int bone = -1;
 		pos = XMFLOAT3(0,0,0);
@@ -221,7 +222,7 @@ public:
 		return bone >= 0;
 	}
 
-	std::string GetBoneName(UINT index)
+	string GetBoneName(UINT index)
 	{
 		return m_Model->SkinnedData.GetBoneName(index);
 		/*

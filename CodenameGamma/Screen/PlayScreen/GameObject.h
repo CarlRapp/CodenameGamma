@@ -136,7 +136,11 @@ public:
 
 	void	SetState(GOState Value);
 
+	bool	LoopAnimation(string name);
 	bool	PlayAnimation(string name);
+	void	StopAnimation(string name);
+	void	StopAllAnimations();
+
 	void	AnimateNextFrame() { AnimateThisUpdate = true; }
 
 	bool	UsePose(string name);
