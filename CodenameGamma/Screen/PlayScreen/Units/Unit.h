@@ -37,9 +37,7 @@ public:
 	UnitHealth		GetHealth();
 	Weapon*			GetWeapon() { return gCurrentWeapon; }
 
-	void	ReceiveDamage(float Damage);
-
-	void	Hit(Unit* Target);
+	virtual	void	Hurt(float Damage);
 
 	void	ReloadWeapon();
 	void	FireWeapon();

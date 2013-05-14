@@ -19,6 +19,8 @@ void Unit::DropWeapon()
 		WeaponOnGround*	tWoG	=	new WeaponOnGround( gCurrentWeapon );
 		tWoG->MoveTo( gCurrentWeapon->GetFloat3Value( Position ) );
 
+		tWoG->SetRotation( GetFloat3Value( Rotations ) );
+
 		AddGameObject( tWoG );
 		tWoG->Update(0, 0);
 
@@ -122,20 +124,12 @@ void Unit::Update(float DeltaTime, Terrain* TerrainInstance)
 	}
 }
 
-void Unit::ReceiveDamage(float Damage)
+void Unit::Hurt(float Damage)
 {
 	gHealth.first	-=	Damage;
-}
 
-void Unit::Hit(Unit* Target)
-{
-	if ( !gCurrentWeapon->CanFire() )
-		return;
-
-	gCurrentWeapon->Fire();
-
-	Target->ReceiveDamage(1.0f);
-	ReceiveDamage(-1.0f);
+	if ( gHealth.first <= 0 )
+		SetState( Dead );
 }
 
 void Unit::ReloadWeapon()

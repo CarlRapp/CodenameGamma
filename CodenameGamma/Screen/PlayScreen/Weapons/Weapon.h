@@ -7,6 +7,8 @@
 
 using namespace DirectX;
 
+
+
 //	Is arranged like <Current, Cooldown>
 typedef pair<float, float>	WeaponCooldown;
 
@@ -21,6 +23,13 @@ enum WeaponState
 	Ready,
 	Reloading
 };
+
+/*
+	To make it easier for the GUI
+	to get info about a weapon, this
+	will be returned when calling
+	GetInfo()
+*/
 
 class Weapon : public GameObject
 {
@@ -44,6 +53,26 @@ public:
 	virtual void	Fire();
 
 	virtual	void	Reload();
+
+	
+
+	struct WeaponInfo
+	{
+		WeaponCooldown		Cooldown;
+		WeaponClip			Magazine;
+		WeaponReloadTime	ReloadTime;
+
+		WeaponInfo( Weapon* Instance )
+		{
+			Cooldown	=	Instance->gCooldown;
+			Magazine	=	Instance->gClip;
+			ReloadTime	=	Instance->gReloadTime;
+		}
+	};
+	WeaponInfo	GetInfo()
+	{
+		return	WeaponInfo( this );
+	}
 };
 
 #endif
