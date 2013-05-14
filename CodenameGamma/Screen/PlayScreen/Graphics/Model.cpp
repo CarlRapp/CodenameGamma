@@ -62,6 +62,8 @@ Model::Model(ID3D11Device* device, TextureManager& texMgr, const std::string& mo
 		if (AC)
 		{
 			UINT numKeyFrames = AC->BoneAnimations[0].Keyframes.size();
+
+			std::vector<XMFLOAT3> bigBoxPoints;
 			m_SmallestRadiusInBox = 99999;
 			for (int i = 0; i < numKeyFrames; ++i)
 			{
@@ -83,7 +85,10 @@ Model::Model(ID3D11Device* device, TextureManager& texMgr, const std::string& mo
 					tempboxes[i].GetCorners(&corners[0]);
 
 					for each (XMFLOAT3 point in corners)
+					{
 						points.push_back(point);
+						bigBoxPoints.push_back(point);
+					}
 				}
 				BoundingBox AABB;
 				BoundingBox::CreateFromPoints(AABB, points.size(), &points[0], sizeof(XMFLOAT3));
@@ -92,6 +97,11 @@ Model::Model(ID3D11Device* device, TextureManager& texMgr, const std::string& mo
 				m_SmallestRadiusInBox = min(m_SmallestRadiusInBox, min(min(Extents.x, Extents.z), Extents.y));
 			}
 
+			BoundingBox AABB;
+			BoundingBox::CreateFromPoints(AABB, bigBoxPoints.size(), &bigBoxPoints[0], sizeof(XMFLOAT3));
+
+			BoundingOrientedBox::CreateFromBoundingBox(m_BoundingOrientedBox, AABB);
+			BoundingSphere::CreateFromBoundingBox(m_BoundingSphere, m_BoundingOrientedBox);
 		}
 
 		
@@ -145,7 +155,7 @@ Model::~Model(void)
 
 void ModelInstance::UpdateBoxes()
 {
-	if (m_Model)
+	if (m_Model && BoxesNeedsUpdate)
 	{	
 		std::vector<XMFLOAT3> points;
 		for (int i = 0; i < m_Model->m_BoneBoxes.size(); ++i)
@@ -159,22 +169,29 @@ void ModelInstance::UpdateBoxes()
 
 			//XMMATRIX World	= XMLoadFloat4x4(&m_World);
 			//m_BoneBoxes[i].Transform(m_BoneBoxes[i], World);
+			BoxesNeedsUpdate = false;
 		}
 		
 	}
 }
 
-void ModelInstance::Update(float dt)
+void ModelInstance::Update(float dt, float AnimationSpeed, bool UpdateAnimation)
 {
+	BoxesNeedsUpdate = true;	
 	if (UsingAnimationOrPose() && Animating)
-	//if (ClipName != "")
-	{
-		TimePos += dt;
-		m_Model->SkinnedData.GetFinalTransforms(ClipName, TimePos, FinalTransforms);
+	{		
+		TimePos		+= dt * AnimationSpeed;
+		UpdateTimer += dt;
 
-		// Loop animation
-		if(TimePos > m_Model->SkinnedData.GetClipEndTime(ClipName))
-			TimePos = 0.0f;	
+		if (UpdateTimer >= UPDATE_INTERVAL)
+		{
+			UpdateTimer = 0;
+			m_Model->SkinnedData.GetFinalTransforms(ClipName, TimePos, FinalTransforms);
+
+			// Loop animation
+			if(TimePos > m_Model->SkinnedData.GetClipEndTime(ClipName))
+				TimePos = 0.0f;	
+		}		
 	}
 	//UpdateBoxes();	
 }
