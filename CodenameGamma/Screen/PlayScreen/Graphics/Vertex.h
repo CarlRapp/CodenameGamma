@@ -58,10 +58,26 @@ namespace Vertex
 		XMFLOAT2 Tex;
 		XMFLOAT4 TangentU;
 
-		XMFLOAT4 Weight;
-		UINT	 BoneIndex[4];
+		XMFLOAT3 Weight;
+		BYTE	 BoneIndex[4];
 
 		PosNormalTexTanSkinned()
+		{
+			Weight = XMFLOAT3(0,0,0);
+		}
+	};
+
+	struct PosNormalTexTanSkinnedTemp
+	{
+		XMFLOAT3 Pos;
+		XMFLOAT3 Normal;
+		XMFLOAT2 Tex;
+		XMFLOAT4 TangentU;
+
+		XMFLOAT4 Weight;
+		BYTE	 BoneIndex[4];
+
+		PosNormalTexTanSkinnedTemp()
 		{
 			Weight = XMFLOAT4(0,0,0,0);
 		}
