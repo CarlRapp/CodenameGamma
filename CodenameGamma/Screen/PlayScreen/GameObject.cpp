@@ -95,8 +95,9 @@ void GameObject::Update(float deltaTime, Terrain* terrain)
 #pragma endregion Wallbounce
 
 	if (m_ModelInstance)
-		m_ModelInstance->Update(deltaTime);
+		m_ModelInstance->Update(deltaTime, 1.0f, AnimateThisUpdate);
 
+	AnimateThisUpdate = false;
 	MoveTo(newPos);
 
 	//Move(XMFLOAT3(gVelocity.x * deltaTime, 0, gVelocity.z * deltaTime));
@@ -314,143 +315,6 @@ bool GameObject::UsePose(string name)
 	return false;
 }
 
-bool GameObject::Intersects(const GameObject* A, const GameObject* B, vector<CollisionData>& CD)
-{
-	if (A == B)
-		return false;
-
-	bool result = false;
-
-	BoundingSphere As = A->m_QuadTreeType->GetQuadTreeData().Current;
-	BoundingSphere Bs = B->m_QuadTreeType->GetQuadTreeData().Current;
-
-
-	if (As.Intersects(Bs))
-	{
-
-		if (A->m_ModelInstance != NULL && B->m_ModelInstance != NULL)
-		{
-
-			BoundingOrientedBox Ab = A->m_ModelInstance->GetBoundingOrientedBox();
-			BoundingOrientedBox Bb = B->m_ModelInstance->GetBoundingOrientedBox();
-
-			if (Ab.Intersects(Bb))
-			{
-				if (!A->m_ModelInstance->m_BoneBoxes.empty())
-				{
-					//for each (BoundingOrientedBox Abb in A->m_ModelInstance->m_BoneBoxes)
-					for (int a = 0; a < A->m_ModelInstance->m_BoneBoxes.size(); ++a)
-					{
-						BoundingOrientedBox Abb = A->m_ModelInstance->m_BoneBoxes[a];
-						if (!B->m_ModelInstance->m_BoneBoxes.empty())
-						{
-							//for each (BoundingOrientedBox Bbb in B->m_ModelInstance->m_BoneBoxes)
-							for (int b = 0; b < B->m_ModelInstance->m_BoneBoxes.size(); ++b)
-							{
-								BoundingOrientedBox Bbb = B->m_ModelInstance->m_BoneBoxes[b];
-								if (Abb.Intersects(Bbb))
-								{
-									//cout << A->m_ModelInstance->GetBoneName(a) << " hit " << B->m_ModelInstance->GetBoneName(b) << endl;
-									CollisionData cd;
-									cd.A = HitBox(A->m_ModelInstance->GetBoneName(a), Abb);
-									cd.B = HitBox(B->m_ModelInstance->GetBoneName(b), Bbb);
-									CD.push_back(cd);
-										/*
-									HitboxA.name = A->m_ModelInstance->GetBoneName(a);
-									HitboxA.box	 = Abb;
-
-									HitboxB.name = B->m_ModelInstance->GetBoneName(b);
-									HitboxB.box  = Bbb;
-									*/
-									result = true;
-								}									
-							}
-						}
-						else
-						{
-							if (Abb.Intersects(Bb))
-							{		
-								//cout << A->m_ModelInstance->GetBoneName(a) << " hit Body" << endl;
-
-								CollisionData cd;
-								cd.A = HitBox(A->m_ModelInstance->GetBoneName(a), Abb);
-								cd.B = HitBox("Body", Bb);
-								CD.push_back(cd);
-
-								/*
-								HitboxA.name = A->m_ModelInstance->GetBoneName(a);
-								HitboxA.box	 = Abb;
-
-								HitboxB.name = "Body";
-								HitboxB.box  = Bb;
-								*/
-								result = true;
-							}
-						}
-					}
-				}
-
-				else if (!B->m_ModelInstance->m_BoneBoxes.empty())
-				{
-					//for each (BoundingOrientedBox Bbb in B->m_ModelInstance->m_BoneBoxes)
-					for (int b = 0; b < B->m_ModelInstance->m_BoneBoxes.size(); ++b)
-					{
-						BoundingOrientedBox Bbb = B->m_ModelInstance->m_BoneBoxes[b];
-						if (Ab.Intersects(Bbb))
-						{
-							//cout << "Body hit " << B->m_ModelInstance->GetBoneName(b) << endl;
-							CollisionData cd;
-							cd.A = HitBox("Body", Ab);
-							cd.B = HitBox(B->m_ModelInstance->GetBoneName(b), Bbb);
-							CD.push_back(cd);
-							/*
-							HitboxA.name = "Body";
-							HitboxA.box	 = Ab;
-
-							HitboxB.name = B->m_ModelInstance->GetBoneName(b);
-							HitboxB.box  = Bbb;	
-							*/
-							result = true;
-						}
-					}
-				}
-
-				else
-				{
-					//cout << "Body hit Body" << endl;
-					CollisionData cd;
-					cd.A = HitBox("Body", Ab);
-					cd.B = HitBox("Body", Bb);
-					CD.push_back(cd);
-					/*
-					HitboxA.name = "Body";
-					HitboxA.box	 = Ab;
-
-					HitboxB.name = "Body";
-					HitboxB.box  = Bb;		
-					*/
-					result = true;
-				}
-			}
-		}
-
-		else if (A->m_ModelInstance != NULL && B->m_ModelInstance == NULL)
-		{
-			BoundingOrientedBox Ab = A->m_ModelInstance->GetBoundingOrientedBox();
-			return Ab.Intersects(Bs);
-		}
-
-		else if (A->m_ModelInstance == NULL && B->m_ModelInstance != NULL)
-		{
-			BoundingOrientedBox Bb = B->m_ModelInstance->GetBoundingOrientedBox();
-			return Bb.Intersects(As);
-		}
-		else
-			return true;
-	}
-	return result;
-}
-
 #pragma region Team Methods
 void GameObject::SetTeam(GOTeam Team)
 {
@@ -490,10 +354,465 @@ void GameObject::UpdateWorld(bool UpdateInverseTranspose)
 		XMStoreFloat4(&m_ModelInstance->m_Rotation, Quaternion);
 		m_ModelInstance->m_Translation	=	gPosition;
 
-		//m_ModelInstance->m_WorldInverseTranspose	=	gWorldInverseTranspose;
+		//ModelInstance->m_WorldInverseTranspose	=	gWorldInverseTranspose;
 		m_ModelInstance->SetWorld(gWorld, gWorldInverseTranspose, gScaleInFloat);
 		m_QuadTreeType->Update();
 	}
 }
 
 void GameObject::CollideWith(GameObject* Instance, vector<CollisionData> CD) { } 
+
+
+//Collision
+/*
+bool GameObject::Intersects(const GameObject* A, const GameObject* B, vector<CollisionData>& CD)
+{
+	return BoxVsBox(A, B, CD);
+}*/
+
+bool GameObject::SphereVsSphere(const GameObject* A, const GameObject* B)
+{
+	if (A == B)
+		return false;
+	BoundingSphere As = A->m_QuadTreeType->GetQuadTreeData().Current;
+	BoundingSphere Bs = B->m_QuadTreeType->GetQuadTreeData().Current;
+	if (As.Intersects(Bs))
+		return true;
+	return false;
+}
+
+bool GameObject::BoxVsBox(const GameObject* A, const GameObject* B, vector<CollisionData>& CD, bool SwapCD)
+{
+	if (A == B)
+		return false;
+
+	BoundingSphere As = A->m_QuadTreeType->GetQuadTreeData().Current;
+	BoundingSphere Bs = B->m_QuadTreeType->GetQuadTreeData().Current;
+
+	if (As.Intersects(Bs))
+	{
+		if (A->m_ModelInstance != NULL && B->m_ModelInstance != NULL)
+		{
+
+			BoundingOrientedBox Ab = A->m_ModelInstance->GetBoundingOrientedBox();
+			BoundingOrientedBox Bb = B->m_ModelInstance->GetBoundingOrientedBox();
+			if (Ab.Intersects(Bb))
+			{
+				CollisionData cd;
+				cd.A = HitBox("Body", Ab);
+				cd.B = HitBox("Body", Bb);
+
+				if (SwapCD)
+				{
+					HitBox temp = cd.A;
+					cd.A = cd.B;
+					cd.B = temp;
+				}
+				CD.push_back(cd);
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool GameObject::BoneVsBone(const GameObject* A, const GameObject* B, vector<CollisionData>& CD, bool SwapCD)
+{
+	if (A == B)
+		return false;
+
+	BoundingSphere As = A->m_QuadTreeType->GetQuadTreeData().Current;
+	BoundingSphere Bs = B->m_QuadTreeType->GetQuadTreeData().Current;
+
+	if (As.Intersects(Bs))
+	{
+		if (A->m_ModelInstance != NULL && B->m_ModelInstance != NULL)
+		{
+			BoundingOrientedBox Ab = A->m_ModelInstance->GetBoundingOrientedBox();
+			BoundingOrientedBox Bb = B->m_ModelInstance->GetBoundingOrientedBox();
+			if (Ab.Intersects(Bb))
+			{
+				A->m_ModelInstance->UpdateBoxes();
+				B->m_ModelInstance->UpdateBoxes();
+				if (!A->m_ModelInstance->m_BoneBoxes.empty())
+				{
+					//for each (BoundingOrientedBox Abb in A->m_ModelInstance->m_BoneBoxes)
+					for (int a = 0; a < A->m_ModelInstance->m_BoneBoxes.size(); ++a)
+					{
+						BoundingOrientedBox Abb = A->m_ModelInstance->m_BoneBoxes[a];
+						if (!B->m_ModelInstance->m_BoneBoxes.empty())
+						{
+							//for each (BoundingOrientedBox Bbb in B->m_ModelInstance->m_BoneBoxes)
+							for (int b = 0; b < B->m_ModelInstance->m_BoneBoxes.size(); ++b)
+							{
+								BoundingOrientedBox Bbb = B->m_ModelInstance->m_BoneBoxes[b];
+								if (Abb.Intersects(Bbb))
+								{
+									CollisionData cd;
+									cd.A = HitBox(A->m_ModelInstance->GetBoneName(a), Abb);
+									cd.B = HitBox(B->m_ModelInstance->GetBoneName(b), Bbb);
+
+									if (SwapCD)
+									{
+										HitBox temp = cd.A;
+										cd.A = cd.B;
+										cd.B = temp;
+									}
+									CD.push_back(cd);
+									return true;
+								}									
+							}
+						}
+						else
+						{
+							if (Abb.Intersects(Bb))
+							{		
+								CollisionData cd;
+								cd.A = HitBox(A->m_ModelInstance->GetBoneName(a), Abb);
+								cd.B = HitBox("Body", Bb);
+
+								if (SwapCD)
+								{
+									HitBox temp = cd.A;
+									cd.A = cd.B;
+									cd.B = temp;
+								}
+								CD.push_back(cd);
+								return true;
+							}
+						}
+					}
+				}
+
+				else if (!B->m_ModelInstance->m_BoneBoxes.empty())
+				{
+					for (int b = 0; b < B->m_ModelInstance->m_BoneBoxes.size(); ++b)
+					{
+						BoundingOrientedBox Bbb = B->m_ModelInstance->m_BoneBoxes[b];
+						if (Ab.Intersects(Bbb))
+						{
+							CollisionData cd;
+							cd.A = HitBox("Body", Ab);
+							cd.B = HitBox(B->m_ModelInstance->GetBoneName(b), Bbb);
+
+							if (SwapCD)
+							{
+								HitBox temp = cd.A;
+								cd.A = cd.B;
+								cd.B = temp;
+							}
+							CD.push_back(cd);
+							return true;
+						}
+					}
+				}
+				else
+				{
+					CollisionData cd;
+					cd.A = HitBox("Body", Ab);
+					cd.B = HitBox("Body", Bb);
+
+					if (SwapCD)
+					{
+						HitBox temp = cd.A;
+						cd.A = cd.B;
+						cd.B = temp;
+					}
+					CD.push_back(cd);
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+bool GameObject::AllBonesVsAllBones(const GameObject* A, const GameObject* B, vector<CollisionData>& CD, bool SwapCD)
+{
+	if (A == B)
+		return false;
+
+	bool result = false;
+
+	BoundingSphere As = A->m_QuadTreeType->GetQuadTreeData().Current;
+	BoundingSphere Bs = B->m_QuadTreeType->GetQuadTreeData().Current;
+
+	if (As.Intersects(Bs))
+	{
+		if (A->m_ModelInstance != NULL && B->m_ModelInstance != NULL)
+		{
+			BoundingOrientedBox Ab = A->m_ModelInstance->GetBoundingOrientedBox();
+			BoundingOrientedBox Bb = B->m_ModelInstance->GetBoundingOrientedBox();
+
+			if (Ab.Intersects(Bb))
+			{
+				A->m_ModelInstance->UpdateBoxes();
+				B->m_ModelInstance->UpdateBoxes();
+				if (!A->m_ModelInstance->m_BoneBoxes.empty())
+				{
+					for (int a = 0; a < A->m_ModelInstance->m_BoneBoxes.size(); ++a)
+					{
+						BoundingOrientedBox Abb = A->m_ModelInstance->m_BoneBoxes[a];
+						if (!B->m_ModelInstance->m_BoneBoxes.empty())
+						{
+							for (int b = 0; b < B->m_ModelInstance->m_BoneBoxes.size(); ++b)
+							{
+								BoundingOrientedBox Bbb = B->m_ModelInstance->m_BoneBoxes[b];
+								if (Abb.Intersects(Bbb))
+								{
+									CollisionData cd;
+									cd.A = HitBox(A->m_ModelInstance->GetBoneName(a), Abb);
+									cd.B = HitBox(B->m_ModelInstance->GetBoneName(b), Bbb);					
+
+									if (SwapCD)
+									{
+										HitBox temp = cd.A;
+										cd.A = cd.B;
+										cd.B = temp;
+									}
+									CD.push_back(cd);
+									result = true;
+								}									
+							}
+						}
+						else
+						{
+							if (Abb.Intersects(Bb))
+							{		
+								CollisionData cd;
+								cd.A = HitBox(A->m_ModelInstance->GetBoneName(a), Abb);
+								cd.B = HitBox("Body", Bb);
+
+								if (SwapCD)
+								{
+									HitBox temp = cd.A;
+									cd.A = cd.B;
+									cd.B = temp;
+								}
+								CD.push_back(cd);
+								result = true;
+							}
+						}
+					}
+				}
+
+				else if (!B->m_ModelInstance->m_BoneBoxes.empty())
+				{
+					for (int b = 0; b < B->m_ModelInstance->m_BoneBoxes.size(); ++b)
+					{
+						BoundingOrientedBox Bbb = B->m_ModelInstance->m_BoneBoxes[b];
+						if (Ab.Intersects(Bbb))
+						{
+							CollisionData cd;
+							cd.A = HitBox("Body", Ab);
+							cd.B = HitBox(B->m_ModelInstance->GetBoneName(b), Bbb);
+
+							if (SwapCD)
+							{
+								HitBox temp = cd.A;
+								cd.A = cd.B;
+								cd.B = temp;
+							}
+							CD.push_back(cd);
+							result = true;
+						}
+					}
+				}
+
+				else
+				{
+					CollisionData cd;
+					cd.A = HitBox("Body", Ab);
+					cd.B = HitBox("Body", Bb);
+
+					if (SwapCD)
+					{
+						HitBox temp = cd.A;
+						cd.A = cd.B;
+						cd.B = temp;
+					}
+					CD.push_back(cd);
+					result = true;
+				}
+			}
+		}
+	}
+	return result;
+}
+
+bool GameObject::SphereVsBox(const GameObject* A, const GameObject* B)
+{
+	if (A == B)
+		return false;
+	BoundingSphere As = A->m_QuadTreeType->GetQuadTreeData().Current;
+	BoundingSphere Bs = B->m_QuadTreeType->GetQuadTreeData().Current;
+	if (As.Intersects(Bs))
+	{
+		if (B->m_ModelInstance != NULL)
+		{
+			BoundingOrientedBox Bb = B->m_ModelInstance->GetBoundingOrientedBox();
+			if (As.Intersects(Bb))
+				return true;
+		}
+	}
+	return false;
+}
+
+bool GameObject::SphereVsBone(const GameObject* A, const GameObject* B)
+{
+	if (A == B)
+		return false;
+	BoundingSphere As = A->m_QuadTreeType->GetQuadTreeData().Current;
+	BoundingSphere Bs = B->m_QuadTreeType->GetQuadTreeData().Current;
+	if (As.Intersects(Bs))
+	{
+		if (B->m_ModelInstance != NULL)
+		{
+			BoundingOrientedBox Bb = B->m_ModelInstance->GetBoundingOrientedBox();
+			if (As.Intersects(Bb))
+			{
+				B->m_ModelInstance->UpdateBoxes();
+				if (!B->m_ModelInstance->m_BoneBoxes.empty())
+				{
+					for (int b = 0; b < B->m_ModelInstance->m_BoneBoxes.size(); ++b)
+					{
+						BoundingOrientedBox Bbb = B->m_ModelInstance->m_BoneBoxes[b];
+						if (As.Intersects(Bbb))
+						{
+							return true;
+						}
+					}
+				}
+				else
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+bool GameObject::BoxVsBone(const GameObject* A, const GameObject* B, vector<CollisionData>& CD, bool SwapCD)
+{
+	if (A == B)
+		return false;
+
+	BoundingSphere As = A->m_QuadTreeType->GetQuadTreeData().Current;
+	BoundingSphere Bs = B->m_QuadTreeType->GetQuadTreeData().Current;
+
+	if (As.Intersects(Bs))
+	{
+		if (A->m_ModelInstance != NULL && B->m_ModelInstance != NULL)
+		{
+			BoundingOrientedBox Ab = A->m_ModelInstance->GetBoundingOrientedBox();
+			BoundingOrientedBox Bb = B->m_ModelInstance->GetBoundingOrientedBox();
+			if (Ab.Intersects(Bb))
+			{
+				B->m_ModelInstance->UpdateBoxes();
+				if (!B->m_ModelInstance->m_BoneBoxes.empty())
+				{
+					for (int b = 0; b < B->m_ModelInstance->m_BoneBoxes.size(); ++b)
+					{
+						BoundingOrientedBox Bbb = B->m_ModelInstance->m_BoneBoxes[b];
+						if (Ab.Intersects(Bbb))
+						{
+							CollisionData cd;
+							cd.A = HitBox("Body", Ab);
+							cd.B = HitBox(B->m_ModelInstance->GetBoneName(b), Bbb);
+
+							if (SwapCD)
+							{
+								HitBox temp = cd.A;
+								cd.A = cd.B;
+								cd.B = temp;
+							}
+							CD.push_back(cd);
+							return true;
+						}
+					}
+				}
+				else
+				{
+					CollisionData cd;
+					cd.A = HitBox("Body", Ab);
+					cd.B = HitBox("Body", Bb);
+
+					if (SwapCD)
+					{
+						HitBox temp = cd.A;
+						cd.A = cd.B;
+						cd.B = temp;
+					}
+					CD.push_back(cd);
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+bool GameObject::BoxVsAllBones(const GameObject* A, const GameObject* B, vector<CollisionData>& CD, bool SwapCD)
+{
+	if (A == B)
+		return false;
+
+	bool result = false;
+
+	BoundingSphere As = A->m_QuadTreeType->GetQuadTreeData().Current;
+	BoundingSphere Bs = B->m_QuadTreeType->GetQuadTreeData().Current;
+
+	if (As.Intersects(Bs))
+	{
+		if (A->m_ModelInstance != NULL && B->m_ModelInstance != NULL)
+		{
+			BoundingOrientedBox Ab = A->m_ModelInstance->GetBoundingOrientedBox();
+			BoundingOrientedBox Bb = B->m_ModelInstance->GetBoundingOrientedBox();
+
+			if (Ab.Intersects(Bb))
+			{
+				B->m_ModelInstance->UpdateBoxes();
+				if (!B->m_ModelInstance->m_BoneBoxes.empty())
+				{
+					for (int b = 0; b < B->m_ModelInstance->m_BoneBoxes.size(); ++b)
+					{
+						BoundingOrientedBox Bbb = B->m_ModelInstance->m_BoneBoxes[b];
+						if (Ab.Intersects(Bbb))
+						{
+							CollisionData cd;
+							cd.A = HitBox("Body", Ab);
+							cd.B = HitBox(B->m_ModelInstance->GetBoneName(b), Bbb);
+
+							if (SwapCD)
+							{
+								HitBox temp = cd.A;
+								cd.A = cd.B;
+								cd.B = temp;
+							}
+							CD.push_back(cd);
+							result = true;
+						}
+					}
+				}
+
+				else
+				{
+					CollisionData cd;
+					cd.A = HitBox("Body", Ab);
+					cd.B = HitBox("Body", Bb);
+
+					if (SwapCD)
+					{
+						HitBox temp = cd.A;
+						cd.A = cd.B;
+						cd.B = temp;
+					}
+					CD.push_back(cd);
+					result = true;
+				}
+			}
+		}
+	}
+	return result;
+}
