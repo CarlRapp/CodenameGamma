@@ -6,6 +6,10 @@
 #include "Mesh.h"
 #include "Vertex.h"
 
+#include <vector>
+
+using namespace std;
+
 ///<summary>
 /// A Keyframe defines the bone transformation at an instant in time.
 ///</summary>
@@ -74,6 +78,25 @@ struct AnimationNode
 	std::vector<std::string> bones;
 };
 
+struct Animation
+{
+	std::string	ClipName;
+	float	TimePos;
+	float	AnimationSpeed;
+	bool	Loop;
+
+	Animation()
+	{
+		TimePos			= 0.0f;
+		AnimationSpeed	= 1.0f;
+	}
+
+	bool operator==(Animation B)
+	{
+		return ClipName == B.ClipName;
+	}
+};
+
 ///<summary>
 /// Examples of AnimationClips are "Walk", "Run", "Attack", "Defend".
 /// An AnimationClip requires a BoneAnimation for every bone to form
@@ -81,13 +104,21 @@ struct AnimationNode
 ///</summary>
 struct AnimationClip
 {
+	int	  FirstBone;
 	float GetClipStartTime()const;
 	float GetClipEndTime()const;
 
     void Interpolate(float t, std::vector<XMFLOAT4X4>& boneTransforms)const;
+	void Interpolate(float t, std::vector<int>& bones, std::vector<XMFLOAT4X4>& boneTransforms)const;
 
     std::vector<BoneAnimation> BoneAnimations; 				//ta bort
 	//std::map<std::string, BoneAnimation> BoneAnimations;	//använd
+
+	AnimationClip()
+	{
+		FirstBone = 0;
+	}
+
 };
 
 struct Pose
@@ -100,6 +131,7 @@ struct Joint
 	XMFLOAT3 position;
 	int parent;
 };
+
 
 class SkinnedData
 {
@@ -116,6 +148,9 @@ private:
 	std::map<int, std::string>				mBoneIndexToName;
 	std::map<std::string, Joint>			mJoints;
 
+	bool IsChildOf(int child, int parent);
+	void GetChildrenBones(int boneIndex, std::vector<int>& bones);
+
 public:
 
 	UINT BoneCount()const;
@@ -126,6 +161,15 @@ public:
 	bool  HasAnimation(std::string name)
 	{
 		return (mAnimations.find(name) != mAnimations.end() && !mBoneHierarchy.empty());
+	}
+
+	int	  GetAnimationFirstBone(std::string name)
+	{
+		if (mAnimations.find(name) != mAnimations.end())
+		{
+			return mAnimations[name].FirstBone;
+		}
+		return -1;
 	}
 
 	bool  HasAnimations()
@@ -167,10 +211,13 @@ public:
     void GetFinalTransforms(const std::string& clipName, float timePos, 
 		 std::vector<XMFLOAT4X4>& finalTransforms)const;
 
+	void GetFinalTransforms(std::vector<Animation*>& animations, 
+		 std::vector<XMFLOAT4X4>& finalTransforms);
+
 	void GetFinalTransforms(const std::string& clipName, 
 		 std::vector<XMFLOAT4X4>& finalTransforms)const;
 
-	void CreateClip(std::string, int firstFrame, int lastFrame, float TimeScale);
+	void CreateClip(std::string, int firstFrame, int lastFrame, float TimeScale, int FirstBone);
 	void CreatePose(std::string, int frame);
 
 	std::vector<BoundingOrientedBox> CreateBoneBoxes(std::vector<Vertex::PosNormalTexTanSkinned>& vertices)

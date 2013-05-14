@@ -80,7 +80,7 @@ void Unit::Update(float DeltaTime, Terrain* TerrainInstance)
 			animation = "Back";
 
 		if (animation != CurrentAnimationOrPose())
-			PlayAnimation(animation);
+			LoopAnimation(animation);
 	}
 	else
 	{
@@ -135,7 +135,10 @@ void Unit::Hurt(float Damage)
 void Unit::ReloadWeapon()
 {
 	if ( gCurrentWeapon )
+	{
 		gCurrentWeapon->Reload();
+		PlayAnimation("PistolWalkReload");
+	}
 }
 
 void Unit::FireWeapon()

@@ -139,6 +139,15 @@ void AnimationClip::Interpolate(float t, std::vector<XMFLOAT4X4>& boneTransforms
 	}
 }
 
+void AnimationClip::Interpolate(float t, std::vector<int>& bones, std::vector<XMFLOAT4X4>& boneTransforms)const
+{
+	//for(UINT i = firstBone; i < BoneAnimations.size(); ++i)
+	for (int i = 0; i < bones.size(); ++i)
+	{
+		BoneAnimations[bones[i]].Interpolate(t, boneTransforms[bones[i]]);
+	}
+}
+
 float SkinnedData::GetClipStartTime(const std::string& clipName)const
 {
 	auto clip = mAnimations.find(clipName);
@@ -181,6 +190,114 @@ void SkinnedData::GetFinalTransforms(const std::string& clipName, float timePos,
 	// Interpolate all the bones of this clip at the given time instance.
 	auto clip = mAnimations.find(clipName);
 	clip->second.Interpolate(timePos, toParentTransforms);
+
+	//
+	// Traverse the hierarchy and transform all the bones to the root space.
+	//
+
+	std::vector<XMFLOAT4X4> toRootTransforms(numBones);
+
+	// The root bone has index 0.  The root bone has no parent, so its toRootTransform
+	// is just its local bone transform.
+	toRootTransforms[0] = toParentTransforms[0];
+
+	// Now find the toRootTransform of the children.
+	for(UINT i = 1; i < numBones; ++i)
+	{
+		XMMATRIX toParent = XMLoadFloat4x4(&toParentTransforms[i]);
+
+		int parentIndex = mBoneHierarchy[i];
+		XMMATRIX parentToRoot = XMLoadFloat4x4(&toRootTransforms[parentIndex]);
+
+		XMMATRIX toRoot = XMMatrixMultiply(toParent, parentToRoot);
+
+		XMStoreFloat4x4(&toRootTransforms[i], toRoot);
+	}
+
+	// Premultiply by the bone offset transform to get the final transform.
+	for(UINT i = 0; i < numBones; ++i)
+	{
+		XMMATRIX offset = XMLoadFloat4x4(&mBoneOffsets[i]);
+		XMMATRIX toRoot = XMLoadFloat4x4(&toRootTransforms[i]);
+		XMStoreFloat4x4(&finalTransforms[i], XMMatrixMultiply(offset, toRoot));
+
+		//XMStoreFloat4x4(&finalTransforms[i], toRoot);
+
+		//XMStoreFloat4x4(&finalTransforms[i], XMMatrixScaling(1,1,1));
+		//XMMATRIX globalInverseTransform = XMLoadFloat4x4(&mGlobalInverseTransform);
+
+		//XMMATRIX temp = XMMatrixMultiply(offset, toRoot);
+		//XMStoreFloat4x4(&finalTransforms[i], XMMatrixMultiply(globalInverseTransform, temp));
+	}
+}
+
+bool SkinnedData::IsChildOf(int child, int parent)
+{
+	int bone =  child;
+	while (bone != -1)
+	{
+		bone = mBoneHierarchy[bone];
+
+		if (bone == parent)
+			return true;
+	}
+	return false;
+}
+
+void SkinnedData::GetChildrenBones(int boneIndex, std::vector<int>& bones)
+{
+	for (int i = boneIndex; i < mBoneHierarchy.size(); ++i)
+	{
+		if (IsChildOf(i, boneIndex))
+			bones.push_back(i);
+	}
+}
+
+void SkinnedData::GetFinalTransforms(std::vector<Animation*>& animations, std::vector<XMFLOAT4X4>& finalTransforms)
+{
+	if (animations.size() == 0)
+		return;
+
+	UINT numBones = mBoneOffsets.size();
+
+	std::vector<XMFLOAT4X4> toParentTransforms(numBones);
+
+
+	std::vector<std::vector<int>> bonesPerAnimation;
+	for (int i = 0; i < animations.size(); ++i)
+	{
+		Animation* animation	= animations[i];
+		int FirstBone = GetAnimationFirstBone(animation->ClipName);
+		std::vector<int> bones;
+		bones.push_back(FirstBone);
+		GetChildrenBones(FirstBone, bones);
+		bonesPerAnimation.push_back(bones);	
+	}
+
+	for (int i = bonesPerAnimation.size() - 1; i >= 0; --i)
+	{
+		for each (int bone in bonesPerAnimation[i])
+		{
+			for (int j = i - 1; j >= 0; --j)
+			{
+
+				for (int k = 0; k < bonesPerAnimation[j].size(); ++k)
+				{
+					if (bonesPerAnimation[j][k] == bone)
+					{
+						bonesPerAnimation[j].erase(bonesPerAnimation[j].begin() + k);
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < animations.size(); ++i)
+	{
+		auto clip = mAnimations.find(animations[i]->ClipName);
+		clip->second.Interpolate(animations[i]->TimePos, bonesPerAnimation[i], toParentTransforms);
+	}
 
 	//
 	// Traverse the hierarchy and transform all the bones to the root space.
@@ -283,13 +400,13 @@ void SkinnedData::GetFinalTransforms(const std::string& clipName,  std::vector<X
 	}
 }
 
-void SkinnedData::CreateClip(std::string name, int firstFrame, int lastFrame, float TimeScale)
+void SkinnedData::CreateClip(std::string name, int firstFrame, int lastFrame, float TimeScale, int FirstBone)
 {
 	if (mAnimations.empty())
 		return;
 	AnimationClip all = mAnimations["ALL"];
 	AnimationClip clip;
-
+	clip.FirstBone = FirstBone;
 	float offset = all.BoneAnimations[0].Keyframes[firstFrame].TimePos;
 
 	TimeScale = 1.0f / TimeScale;

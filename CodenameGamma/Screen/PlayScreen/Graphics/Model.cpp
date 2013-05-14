@@ -153,6 +153,94 @@ Model::~Model(void)
 	*/
 }
 
+void ModelInstance::SortAnimations()
+{
+	vector<Animation*>	tempVector;
+
+	while (!ActiveAnimations.empty())
+	{
+		Animation* tempAnimation = ActiveAnimations[0];
+		for (int i = 1; i < ActiveAnimations.size(); ++i)
+		{
+			Animation* animation = ActiveAnimations[i];
+			if (m_Model->SkinnedData.GetAnimationFirstBone(animation->ClipName) < m_Model->SkinnedData.GetAnimationFirstBone(animation->ClipName))
+				tempAnimation = animation;
+		}
+
+		tempVector.push_back(tempAnimation);
+		ActiveAnimations.erase(remove(ActiveAnimations.begin(), ActiveAnimations.end(), tempAnimation), ActiveAnimations.end());
+	}
+
+	ActiveAnimations = tempVector;
+}
+
+bool ModelInstance::PlayingAnimation(string clipName)
+{
+	for each (Animation* animation in ActiveAnimations)
+	{
+		if (animation->ClipName == clipName)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+bool ModelInstance::PlayAnimation(string clipName, bool loop)
+{
+	if (!m_Model)
+		return false;
+
+	if (m_Model->SkinnedData.HasAnimation(clipName))
+	{
+		Animation* animation	= new Animation();
+		animation->ClipName		= clipName;
+		animation->Loop			= loop;
+		//animation->TimePos		= 0.0f;
+		//animation->AnimationSpeed= 1.0f;
+
+		//Stoppar alla animationer som börjar i samma ben.
+		for (int i = ActiveAnimations.size() - 1; i >= 0; --i)
+		{
+			Animation* animation = ActiveAnimations[i];
+			if (m_Model->SkinnedData.GetAnimationFirstBone(clipName) == (m_Model->SkinnedData.GetAnimationFirstBone(animation->ClipName)))
+			{
+				StopAnimation(animation->ClipName);
+			}
+		}
+		//cout << "Starting animation " << clipName << "\t Number of animations: " << ActiveAnimations.size() + 1 << endl;
+		ActiveAnimations.push_back(animation);
+		SortAnimations();
+		return true;
+	}	
+	return false;
+}
+
+void ModelInstance::StopAnimation(string clipName)
+{
+	Animation* temp;
+	for each (Animation* animation in ActiveAnimations)
+	{
+		if (animation->ClipName == clipName)
+		{
+			temp = animation;
+			//cout << "Stopping animation " << clipName << "\t Number of animations: " << ActiveAnimations.size() - 1 << endl;
+			break;
+		}
+	}
+	ActiveAnimations.erase(remove(ActiveAnimations.begin(), ActiveAnimations.end(), temp), ActiveAnimations.end());
+}
+
+void ModelInstance::StopAllAnimations()
+{
+	for each (Animation* animation in ActiveAnimations)
+	{
+		delete animation;
+	}
+
+	ActiveAnimations.clear();
+}
+
 void ModelInstance::UpdateBoxes()
 {
 	if (m_Model && BoxesNeedsUpdate)
@@ -178,10 +266,42 @@ void ModelInstance::UpdateBoxes()
 void ModelInstance::Update(float dt, float AnimationSpeed, bool UpdateAnimation)
 {
 	BoxesNeedsUpdate = true;	
-	if (UsingAnimationOrPose() && Animating)
-	{		
-		TimePos		+= dt * AnimationSpeed;
+
+	if (UsingAnimationOrPose())
+	{
+		for each (Animation* animation in ActiveAnimations)
+		{
+			animation->TimePos += dt * animation->AnimationSpeed;
+			//cout << "Updating timer: " << animation->ClipName << " - " << animation->TimePos << " - " << dt * animation->AnimationSpeed << endl;
+		}
+
+		if (UpdateTimer >= UPDATE_INTERVAL)
+		{
+			UpdateTimer = 0;
+			m_Model->SkinnedData.GetFinalTransforms(ActiveAnimations, FinalTransforms);
+
+			for (int i = ActiveAnimations.size() - 1; i >= 0; --i)
+			{
+				Animation* animation = ActiveAnimations[i];
+				if(animation->TimePos > m_Model->SkinnedData.GetClipEndTime(animation->ClipName))
+				{
+					if (animation->Loop)
+					{
+						//cout << "Restarting animation: " << animation->ClipName << endl;
+						animation->TimePos = 0.0f;
+					}
+					else
+						StopAnimation(animation->ClipName);
+				}
+			}
+		}
 		UpdateTimer += dt;
+	}
+
+
+			/*
+		TimePos		+= dt * AnimationSpeed;
+		
 
 		if (UpdateTimer >= UPDATE_INTERVAL)
 		{
@@ -192,7 +312,7 @@ void ModelInstance::Update(float dt, float AnimationSpeed, bool UpdateAnimation)
 			if(TimePos > m_Model->SkinnedData.GetClipEndTime(ClipName))
 				TimePos = 0.0f;	
 		}		
-	}
+	}*/
 	//UpdateBoxes();	
 }
 

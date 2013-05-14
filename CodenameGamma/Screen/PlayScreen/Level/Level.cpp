@@ -379,7 +379,7 @@ void Level::AddInstance(float x, float y, float z, Model *model)
 	go->MoveTo(DirectX::XMFLOAT3(x, y, z));
 	go->SetScale(TESTSCALE);	
 	go->SetModelInstance(instance);
-	go->PlayAnimation("ALL");
+	go->LoopAnimation("ALL");
 	float speed = 160;
 
 	if (MathHelper::RandF(0, 1) > 0.0f)
@@ -651,7 +651,7 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 			PlayerUnit* unit	=	new CrazyBitch();
 			//GO->UsePose("Stand");
 			//GO->PlayAnimation("Walk");
-			unit->PlayAnimation("Back");
+			unit->LoopAnimation("Back");
 			unit->MoveTo(DirectX::XMFLOAT3(600, 0, 600));
 			unit->SetScale(TESTSCALE);
 
