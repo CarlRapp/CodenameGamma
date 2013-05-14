@@ -47,7 +47,10 @@ void QuadTree::GetIntersectingInstances(BoundingFrustum frustum, vector<GameObje
 		
 		//Lägger till instancerna i listan.
 		for each (GameObject *instance in node->m_Content)			
+		{
+			instance->AnimateNextFrame();
 			instances.push_back(instance);		
+		}
 		
 		if (node->m_NW != NULL)
 		{
@@ -63,7 +66,10 @@ void QuadTree::GetIntersectingInstances(BoundingFrustum frustum, vector<GameObje
 		{
 			//Om instansen kolliderar med furstum så lägger vi till den i listan.
 			if (frustum.Intersects(GetCurrentBoundingSphere(instance)))
+			{
+				instance->AnimateNextFrame();
 				instances.push_back(instance);
+			}
 		}		
 		
 		if (node->m_NW != NULL)
@@ -99,8 +105,11 @@ void QuadTree::GetIntersectingInstances(BoundingOrientedBox OBB, vector<GameObje
 		
 		//Lägger till instancerna i listan.
 		for each (GameObject *instance in node->m_Content)			
+		{
+			instance->AnimateNextFrame();
 			instances.push_back(instance);			
-		
+		}
+
 		if (node->m_NW != NULL)
 		{
 			GetIntersectingInstances(OBB, instances, node->m_NW, CONTAINS);
@@ -115,13 +124,16 @@ void QuadTree::GetIntersectingInstances(BoundingOrientedBox OBB, vector<GameObje
 		{
 			//Om instansen kolliderar med furstum så lägger vi till den i listan.
 			if (OBB.Intersects(GetCurrentBoundingSphere(instance)))
+			{
+				instance->AnimateNextFrame();
 				instances.push_back(instance);
+			}
 		}		
 		
 		if (node->m_NW != NULL)
 		{
 			BoundingBox nodeBox(XMFLOAT3(0,0,0), node->m_NW->m_BoundingBox.Extents);
-			nodeBox.Extents.y = 0;
+			nodeBox.Extents.y = OBB.Center.y;
 
 			nodeBox.Center = node->m_NW->m_BoundingBox.Center;
 			GetIntersectingInstances(OBB, instances, node->m_NW, OBB.Contains(nodeBox));
@@ -142,6 +154,64 @@ void QuadTree::GetIntersectingInstances(BoundingOrientedBox OBB, vector<GameObje
 
 void QuadTree::Insert(GameObject* instance, BoundingSphere& instanceSphere, Node* node)
 {
+	/*
+	UINT nodeSize = node->m_Content.size();
+	if (nodeSize < m_MaxNodeSize)
+	{
+		node->m_Content.push_back(instance);
+		instance->GetQuadTreeType()->SetNode(node);
+		return;
+	}
+
+	if (node->m_NW == NULL)//area-koll?
+		CreateChildNodes(node);
+
+
+	if		(node->m_NW->m_BoundingBox.Contains(instanceSphere) == CONTAINS) Insert(instance, instanceSphere, node->m_NW);
+	else if (node->m_NE->m_BoundingBox.Contains(instanceSphere) == CONTAINS) Insert(instance, instanceSphere, node->m_NE);
+	else if (node->m_SW->m_BoundingBox.Contains(instanceSphere) == CONTAINS) Insert(instance, instanceSphere, node->m_SW);
+	else if (node->m_SE->m_BoundingBox.Contains(instanceSphere) == CONTAINS) Insert(instance, instanceSphere, node->m_SE);
+	else
+	{
+		
+		UINT OverMax = (nodeSize + 1) - m_MaxNodeSize;
+		UINT k = 0;
+
+		vector<GameObject*> trash;
+		for (UINT i = 0; i < nodeSize; ++i)
+		{
+			GameObject* go = node->m_Content[i];
+			BoundingSphere goSphere = GetCurrentBoundingSphere(go);
+
+			bool inserted = true;
+			if		(node->m_NW->m_BoundingBox.Contains(goSphere) == CONTAINS) Insert(go, goSphere, node->m_NW);
+			else if (node->m_NE->m_BoundingBox.Contains(goSphere) == CONTAINS) Insert(go, goSphere, node->m_NE);
+			else if (node->m_SW->m_BoundingBox.Contains(goSphere) == CONTAINS) Insert(go, goSphere, node->m_SW);
+			else if (node->m_SE->m_BoundingBox.Contains(goSphere) == CONTAINS) Insert(go, goSphere, node->m_SE);
+			else inserted = false;
+
+			if (inserted)
+			{
+				trash.push_back(go);
+				++k;
+				if (k >= OverMax)
+					break;
+			}
+		}
+
+		for each (GameObject* go in trash)
+		{
+			node->m_Content.erase(remove(node->m_Content.begin(), node->m_Content.end(), go), node->m_Content.end());
+		}
+
+		node->m_Content.push_back(instance);
+		instance->GetQuadTreeType()->SetNode(node);
+	}
+
+	*/
+
+	
+	
 	if (node->m_NW != NULL)
 	{
 		if		(node->m_NW->m_BoundingBox.Contains(instanceSphere) == CONTAINS) Insert(instance, instanceSphere, node->m_NW);
@@ -171,6 +241,7 @@ void QuadTree::Insert(GameObject* instance, BoundingSphere& instanceSphere, Node
 				Insert(go, GetCurrentBoundingSphere(go), node);
 		}
 	}
+	
 }
 
 void QuadTree::Delete(GameObject* instance)
@@ -400,12 +471,11 @@ void QuadTree::Update(GameObject* instance)
 	if (!instance)
 		return;
 	Node* node = (Node*)instance->GetQuadTreeType()->GetNode();
-	BoundingSphere objectSphere = GetCurrentBoundingSphere(instance);
-
+	BoundingSphere objectSphere = GetCurrentBoundingSphere(instance);	
 	if (node->m_BoundingBox.Contains(objectSphere) != CONTAINS)
-	{
+	{		
 		Delete(instance);
-		Insert(instance, objectSphere, m_RootNode);
+		Insert(instance, objectSphere, m_RootNode);		
 	}
 }
 /*
@@ -426,7 +496,8 @@ void QuadTree::GetObjectsCollidingWith(GameObject* go, BoundingSphere& instanceS
 	for each (GameObject* go2 in node->m_Content)
 	{
 		vector<CollisionData> CD;
-		if (go->Intersects(go, go2, CD))
+		//if (go->Intersects(go, go2, CD))
+		if (go->Intersects(go2, CD))
 		{
 			GameObjects.push_back(go2);
 			collisionData.push_back(CD);
@@ -446,7 +517,7 @@ void QuadTree::GetObjectsCollidingWith(GameObject* go, BoundingSphere& instanceS
 		case INTERSECTS:	
 
 			BoundingBox nodeBox(XMFLOAT3(0,0,0), node->m_NW->m_BoundingBox.Extents);
-			nodeBox.Extents.y = 0;
+			nodeBox.Extents.y = instanceSphere.Center.y;
 
 			nodeBox.Center = node->m_NW->m_BoundingBox.Center;
 			GetObjectsCollidingWith(go, instanceSphere, GameObjects, collisionData, node->m_NW, instanceSphere.Contains(nodeBox));

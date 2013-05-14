@@ -133,7 +133,7 @@ void Terrain::CreateGrid()
 			vertex.Tex		= XMFLOAT2(TexX, TexZ);
 
 			//Calculate Tangent
-			vertex.TangentU = XMFLOAT4(0,0,1,0);
+			vertex.TangentU = XMFLOAT4(1,0,0,0);
 
 			Vertices.push_back(vertex);
 		}
