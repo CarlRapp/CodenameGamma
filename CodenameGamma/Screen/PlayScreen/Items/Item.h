@@ -19,6 +19,8 @@ public:
 
 	virtual	void	Update(float DeltaTime, Terrain* terrain);
 
+	virtual bool Intersects(GameObject* B, vector<CollisionData>& CD);
+
 	void	CollideWith(GameObject* Instance, vector<CollisionData> CD);
 };
 

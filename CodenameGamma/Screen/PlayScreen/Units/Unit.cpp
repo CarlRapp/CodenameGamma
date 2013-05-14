@@ -144,6 +144,11 @@ void Unit::FireWeapon()
 		gCurrentWeapon->Fire();
 }
 
+bool Unit::Intersects(GameObject* B, vector<CollisionData>& CD)
+{
+	return false;
+}
+
 void Unit::CollideWith(GameObject* Instance)
 {
 

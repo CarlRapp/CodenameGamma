@@ -88,7 +88,9 @@ class GameObject
 				gWorld, gWorldInverseTranspose;
 
 
-	void	UpdateWorld(bool UpdateInverseTranspose);
+	void		UpdateWorld(bool UpdateInverseTranspose);
+
+	bool		AnimateThisUpdate;
 
 protected:
 	LightCallback AddLight;
@@ -135,12 +137,15 @@ public:
 	void	SetState(GOState Value);
 
 	bool	PlayAnimation(string name);
+	void	AnimateNextFrame() { AnimateThisUpdate = true; }
 
 	bool	UsePose(string name);
 
 	string  CurrentAnimationOrPose();
 	
-	static bool	Intersects(const GameObject* A, const GameObject* B, vector<CollisionData>& CD);
+	//static bool	Intersects(const GameObject* A, const GameObject* B, vector<CollisionData>& CD);
+
+	virtual bool Intersects(GameObject* B, vector<CollisionData>& CD) = 0;
 
 	GOState	GetState()	{ return gState; }
 	bool	IsAlive()	{ return (gState != Dead) && (gState != Hidden); }
@@ -157,6 +162,25 @@ public:
 		return (dynamic_cast<T*>(Instance) != 0);
 	}
 	*/
+
+
+
+	static bool SphereVsSphere(const GameObject* A, const GameObject* B);
+	static bool BoxVsBox(const GameObject* A, const GameObject* B, vector<CollisionData>& CD, bool SwapCD);
+	static bool BoneVsBone(const GameObject* A, const GameObject* B, vector<CollisionData>& CD, bool SwapCD);
+	static bool AllBonesVsAllBones(const GameObject* A, const GameObject* B, vector<CollisionData>& CD, bool SwapCD);
+
+
+	static bool SphereVsBox(const GameObject* A, const GameObject* B);
+	static bool SphereVsBone(const GameObject* A, const GameObject* B);
+	
+	static bool BoxVsBone(const GameObject* A, const GameObject* B, vector<CollisionData>& CD, bool SwapCD);
+	static bool BoxVsAllBones(const GameObject* A, const GameObject* B, vector<CollisionData>& CD, bool SwapCD);
+
+
+	//static bool SphereVsAllBones(const GameObject* A, const GameObject* B);	
+	//static bool BoneVsAllBones(const GameObject* A, const GameObject* B, vector<CollisionData>& CD);
+
 };
 
 #endif

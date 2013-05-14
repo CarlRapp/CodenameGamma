@@ -11,8 +11,9 @@ class Bullet : public Projectile
 public:
 	Bullet(void);
 	~Bullet(void);
-
-	virtual	 void	CollideWith(GameObject* Instance, vector<CollisionData> CD);
+	
+	virtual	bool	Intersects(GameObject* B, vector<CollisionData>& CD);
+	virtual	void	CollideWith(GameObject* Instance, vector<CollisionData> CD);
 
 	float	GetSpeed();
 };

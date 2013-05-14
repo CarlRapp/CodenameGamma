@@ -24,12 +24,6 @@ enum WeaponState
 	Reloading
 };
 
-/*
-	To make it easier for the GUI
-	to get info about a weapon, this
-	will be returned when calling
-	GetInfo()
-*/
 
 class Weapon : public GameObject
 {
@@ -54,8 +48,14 @@ public:
 
 	virtual	void	Reload();
 
-	
+	virtual bool Intersects(GameObject* B, vector<CollisionData>& CD);
 
+	/*
+	To make it easier for the GUI
+	to get info about a weapon, this
+	will be returned when calling
+	GetInfo()
+	*/
 	struct WeaponInfo
 	{
 		WeaponCooldown		Cooldown;

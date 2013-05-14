@@ -12,6 +12,13 @@ Structure::~Structure()
 
 }
 
+bool Structure::Intersects(GameObject* B, vector<CollisionData>& CD)
+{
+	if ( IsOfType<Unit>(B) )
+		return BoxVsAllBones(B, this, CD, true);
+	return false;
+}
+
 void Structure::CollideWith(GameObject* Instance, vector<CollisionData> CD)
 {
 	if ( IsOfType<Unit>(Instance) )

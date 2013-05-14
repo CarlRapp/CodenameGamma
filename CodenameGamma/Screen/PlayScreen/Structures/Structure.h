@@ -12,6 +12,7 @@ public:
 	Structure(void);
 	~Structure(void);
 
+	virtual bool Intersects(GameObject* B, vector<CollisionData>& CD);
 	void	CollideWith(GameObject* Instance, vector<CollisionData> CD);
 };
 

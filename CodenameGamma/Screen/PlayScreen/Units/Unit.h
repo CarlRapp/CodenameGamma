@@ -42,6 +42,8 @@ public:
 	void	ReloadWeapon();
 	void	FireWeapon();
 
+	virtual bool Intersects(GameObject* B, vector<CollisionData>& CD);
+
 	void	CollideWith(GameObject* Instance);
 
 

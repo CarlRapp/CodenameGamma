@@ -62,3 +62,8 @@ void Weapon::Reload()
 	gReloadTime.first	=	gReloadTime.second;
 	gState				=	Reloading;
 }
+
+bool Weapon::Intersects(GameObject* B, vector<CollisionData>& CD)
+{
+	return false;
+}
