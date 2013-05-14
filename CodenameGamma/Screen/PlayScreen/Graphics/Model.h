@@ -51,12 +51,18 @@ public:
 
 };
 
+#define UPDATE_INTERVAL 1.0f / 50.0f
 class ModelInstance
 {
 private:
 	Model					*m_Model;
 	XMFLOAT4X4				m_World;
 	float					m_Scale;
+
+	bool					BoxesNeedsUpdate;
+
+	float					UpdateTimer;
+
 public:
 
 
@@ -67,7 +73,7 @@ public:
 	std::vector<XMFLOAT4X4> FinalTransforms;
 
 	void UpdateBoxes();
-	void Update(float dt);
+	void Update(float dt, float AnimationSpeed, bool UpdateAnimation);
 
 
 	
@@ -99,12 +105,12 @@ public:
 
 	Model* GetModel() { return m_Model; }
 
-	void SetWorld(XMFLOAT4X4 World, XMFLOAT4X4 WorldInvTrans, float Scale)
+	void SetWorld(XMFLOAT4X4& World, XMFLOAT4X4& WorldInvTrans, float& Scale)
 	{
 		m_World = World;
 		m_WorldInverseTranspose = WorldInvTrans;
 		m_Scale = Scale;
-		UpdateBoxes();
+		//UpdateBoxes();
 	}
 
 	XMFLOAT4X4 GetWorld() { return m_World; }
@@ -121,6 +127,7 @@ public:
 		m_WorldInverseTranspose	=	XMFLOAT4X4(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 
 		TimePos = 0;
+		UpdateTimer = MathHelper::RandF(0.0f, UPDATE_INTERVAL);
 		ClipName = "";
 		Animating = false;
 	}
@@ -133,17 +140,17 @@ public:
 			//XMMATRIX world = XMLoadFloat4x4(&m_World);
 			//m_Model->m_BoundingSphere.Transform(out, world);
 				
-			if (m_Model->m_BoneBoxes.empty())
-			{
+			//if (m_Model->m_BoneBoxes.empty())
+			//{
 				XMMATRIX world = XMLoadFloat4x4(&m_World);
 				m_Model->m_BoundingSphere.Transform(out, world);
-			}
-
+			//}
+				/*
 			else
 			{
 				out.CreateFromBoundingBox(out, GetBoundingOrientedBox());
 
-			}
+			}*/
 		
 		}
 		return out;
@@ -156,15 +163,15 @@ public:
 		{			
 			XMVECTOR rot	= XMLoadFloat4(&m_Rotation);
 			XMVECTOR trans	= XMLoadFloat3(&m_Translation);
-			if (m_Model->m_BoneBoxes.empty())
-			{
+			//if (m_Model->m_BoneBoxes.empty())
+			//{
 				out	= m_Model->m_BoundingOrientedBox;				
 				out.Transform(out, m_Scale, rot, trans);
 
 				//XMMATRIX World	= XMLoadFloat4x4(&m_World);
 				//out.Transform(out, World);
-			}
-			
+			//}
+			/*
 			else
 			{
 				std::vector<XMFLOAT3> points;
@@ -180,7 +187,7 @@ public:
 				BoundingBox AABB;
 				out.CreateFromPoints(out, points.size(), &points[0], sizeof(XMFLOAT3));
 				//out.CreateFromBoundingBox(out, AABB);
-			}
+			}*/
 			
 			//out.Transform(out, world);
 		}
@@ -210,7 +217,7 @@ public:
 
 			XMStoreFloat3(&pos, temp);
 		}
-
+		//return false;
 		return bone >= 0;
 	}
 

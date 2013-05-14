@@ -110,13 +110,14 @@ void Level::LoadLevel(string Levelname)
 	XMFLOAT2 halfWorldSize = gTerrain->GetDimensions();
 	halfWorldSize.x /= 2.0f;
 	halfWorldSize.y /= 2.0f;
-	BoundingBox world = BoundingBox(XMFLOAT3(halfWorldSize.x, 0, halfWorldSize.y), XMFLOAT3(halfWorldSize.x, 2000, halfWorldSize.y));
-	gQuadTree = new QuadTree(world, 0, 4);
+	BoundingBox world = BoundingBox(XMFLOAT3(halfWorldSize.x, 0, halfWorldSize.y), XMFLOAT3(halfWorldSize.x + 1000, 2000, halfWorldSize.y + 1000));
+	gQuadTree = new QuadTree(world, 500 * 500, 4);
 	gGraphicsManager->SetQuadTree(gQuadTree);
 	
 
 	//ModelManager::GetInstance()->LoadModel("CrazyBitch", "dae export 2.dae", "DATA/Models/TestChar/");
-	//ModelManager::GetInstance()->LoadModel("CrazyBitch", "CrazyBitch.dae", "DATA/Models/CrazyBitch/");
+	ModelManager::GetInstance()->LoadModel("CrazyBitch", "CrazyBitch.dae", "DATA/Models/CrazyBitch/");
+	//ModelManager::GetInstance()->LoadModel("CrazyBitch", "CrazyBitch.obj", "DATA/Models/CrazyBitch/");
 
 	ModelManager::GetInstance()->LoadModel("Glock", "Glock.obj", "DATA/Models/Glock/");
 	ModelManager::GetInstance()->LoadModel("Shotgun", "Shotgun.obj", "DATA/Models/Shotgun/");
@@ -137,21 +138,40 @@ void Level::LoadLevel(string Levelname)
 
 	ModelManager::GetInstance()->LoadModel("UnitCube", "UnitCube.obj", "DATA/Models/UnitCube/");
 
-	ModelManager::GetInstance()->LoadModel("CrazyBitch", "CrazyBitch.dae", "DATA/Models/CrazyBitch/");
+	//ModelManager::GetInstance()->LoadModel("CrazyBitch", "CrazyBitch.dae", "DATA/Models/CrazyBitch/");
 	//ModelManager::GetInstance()->LoadModel("CrazyBitch", "dae export 2.dae", "DATA/Models/TestChar/");
 
 	Model*	model	=	ModelManager::GetInstance()->GetModel("CrazyBitch");
-	for (int i = 0; i < 0; ++i)
-	{
+
+
+	GameObject*	tGO;
+
+	for (int i = 0; i < 100; ++i)
+	{	
+		tGO	=	new CrazyBitch();
+
+		float x = MathHelper::RandF(100, 3900);
+		float y = 0;
+		float z = MathHelper::RandF(100, 3900);
+		tGO->MoveTo( XMFLOAT3( x, y, z ) );
+
+		float speed = 160;
+		if (MathHelper::RandF(0, 1) > 0.0f)
+			tGO->SetVelocity(DirectX::XMFLOAT3(MathHelper::RandF(-speed, speed), 0, MathHelper::RandF(-speed, speed)));
+
+		int a = (int)(MathHelper::RandF(0, 1) * 4) + 1;
+		tGO->SetTeam((GOTeam)a);
+
+		AddGameObject(tGO);
+		/*
 		float x = MathHelper::RandF(0, 4000);
 		float y = 0;
 		float z = MathHelper::RandF(0, 4000);
 
 		AddInstance(x, y, z, model);
+		*/
 	}
 
-
-	GameObject*	tGO;
 	tGO	=	new TownHall();
 	tGO->MoveTo( XMFLOAT3( 2000, 0, 2000 + 400 ) );
 	AddGameObject(tGO);
@@ -178,7 +198,7 @@ void Level::LoadLevel(string Levelname)
 	tGO->MoveTo( XMFLOAT3( 2000 + 200, 0, 2000 - 400 ) );
 	AddGameObject(tGO);
 	
-	for (int i = 0; i < 200; ++i)
+	for (int i = 0; i < 50; ++i)
 	{
 		float x = MathHelper::RandF(100, 3900);
 		float y = 10;
@@ -385,7 +405,9 @@ void Level::Update(float DeltaTime)
 
 		tObject->Update(DeltaTime, gTerrain);
 		if ( tObject->IsAlive() )
+		{
 			gQuadTree->Update(tObject);
+		}
 		else		
 			trash.push_back(tObject);
 	}
@@ -534,7 +556,6 @@ void Level::RunCollisionTest()
 			
 		}
 	}
-	
 	if ( tCollisionEvents.size() > 0 )
 	{
 		for each( CollisionEvent tEvent in tCollisionEvents )

@@ -14,17 +14,26 @@ Bullet::~Bullet()
 
 }
 
-void Bullet::CollideWith(GameObject* Instance, vector<CollisionData> CD)
+bool Bullet::Intersects(GameObject* B, vector<CollisionData>& CD)
 {
-
-	if (IsEnemy(Instance))
+	if (IsEnemy(B))
 	{
-		if ( IsOfType<Unit>(Instance) )
-			Instance->SetState(Dead);
+		if ( IsOfType<Unit>(B) )
+			return BoxVsBone(this, B, CD, false);
 
-		if ( IsOfType<Structure>(Instance) )
-			SetState(Dead);
+		if ( IsOfType<Structure>(B) )
+			return SphereVsBone(this, B);
 	}
+	return false;
+}
+
+void Bullet::CollideWith(GameObject* Instance, vector<CollisionData> CD)
+{	
+	if ( IsOfType<Unit>(Instance) )
+		Instance->SetState(Dead);
+
+	if ( IsOfType<Structure>(Instance) )
+		SetState(Dead);	
 }
 
 float Bullet::GetSpeed()

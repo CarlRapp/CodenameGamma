@@ -20,3 +20,8 @@ void Projectile::Update(float DeltaTime, Terrain* terrain)
 
 	GameObject::Update(DeltaTime, terrain);
 }
+
+bool Projectile::Intersects(GameObject* B, vector<CollisionData>& CD)
+{
+	return false;
+}
