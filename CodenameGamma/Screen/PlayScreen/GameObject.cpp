@@ -276,20 +276,50 @@ void GameObject::SetState(GOState Value)
 	gState	=	Value;
 }
 
-bool GameObject::PlayAnimation(string name)
+bool GameObject::LoopAnimation(string name)
 {
 	if (m_ModelInstance)
 	{
+		if (!m_ModelInstance->PlayingAnimation(name))
+			return m_ModelInstance->PlayAnimation(name, true);
+		/*
 		if (m_ModelInstance->GetModel()->SkinnedData.HasAnimation(name))
 		{
 			m_ModelInstance->ClipName  = name;
 			m_ModelInstance->TimePos   = 0.0;
 			m_ModelInstance->Animating = true;
 			return true;
-		}
+		}*/
 	}
 	return false;
 }
+
+bool GameObject::PlayAnimation(string name)
+{
+	if (m_ModelInstance)
+	{
+		if (!m_ModelInstance->PlayingAnimation(name))
+			return m_ModelInstance->PlayAnimation(name, false);
+	}
+	return false;
+}
+
+void GameObject::StopAnimation(string name)
+{
+	if (m_ModelInstance)
+	{
+		m_ModelInstance->StopAnimation(name);
+	}
+}
+
+void GameObject::StopAllAnimations()
+{
+	if (m_ModelInstance)
+	{
+		m_ModelInstance->StopAllAnimations();
+	}
+}
+
 
 string GameObject::CurrentAnimationOrPose()
 {
