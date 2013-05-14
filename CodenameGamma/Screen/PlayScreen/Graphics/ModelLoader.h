@@ -41,14 +41,14 @@ private:
 	//int NumberOfBones(const aiScene* scene, aiNode *node);
 
 	void GetVerts(const aiScene* scene, aiNode *node, 
-		std::vector<Vertex::PosNormalTexTanSkinned>& vertices, 
+		std::vector<Vertex::PosNormalTexTanSkinnedTemp>& vertices, 
 		std::vector<UINT>& indices, 
 		std::vector<Mesh::Subset>& subsets,
 		std::vector<MaterialLoader>& matst);
 	
 	void GetVerts(const aiScene* scene, 
 		aiMesh *mesh, 
-		std::vector<Vertex::PosNormalTexTanSkinned>& vertices, 
+		std::vector<Vertex::PosNormalTexTanSkinnedTemp>& vertices, 
 		std::vector<UINT>& indices, 
 		std::vector<Mesh::Subset>& subsets,
 		std::vector<MaterialLoader>& mats);
