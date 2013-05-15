@@ -146,7 +146,7 @@ void Level::LoadLevel(string Levelname)
 
 	GameObject*	tGO;
 
-	for (int i = 0; i < 100; ++i)
+	for (int i = 0; i < 50; ++i)
 	{	
 		tGO	=	new CrazyBitch();
 
@@ -198,7 +198,7 @@ void Level::LoadLevel(string Levelname)
 	tGO->MoveTo( XMFLOAT3( 2000 + 200, 0, 2000 - 400 ) );
 	AddGameObject(tGO);
 	
-	for (int i = 0; i < 50; ++i)
+	for (int i = 0; i < 100; ++i)
 	{
 		float x = MathHelper::RandF(100, 3900);
 		float y = 10;
@@ -215,7 +215,7 @@ void Level::LoadLevel(string Levelname)
 		AddGameObject(tGO);
 	}
 
-	for (int i = 0; i < 200; ++i)
+	for (int i = 0; i < 100; ++i)
 	{
 		float x = MathHelper::RandF(100, 3900);
 		float y = 10;

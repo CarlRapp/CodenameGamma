@@ -42,7 +42,10 @@ void Unit::SetWeapon(Weapon* Weapon)
 		gCurrentWeapon->SetTeam(GetTeam());
 
 	if ( !Weapon->CanFire() )
+	{
 		Weapon->Reload();
+		PlayAnimation("PistolWalkReload");
+	}
 }
 
 
@@ -79,8 +82,7 @@ void Unit::Update(float DeltaTime, Terrain* TerrainInstance)
 		if (dot < 0)
 			animation = "Back";
 
-		if (animation != CurrentAnimationOrPose())
-			LoopAnimation(animation);
+		LoopAnimation(animation);
 	}
 	else
 	{
@@ -109,6 +111,9 @@ void Unit::Update(float DeltaTime, Terrain* TerrainInstance)
 			//gotJointPos = m_ModelInstance->GetJointPosition("RightFoot", position);
 		}
 
+		if (!PlayingAnimation("PistolWalkReload"))
+			LoopAnimation("WalkUpperPistol");
+
 		if (!gotJointPos)
 		{
 			pos += dir * (GetRadius() - 10);
@@ -117,10 +122,20 @@ void Unit::Update(float DeltaTime, Terrain* TerrainInstance)
 			position.y += 40;
 		}
 
+		if (gCurrentWeapon->NeedReload())
+		{
+			gCurrentWeapon->Reload();
+			PlayAnimation("PistolWalkReload");
+		}
+
 		//gWeapon->Update(DeltaTime);
 		//gWeapon->MoveTo( position );
 		gCurrentWeapon->MoveTo( position );
 		gCurrentWeapon->SetRotation( GetFloat3Value( Rotations ) );
+	}
+	else
+	{
+		LoopAnimation("WalkUpperPistol");
 	}
 }
 
@@ -144,7 +159,10 @@ void Unit::ReloadWeapon()
 void Unit::FireWeapon()
 {
 	if ( gCurrentWeapon )
-		gCurrentWeapon->Fire();
+	{
+		/*if (*/gCurrentWeapon->Fire();/*)
+			PlayAnimation("ShootPistol");	*/	
+	}
 }
 
 bool Unit::Intersects(GameObject* B, vector<CollisionData>& CD)

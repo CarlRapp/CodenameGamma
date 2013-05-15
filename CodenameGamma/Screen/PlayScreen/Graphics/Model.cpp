@@ -163,7 +163,7 @@ void ModelInstance::SortAnimations()
 		for (int i = 1; i < ActiveAnimations.size(); ++i)
 		{
 			Animation* animation = ActiveAnimations[i];
-			if (m_Model->SkinnedData.GetAnimationFirstBone(animation->ClipName) < m_Model->SkinnedData.GetAnimationFirstBone(animation->ClipName))
+			if (m_Model->SkinnedData.GetAnimationFirstBone(animation->ClipName) < m_Model->SkinnedData.GetAnimationFirstBone(tempAnimation->ClipName))
 				tempAnimation = animation;
 		}
 
@@ -172,6 +172,12 @@ void ModelInstance::SortAnimations()
 	}
 
 	ActiveAnimations = tempVector;
+
+	for (int i = 0; i < ActiveAnimations.size(); ++i)
+	{
+		cout << "Animation " << i << ": " << ActiveAnimations[i]->ClipName << endl;
+	}
+	cout << endl;
 }
 
 bool ModelInstance::PlayingAnimation(string clipName)
@@ -208,7 +214,7 @@ bool ModelInstance::PlayAnimation(string clipName, bool loop)
 				StopAnimation(animation->ClipName);
 			}
 		}
-		//cout << "Starting animation " << clipName << "\t Number of animations: " << ActiveAnimations.size() + 1 << endl;
+		cout << "Starting animation " << clipName << "\t Number of animations: " << ActiveAnimations.size() + 1 << endl;
 		ActiveAnimations.push_back(animation);
 		SortAnimations();
 		return true;
@@ -224,7 +230,7 @@ void ModelInstance::StopAnimation(string clipName)
 		if (animation->ClipName == clipName)
 		{
 			temp = animation;
-			//cout << "Stopping animation " << clipName << "\t Number of animations: " << ActiveAnimations.size() - 1 << endl;
+			cout << "Stopping animation " << clipName << "\t Number of animations: " << ActiveAnimations.size() - 1 << endl;
 			break;
 		}
 	}
