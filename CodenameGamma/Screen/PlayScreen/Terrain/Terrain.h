@@ -3,7 +3,7 @@
 #define TERRAIN_H	
 #include "..\..\..\stdafx.h"
 #include "HeigthMap.h"
-#include "BlendMap.h"
+#include "PathMap.h"
 #include "..\Graphics\Vertex.h"
 #include "../Level/LevelParser.h"
 
@@ -15,6 +15,7 @@ class Terrain
 	ID3D11Device			*m_Device;
 
 	HeigthMap				*m_HeigthMap;
+	PathMap					*m_PathMap;
 
 	Material mat;
 
@@ -64,6 +65,15 @@ public:
 		else
 			return 0;
 	}
+
+	bool IsWalkable(float x, float z)
+	{
+		if (m_PathMap)
+			return m_PathMap->IsWalkable(x / m_Width, z / m_Height);
+		return false;
+	}
+
+	void SetWalkable(bool walkable, float x, float z) { m_PathMap->SetWalkable(walkable, x / m_Width, z / m_Height); }
 
 	ID3D11ShaderResourceView* GetBlendMap() { return m_BlendMap; }
 	ID3D11ShaderResourceView* GetGroundTexture(int index) { return m_GroundTextures[index]; }

@@ -2,6 +2,9 @@
 
 Terrain::Terrain(void)
 {
+	m_HeigthMap		= 0;
+	m_PathMap		= 0;
+
 	m_GroundTextures[0] = NULL;
 	m_GroundTextures[1] = NULL;
 	m_GroundTextures[2] = NULL;
@@ -18,6 +21,7 @@ Terrain::Terrain(ID3D11Device *Device, ID3D11DeviceContext *DeviceContext)
 	m_VertexBuffer	= 0;
 	m_IndexBuffer	= 0;
 	m_HeigthMap		= 0;
+	m_PathMap		= 0;
 
 	m_DeviceContext	= DeviceContext;
 	m_Device		= Device;
@@ -86,6 +90,9 @@ void Terrain::LoadTerrain(LevelData TData)
 	m_ResolutionX	= TData.ResolutionX;
 	m_ResolutionY	= TData.ResolutionY;
 	CreateGrid();
+
+	m_PathMap = new PathMap();
+	m_PathMap->Init(TData.PathMapResX, TData.PathMapResY);
 
 	for ( int i = 0; i < 4; ++i)
 	{
