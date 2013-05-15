@@ -146,7 +146,7 @@ void Level::LoadLevel(string Levelname)
 
 	GameObject*	tGO;
 
-	for (int i = 0; i < 100; ++i)
+	for (int i = 0; i < 0; ++i)
 	{	
 		tGO	=	new CrazyBitch();
 

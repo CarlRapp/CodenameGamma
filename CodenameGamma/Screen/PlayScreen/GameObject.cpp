@@ -276,6 +276,15 @@ void GameObject::SetState(GOState Value)
 	gState	=	Value;
 }
 
+bool GameObject::PlayingAnimation(string name)
+{
+	if (m_ModelInstance)
+	{
+		return m_ModelInstance->PlayingAnimation(name);
+	}
+	return false;
+}
+
 bool GameObject::LoopAnimation(string name)
 {
 	if (m_ModelInstance)

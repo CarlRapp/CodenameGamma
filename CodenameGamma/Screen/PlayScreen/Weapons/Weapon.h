@@ -44,7 +44,9 @@ public:
 
 	virtual	bool	CanFire() { return (gCooldown.first <= 0); }
 
-	virtual void	Fire();
+	virtual bool	Fire();
+
+	bool			NeedReload() { return gClip.first <= 0 && gState != Reloading; }
 
 	virtual	void	Reload();
 

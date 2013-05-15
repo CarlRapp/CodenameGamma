@@ -15,7 +15,7 @@ public:
 
 	bool	CanFire();
 
-	void	Fire();
+	bool	Fire();
 };
 
 #endif
