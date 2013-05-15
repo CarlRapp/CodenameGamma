@@ -4,6 +4,8 @@
 #include "../Items/ItemList.h"
 #include "../Weapons/WeaponList.h"
 
+#include "../Units/Rat.h"
+
 #define TESTSCALE 1.0f
 
 Level::Level(){}
@@ -146,7 +148,7 @@ void Level::LoadLevel(string Levelname)
 
 	GameObject*	tGO;
 
-	for (int i = 0; i < 50; ++i)
+	for (int i = 0; i < 0; ++i)
 	{	
 		tGO	=	new CrazyBitch();
 
@@ -260,6 +262,39 @@ void Level::LoadLevel(string Levelname)
 		tGO->MoveTo( XMFLOAT3( 2000 - n * SIZE, 0, 2000 - 800 ) );
 		AddGameObject(tGO);
 	}
+
+
+
+	gNodeMap	=	new NodeMap();
+
+	PatrolNode	*NodeA, *NodeB, *NodeC, *NodeD;
+	NodeA	=	new PatrolNode();
+	NodeA->Position	=	XMFLOAT2( 500, 500 );
+
+	NodeB	=	new PatrolNode();
+	NodeB->Position	=	XMFLOAT2( 500, 300 );
+	NodeC	=	new PatrolNode();
+	NodeC->Position	=	XMFLOAT2( 450, 250 );
+	NodeD	=	new PatrolNode();
+	NodeD->Position	=	XMFLOAT2( 450, 350 );
+	
+	gNodeMap->AddNode( NodeA );
+	gNodeMap->AddNode( NodeB );
+	gNodeMap->AddNode( NodeC );
+	gNodeMap->AddNode( NodeD );
+	gNodeMap->SetNodeAdjacent( NodeA, NodeB );
+	gNodeMap->SetNodeAdjacent( NodeB, NodeC );
+	gNodeMap->SetNodeAdjacent( NodeB, NodeD );
+	gNodeMap->SetNodeAdjacent( NodeA, NodeD );
+
+	PatrolNode*	tNode	=	gNodeMap->GetRandomNode();
+	Rat*		tRat	=	new Rat();
+	tRat->SetNodeMap( gNodeMap );
+
+	XMFLOAT3	tPosition	=	XMFLOAT3( tNode->Position.x, 0, tNode->Position.y );
+	tRat->MoveTo( tPosition );
+
+	AddGameObject( tRat );
 }
 
 
@@ -652,7 +687,7 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 			//GO->UsePose("Stand");
 			//GO->PlayAnimation("Walk");
 			unit->LoopAnimation("Back");
-			unit->MoveTo(DirectX::XMFLOAT3(600, 0, 600));
+			unit->MoveTo(DirectX::XMFLOAT3(500, 0, 500));
 			unit->SetScale(TESTSCALE);
 
 			//Hur man sätter callbackmetoden.
