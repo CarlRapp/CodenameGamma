@@ -39,6 +39,9 @@ LevelData LevelParser::ParseLevel(string LevelName, string LevelsRootPath)
 
 	tFileStream.open(LData.LevelRootPath + "map.cfg");
 
+	LData.PathMapResX	= 200;
+	LData.PathMapResY	= 200;
+
 	if ( !tFileStream.is_open() )
 	{
 		DebugScreen::GetInstance()->AddLogMessage("Error loading \"" + LevelName + "\".", Red);
