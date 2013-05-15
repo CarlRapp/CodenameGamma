@@ -136,6 +136,7 @@ public:
 
 	void	SetState(GOState Value);
 
+	bool	PlayingAnimation(string name);
 	bool	LoopAnimation(string name);
 	bool	PlayAnimation(string name);
 	void	StopAnimation(string name);

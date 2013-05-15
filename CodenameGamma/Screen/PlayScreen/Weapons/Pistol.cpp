@@ -22,7 +22,7 @@ bool Pistol::CanFire()
 	return (gClip.first > 0 && gCooldown.first <= 0);
 }
 
-void Pistol::Fire()
+bool Pistol::Fire()
 {
 	if ( CanFire() )
 	{
@@ -44,14 +44,15 @@ void Pistol::Fire()
 		gCooldown.first	=	gCooldown.second;
 		--gClip.first;
 
-		if ( gClip.first == 0 )
-			Reload();
-
 		AddGameObject( tBullet );
+
+		return true;
 	}
 	else if ( gClip.first == 0 && gCooldown.first <= 0)
 	{
 		SoundManager::GetInstance()->Play("EmptyClip");
 		gCooldown.first	=	gCooldown.second;
 	}
+
+	return false;
 }
