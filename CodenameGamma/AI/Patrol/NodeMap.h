@@ -7,7 +7,7 @@ using namespace std;
 
 struct PatrolNode
 {
-	XMFLOAT3			Position;
+	XMFLOAT2			Position;
 	vector<PatrolNode*>	AdjacentNodes;
 
 	PatrolNode()
@@ -20,7 +20,7 @@ struct PatrolNode
 		if ( AdjacentNodes.size() == 0 )
 			return 0;
 
-		return (int)MathHelper::RandF( 0, AdjacentNodes.size() - 1 );
+		return AdjacentNodes[ (int)MathHelper::RandF( 0, AdjacentNodes.size() - 1 ) ];
 	}
 
 	bool	CanReach( PatrolNode* Node )
@@ -46,5 +46,6 @@ public:
 	void		AddNode( PatrolNode* Node );
 
 	void		SetNodeAdjacent( PatrolNode* NodeA, PatrolNode* NodeB );
+	PatrolNode*	GetClosestNode( XMFLOAT3 Position );
 };
 #endif
