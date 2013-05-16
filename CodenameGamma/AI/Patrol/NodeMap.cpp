@@ -81,6 +81,10 @@ vector<PatrolNode*> NodeMap::BuildPath( XMFLOAT3 PositionA, XMFLOAT3 PositionB )
 	for( int i = 0; i < 25; ++i )
 	{
 		PatrolNode*	tNode	=	lastVisited->GetRandomNode();
+		
+		//	Lower the risk of getting stuck in a dead end
+		if ( tNode->NumberOfAdjacents() == 1 && tNode != goalNode )
+			continue;
 
 		bool	Exists	=	false;
 		for each( PatrolNode* Node in visitedNodes )
@@ -95,7 +99,7 @@ vector<PatrolNode*> NodeMap::BuildPath( XMFLOAT3 PositionA, XMFLOAT3 PositionB )
 			lastVisited	=	tNode;
 			visitedNodes.push_back( tNode );
 		}
-		int a = 2;
+
 		if( tNode == goalNode )
 			break;
 	}
