@@ -75,18 +75,21 @@ public:
 
 	void SetWalkable(bool walkable, float x, float z) { m_PathMap->SetWalkable(walkable, x / m_Width, z / m_Height); }
 
-	bool FindPath(XMFLOAT2 A, XMFLOAT2 B, vector<XMFLOAT2>& path)
+	bool FindPath(XMFLOAT3 A, XMFLOAT3 B, vector<XMFLOAT3>& path)
 	{
 		path.clear();
 
 		vector<XMFLOAT2> temp;
-		if (m_PathMap->FindPath(XMFLOAT2(A.x / m_Width, A.y / m_Height), XMFLOAT2(B.x / m_Width, B.y / m_Height), temp))
+		if (m_PathMap->FindPath(XMFLOAT2(A.x / m_Width, A.z / m_Height), XMFLOAT2(B.x / m_Width, B.z / m_Height), temp))
 		{
 			for (int i = 0; i < temp.size(); ++i)
 			{
-				XMFLOAT2 step = temp[i];
-				step.x *= m_Width;
-				step.y *= m_Height;
+				XMFLOAT2 stepTemp = temp[i];
+				stepTemp.x *= m_Width;
+				stepTemp.y *= m_Height;
+
+				XMFLOAT3 step = XMFLOAT3(stepTemp.x, 0, stepTemp.y);
+
 				path.push_back(step);
 			}
 			return true;
