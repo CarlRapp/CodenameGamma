@@ -23,19 +23,38 @@ void EnemyUnit::UpdatePatrol(float DeltaTime)
 {
 	//	If the unit is chasing a target,
 	//	cancel this method
-	if( gTargetPlayer != 0)
+	if( gTargetPlayer == 0 )
 		return;
 
 	//	If it doesnt have a node get the
 	//	node closest to its current position
 	if( gTargetNode == 0 )
 	{
-		PatrolNode*	tNode	=	gNodeMap->GetClosestNode( GetFloat3Value( Position ) );
+		//	Create a path from the enemy
+		//	to its target, via nodes.
+		gNodePath	=	gNodeMap->BuildPath( 
+							GetFloat3Value( Position ), 
+							gTargetPlayer->GetFloat3Value( Position ) 
+						);
 
-		if( tNode == 0 )
+		//	Size == 0 means that there
+		//	was no path, i.e. the start
+		//	and goal node is the same node
+		if( gNodePath.size() == 0 )
+		{
+
+			//	FOR NOW JUST MAKE THE UNIT STOP!!!
+			//	FOR NOW JUST MAKE THE UNIT STOP!!!
+			//	FOR NOW JUST MAKE THE UNIT STOP!!!
+			//	FOR NOW JUST MAKE THE UNIT STOP!!!
+			SetVelocity( XMFLOAT3( 0, 0, 0 ) );
 			return;
+		}
 
-		gTargetNode	=	tNode;
+		//	Pop the last node from
+		//	the list
+		gTargetNode	=	gNodePath.back();
+		gNodePath.pop_back();
 	}
 
 	//	Save some useful fields
@@ -56,10 +75,22 @@ void EnemyUnit::UpdatePatrol(float DeltaTime)
 	//	pick a new one
 	if( tLength < 0.5f * UnitsPerMeter )
 	{
-		gTargetNode	=	gTargetNode->GetRandomNode();
+		//	If there are no more nodes to 
+		//	follow, null the target node
+		if ( gNodePath.size() == 0 )
+		{
+			gTargetNode	=	0;
+			return;
+		}
+
+		//	Get the next node to walk to
+		gTargetNode	=	gNodePath.back();
+		gNodePath.pop_back();
+
 		tPosition	=	XMFLOAT3( gTargetNode->Position.x, 0, gTargetNode->Position.y );
 	}
 
+	//	Calculate the new velocity.
 	XMStoreFloat3(
 		&newVelocity,
 		3 * UnitsPerMeter * XMVector3Normalize( XMLoadFloat3( &tPosition ) - XMLoadFloat3( &GetFloat3Value( Position ) ) )

@@ -10,8 +10,10 @@ class EnemyUnit : public Unit
 {
 protected:
 	NodeMap*	gNodeMap;
-	PatrolNode*	gTargetNode;
-	PlayerUnit*	gTargetPlayer;
+
+	vector<PatrolNode*>	gNodePath;
+	PatrolNode*			gTargetNode;
+	PlayerUnit*			gTargetPlayer;
 
 	void	UpdatePatrol(float deltaTime);
 
@@ -24,6 +26,11 @@ public:
 	void	SetNodeMap( NodeMap* Instance )
 	{
 		gNodeMap	=	Instance;
+	}
+
+	void	SetTarget( PlayerUnit* Target )
+	{
+		gTargetPlayer = Target;
 	}
 };
 
