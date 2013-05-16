@@ -313,7 +313,8 @@ void Level::LoadLevel(string Levelname)
 		Rat*		tRat	=	new Rat();
 		tRat->SetNodeMap( gNodeMap );
 
-		XMFLOAT3	tPosition	=	XMFLOAT3( tNode->Position.x, 0, tNode->Position.y );
+		//XMFLOAT3	tPosition	=	XMFLOAT3( tNode->Position.x, 0, tNode->Position.y );
+		XMFLOAT3	tPosition	=	XMFLOAT3( MathHelper::RandF(500, 3500), 0, MathHelper::RandF(2500, 3500) );
 		tRat->MoveTo( tPosition );
 
 		AddGameObject( tRat );
@@ -471,7 +472,16 @@ void Level::Update(float DeltaTime)
 
 		if( IsOfType<EnemyUnit>(tObject) )
 		{
-			((EnemyUnit*)tObject)->SetTarget( gPlayers[0]->GetUnit() );
+			vector<PlayerUnit*> targets;
+
+			for each (Player* player in gPlayers)
+			{
+				PlayerUnit* pUnit = gPlayers[0]->GetUnit();
+				if (pUnit)
+					targets.push_back(pUnit);
+			}
+
+			((EnemyUnit*)tObject)->SetTargets( targets );
 		}
 	}
 

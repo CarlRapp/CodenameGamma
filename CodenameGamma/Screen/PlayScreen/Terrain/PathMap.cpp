@@ -55,11 +55,11 @@ bool Map::FindPath(XMFLOAT2 A, XMFLOAT2 B, vector<XMFLOAT2>& path)
 	closedList.clear();
 
 	//Ändrar om från [(0, 0) - (1, 1)] till [(0, 0) - (m_Width, m_Height)]
-	int StartX = B.x * m_Width;
-	int StartY = B.y * m_Height;
+	int StartX = A.x * m_Width;
+	int StartY = A.y * m_Height;
 
-	EndX = A.x * m_Width;
-	EndY = A.y * m_Height;
+	EndX = B.x * m_Width;
+	EndY = B.y * m_Height;
 
 	if (!IsWalkable(EndX, EndY))
 		return false;

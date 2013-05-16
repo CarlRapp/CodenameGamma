@@ -15,22 +15,38 @@ enum EnemyBehaviourState
 
 class EnemyUnit : public Unit
 {
-protected:
-	NodeMap*	gNodeMap;
+	bool hasTargetPos;
 
-	vector<XMFLOAT2>	gPath;
+
+protected:
+	NodeMap*			gNodeMap;
+
+	vector<XMFLOAT3>	gPath;
 	XMFLOAT3			gTargetPos;
 
-	vector<PatrolNode*>	gNodePath;
+	//vector<PatrolNode*>	gNodePath;
 	PatrolNode*			gTargetNode;
+
+	vector<PlayerUnit*>	gTargets;
 
 	PlayerUnit*			gTargetPlayer;
 
 	EnemyBehaviourState	gBehaviourState;
 
-	void	UpdateWalkBack(float deltaTime, Terrain* terrain);
-	void	UpdatePatrol(float deltaTime);
-	void	UpdateHunt(float deltaTime);
+	//void	UpdateWalkBack(float deltaTime, Terrain* terrain);
+	//void	UpdatePatrol(float deltaTime);
+	void	UpdateHunt();
+
+	void	FollowPath();
+	void	GetNewPath(Terrain* terrain);
+
+	void	ScanForEnemies();
+
+	void SetTargetPos(XMFLOAT3 pos)
+	{
+		gTargetPos = pos;
+		hasTargetPos = true;
+	}
 
 public:
 	EnemyUnit(void);
@@ -43,9 +59,9 @@ public:
 		gNodeMap	=	Instance;
 	}
 
-	void	SetTarget( PlayerUnit* Target )
+	void	SetTargets( vector<PlayerUnit*> Targets )
 	{
-		gTargetPlayer = Target;
+		gTargets = Targets;
 	}
 };
 

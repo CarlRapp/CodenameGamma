@@ -55,6 +55,6 @@ public:
 	void		SetNodeAdjacent( PatrolNode* NodeA, PatrolNode* NodeB );
 	PatrolNode*	GetClosestNode( XMFLOAT3 Position );
 
-	vector<PatrolNode*>	BuildPath( XMFLOAT3 PositionA, XMFLOAT3 PositionB );
+	bool		BuildPath( XMFLOAT3 PositionA, XMFLOAT3 PositionB, vector<XMFLOAT3>& path );
 };
 #endif

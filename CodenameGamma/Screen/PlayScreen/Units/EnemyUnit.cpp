@@ -2,10 +2,10 @@
 
 EnemyUnit::EnemyUnit()
 {
-	gTargetNode		=	0;
-	gTargetPlayer	=	0;
-	gBehaviourState	=	Returning;
-	gTargetPos.x	= -9999;
+	gTargetNode		= 0;
+	gTargetPlayer	= 0;
+	gBehaviourState	= Returning;
+	hasTargetPos	= false;
 }
 EnemyUnit::~EnemyUnit()
 {
@@ -14,6 +14,20 @@ EnemyUnit::~EnemyUnit()
 
 void EnemyUnit::Update(float DeltaTime, Terrain* terrain)
 {
+	if ( gBehaviourState == Hunting)
+	{
+		UpdateHunt();
+	}
+	else
+	{
+		if (!hasTargetPos)
+			GetNewPath(terrain);
+
+		FollowPath();
+		ScanForEnemies();
+	}
+
+	/*
 	switch( gBehaviourState )
 	{
 		case Roaming:
@@ -28,10 +42,115 @@ void EnemyUnit::Update(float DeltaTime, Terrain* terrain)
 			UpdateWalkBack( DeltaTime, terrain );
 			break;
 	}
-
+	*/
 	Unit::Update(DeltaTime, terrain);
 }
 
+void EnemyUnit::GetNewPath(Terrain* terrain)
+{
+	XMFLOAT3 startPos = GetFloat3Value( Position );
+	XMFLOAT2 temp;
+	XMFLOAT3 endPos;
+
+	bool foundPath = false;
+	switch (gBehaviourState)
+	{
+	case Roaming:		
+		temp	= gNodeMap->GetRandomNode()->Position;
+		endPos = XMFLOAT3(temp.x, 0, temp.y);
+		cout << "New Roaming path to " << endPos.x << " - " << endPos.z << endl;
+		foundPath = gNodeMap->BuildPath(startPos, endPos, gPath);		
+		break;
+	case Returning:		
+		temp	= gNodeMap->GetClosestNode(startPos)->Position;
+		endPos = XMFLOAT3(temp.x, 0, temp.y);
+		cout << "New Returning path to " << endPos.x << " - " << endPos.z << endl;
+		foundPath = terrain->FindPath(startPos, endPos, gPath);
+		break;
+	}
+
+	if (foundPath && !gPath.empty())
+	{
+		gTargetPos = gPath.back();
+		gPath.pop_back();
+		hasTargetPos = true;
+	}
+}
+
+void EnemyUnit::FollowPath()
+{
+	//	Check if the unit is at its
+	//	target node position
+	float	tLength;
+	XMStoreFloat(&tLength, XMVector3Length( XMLoadFloat3( &gTargetPos ) - XMLoadFloat3( &GetFloat3Value( Position ) ) ));
+
+	//	If the unit is withing 50cm
+	//	from its target node make it
+	//	pick a new one
+	if( tLength < 0.5f * UnitsPerMeter )
+	{
+		//	If there are no more nodes to 
+		//	follow, null the target node
+		if ( gPath.empty() )
+		{
+			hasTargetPos	= false;
+			gBehaviourState	= Roaming;
+			return;
+		}
+
+		//	Get the next node to walk to
+		gTargetPos = gPath.back();
+		gPath.pop_back();
+
+		cout << "Targetpos: " << gTargetPos.x << " - " << gTargetPos.z << endl;
+	}
+
+	//	Calculate the new velocity.
+	XMFLOAT3	newVelocity;
+	XMStoreFloat3(&newVelocity, 3 * UnitsPerMeter * XMVector3Normalize( XMLoadFloat3( &gTargetPos ) - XMLoadFloat3( &GetFloat3Value( Position ) ) ) );
+
+	SetVelocity( newVelocity );
+
+	LookAt(gTargetPos);
+}
+
+void EnemyUnit::UpdateHunt()
+{
+	//	Calculate the new velocity.
+	XMFLOAT3	newVelocity;
+	XMStoreFloat3(
+		&newVelocity,
+		5 * UnitsPerMeter * XMVector3Normalize( XMLoadFloat3( &gTargetPlayer->GetFloat3Value( Position ) ) - XMLoadFloat3( &GetFloat3Value( Position ) ) )
+	);
+
+	SetVelocity( newVelocity );
+	LookAt( gTargetPlayer->GetFloat3Value( Position ) );
+
+	float tLength;
+	XMStoreFloat(
+		&tLength,
+		XMVector3Length( XMLoadFloat3( &gTargetPlayer->GetFloat3Value( Position ) ) - XMLoadFloat3( &GetFloat3Value( Position ) ) )
+	);
+	if( tLength > 10 * UnitsPerMeter )
+		gBehaviourState	= Returning;
+}
+
+void EnemyUnit::ScanForEnemies()
+{
+	for each (PlayerUnit* target in gTargets)
+	{
+		float tLength;
+		XMStoreFloat(&tLength, XMVector3Length( XMLoadFloat3( &target->GetFloat3Value( Position ) ) - XMLoadFloat3( &GetFloat3Value( Position ) ) ));
+		if( tLength < 5 * UnitsPerMeter )
+		{
+			hasTargetPos	= false;
+			gTargetPlayer	= target;
+			gBehaviourState	= Hunting;
+		}
+	}
+}
+
+/*
 void EnemyUnit::UpdateWalkBack(float deltaTime, Terrain* terrain)
 {
 	if( gTargetPos.x == -9999 )
@@ -208,24 +327,4 @@ void EnemyUnit::UpdatePatrol(float DeltaTime)
 	if( tLength < 5 * UnitsPerMeter )
 		gBehaviourState	=	Hunting;
 }
-
-void EnemyUnit::UpdateHunt(float deltaTime)
-{
-	//	Calculate the new velocity.
-	XMFLOAT3	newVelocity;
-	XMStoreFloat3(
-		&newVelocity,
-		5 * UnitsPerMeter * XMVector3Normalize( XMLoadFloat3( &gTargetPlayer->GetFloat3Value( Position ) ) - XMLoadFloat3( &GetFloat3Value( Position ) ) )
-	);
-
-	SetVelocity( newVelocity );
-	LookAt( gTargetPlayer->GetFloat3Value( Position ) );
-
-	float tLength;
-	XMStoreFloat(
-		&tLength,
-		XMVector3Length( XMLoadFloat3( &gTargetPlayer->GetFloat3Value( Position ) ) - XMLoadFloat3( &GetFloat3Value( Position ) ) )
-	);
-	if( tLength > 10 * UnitsPerMeter )
-		gBehaviourState	= Returning;
-}
+*/
