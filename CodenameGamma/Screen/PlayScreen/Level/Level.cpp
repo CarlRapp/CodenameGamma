@@ -300,14 +300,17 @@ void Level::LoadLevel(string Levelname)
 	gNodeMap->SetNodeAdjacent( Nodes[6], Nodes[7] );
 	gNodeMap->SetNodeAdjacent( Nodes[7], Nodes[8] );
 
-	PatrolNode*	tNode	=	gNodeMap->GetRandomNode();
-	Rat*		tRat	=	new Rat();
-	tRat->SetNodeMap( gNodeMap );
+	for ( int i = 0; i < 6; ++i  )
+	{
+		PatrolNode*	tNode	=	gNodeMap->GetRandomNode();
+		Rat*		tRat	=	new Rat();
+		tRat->SetNodeMap( gNodeMap );
 
-	XMFLOAT3	tPosition	=	XMFLOAT3( tNode->Position.x, 0, tNode->Position.y );
-	tRat->MoveTo( tPosition );
+		XMFLOAT3	tPosition	=	XMFLOAT3( tNode->Position.x, 0, tNode->Position.y );
+		tRat->MoveTo( tPosition );
 
-	AddGameObject( tRat );
+		AddGameObject( tRat );
+	}
 }
 
 
