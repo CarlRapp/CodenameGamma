@@ -67,8 +67,10 @@ PatrolNode*	NodeMap::GetClosestNode( XMFLOAT3 Position )
 	return Result;
 }
 
-vector<PatrolNode*> NodeMap::BuildPath( XMFLOAT3 PositionA, XMFLOAT3 PositionB )
+bool NodeMap::BuildPath( XMFLOAT3 PositionA, XMFLOAT3 PositionB, vector<XMFLOAT3>& path )
 {
+	path.clear();
+
 	vector<PatrolNode*>	visitedNodes	=	vector<PatrolNode*>();
 
 	visitedNodes.push_back( GetClosestNode( PositionA ) );
@@ -76,7 +78,7 @@ vector<PatrolNode*> NodeMap::BuildPath( XMFLOAT3 PositionA, XMFLOAT3 PositionB )
 	PatrolNode*	goalNode	=	GetClosestNode( PositionB );
 
 	if( lastVisited == goalNode )
-		return vector<PatrolNode*>();
+		return false;
 
 	for( int i = 0; i < 25; ++i )
 	{
@@ -103,11 +105,14 @@ vector<PatrolNode*> NodeMap::BuildPath( XMFLOAT3 PositionA, XMFLOAT3 PositionB )
 		if( tNode == goalNode )
 			break;
 	}
-
-	vector<PatrolNode*>	finalList	=	vector<PatrolNode*>();
+	
 	for( int i = visitedNodes.size() - 1; i >= 0; --i )
-		finalList.push_back( visitedNodes[i] );
+	{
+		XMFLOAT2 pos2 = visitedNodes[i]->Position;
+		XMFLOAT3 pos3 = XMFLOAT3(pos2.x, 0, pos2.y);
+		path.push_back( pos3 );
+	}
 
 	visitedNodes.clear();
-	return finalList;
+	return !path.empty();
 }
