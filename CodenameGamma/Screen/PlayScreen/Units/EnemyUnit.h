@@ -9,7 +9,8 @@
 enum EnemyBehaviourState
 {
 	Roaming,
-	Hunting
+	Hunting,
+	Returning
 };
 
 class EnemyUnit : public Unit
@@ -17,12 +18,17 @@ class EnemyUnit : public Unit
 protected:
 	NodeMap*	gNodeMap;
 
+	vector<XMFLOAT2>	gPath;
+	XMFLOAT3			gTargetPos;
+
 	vector<PatrolNode*>	gNodePath;
 	PatrolNode*			gTargetNode;
+
 	PlayerUnit*			gTargetPlayer;
 
 	EnemyBehaviourState	gBehaviourState;
 
+	void	UpdateWalkBack(float deltaTime, Terrain* terrain);
 	void	UpdatePatrol(float deltaTime);
 	void	UpdateHunt(float deltaTime);
 
