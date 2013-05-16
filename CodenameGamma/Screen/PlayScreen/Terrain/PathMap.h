@@ -26,6 +26,8 @@ struct Node
 		m_X		= x;
 		m_Y		= y;
 		m_Id	= id;
+		
+		m_Parent = parent;
 
 		G = 0;
 		H = 0;
@@ -41,15 +43,19 @@ struct Node
 		return x + y;
 	}
 
-	
-	bool operator<(Node n)
-	{
-		return GetF() < n.GetF();
-	}
-
 	bool operator==(Node n)
 	{
 		return (n.m_Id == m_Id);
+	}
+	
+	bool operator()(Node* A, Node* B) 
+	{
+		float AF = A->GetF();
+		float BF = B->GetF();
+
+		if (AF == BF)		
+			return A->H > B->H;
+		return AF > BF;
 	}
 };
 
@@ -72,7 +78,7 @@ struct Map
 private:
 
 	//Globals during pathfinding
-	priority_queue<Node*> openList;
+	priority_queue<Node*, vector<Node*>, Node> openList;
 	set<int>			  closedList;
 
 	Node* currentNode;
@@ -81,12 +87,13 @@ private:
 
 	void AddToOpen(int x, int y, int ID, float distance)
 	{
-		if (closedList.find(ID) == closedList.end())
+		if (closedList.find(ID) != closedList.end())
 			return;
 
 		Node* temp = new Node(x, y, GenerateID(x, y), currentNode);
 		temp->G = distance;
 		temp->H = temp->ManHattanDistance(EndX, EndY);
+		openList.push(temp);
 	}
 
 	bool IsWalkable(int x, int y);
