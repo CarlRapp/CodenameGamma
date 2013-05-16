@@ -80,6 +80,10 @@ namespace Vertex
 		PosNormalTexTanSkinnedTemp()
 		{
 			Weight = XMFLOAT4(0,0,0,0);
+			BoneIndex[0] = 255;
+			BoneIndex[1] = 255;
+			BoneIndex[2] = 255;
+			BoneIndex[3] = 255;
 		}
 	};
 
