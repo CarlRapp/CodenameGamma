@@ -14,13 +14,18 @@ struct PatrolNode
 	{
 		AdjacentNodes	=	vector<PatrolNode*>();
 	}
+	PatrolNode( XMFLOAT2 Pos )
+	{
+		Position		=	Pos;
+		AdjacentNodes	=	vector<PatrolNode*>();
+	}
 
 	PatrolNode*	GetRandomNode( )
 	{
 		if ( AdjacentNodes.size() == 0 )
 			return 0;
 
-		return AdjacentNodes[ (int)MathHelper::RandF( 0, AdjacentNodes.size() - 1 ) ];
+		return AdjacentNodes[ (int)MathHelper::RandF( 0, AdjacentNodes.size() ) ];
 	}
 
 	bool	CanReach( PatrolNode* Node )
@@ -31,6 +36,8 @@ struct PatrolNode
 
 		return false;
 	}
+
+	int	NumberOfAdjacents() { return AdjacentNodes.size(); }
 };
 
 class NodeMap
@@ -47,5 +54,7 @@ public:
 
 	void		SetNodeAdjacent( PatrolNode* NodeA, PatrolNode* NodeB );
 	PatrolNode*	GetClosestNode( XMFLOAT3 Position );
+
+	vector<PatrolNode*>	BuildPath( XMFLOAT3 PositionA, XMFLOAT3 PositionB );
 };
 #endif

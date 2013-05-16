@@ -24,7 +24,7 @@ PatrolNode*	NodeMap::GetRandomNode()
 	if( gNodes.size() == 0)
 		return 0;
 
-	return gNodes[ (int)MathHelper::RandF( 0, gNodes.size() ) - 1 ];
+	return gNodes[ (int)MathHelper::RandF( 0, gNodes.size() ) ];
 }
 
 void NodeMap::SetNodeAdjacent( PatrolNode* NodeA, PatrolNode* NodeB )
@@ -65,4 +65,45 @@ PatrolNode*	NodeMap::GetClosestNode( XMFLOAT3 Position )
 
 
 	return Result;
+}
+
+vector<PatrolNode*> NodeMap::BuildPath( XMFLOAT3 PositionA, XMFLOAT3 PositionB )
+{
+	vector<PatrolNode*>	visitedNodes	=	vector<PatrolNode*>();
+
+	visitedNodes.push_back( GetClosestNode( PositionA ) );
+	PatrolNode*	lastVisited	=	visitedNodes[0];
+	PatrolNode*	goalNode	=	GetClosestNode( PositionB );
+
+	if( lastVisited == goalNode )
+		return vector<PatrolNode*>();
+
+	for( int i = 0; i < 25; ++i )
+	{
+		PatrolNode*	tNode	=	lastVisited->GetRandomNode();
+
+		bool	Exists	=	false;
+		for each( PatrolNode* Node in visitedNodes )
+			if ( Node == tNode )
+			{
+				Exists	=	true;
+				break;
+			}
+
+		if( !Exists )
+		{
+			lastVisited	=	tNode;
+			visitedNodes.push_back( tNode );
+		}
+		int a = 2;
+		if( tNode == goalNode )
+			break;
+	}
+
+	vector<PatrolNode*>	finalList	=	vector<PatrolNode*>();
+	for( int i = visitedNodes.size() - 1; i >= 0; --i )
+		finalList.push_back( visitedNodes[i] );
+
+	visitedNodes.clear();
+	return finalList;
 }
