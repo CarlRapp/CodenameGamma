@@ -263,29 +263,42 @@ void Level::LoadLevel(string Levelname)
 		AddGameObject(tGO);
 	}
 
-
-
 	gNodeMap	=	new NodeMap();
 
-	PatrolNode	*NodeA, *NodeB, *NodeC, *NodeD;
-	NodeA	=	new PatrolNode();
-	NodeA->Position	=	XMFLOAT2( 500, 500 );
+	PatrolNode*	Nodes[9];
+	Nodes[0]	=	new PatrolNode( XMFLOAT2( 500, 500 ) );
+	Nodes[1]	=	new PatrolNode( XMFLOAT2( 600, 500 ) );
+	Nodes[2]	=	new PatrolNode( XMFLOAT2( 700, 500 ) );
 
-	NodeB	=	new PatrolNode();
-	NodeB->Position	=	XMFLOAT2( 500, 300 );
-	NodeC	=	new PatrolNode();
-	NodeC->Position	=	XMFLOAT2( 450, 250 );
-	NodeD	=	new PatrolNode();
-	NodeD->Position	=	XMFLOAT2( 450, 350 );
+	Nodes[3]	=	new PatrolNode( XMFLOAT2( 500, 400 ) );
+	Nodes[4]	=	new PatrolNode( XMFLOAT2( 600, 400 ) );
+	Nodes[5]	=	new PatrolNode( XMFLOAT2( 700, 400 ) );
+
+	Nodes[6]	=	new PatrolNode( XMFLOAT2( 500, 300 ) );
+	Nodes[7]	=	new PatrolNode( XMFLOAT2( 600, 300 ) );
+	Nodes[8]	=	new PatrolNode( XMFLOAT2( 700, 300 ) );
 	
-	gNodeMap->AddNode( NodeA );
-	gNodeMap->AddNode( NodeB );
-	gNodeMap->AddNode( NodeC );
-	gNodeMap->AddNode( NodeD );
-	gNodeMap->SetNodeAdjacent( NodeA, NodeB );
-	gNodeMap->SetNodeAdjacent( NodeB, NodeC );
-	gNodeMap->SetNodeAdjacent( NodeB, NodeD );
-	gNodeMap->SetNodeAdjacent( NodeA, NodeD );
+	for( int i = 0; i < 9; ++i )
+	{
+		gNodeMap->AddNode( Nodes[i] );
+
+		tGO	=	new CannedFood();
+		tGO->MoveTo( XMFLOAT3( Nodes[i]->Position.x, 10, Nodes[i]->Position.y ) );
+		AddGameObject(tGO);
+	}
+
+	gNodeMap->SetNodeAdjacent( Nodes[0], Nodes[1] );
+	gNodeMap->SetNodeAdjacent( Nodes[0], Nodes[3] );
+	gNodeMap->SetNodeAdjacent( Nodes[1], Nodes[2] );
+	gNodeMap->SetNodeAdjacent( Nodes[1], Nodes[4] );
+	gNodeMap->SetNodeAdjacent( Nodes[2], Nodes[5] );
+	gNodeMap->SetNodeAdjacent( Nodes[3], Nodes[4] );
+	gNodeMap->SetNodeAdjacent( Nodes[3], Nodes[6] );
+	gNodeMap->SetNodeAdjacent( Nodes[4], Nodes[5] );
+	gNodeMap->SetNodeAdjacent( Nodes[4], Nodes[7] );
+	gNodeMap->SetNodeAdjacent( Nodes[5], Nodes[8] );
+	gNodeMap->SetNodeAdjacent( Nodes[6], Nodes[7] );
+	gNodeMap->SetNodeAdjacent( Nodes[7], Nodes[8] );
 
 	PatrolNode*	tNode	=	gNodeMap->GetRandomNode();
 	Rat*		tRat	=	new Rat();
@@ -445,6 +458,11 @@ void Level::Update(float DeltaTime)
 		}
 		else		
 			trash.push_back(tObject);
+
+		if( IsOfType<EnemyUnit>(tObject) )
+		{
+			((EnemyUnit*)tObject)->SetTarget( gPlayers[0]->GetUnit() );
+		}
 	}
 
 	for each (GameObject* tObject in trash)
@@ -687,7 +705,7 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 			//GO->UsePose("Stand");
 			//GO->PlayAnimation("Walk");
 			unit->LoopAnimation("Back");
-			unit->MoveTo(DirectX::XMFLOAT3(500, 0, 500));
+			unit->MoveTo(DirectX::XMFLOAT3(200, 0, 500));
 			unit->SetScale(TESTSCALE);
 
 			//Hur man sätter callbackmetoden.
