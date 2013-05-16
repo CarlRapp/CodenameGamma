@@ -10,7 +10,8 @@ using namespace DirectX;
 
 //	Is arranged like <Current, Max>
 typedef pair<float, float>	UnitHealth;
-static	float	MeterPerUnits	=	1 / 33.333f;
+static	float	UnitsPerMeter	=	33.333f;
+static	float	MeterPerUnits	=	1 / UnitsPerMeter;
 
 class Unit : public GameObject
 {

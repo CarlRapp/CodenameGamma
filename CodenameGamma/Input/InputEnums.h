@@ -25,7 +25,10 @@ enum Xbox_Button
 	LEFT_BUMPER		=	12, 
 	RIGHT_BUMPER	=	13,
 
-	NUMBER_OF_BUTTONS	=	14
+	LEFT_TRIGGER	=	14,
+	RIGHT_TRIGGER	=	15,
+
+	NUMBER_OF_BUTTONS
 };
 enum Xbox_Direction
 {

@@ -4,6 +4,8 @@
 #include "../Items/ItemList.h"
 #include "../Weapons/WeaponList.h"
 
+#include "../Units/Rat.h"
+
 #define TESTSCALE 1.0f
 
 Level::Level(){}
@@ -147,7 +149,7 @@ void Level::LoadLevel(string Levelname)
 
 	GameObject*	tGO;
 
-	for (int i = 0; i < 50; ++i)
+	for (int i = 0; i < 0; ++i)
 	{	
 		tGO	=	new CrazyBitch();
 
@@ -266,6 +268,55 @@ void Level::LoadLevel(string Levelname)
 		tGO	=	new UnitCube();
 		tGO->MoveTo( XMFLOAT3( 2000 - n * SIZE, 0, 2000 - 800 ) );
 		AddGameObject(tGO);
+	}
+
+	gNodeMap	=	new NodeMap();
+
+	PatrolNode*	Nodes[9];
+	Nodes[0]	=	new PatrolNode( XMFLOAT2( 500, 500 ) );
+	Nodes[1]	=	new PatrolNode( XMFLOAT2( 600, 500 ) );
+	Nodes[2]	=	new PatrolNode( XMFLOAT2( 700, 500 ) );
+
+	Nodes[3]	=	new PatrolNode( XMFLOAT2( 500, 400 ) );
+	Nodes[4]	=	new PatrolNode( XMFLOAT2( 600, 400 ) );
+	Nodes[5]	=	new PatrolNode( XMFLOAT2( 700, 400 ) );
+
+	Nodes[6]	=	new PatrolNode( XMFLOAT2( 500, 300 ) );
+	Nodes[7]	=	new PatrolNode( XMFLOAT2( 600, 300 ) );
+	Nodes[8]	=	new PatrolNode( XMFLOAT2( 700, 300 ) );
+	
+	for( int i = 0; i < 9; ++i )
+	{
+		gNodeMap->AddNode( Nodes[i] );
+
+		tGO	=	new CannedFood();
+		tGO->MoveTo( XMFLOAT3( Nodes[i]->Position.x, 10, Nodes[i]->Position.y ) );
+		AddGameObject(tGO);
+	}
+
+	gNodeMap->SetNodeAdjacent( Nodes[0], Nodes[1] );
+	gNodeMap->SetNodeAdjacent( Nodes[0], Nodes[3] );
+	gNodeMap->SetNodeAdjacent( Nodes[1], Nodes[2] );
+	gNodeMap->SetNodeAdjacent( Nodes[1], Nodes[4] );
+	gNodeMap->SetNodeAdjacent( Nodes[2], Nodes[5] );
+	gNodeMap->SetNodeAdjacent( Nodes[3], Nodes[4] );
+	gNodeMap->SetNodeAdjacent( Nodes[3], Nodes[6] );
+	gNodeMap->SetNodeAdjacent( Nodes[4], Nodes[5] );
+	gNodeMap->SetNodeAdjacent( Nodes[4], Nodes[7] );
+	gNodeMap->SetNodeAdjacent( Nodes[5], Nodes[8] );
+	gNodeMap->SetNodeAdjacent( Nodes[6], Nodes[7] );
+	gNodeMap->SetNodeAdjacent( Nodes[7], Nodes[8] );
+
+	for ( int i = 0; i < 6; ++i  )
+	{
+		PatrolNode*	tNode	=	gNodeMap->GetRandomNode();
+		Rat*		tRat	=	new Rat();
+		tRat->SetNodeMap( gNodeMap );
+
+		XMFLOAT3	tPosition	=	XMFLOAT3( tNode->Position.x, 0, tNode->Position.y );
+		tRat->MoveTo( tPosition );
+
+		AddGameObject( tRat );
 	}
 }
 
@@ -417,6 +468,11 @@ void Level::Update(float DeltaTime)
 		}
 		else		
 			trash.push_back(tObject);
+
+		if( IsOfType<EnemyUnit>(tObject) )
+		{
+			((EnemyUnit*)tObject)->SetTarget( gPlayers[0]->GetUnit() );
+		}
 	}
 
 	for each (GameObject* tObject in trash)
@@ -659,7 +715,7 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 			//GO->UsePose("Stand");
 			//GO->PlayAnimation("Walk");
 			unit->LoopAnimation("Back");
-			unit->MoveTo(DirectX::XMFLOAT3(600, 0, 600));
+			unit->MoveTo(DirectX::XMFLOAT3(200, 0, 500));
 			unit->SetScale(TESTSCALE);
 
 			//Hur man sätter callbackmetoden.
