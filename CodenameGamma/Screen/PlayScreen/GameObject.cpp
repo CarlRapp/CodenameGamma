@@ -216,12 +216,12 @@ void GameObject::AddRotation(XMFLOAT3 Delta)
 //	the position, y-axis
 void GameObject::LookAt(XMFLOAT3 Position)
 {
-	float	dX	=	(Position.x - gPosition.x);
+	float	dX	=	(gPosition.x - Position.x);
 	float	dZ	=	(Position.z - gPosition.z);
 
-	float dAngle	=	atan2(dX, dZ);
+	float dAngle	=	atan2(dZ, dX);
 
-	SetRotation(XMFLOAT3(0, dAngle, 0));
+	SetRotation(XMFLOAT3(0, dAngle + PI * 0.5f, 0));
 }
 #pragma endregion
 
