@@ -7,7 +7,8 @@
 
 enum XboxBinds
 {
-	XShoot	=	A,
+	XShoot	=	RIGHT_TRIGGER,
+	XAim	=	LEFT_TRIGGER,
 	XDrop	=	B,
 	XReload	=	X
 };

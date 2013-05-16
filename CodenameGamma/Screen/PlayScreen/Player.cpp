@@ -28,7 +28,7 @@ void Player::Update(float deltaTime)
 {
 	UpdateCamera(deltaTime);
 	
-	if ( m_Unit )
+	if ( m_Unit != 0 )
 	{
 		//XBOX-CONTROL
 		XMFLOAT3	newVel	=	XMFLOAT3(0, 0, 0);
@@ -37,7 +37,7 @@ void Player::Update(float deltaTime)
 		XMFLOAT2	rStickDir		=	m_Controller->GetStickDirection( RIGHT );
 
 		if ( m_Controller->GetStickLength( RIGHT ) > 0.3f)
-			m_Unit->LookAt(XMFLOAT3(tPosition.x - rStickDir.x, 0, tPosition.z - rStickDir.y));
+			m_Unit->LookAt(XMFLOAT3(tPosition.x + rStickDir.x, 0, tPosition.z + rStickDir.y));
 
 		XMFLOAT2	lStickDir		=	m_Controller->GetStickDirection( LEFT );
 		float		lStickLength	=	m_Controller->GetStickLength( LEFT ) * (160);
@@ -57,7 +57,7 @@ void Player::Update(float deltaTime)
 
 				XMFLOAT2 mouseDir;
 				XMStoreFloat2(&mouseDir, mousePos - center);
-				m_Unit->LookAt(XMFLOAT3(tPosition.x - mouseDir.x, 0, tPosition.z + mouseDir.y));
+				m_Unit->LookAt(XMFLOAT3(tPosition.x + mouseDir.x, 0, tPosition.z - mouseDir.y));
 			}
 
 
@@ -85,8 +85,12 @@ void Player::Update(float deltaTime)
 		m_Camera->SetPosition(tPosition.x, tPosition.y + 200, tPosition.z - 100);
 		m_Camera->SetLookAt(tPosition);
 
-		if ( IsButtonState( XShoot, DOWN ) || IsButtonState( MShoot, DOWN ) )
-			m_Unit->FireWeapon();
+		if ( IsButtonState( XAim, PRESSED ) )
+			m_Unit->PlayAnimation("Draw");
+
+		if ( IsButtonState( XAim, DOWN ) )
+			if ( IsButtonState( XShoot, DOWN ) || IsButtonState( MShoot, DOWN ) )
+				m_Unit->FireWeapon();
 
 		if ( IsButtonState( XReload, PRESSED ) || IsButtonState( KReload, PRESSED ) )
 			m_Unit->ReloadWeapon();

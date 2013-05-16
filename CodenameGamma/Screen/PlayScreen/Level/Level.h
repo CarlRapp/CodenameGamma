@@ -3,6 +3,7 @@
 #define LEVEL_H
 
 #include "../../../stdafx.h"
+#include "../../../AI/Patrol/NodeMap.h"
 #include "../Graphics/Effects.h"
 #include "../Graphics/RenderStates.h"
 #include "../Graphics/Buffer.h"
@@ -56,6 +57,7 @@ private:
 	Terrain*			gTerrain;
 
 	vector<Player*>		gPlayers;
+	NodeMap*			gNodeMap;
 
 	//	Lights
 	vector<DirectionalLight*>	gDirLights;

@@ -52,6 +52,9 @@ void Controller::Update()
 
 	gNewButtonState[LEFT_STICK]		=	(gInputState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB)	==	XINPUT_GAMEPAD_LEFT_THUMB;
 	gNewButtonState[RIGHT_STICK]	=	(gInputState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB)	==	XINPUT_GAMEPAD_RIGHT_THUMB;
+
+	gNewButtonState[LEFT_TRIGGER]	=	GetTriggerValue( LEFT ) > 0.45f ? true : false;
+	gNewButtonState[RIGHT_TRIGGER]	=	GetTriggerValue( RIGHT ) > 0.45f ? true : false;
 }
 
 float Controller::GetTriggerValue(Xbox_Direction Trigger)
