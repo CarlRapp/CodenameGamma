@@ -116,6 +116,19 @@ public:
 	XMFLOAT3	GetFloat3Value(GOFloat3Value Value);
 	XMFLOAT4X4	GetFloat4x4Value(GOFloat4x4Value Value);
 
+	BoundingOrientedBox GetBoundingBox()
+	{
+		if (m_ModelInstance)
+			return m_ModelInstance->GetBoundingOrientedBox();
+		else
+		{
+			BoundingBox AABB = BoundingBox(gPosition, XMFLOAT3(0,0,0));
+			BoundingOrientedBox OBB;
+			BoundingOrientedBox::CreateFromBoundingBox(OBB, AABB);
+			return OBB;
+		}
+	}
+
 	void	SetAddLight(LightCallback callback) { AddLight = callback; }
 	void	SetRemoveLight(LightCallback callback) { RemoveLight = callback; }
 
