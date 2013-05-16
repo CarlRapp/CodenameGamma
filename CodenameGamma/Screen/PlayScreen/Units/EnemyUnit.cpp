@@ -4,6 +4,7 @@ EnemyUnit::EnemyUnit()
 {
 	gTargetNode		=	0;
 	gTargetPlayer	=	0;
+	gBehaviourState	=	Roaming;
 }
 EnemyUnit::~EnemyUnit()
 {
@@ -12,7 +13,16 @@ EnemyUnit::~EnemyUnit()
 
 void EnemyUnit::Update(float DeltaTime, Terrain* terrain)
 {
-	UpdatePatrol( DeltaTime );
+	switch( gBehaviourState )
+	{
+		case Roaming:
+			UpdatePatrol( DeltaTime );
+			break;
+
+		case Hunting:
+			UpdateHunt( DeltaTime );
+			break;
+	}
 
 
 
@@ -102,4 +112,34 @@ void EnemyUnit::UpdatePatrol(float DeltaTime)
 	LookAt(
 		tPosition
 	);
+
+
+	//	Placeholder for entering HUNT behaviour
+	XMStoreFloat(
+		&tLength,
+		XMVector3Length( XMLoadFloat3( &gTargetPlayer->GetFloat3Value( Position ) ) - XMLoadFloat3( &GetFloat3Value( Position ) ) )
+	);
+	if( tLength < 5 * UnitsPerMeter )
+		gBehaviourState	=	Hunting;
+}
+
+void EnemyUnit::UpdateHunt(float deltaTime)
+{
+	//	Calculate the new velocity.
+	XMFLOAT3	newVelocity;
+	XMStoreFloat3(
+		&newVelocity,
+		5 * UnitsPerMeter * XMVector3Normalize( XMLoadFloat3( &gTargetPlayer->GetFloat3Value( Position ) ) - XMLoadFloat3( &GetFloat3Value( Position ) ) )
+	);
+
+	SetVelocity( newVelocity );
+	LookAt( gTargetPlayer->GetFloat3Value( Position ) );
+
+	float tLength;
+	XMStoreFloat(
+		&tLength,
+		XMVector3Length( XMLoadFloat3( &gTargetPlayer->GetFloat3Value( Position ) ) - XMLoadFloat3( &GetFloat3Value( Position ) ) )
+	);
+	if( tLength > 10 * UnitsPerMeter )
+		gBehaviourState	=	Roaming;
 }

@@ -6,6 +6,12 @@
 #include "PlayerUnit.h"
 #include "../../../AI/Patrol/NodeMap.h"
 
+enum EnemyBehaviourState
+{
+	Roaming,
+	Hunting
+};
+
 class EnemyUnit : public Unit
 {
 protected:
@@ -15,7 +21,10 @@ protected:
 	PatrolNode*			gTargetNode;
 	PlayerUnit*			gTargetPlayer;
 
+	EnemyBehaviourState	gBehaviourState;
+
 	void	UpdatePatrol(float deltaTime);
+	void	UpdateHunt(float deltaTime);
 
 public:
 	EnemyUnit(void);
