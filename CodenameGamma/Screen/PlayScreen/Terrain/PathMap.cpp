@@ -30,8 +30,8 @@ void Map::BlockPath(BoundingOrientedBox box)
 
 	//Flyttar boxens centrum
 	box.Center.y = 0;
-	box.Center.x *= m_Width;
-	box.Center.z *= m_Height;
+	//box.Center.x *= m_Width;
+	//box.Center.z *= m_Height;
 
 	for (int y = 0; y < m_Height; y++)
 	{
@@ -51,7 +51,7 @@ bool Map::FindPath(XMFLOAT2 A, XMFLOAT2 B, vector<XMFLOAT2>& path)
 		return false;
 
 	//Reset open and close list
-	openList = priority_queue<Node*>();
+	openList = priority_queue<Node*, vector<Node*>, Node>();
 	closedList.clear();
 
 	//Ändrar om från [(0, 0) - (1, 1)] till [(0, 0) - (m_Width, m_Height)]
@@ -220,7 +220,7 @@ bool Map::FindPath(XMFLOAT2 A, XMFLOAT2 B, vector<XMFLOAT2>& path)
 
 			endNode = endNode->m_Parent;
 		}
-		return  false;
+		return  true;
 	}
 
 	return false;
@@ -273,7 +273,7 @@ bool Map::IsShortestPathFree(XMFLOAT2 A, XMFLOAT2 B)
 
 bool Map::IsWalkable(int x, int y)
 {
-	if (x >= m_Width || y >= m_Height ) 
+	if (x < 0 || y < 0  ||  x >= m_Width || y >= m_Height ) 
 		return false;
 
 	return m_Map[y][x];
@@ -281,9 +281,6 @@ bool Map::IsWalkable(int x, int y)
 
 bool Map::IsWalkable(float x, float y)
 {
-	if (x < 0 || y < 0 ) 
-		return false;
-
 	int X = x * m_Width;
 	int Y = y * m_Height;
 

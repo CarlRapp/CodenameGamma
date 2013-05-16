@@ -75,20 +75,23 @@ public:
 
 	void SetWalkable(bool walkable, float x, float z) { m_PathMap->SetWalkable(walkable, x / m_Width, z / m_Height); }
 
-	bool FindPath(XMFLOAT3 A, XMFLOAT3 B, vector<XMFLOAT3>& path)
+	bool FindPath(XMFLOAT2 A, XMFLOAT2 B, vector<XMFLOAT2>& path)
 	{
+		path.clear();
+
 		vector<XMFLOAT2> temp;
-		if (m_PathMap->FindPath(XMFLOAT2(A.x, A.z), XMFLOAT2(B.x, B.z), temp))
+		if (m_PathMap->FindPath(XMFLOAT2(A.x / m_Width, A.y / m_Height), XMFLOAT2(B.x / m_Width, B.y / m_Height), temp))
 		{
-			path.clear();
 			for (int i = 0; i < temp.size(); ++i)
 			{
-				XMFLOAT2 stepTemp = temp[i];
-				XMFLOAT3 step = XMFLOAT3(stepTemp.x * m_Width, 0, stepTemp.x * m_Height);
+				XMFLOAT2 step = temp[i];
+				step.x *= m_Width;
+				step.y *= m_Height;
 				path.push_back(step);
 			}
 			return true;
 		}
+
 		return false;
 	}
 	
@@ -102,8 +105,8 @@ public:
 
 		//Flyttar boxens centrum
 		box.Center.y = 0;
-		box.Center.x /= m_Width;
-		box.Center.z /= m_Height;
+		//box.Center.x /= m_Width;
+		//box.Center.z /= m_Height;
 
 		m_PathMap->BlockPath(box);
 	}
