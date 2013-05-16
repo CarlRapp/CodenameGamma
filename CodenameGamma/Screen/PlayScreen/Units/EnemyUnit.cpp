@@ -48,6 +48,7 @@ void EnemyUnit::UpdatePatrol(float DeltaTime)
 			//	FOR NOW JUST MAKE THE UNIT STOP!!!
 			//	FOR NOW JUST MAKE THE UNIT STOP!!!
 			SetVelocity( XMFLOAT3( 0, 0, 0 ) );
+
 			return;
 		}
 
@@ -97,4 +98,8 @@ void EnemyUnit::UpdatePatrol(float DeltaTime)
 	);
 
 	SetVelocity( newVelocity );
+
+	LookAt(
+		tPosition
+	);
 }
