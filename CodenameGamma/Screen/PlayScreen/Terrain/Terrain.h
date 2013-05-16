@@ -75,6 +75,39 @@ public:
 
 	void SetWalkable(bool walkable, float x, float z) { m_PathMap->SetWalkable(walkable, x / m_Width, z / m_Height); }
 
+	bool FindPath(XMFLOAT3 A, XMFLOAT3 B, vector<XMFLOAT3>& path)
+	{
+		vector<XMFLOAT2> temp;
+		if (m_PathMap->FindPath(XMFLOAT2(A.x, A.z), XMFLOAT2(B.x, B.z), temp))
+		{
+			path.clear();
+			for (int i = 0; i < temp.size(); ++i)
+			{
+				XMFLOAT2 stepTemp = temp[i];
+				XMFLOAT3 step = XMFLOAT3(stepTemp.x * m_Width, 0, stepTemp.x * m_Height);
+				path.push_back(step);
+			}
+			return true;
+		}
+		return false;
+	}
+	
+	void BlockPath(BoundingOrientedBox box)
+	{
+		XMMATRIX scale;
+		scale = XMMatrixScaling(1.0f / m_Width, 1.0f, 1.0f / m_Height);
+
+		//skala ner boxen
+		box.Transform(box, scale);
+
+		//Flyttar boxens centrum
+		box.Center.y = 0;
+		box.Center.x /= m_Width;
+		box.Center.z /= m_Height;
+
+		m_PathMap->BlockPath(box);
+	}
+
 	ID3D11ShaderResourceView* GetBlendMap() { return m_BlendMap; }
 	ID3D11ShaderResourceView* GetGroundTexture(int index) { return m_GroundTextures[index]; }
 	ID3D11ShaderResourceView* GetGroundNormal(int index) { return m_NormalTextures[index]; }

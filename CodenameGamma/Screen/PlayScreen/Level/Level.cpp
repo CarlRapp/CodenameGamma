@@ -119,6 +119,7 @@ void Level::LoadLevel(string Levelname)
 
 	//ModelManager::GetInstance()->LoadModel("CrazyBitch", "dae export 2.dae", "DATA/Models/TestChar/");
 	ModelManager::GetInstance()->LoadModel("CrazyBitch", "CrazyBitch.dae", "DATA/Models/CrazyBitch/");
+	//ModelManager::GetInstance()->LoadModel("CrazyBitch", "Rat.dae", "DATA/Models/Rat/");
 	//ModelManager::GetInstance()->LoadModel("CrazyBitch", "CrazyBitch.obj", "DATA/Models/CrazyBitch/");
 
 	ModelManager::GetInstance()->LoadModel("Glock", "Glock.obj", "DATA/Models/Glock/");
@@ -177,28 +178,34 @@ void Level::LoadLevel(string Levelname)
 	tGO	=	new TownHall();
 	tGO->MoveTo( XMFLOAT3( 2000, 0, 2000 + 400 ) );
 	AddGameObject(tGO);
+	gTerrain->BlockPath(tGO->GetBoundingBox());
 
 	//	Lilla scenen 
 	tGO	=	new CrowdBarrier();
 	tGO->MoveTo( XMFLOAT3( 2000 - 85, 0, 2000 ) );
 	AddGameObject(tGO);
-	
+	gTerrain->BlockPath(tGO->GetBoundingBox());
+
 	tGO	=	new SmallStore();
 	tGO->MoveTo( XMFLOAT3( 2000 - 200, 0, 2000 ) );
 	AddGameObject(tGO);
+	gTerrain->BlockPath(tGO->GetBoundingBox());
 	
 	tGO	=	new TrashCan();
 	tGO->MoveTo( XMFLOAT3( 2000 - 130, 0, 2000 - 80 ) );
 	AddGameObject(tGO);
+	gTerrain->BlockPath(tGO->GetBoundingBox());
 	
 	tGO	=	new VolvoCar();
 	tGO->MoveTo( XMFLOAT3( 2000 - 350, 0, 2000 - 100 ) );
 	tGO->SetRotation( XMFLOAT3( 0, PI * 0.25f, 0 ) );
 	AddGameObject(tGO);
+	gTerrain->BlockPath(tGO->GetBoundingBox());
 	
 	tGO	=	new Container();
 	tGO->MoveTo( XMFLOAT3( 2000 + 200, 0, 2000 - 400 ) );
 	AddGameObject(tGO);
+	gTerrain->BlockPath(tGO->GetBoundingBox());
 	
 	for (int i = 0; i < 100; ++i)
 	{
