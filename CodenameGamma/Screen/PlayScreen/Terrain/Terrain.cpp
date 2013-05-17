@@ -1,4 +1,5 @@
 #include "Terrain.h"
+#include "../Level/LevelParser.h"
 
 Terrain::Terrain(void)
 {

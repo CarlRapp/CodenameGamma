@@ -5,7 +5,7 @@
 #include "HeigthMap.h"
 #include "PathMap.h"
 #include "..\Graphics\Vertex.h"
-#include "../Level/LevelParser.h"
+#include "../Level/LevelData.h"
 
 class Terrain
 {
