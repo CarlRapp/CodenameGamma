@@ -100,6 +100,57 @@ private:
 
 	int  GenerateID(int x, int y) { return y * m_Width + x; }
 
+	float DistanceLineVsLine(XMFLOAT2 A1, XMFLOAT2 A2, XMFLOAT2 B1, XMFLOAT2 B2) 
+	{
+		// Store the values for fast access and easy
+		// equations-to-code conversion
+		float x1 = A1.x, x2 = A2.x, x3 = B1.x, x4 = B2.x;
+		float y1 = A1.y, y2 = A2.y, y3 = B1.y, y4 = B2.y;
+ 
+		float d = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+		// If d is zero, there is no intersection
+		if (d == 0) return INFINITE;
+ 
+		// Get the x and y
+		float pre = (x1*y2 - y1*x2), post = (x3*y4 - y3*x4);
+		float x = ( pre * (x3 - x4) - (x1 - x2) * post ) / d;
+		float y = ( pre * (y3 - y4) - (y1 - y2) * post ) / d;
+ 
+		// Check if the x and y coordinates are within both lines
+		if ( x < min(x1, x2) || x > max(x1, x2) ||
+		x < min(x3, x4) || x > max(x3, x4) ) return INFINITE;
+		if ( y < min(y1, y2) || y > max(y1, y2) ||
+		y < min(y3, y4) || y > max(y3, y4) ) return INFINITE;
+ 
+		// Return the point of intersection
+
+		XMVECTOR P1 = XMLoadFloat2(&A1);
+		XMVECTOR P2 = XMLoadFloat2(&XMFLOAT2(x, y));
+
+		XMVECTOR L  = XMVector2Length(P2-P1);
+		float l;
+		XMStoreFloat(&l, L);
+
+		return l;
+	}
+
+	static float LineVSLine(XMFLOAT2 a1, XMFLOAT2 a2, XMFLOAT2 b1, XMFLOAT2 b2)
+	{
+		XMVECTOR A1 = XMLoadFloat2(&a1);
+		XMVECTOR A2 = XMLoadFloat2(&a2);
+		XMVECTOR B1 = XMLoadFloat2(&b1);
+		XMVECTOR B2 = XMLoadFloat2(&b2);
+
+		XMVECTOR A = A2 - A1;
+		XMVECTOR B = B2 - B1;
+
+		//XMVector2Dot(A, B
+
+
+	}
+
+	static bool TileVSLine(XMFLOAT2 min, XMFLOAT2 max, XMFLOAT2 A, XMFLOAT2 B);
+
 	static bool TileIntersectsOBB(XMFLOAT2 min, XMFLOAT2 max, BoundingOrientedBox box)
 	{
 		XMVECTOR minV = XMLoadFloat3(&XMFLOAT3(min.x, -10, min.y));

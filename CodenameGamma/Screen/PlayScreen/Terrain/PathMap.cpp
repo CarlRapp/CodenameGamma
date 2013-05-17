@@ -203,6 +203,18 @@ bool Map::FindPath(XMFLOAT2 A, XMFLOAT2 B, vector<XMFLOAT2>& path)
 
 		closedList.insert(GenerateID(X, Y));
 
+		//poppar ut de noder som vi redan har besökt.
+		while (true)
+		{
+			if (openList.empty())
+				break;
+
+			else if (closedList.find(openList.top()->m_Id) != closedList.end())
+				openList.pop();
+
+			else 
+				break;
+		}
 	}
 	while (!openList.empty() && currentNode);
 
@@ -226,51 +238,141 @@ bool Map::FindPath(XMFLOAT2 A, XMFLOAT2 B, vector<XMFLOAT2>& path)
 	return false;
 }
 
-bool Map::IsShortestPathFree(XMFLOAT2 A, XMFLOAT2 B)
+bool Map::IsShortestPathFree(XMFLOAT2 Start, XMFLOAT2 End)
 {
-	/*
-	if (A.x < 0 || A.x >= 1 || A.y < 0 || A.y >= 1   ||    B.x < 0 || B.x >= 1 || B.y < 0 || B.y >= 1) 
-		return false;
+	float x0 = Start.x * m_Width;
+	float y0 = Start.y * m_Height;
+	float x1 = End.x   * m_Width;
+	float y1 = End.y   * m_Height;
 
-	XMVECTOR nodeA = XMLoadUInt2(&XMUINT2(A.x * m_Width, A.y * m_Height));
-	XMVECTOR nodeB = XMLoadUInt2(&XMUINT2(B.x * m_Width, B.y * m_Height));
+	float dx = fabs(x1 - x0);
+    float dy = fabs(y1 - y0);
 
-	if (XMVector2Equal(nodeA, nodeB))
-		return true;
+    int x = int(floor(x0));
+    int y = int(floor(y0));
 
-	XMVECTOR direction = posB - posA;
-	XMVECTOR lengthV   = XMVector2Length(direction);
+    int n = 1;
+    int x_inc, y_inc;
+    float error;
 
-	float length;
-	
-	XMStoreFloat(&length, lengthV);
-	direction = direction / length;
+    if (dx == 0)
+    {
+        x_inc = 0;
+        error = std::numeric_limits<float>::infinity();
+    }
+    else if (x1 > x0)
+    {
+        x_inc = 1;
+        n += int(floor(x1)) - x;
+        error = (floor(x0) + 1 - x0) * dy;
+    }
+    else
+    {
+        x_inc = -1;
+        n += x - int(floor(x1));
+        error = (x0 - floor(x0)) * dy;
+    }
 
-	int steps = ceil(length);
-	XMVECTOR posTempV = posA;
-	XMFLOAT2 posTemp;
-	while (true)
-	{
-		XMStoreFloat2(&posTemp, posTempV);
+    if (dy == 0)
+    {
+        y_inc = 0;
+        error -= std::numeric_limits<float>::infinity();
+    }
+    else if (y1 > y0)
+    {
+        y_inc = 1;
+        n += int(floor(y1)) - y;
+        error -= (floor(y0) + 1 - y0) * dx;
+    }
+    else
+    {
+        y_inc = -1;
+        n += y - int(floor(y1));
+        error -= (y0 - floor(y0)) * dx;
+    }
 
-		if (!IsWalkable(posTemp.x, posTemp.y))
+    for (; n > 0; --n)
+    {
+
+		if (!IsWalkable(x, y))
 			return false;
-		else if (
+       // visit(x, y);
 
-	}
-
-	for (int i = 0; i < ceil(length); ++i)
-	{
-
-	}
-
-
-
-	XMFLOAT2 step;
-	XMStoreFloat2(&step, direction);*/
+        if (error > 0)
+        {
+            y += y_inc;
+            error -= dx;
+        }
+        else
+        {
+            x += x_inc;
+            error += dy;
+        }
+    }
 	return true;
 }
+/*
+bool Map::IsShortestPathFree(XMFLOAT2 Start, XMFLOAT2 End)
+{
+	XMVECTOR A = XMLoadFloat2(&XMFLOAT2(Start.x * m_Width, Start.y * m_Height));
+	XMVECTOR B = XMLoadFloat2(&XMFLOAT2(End.x * m_Width, End.y * m_Height));
 
+	float distance;
+	XMVECTOR distanceV;
+	XMFLOAT2 DirectionN;
+
+	XMVECTOR Direction = B - A;	
+	distanceV = XMVector2Length(Direction);
+	XMStoreFloat(&distance, distanceV);
+
+	Direction = XMVector2Normalize(Direction);
+	XMStoreFloat2(&DirectionN, Direction);
+
+	
+	while (distance >= 0.0f)
+	{
+		XMFLOAT2 Atemp;
+		XMStoreFloat2(&Atemp, A);
+
+		if (!IsWalkable((int)Atemp.x, (int)Atemp.y))
+			return false;
+
+		float distanceToNextTile = INFINITE;
+		if (DirectionN.y > 0)//up
+		{
+			XMFLOAT2 LStart = XMFLOAT2((int)(Atemp.x), (int)(Atemp.y + 1));
+			XMFLOAT2 LEnd   = XMFLOAT2((int)(Atemp.x + 1), (int)(Atemp.y + 1));
+			distanceToNextTile =  min(distanceToNextTile, DistanceLineVsLine(Atemp, End, LStart, LEnd));
+		}
+		else if (DirectionN.y < 0)//down
+		{
+			XMFLOAT2 LStart = XMFLOAT2((int)(Atemp.x),	   ceil(Atemp.y) - 1);
+			XMFLOAT2 LEnd   = XMFLOAT2((int)(Atemp.x + 1), ceil(Atemp.y) - 1);
+			distanceToNextTile =  min(distanceToNextTile, DistanceLineVsLine(Atemp, End, LStart, LEnd));
+		}
+
+		if (DirectionN.x > 0)//right
+		{
+			XMFLOAT2 LStart = XMFLOAT2((int)(Atemp.x + 1), (int)(Atemp.y));
+			XMFLOAT2 LEnd   = XMFLOAT2((int)(Atemp.x + 1), (int)(Atemp.y + 1));
+			distanceToNextTile =  min(distanceToNextTile, DistanceLineVsLine(Atemp, End, LStart, LEnd));
+		}
+		else if (DirectionN.x < 0)//left
+		{
+			XMFLOAT2 LStart = XMFLOAT2(ceil(Atemp.x) - 1, (int)(Atemp.y));
+			XMFLOAT2 LEnd   = XMFLOAT2(ceil(Atemp.x) - 1, (int)(Atemp.y + 1));
+			distanceToNextTile =  min(distanceToNextTile, DistanceLineVsLine(Atemp, End, LStart, LEnd));
+		}
+
+		if (distanceToNextTile == INFINITE)
+			break;
+
+		A += distanceToNextTile * Direction;
+		distance -= distanceToNextTile;
+	}
+	return true;
+}
+*/
 bool Map::IsWalkable(int x, int y)
 {
 	if (x < 0 || y < 0  ||  x >= m_Width || y >= m_Height ) 
@@ -335,6 +437,7 @@ bool PathMap::FindPath(XMFLOAT2 A, XMFLOAT2 B, vector<XMFLOAT2>& path)
 	{
 		if (m_Maps[i].FindPath(A, B, path))
 		{
+			path.pop_back();
 			return true;
 		}
 	}
@@ -372,7 +475,18 @@ bool PathMap::FindPath(XMFLOAT2 A, XMFLOAT2 B, vector<XMFLOAT2>& path)
 
 bool PathMap::IsShortestPathFree(XMFLOAT2 A, XMFLOAT2 B)
 {
-	return m_Maps[0].IsShortestPathFree(A, B);
+	
+	//return true;
+	for (int i = m_NumMaps - 1; i >= 0; --i)
+	{
+		if (m_Maps[i].IsShortestPathFree(A, B))
+		{
+			return true;
+		}
+	}
+	return false;
+	
+	//return m_Maps[0].IsShortestPathFree(A, B);
 }	
 
 void PathMap::SetWalkable(bool walkable, float x, float y)

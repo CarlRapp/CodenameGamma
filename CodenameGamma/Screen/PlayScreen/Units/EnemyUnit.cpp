@@ -6,6 +6,7 @@ EnemyUnit::EnemyUnit()
 	gTargetPlayer	= 0;
 	gBehaviourState	= Returning;
 	hasTargetPos	= false;
+	updateHuntTimer = 0.0f;
 }
 EnemyUnit::~EnemyUnit()
 {
@@ -16,7 +17,7 @@ void EnemyUnit::Update(float DeltaTime, Terrain* terrain)
 {
 	if ( gBehaviourState == Hunting)
 	{
-		UpdateHunt();
+		UpdateHunt(DeltaTime, terrain);
 	}
 	else
 	{
@@ -58,13 +59,11 @@ void EnemyUnit::GetNewPath(Terrain* terrain)
 	case Roaming:		
 		temp	= gNodeMap->GetRandomNode()->Position;
 		endPos = XMFLOAT3(temp.x, 0, temp.y);
-		cout << "New Roaming path to " << endPos.x << " - " << endPos.z << endl;
 		foundPath = gNodeMap->BuildPath(startPos, endPos, gPath);		
 		break;
 	case Returning:		
 		temp	= gNodeMap->GetClosestNode(startPos)->Position;
 		endPos = XMFLOAT3(temp.x, 0, temp.y);
-		cout << "New Returning path to " << endPos.x << " - " << endPos.z << endl;
 		foundPath = terrain->FindPath(startPos, endPos, gPath);
 		break;
 	}
@@ -101,8 +100,6 @@ void EnemyUnit::FollowPath()
 		//	Get the next node to walk to
 		gTargetPos = gPath.back();
 		gPath.pop_back();
-
-		cout << "Targetpos: " << gTargetPos.x << " - " << gTargetPos.z << endl;
 	}
 
 	//	Calculate the new velocity.
@@ -114,24 +111,59 @@ void EnemyUnit::FollowPath()
 	LookAt(gTargetPos);
 }
 
-void EnemyUnit::UpdateHunt()
+void EnemyUnit::UpdateHunt(float deltaTime, Terrain* terrain)
 {
+	updateHuntTimer += deltaTime;
+	if (updateHuntTimer < UpdateHuntTime)
+		return;
+
+	updateHuntTimer = 0.0f;
+
+	XMFLOAT3 target = gTargetPlayer->GetFloat3Value( Position );
+	if (!terrain->IsShortestPathFree( GetFloat3Value( Position ), target ))
+	{
+		vector<XMFLOAT3> trails = gTargetPlayer->GetTrails();
+		bool foundTrail = false;
+		for (int i = 0; i < trails.size(); ++i)
+		{
+			target = trails[i];
+
+
+			//std::cout << "Trying trail " << target.x << ", " << target.z << endl;
+
+			//if (terrain->IsPathFree( GetFloat3Value( Position ), target, 1.0f))
+			if (terrain->IsShortestPathFree( GetFloat3Value( Position ), target ))
+			{
+				//std::cout << "Following trail " << i  << " of " << trails.size() << " trails." << endl;
+				foundTrail = true;
+				break;
+			}
+		}
+
+		if (!foundTrail)
+		{
+			//std::cout << "Lost trail - trailsize: " << trails.size() << endl;
+			gBehaviourState	= Returning;
+			return;
+		}
+	}	
+	//else
+	//	std::cout << "Following target " << gTargetPlayer->GetTrails().size() << endl;
+
+	//terrain->FindPath(GetFloat3Value( Position ), target, gPath);
+	//target = gPath.back();
+
 	//	Calculate the new velocity.
 	XMFLOAT3	newVelocity;
-	XMStoreFloat3(
-		&newVelocity,
-		5 * UnitsPerMeter * XMVector3Normalize( XMLoadFloat3( &gTargetPlayer->GetFloat3Value( Position ) ) - XMLoadFloat3( &GetFloat3Value( Position ) ) )
-	);
+	XMStoreFloat3(&newVelocity, 5 * UnitsPerMeter * XMVector3Normalize( XMLoadFloat3( &target ) - XMLoadFloat3( &GetFloat3Value( Position ) ) ));
 
 	SetVelocity( newVelocity );
-	LookAt( gTargetPlayer->GetFloat3Value( Position ) );
+	LookAt( target );
 
 	float tLength;
-	XMStoreFloat(
-		&tLength,
-		XMVector3Length( XMLoadFloat3( &gTargetPlayer->GetFloat3Value( Position ) ) - XMLoadFloat3( &GetFloat3Value( Position ) ) )
-	);
-	if( tLength > 10 * UnitsPerMeter )
+	XMStoreFloat(&tLength, XMVector3Length( XMLoadFloat3( &target ) - XMLoadFloat3( &GetFloat3Value( Position ) ) ));
+
+	if( tLength > 20 * UnitsPerMeter )
 		gBehaviourState	= Returning;
 }
 

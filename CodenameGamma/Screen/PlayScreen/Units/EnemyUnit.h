@@ -15,8 +15,11 @@ enum EnemyBehaviourState
 
 class EnemyUnit : public Unit
 {
-	bool hasTargetPos;
 
+#define UpdateHuntTime 0.1f
+
+	bool hasTargetPos;
+	float updateHuntTimer;
 
 protected:
 	NodeMap*			gNodeMap;
@@ -35,7 +38,7 @@ protected:
 
 	//void	UpdateWalkBack(float deltaTime, Terrain* terrain);
 	//void	UpdatePatrol(float deltaTime);
-	void	UpdateHunt();
+	void	UpdateHunt(float deltaTime, Terrain* terrain);
 
 	void	FollowPath();
 	void	GetNewPath(Terrain* terrain);

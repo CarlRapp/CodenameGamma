@@ -114,6 +114,11 @@ public:
 		m_PathMap->BlockPath(box);
 	}
 
+	bool IsShortestPathFree(XMFLOAT3 A, XMFLOAT3 B)
+	{
+		return m_PathMap->IsShortestPathFree(XMFLOAT2(A.x / m_Width, A.z / m_Height), XMFLOAT2(B.x / m_Width, B.z / m_Height));
+	}
+
 	ID3D11ShaderResourceView* GetBlendMap() { return m_BlendMap; }
 	ID3D11ShaderResourceView* GetGroundTexture(int index) { return m_GroundTextures[index]; }
 	ID3D11ShaderResourceView* GetGroundNormal(int index) { return m_NormalTextures[index]; }
