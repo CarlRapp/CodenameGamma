@@ -42,7 +42,7 @@ GameObject::~GameObject(void)
 
 void GameObject::Update(float deltaTime, Terrain* terrain)
 {
-	if ( !IsAlive() )
+	if ( !IsAlive() || terrain == 0)
 		return;
 
 	float heigth = gPosition.y - terrain->GetHeight(gPosition.x, gPosition.z);
@@ -57,7 +57,7 @@ void GameObject::Update(float deltaTime, Terrain* terrain)
 	XMStoreFloat3(&newPos, pos);
 
 	XMFLOAT3 min = XMFLOAT3(0, 0, 0);
-	XMFLOAT3 max = XMFLOAT3(4000, 4000, 4000);
+	XMFLOAT3 max = XMFLOAT3(terrain->GetDimensions().x, 500, terrain->GetDimensions().y);
 
 #pragma region WALL
 	if (newPos.x < min.x)

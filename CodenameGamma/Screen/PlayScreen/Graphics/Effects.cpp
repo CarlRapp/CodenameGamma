@@ -616,6 +616,7 @@ void Effects::DestroyAll()
 	SafeDelete(ObjectDeferredFX);
 	SafeDelete(TerrainDeferredFX);
 	SafeDelete(TiledLightningFX);
+	SafeDelete(ShadowMapFX);
 	SafeDelete(BoxDebugFX);
 }
 
