@@ -76,6 +76,8 @@ void WeaponOnGround::Update(float DeltaTime, Terrain* terrain)
 		gCooldown	-=	DeltaTime;
 		gCooldown	=	( gCooldown < 0 ) ? 0 : gCooldown;
 	}
+
+	Item::Update( DeltaTime, terrain );
 }
 
 
