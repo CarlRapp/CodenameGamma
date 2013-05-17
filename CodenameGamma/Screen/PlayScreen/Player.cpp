@@ -82,7 +82,7 @@ void Player::Update(float deltaTime)
 
 		m_Unit->SetVelocity(newVel);
 		
-		m_Camera->SetPosition(tPosition.x, tPosition.y + 200, tPosition.z - 100);
+		m_Camera->SetPosition(tPosition.x, tPosition.y + 300, tPosition.z - 100);
 		m_Camera->SetLookAt(tPosition);
 
 		if ( IsButtonState( XAim, PRESSED ) )

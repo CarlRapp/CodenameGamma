@@ -38,6 +38,8 @@ void CannedFood::Update(float DeltaTime, Terrain* terrain)
 	newPos.y	-=	1.0f;
 	if ( gPointLight )
 		gPointLight->GetGPULight()->Position	=	newPos;
+
+	Item::Update( DeltaTime, terrain );
 }
 
 

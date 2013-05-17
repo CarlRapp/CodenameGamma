@@ -28,7 +28,6 @@ private:
 	LPRECT	gWindowRect;
 	LPPOINT	gMousePoint;
 	int		gScreenWidth, gScreenHeight;
-	bool	gCenterMouse;
 
 	void	FixPosition();
 
@@ -40,7 +39,6 @@ public:
 	void	Update();
 
 	InputState	GetButtonState(MouseButton Button);
-	void		SetClampCenter(bool Value);
 
 	XMFLOAT2	GetPosition(bool RelativeWindow);
 	XMFLOAT2	GetMovement();

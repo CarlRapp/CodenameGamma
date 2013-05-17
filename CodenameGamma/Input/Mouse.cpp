@@ -42,8 +42,6 @@ Mouse::Mouse(HINSTANCE* HInstance, HWND* Hwnd, int ScreenWidth, int ScreenHeight
 	// Acquire the mouse.
 	if(FAILED(gMouseDevice->Acquire()))
 		return;
-
-	gCenterMouse	=	false;
 }
 
 Mouse::~Mouse()
@@ -109,44 +107,27 @@ void Mouse::FixPosition()
 	int centerX		=	(int)((gWindowRect->left + gWindowRect->right) * 0.5f);
 	int centerY		=	(int)((gWindowRect->top + gWindowRect->bottom) * 0.5f);
 
-	if(gCenterMouse)
-	{
-		gMousePositionAbsolute.x	=	1.0f * centerX;
-		gMousePositionAbsolute.y	=	1.0f * centerY;
+	gMouseMovement.x	=	(float)(gMousePoint->x - gMousePositionAbsolute.x);
+	gMouseMovement.y	=	(float)(gMousePoint->y - gMousePositionAbsolute.y);
 
-		gMouseMovement.x	=	(float)(gMousePoint->x - centerX);
-		gMouseMovement.y	=	(float)(centerY - gMousePoint->y);
-		SetCursorPos(centerX, centerY);
-	}
-	else
-	{
-		gMouseMovement.x	=	(float)(gMousePoint->x - gMousePositionAbsolute.x);
-		gMouseMovement.y	=	(float)(gMousePoint->y - gMousePositionAbsolute.y);
+	gMousePositionAbsolute.x	+=	gMouseMovement.x;
+	gMousePositionAbsolute.y	+=	gMouseMovement.y;
 
-		gMousePositionAbsolute.x	+=	gMouseMovement.x;
-		gMousePositionAbsolute.y	+=	gMouseMovement.y;
-
-		int	minX	=	(int)gWindowRect->left;
-		int	maxX	=	(int)gWindowRect->right;
-		int	minY	=	(int)gWindowRect->top;
-		int	maxY	=	(int)gWindowRect->bottom;
+	int	minX	=	(int)gWindowRect->left;
+	int	maxX	=	(int)gWindowRect->right;
+	int	minY	=	(int)gWindowRect->top;
+	int	maxY	=	(int)gWindowRect->bottom;
 		
-		//	Clamp the mouse inside the window
-		gMousePositionAbsolute.x	=	( gMousePositionAbsolute.x < minX ) ? minX : gMousePositionAbsolute.x;
-		gMousePositionAbsolute.x	=	( gMousePositionAbsolute.x > maxX ) ? maxX : gMousePositionAbsolute.x;
-		gMousePositionAbsolute.y	=	( gMousePositionAbsolute.y < minY ) ? minY : gMousePositionAbsolute.y;
-		gMousePositionAbsolute.y	=	( gMousePositionAbsolute.y > maxY ) ? maxY : gMousePositionAbsolute.y;
+	//	Clamp the mouse inside the window
+	gMousePositionAbsolute.x	=	( gMousePositionAbsolute.x < minX ) ? minX : gMousePositionAbsolute.x;
+	gMousePositionAbsolute.x	=	( gMousePositionAbsolute.x > maxX ) ? maxX : gMousePositionAbsolute.x;
+	gMousePositionAbsolute.y	=	( gMousePositionAbsolute.y < minY ) ? minY : gMousePositionAbsolute.y;
+	gMousePositionAbsolute.y	=	( gMousePositionAbsolute.y > maxY ) ? maxY : gMousePositionAbsolute.y;
 
-		gMousePositionRelative.x	=	gMousePositionAbsolute.x - minX;
-		gMousePositionRelative.y	=	gMousePositionAbsolute.y - minY;
+	gMousePositionRelative.x	=	gMousePositionAbsolute.x - minX;
+	gMousePositionRelative.y	=	gMousePositionAbsolute.y - minY;
 
-		SetCursorPos((int)gMousePositionAbsolute.x, (int)gMousePositionAbsolute.y);
-	}
-}
-
-void Mouse::SetClampCenter(bool Value)
-{
-	gCenterMouse	=	Value;
+	SetCursorPos((int)gMousePositionAbsolute.x, (int)gMousePositionAbsolute.y);
 }
 
 XMFLOAT2 Mouse::GetPosition(bool RelativeWindow)
