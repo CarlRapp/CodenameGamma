@@ -116,6 +116,27 @@ public:
 	XMFLOAT3	GetFloat3Value(GOFloat3Value Value);
 	XMFLOAT4X4	GetFloat4x4Value(GOFloat4x4Value Value);
 
+	vector<BoundingOrientedBox> GetBoundingBoxes()
+	{
+		vector<BoundingOrientedBox> boxes;
+		if (m_ModelInstance)
+		{
+			m_ModelInstance->UpdateBoxes();			
+			boxes = m_ModelInstance->m_BoneBoxes;
+			
+			if (boxes.empty())
+				boxes.push_back(m_ModelInstance->GetBoundingOrientedBox());
+		}
+		else
+		{
+			BoundingBox AABB = BoundingBox(gPosition, XMFLOAT3(0,0,0));
+			BoundingOrientedBox OBB;
+			BoundingOrientedBox::CreateFromBoundingBox(OBB, AABB);
+			boxes.push_back(OBB);
+		}
+		return boxes;
+	}
+
 	BoundingOrientedBox GetBoundingBox()
 	{
 		if (m_ModelInstance)

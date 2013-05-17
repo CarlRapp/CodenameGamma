@@ -120,14 +120,14 @@ private:
 
 class PathMap
 {
-#define numMaps 4
+	int m_NumMaps;
 
-	Map m_Maps[numMaps];
+	vector<Map> m_Maps;
 public:
 	PathMap(void);
 	~PathMap(void);	
 
-	void Init(int Width, int Height);
+	void Init(int Width, int Height, int numMaps);
 
 	void BlockPath(BoundingOrientedBox box);
 

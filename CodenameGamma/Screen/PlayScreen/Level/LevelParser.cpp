@@ -42,6 +42,7 @@ LevelData LevelParser::ParseLevel(string LevelName, string LevelsRootPath)
 
 	LData.PathMapResX	= 200;
 	LData.PathMapResY	= 200;
+	LData.NumPathMaps	= 4;
 
 	if ( !tFileStream.is_open() )
 	{

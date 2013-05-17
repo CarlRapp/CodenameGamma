@@ -93,7 +93,7 @@ void Terrain::LoadTerrain(LevelData TData)
 	CreateGrid();
 
 	m_PathMap = new PathMap();
-	m_PathMap->Init(TData.PathMapResX, TData.PathMapResY);
+	m_PathMap->Init(TData.PathMapResX, TData.PathMapResY, TData.NumPathMaps);
 
 	for ( int i = 0; i < 4; ++i)
 	{
