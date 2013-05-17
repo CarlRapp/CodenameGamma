@@ -58,13 +58,13 @@ void EnemyUnit::GetNewPath(Terrain* terrain)
 	case Roaming:		
 		temp	= gNodeMap->GetRandomNode()->Position;
 		endPos = XMFLOAT3(temp.x, 0, temp.y);
-		cout << "New Roaming path to " << endPos.x << " - " << endPos.z << endl;
+		//cout << "New Roaming path to " << endPos.x << " - " << endPos.z << endl;
 		foundPath = gNodeMap->BuildPath(startPos, endPos, gPath);		
 		break;
 	case Returning:		
 		temp	= gNodeMap->GetClosestNode(startPos)->Position;
 		endPos = XMFLOAT3(temp.x, 0, temp.y);
-		cout << "New Returning path to " << endPos.x << " - " << endPos.z << endl;
+		//cout << "New Returning path to " << endPos.x << " - " << endPos.z << endl;
 		foundPath = terrain->FindPath(startPos, endPos, gPath);
 		break;
 	}
@@ -102,7 +102,7 @@ void EnemyUnit::FollowPath()
 		gTargetPos = gPath.back();
 		gPath.pop_back();
 
-		cout << "Targetpos: " << gTargetPos.x << " - " << gTargetPos.z << endl;
+		//cout << "Targetpos: " << gTargetPos.x << " - " << gTargetPos.z << endl;
 	}
 
 	//	Calculate the new velocity.

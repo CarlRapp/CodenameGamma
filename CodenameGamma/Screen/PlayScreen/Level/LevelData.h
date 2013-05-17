@@ -22,6 +22,7 @@ struct LevelData
 	int	ResolutionX, ResolutionY;
 	int	TextureX, TextureY;
 	int PathMapResX, PathMapResY;
+	int	NumPathMaps;
 
 	LevelTexture	Textures[4];
 	LevelMap		HeightMap;

@@ -42,7 +42,7 @@ GameObject::~GameObject(void)
 
 void GameObject::Update(float deltaTime, Terrain* terrain)
 {
-	if ( !IsAlive() )
+	if ( !IsAlive() || terrain == 0)
 		return;
 
 	float heigth = gPosition.y - terrain->GetHeight(gPosition.x, gPosition.z);
