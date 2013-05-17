@@ -79,6 +79,16 @@ private:
 	void	AddSpotLight(bool hasShadow,  XMFLOAT3 pos);
 	void	AddInstance(float x, float y, float z, Model *model);
 
+	void BlockPathWithObject(GameObject* go)
+	{
+		vector<BoundingOrientedBox> boxes = go->GetBoundingBoxes();
+
+		for each (BoundingOrientedBox box in boxes)
+		{
+			gTerrain->BlockPath(box);
+		}		
+	}
+
 	void AddGameObject(GameObject* go);
 	
 	void RemoveGameObject(GameObject* go) 
