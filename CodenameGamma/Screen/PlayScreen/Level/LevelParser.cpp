@@ -40,9 +40,9 @@ LevelData LevelParser::ParseLevel(string LevelName, string LevelsRootPath)
 
 	tFileStream.open(LData.LevelRootPath + "map.cfg");
 
-	LData.PathMapResX	= 200;
-	LData.PathMapResY	= 200;
-	LData.NumPathMaps	= 4;
+	LData.PathMapResX	= 800;
+	LData.PathMapResY	= 800;
+	LData.NumPathMaps	= 6;
 
 	if ( !tFileStream.is_open() )
 	{
