@@ -178,34 +178,34 @@ void Level::LoadLevel(string Levelname)
 	tGO	=	new TownHall();
 	tGO->MoveTo( XMFLOAT3( 2000, 0, 2000 + 400 ) );
 	AddGameObject(tGO);
-	gTerrain->BlockPath(tGO->GetBoundingBox());
+	BlockPathWithObject(tGO);
 
 	//	Lilla scenen 
 	tGO	=	new CrowdBarrier();
 	tGO->MoveTo( XMFLOAT3( 2000 - 85, 0, 2000 ) );
 	AddGameObject(tGO);
-	gTerrain->BlockPath(tGO->GetBoundingBox());
+	BlockPathWithObject(tGO);
 
 	tGO	=	new SmallStore();
 	tGO->MoveTo( XMFLOAT3( 2000 - 200, 0, 2000 ) );
 	AddGameObject(tGO);
-	gTerrain->BlockPath(tGO->GetBoundingBox());
+	BlockPathWithObject(tGO);
 	
 	tGO	=	new TrashCan();
 	tGO->MoveTo( XMFLOAT3( 2000 - 130, 0, 2000 - 80 ) );
 	AddGameObject(tGO);
-	gTerrain->BlockPath(tGO->GetBoundingBox());
+	BlockPathWithObject(tGO);
 	
 	tGO	=	new VolvoCar();
 	tGO->MoveTo( XMFLOAT3( 2000 - 350, 0, 2000 - 100 ) );
 	tGO->SetRotation( XMFLOAT3( 0, PI * 0.25f, 0 ) );
 	AddGameObject(tGO);
-	gTerrain->BlockPath(tGO->GetBoundingBox());
+	BlockPathWithObject(tGO);
 	
 	tGO	=	new Container();
 	tGO->MoveTo( XMFLOAT3( 2000 + 200, 0, 2000 - 400 ) );
 	AddGameObject(tGO);
-	gTerrain->BlockPath(tGO->GetBoundingBox());
+	BlockPathWithObject(tGO);
 	
 	for (int i = 0; i < 100; ++i)
 	{
@@ -272,20 +272,20 @@ void Level::LoadLevel(string Levelname)
 
 	gNodeMap	=	new NodeMap();
 
-	PatrolNode*	Nodes[9];
-	Nodes[0]	=	new PatrolNode( XMFLOAT2( 500, 500 ) );
-	Nodes[1]	=	new PatrolNode( XMFLOAT2( 600, 500 ) );
-	Nodes[2]	=	new PatrolNode( XMFLOAT2( 700, 500 ) );
-
-	Nodes[3]	=	new PatrolNode( XMFLOAT2( 500, 400 ) );
+	PatrolNode*	Nodes[4];
+	Nodes[0]	=	new PatrolNode( XMFLOAT2( 1000, 1000 ) );
+	Nodes[1]	=	new PatrolNode( XMFLOAT2( 1000, 2700 ) );
+	Nodes[2]	=	new PatrolNode( XMFLOAT2( 3000, 1000 ) );
+	Nodes[3]	=	new PatrolNode( XMFLOAT2( 3000, 2700 ) );
+	/*
 	Nodes[4]	=	new PatrolNode( XMFLOAT2( 600, 400 ) );
 	Nodes[5]	=	new PatrolNode( XMFLOAT2( 700, 400 ) );
 
 	Nodes[6]	=	new PatrolNode( XMFLOAT2( 500, 300 ) );
 	Nodes[7]	=	new PatrolNode( XMFLOAT2( 600, 300 ) );
 	Nodes[8]	=	new PatrolNode( XMFLOAT2( 700, 300 ) );
-	
-	for( int i = 0; i < 9; ++i )
+	*/
+	for( int i = 0; i < 4; ++i )
 	{
 		gNodeMap->AddNode( Nodes[i] );
 
@@ -295,8 +295,10 @@ void Level::LoadLevel(string Levelname)
 	}
 
 	gNodeMap->SetNodeAdjacent( Nodes[0], Nodes[1] );
-	gNodeMap->SetNodeAdjacent( Nodes[0], Nodes[3] );
-	gNodeMap->SetNodeAdjacent( Nodes[1], Nodes[2] );
+	gNodeMap->SetNodeAdjacent( Nodes[2], Nodes[3] );
+	gNodeMap->SetNodeAdjacent( Nodes[0], Nodes[2] );
+	gNodeMap->SetNodeAdjacent( Nodes[1], Nodes[3] );
+	/*
 	gNodeMap->SetNodeAdjacent( Nodes[1], Nodes[4] );
 	gNodeMap->SetNodeAdjacent( Nodes[2], Nodes[5] );
 	gNodeMap->SetNodeAdjacent( Nodes[3], Nodes[4] );
@@ -305,7 +307,7 @@ void Level::LoadLevel(string Levelname)
 	gNodeMap->SetNodeAdjacent( Nodes[4], Nodes[7] );
 	gNodeMap->SetNodeAdjacent( Nodes[5], Nodes[8] );
 	gNodeMap->SetNodeAdjacent( Nodes[6], Nodes[7] );
-	gNodeMap->SetNodeAdjacent( Nodes[7], Nodes[8] );
+	gNodeMap->SetNodeAdjacent( Nodes[7], Nodes[8] );*/
 
 	for ( int i = 0; i < 6; ++i  )
 	{

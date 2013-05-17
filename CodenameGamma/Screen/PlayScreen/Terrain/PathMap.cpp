@@ -300,25 +300,29 @@ void Map::SetWalkable(bool walkable, float x, float y)
 
 PathMap::PathMap(void)
 {
-	Init(1,1);
+	Init(1, 1, 1);
 }
 
 PathMap::~PathMap(void)
 {
 }
 
-void PathMap::Init(int Width, int Height)
+void PathMap::Init(int Width, int Height, int numMaps)
 {
-	for (int i = 0; i < numMaps; ++i)
+	m_NumMaps = numMaps;
+	m_Maps.clear();
+	for (int i = 0; i < m_NumMaps; ++i)
 	{
 		float factor = pow(0.5f, i);
-		m_Maps[i].Init(ceil((float)Width * factor), ceil((float)Height * factor));
+		Map map;
+		map.Init(ceil((float)Width * factor), ceil((float)Height * factor));
+		m_Maps.push_back(map);
 	}
 }
 
 void PathMap::BlockPath(BoundingOrientedBox box)
 {
-	for (int i = 0; i < numMaps; ++i)
+	for (int i = 0; i < m_NumMaps; ++i)
 	{
 		m_Maps[i].BlockPath(box);
 	}
@@ -327,7 +331,7 @@ void PathMap::BlockPath(BoundingOrientedBox box)
 bool PathMap::FindPath(XMFLOAT2 A, XMFLOAT2 B, vector<XMFLOAT2>& path)
 {
 	path.clear();
-	for (int i = numMaps - 1; i >= 0; --i)
+	for (int i = m_NumMaps - 1; i >= 0; --i)
 	{
 		if (m_Maps[i].FindPath(A, B, path))
 		{
@@ -373,7 +377,7 @@ bool PathMap::IsShortestPathFree(XMFLOAT2 A, XMFLOAT2 B)
 
 void PathMap::SetWalkable(bool walkable, float x, float y)
 {
-	for (int i = 0; i < numMaps; ++i)
+	for (int i = 0; i < m_NumMaps; ++i)
 	{
 		m_Maps[i].SetWalkable(walkable, x, y);
 	}
