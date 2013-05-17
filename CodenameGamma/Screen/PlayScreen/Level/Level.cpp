@@ -478,7 +478,7 @@ void Level::Update(float DeltaTime)
 
 			for each (Player* player in gPlayers)
 			{
-				PlayerUnit* pUnit = gPlayers[0]->GetUnit();
+				PlayerUnit* pUnit = player->GetUnit();
 				if (pUnit)
 					targets.push_back(pUnit);
 			}
