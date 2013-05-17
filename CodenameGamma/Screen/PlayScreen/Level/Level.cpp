@@ -148,7 +148,10 @@ void Level::LoadLevel(string Levelname)
 	EntityData	Result	=	LevelParser::ParseLevelEntities(LData);
 	//	Structures from the level
 	for each( GameObject* GO in Result.GameObjects )
+	{
 		AddGameObject( GO );
+		BlockPathWithObject( GO );
+	}
 	for each( Light* LIGHT in Result.Lights )
 		AddLight( LIGHT );
 
