@@ -45,6 +45,8 @@ Terrain::Terrain(ID3D11Device *Device, ID3D11DeviceContext *DeviceContext)
 	m_NormalTextures[2] = NULL;
 	m_NormalTextures[3] = NULL;
 
+	m_BlendMap	=	0;
+
 	XMStoreFloat4x4(&m_TexTransform, XMMatrixScaling(1, 1, 1));
 }
 
@@ -77,6 +79,12 @@ Terrain::~Terrain(void)
 			m_NormalTextures[i]->Release();
 			m_NormalTextures[i]	=	0;
 		}
+	}
+
+	if( m_BlendMap )
+	{
+		m_BlendMap->Release();
+		m_BlendMap	=	0;
 	}
 
 	Vertices.clear();
