@@ -6,7 +6,7 @@ Camera::Camera(void)
 	m_ViewPort.MinDepth = 0.0f;
 	m_ViewPort.MaxDepth = 1.0f;
 
-	m_Fovy			= (float)PI * 0.45f;
+	m_Fovy			= (float)59 * PI * 1.0f/180.0f;
 	m_AspectRatio	= 16.0f / 9.0f;
 	m_NearZ			= 1.0f;
 	m_FarZ			= 420.0f;	

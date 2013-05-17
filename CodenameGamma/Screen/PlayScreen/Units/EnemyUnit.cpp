@@ -100,6 +100,7 @@ void EnemyUnit::FollowPath()
 		//	Get the next node to walk to
 		gTargetPos = gPath.back();
 		gPath.pop_back();
+
 	}
 
 	//	Calculate the new velocity.

@@ -3,7 +3,7 @@
 #include "../Structures/StructureList.h"
 #include "../Items/ItemList.h"
 #include "../Weapons/WeaponList.h"
-
+#include "LevelParser.h"
 #include "../Units/Rat.h"
 
 #define TESTSCALE 1.0f
@@ -43,7 +43,7 @@ Level::Level(SystemData LData)
 	for( int i = 0; i < 0; ++i)	
 		AddSpotLight(true);
 		*/
-
+	
 	AddPointLight(true, XMFLOAT3(1700,120,2200));
 
 	//AddPointLight(true, XMFLOAT3(1800,0,1800));
@@ -66,7 +66,7 @@ Level::Level(SystemData LData)
 	AddSpotLight(true, XMFLOAT3(3500,0,500));
 	AddSpotLight(true, XMFLOAT3(3500,0,3500));
 
-
+	
 	/*
 
 
@@ -98,12 +98,11 @@ void Level::LoadLevel(string Levelname)
 {
 	//	TODO:	Fix a more dynamic
 	//			way to load maps.
-	//			I.e. send the extracted
-	//			information to each component
 
 	string	tLevelRootPath	=	"DATA/Maps/";
 
 	LevelData	LData	=	LevelParser::ParseLevel(Levelname, tLevelRootPath);
+	
 
 	if ( LData.IsLoaded() )
 		gTerrain->LoadTerrain(LData);
@@ -146,7 +145,15 @@ void Level::LoadLevel(string Levelname)
 
 	Model*	model	=	ModelManager::GetInstance()->GetModel("CrazyBitch");
 
+	EntityData	Result	=	LevelParser::ParseLevelEntities(LData);
+	//	Structures from the level
+	for each( GameObject* GO in Result.GameObjects )
+		AddGameObject( GO );
+	for each( Light* LIGHT in Result.Lights )
+		AddLight( LIGHT );
 
+
+	
 	GameObject*	tGO;
 
 	for (int i = 0; i < 0; ++i)
@@ -166,15 +173,8 @@ void Level::LoadLevel(string Levelname)
 		tGO->SetTeam((GOTeam)a);
 
 		AddGameObject(tGO);
-		/*
-		float x = MathHelper::RandF(0, 4000);
-		float y = 0;
-		float z = MathHelper::RandF(0, 4000);
-
-		AddInstance(x, y, z, model);
-		*/
 	}
-
+	/*
 	tGO	=	new TownHall();
 	tGO->MoveTo( XMFLOAT3( 2000, 0, 2000 + 400 ) );
 	AddGameObject(tGO);
@@ -206,7 +206,7 @@ void Level::LoadLevel(string Levelname)
 	tGO->MoveTo( XMFLOAT3( 2000 + 200, 0, 2000 - 400 ) );
 	AddGameObject(tGO);
 	BlockPathWithObject(tGO);
-	
+	*/
 	for (int i = 0; i < 100; ++i)
 	{
 		float x = MathHelper::RandF(100, 3900);
@@ -249,7 +249,7 @@ void Level::LoadLevel(string Levelname)
 
 
 	
-
+	/*
 	float	SIZE	=	2 * 16.6665f;
 	for ( int n = 0; n <= 4; ++n )
 	{
@@ -268,7 +268,7 @@ void Level::LoadLevel(string Levelname)
 		tGO	=	new UnitCube();
 		tGO->MoveTo( XMFLOAT3( 2000 - n * SIZE, 0, 2000 - 800 ) );
 		AddGameObject(tGO);
-	}
+	}*/
 
 	gNodeMap	=	new NodeMap();
 
@@ -289,11 +289,11 @@ void Level::LoadLevel(string Levelname)
 	{
 		gNodeMap->AddNode( Nodes[i] );
 
-		tGO	=	new CannedFood();
-		tGO->MoveTo( XMFLOAT3( Nodes[i]->Position.x, 10, Nodes[i]->Position.y ) );
-		AddGameObject(tGO);
+		//tGO	=	new CannedFood();
+		//tGO->MoveTo( XMFLOAT3( Nodes[i]->Position.x, 10, Nodes[i]->Position.y ) );
+		//AddGameObject(tGO);
 	}
-
+	
 	gNodeMap->SetNodeAdjacent( Nodes[0], Nodes[1] );
 	gNodeMap->SetNodeAdjacent( Nodes[2], Nodes[3] );
 	gNodeMap->SetNodeAdjacent( Nodes[0], Nodes[2] );
