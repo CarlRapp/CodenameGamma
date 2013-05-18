@@ -33,9 +33,35 @@ void Map::BlockPath(BoundingOrientedBox box)
 	//box.Center.x *= m_Width;
 	//box.Center.z *= m_Height;
 
+	
+	XMFLOAT3 corners[BoundingOrientedBox::CORNER_COUNT];
+	box.GetCorners(&corners[0]);
+
+	BoundingBox AABB;
+	AABB.CreateFromPoints(AABB, BoundingOrientedBox::CORNER_COUNT, &corners[0], sizeof(XMFLOAT3));
+	
+	XMVECTOR Center = XMLoadFloat3(&AABB.Center);
+	XMVECTOR Extents = XMLoadFloat3(&AABB.Extents);
+
+	XMVECTOR minV = Center - Extents;
+	XMVECTOR maxV = Center + Extents;
+
+	XMFLOAT3 min, max;
+	XMStoreFloat3(&min, minV);
+	XMStoreFloat3(&max, maxV);
+
+	/*
 	for (int y = 0; y < m_Height; y++)
 	{
 		for (int x = 0; x < m_Width; x++)
+		{*/
+
+	int stopX = min(ceil(max.x), m_Width);
+	int stopY = min(ceil(max.z), m_Height);
+
+	for (int y = floor(min.z); y < stopY; y++)
+	{
+		for (int x = floor(min.x); x < stopX; x++)
 		{
 			XMFLOAT2 min = XMFLOAT2(x, y);
 			XMFLOAT2 max = XMFLOAT2(x + 1, y + 1);
@@ -477,6 +503,7 @@ bool PathMap::IsShortestPathFree(XMFLOAT2 A, XMFLOAT2 B)
 {
 	
 	//return true;
+	/*
 	for (int i = m_NumMaps - 1; i >= 0; --i)
 	{
 		if (m_Maps[i].IsShortestPathFree(A, B))
@@ -484,6 +511,14 @@ bool PathMap::IsShortestPathFree(XMFLOAT2 A, XMFLOAT2 B)
 			return true;
 		}
 	}
+	return false;*/
+
+	if (m_Maps[m_NumMaps - 1].IsShortestPathFree(A, B))
+		return true;
+
+	if (m_NumMaps > 1)
+		return m_Maps[0].IsShortestPathFree(A, B);
+	
 	return false;
 	
 	//return m_Maps[0].IsShortestPathFree(A, B);
