@@ -27,7 +27,7 @@ Player::~Player(void)
 void Player::Update(float deltaTime)
 {
 	UpdateCamera(deltaTime);
-	
+
 	if ( m_Unit != 0 )
 	{
 		//XBOX-CONTROL
