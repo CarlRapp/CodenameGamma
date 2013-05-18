@@ -48,8 +48,6 @@ void ModelManager::LoadModel(string Name, string Filename, string ModelPath, str
 	}
 
 	gLoadedModels.insert(pair<string, Model*>(Name, tModel));
-
-	DebugScreen::GetInstance()->AddLogMessage("Model: \"" + Filename + "\" loaded.", Green);
 }
 
 void ModelManager::LoadModel(string Name, string Filename, string Path)

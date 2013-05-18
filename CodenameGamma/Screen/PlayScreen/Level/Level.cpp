@@ -116,10 +116,7 @@ void Level::LoadLevel(string Levelname)
 	gGraphicsManager->SetQuadTree(gQuadTree);
 	
 
-	//ModelManager::GetInstance()->LoadModel("CrazyBitch", "dae export 2.dae", "DATA/Models/TestChar/");
 	ModelManager::GetInstance()->LoadModel("CrazyBitch", "CrazyBitch.dae", "DATA/Models/CrazyBitch/");
-	//ModelManager::GetInstance()->LoadModel("CrazyBitch", "Rat.dae", "DATA/Models/Rat/");
-	//ModelManager::GetInstance()->LoadModel("CrazyBitch", "CrazyBitch.obj", "DATA/Models/CrazyBitch/");
 
 	ModelManager::GetInstance()->LoadModel("Glock", "Glock.obj", "DATA/Models/Glock/");
 	ModelManager::GetInstance()->LoadModel("Shotgun", "Shotgun.obj", "DATA/Models/Shotgun/");
@@ -127,21 +124,9 @@ void Level::LoadLevel(string Levelname)
 	ModelManager::GetInstance()->LoadModel("CannedFood", "CannedFood.obj", "DATA/Models/CannedFood/");
 
 	ModelManager::GetInstance()->LoadModel("Bullet", "PistolBullet.obj", "DATA/Models/PistolBullet/");
-	ModelManager::GetInstance()->LoadModel("CrowdBarrier", "CrowdBarrier.obj", "DATA/Models/CrowdBarrier/");
-	//ModelManager::GetInstance()->LoadModel("TownHall", "TownHall.obj", "DATA/Models/TownHall/");
-	ModelManager::GetInstance()->LoadModel("TownHall", "TownHall.dae", "DATA/Models/TownHall/");
+	
 
 	ModelManager::GetInstance()->LoadModel("Canister", "Canister.obj", "DATA/Models/Canister/");
-	ModelManager::GetInstance()->LoadModel("SmallStore", "SmallStore.obj", "DATA/Models/SmallStore/");
-	ModelManager::GetInstance()->LoadModel("TrashCan", "TrashCan.obj", "DATA/Models/TrashCan/");
-	ModelManager::GetInstance()->LoadModel("VolvoCar", "VolvoCar.obj", "DATA/Models/VolvoCar/");
-
-	ModelManager::GetInstance()->LoadModel("Container", "Container.obj", "DATA/Models/Container/");
-
-	ModelManager::GetInstance()->LoadModel("UnitCube", "UnitCube.obj", "DATA/Models/UnitCube/");
-
-	//ModelManager::GetInstance()->LoadModel("CrazyBitch", "CrazyBitch.dae", "DATA/Models/CrazyBitch/");
-	//ModelManager::GetInstance()->LoadModel("CrazyBitch", "dae export 2.dae", "DATA/Models/TestChar/");
 
 	Model*	model	=	ModelManager::GetInstance()->GetModel("CrazyBitch");
 
@@ -495,12 +480,10 @@ void Level::Update(float DeltaTime)
 		DeleteGameObject(tObject);
 	}
 
-	for each (Player *p in gPlayers)
-	{
-		p->Update(DeltaTime);
-	}
-
 	RunCollisionTest();
+
+	for each (Player *p in gPlayers)
+		p->Update(DeltaTime);
 
 	//Updaterar ljus
 	//Updaterar dirlights	

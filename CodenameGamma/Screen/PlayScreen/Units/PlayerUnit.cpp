@@ -30,16 +30,18 @@ void PlayerUnit::UpdateMeters(float DeltaTime)
 	//	speed based on
 	//	how fast the unit
 	//	is going.
-	//gHunger.first	-=	DeltaTime;
-	//gThirst.first	-=	DeltaTime;
+	gHunger.first	-=	DeltaTime * speed;
+	gThirst.first	-=	DeltaTime * speed;
 
 	gHunger.first	=	( gHunger.first < 0 ) ? 0 : gHunger.first;
 	gThirst.first	=	( gThirst.first < 0 ) ? 0 : gThirst.first;
 
+	
 	if ( gHunger.first == 0 )
 		Hurt( 1.0f * DeltaTime );
 	if ( gThirst.first == 0 )
 		Hurt( 1.0f * DeltaTime );
+		
 }
 
 void PlayerUnit::UpdateTrail(float deltaTime)
@@ -72,8 +74,9 @@ void PlayerUnit::Hurt(float Damage)
 {
 	float	tDamage	=	Damage * ( 2 - gHunger.first * 0.01f );
 
-
 	gHealth.first	-=	tDamage;
+	if( gHealth.first < 0 )
+		SetState( Dead );
 }
 
 void PlayerUnit::SetVelocity(XMFLOAT3 Velocity)
