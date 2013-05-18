@@ -22,12 +22,11 @@ bool Pistol::CanFire()
 	return (gClip.first > 0 && gCooldown.first <= 0);
 }
 
-bool Pistol::Fire()
+bool Pistol::Fire( GameObject* Instance )
 {
 	if ( CanFire() )
 	{
 		Bullet*	tBullet	=	new Bullet();		
-
 		float	tRotationY	=	GetFloat3Value( Rotations ).y;
 
 		XMFLOAT3	tVelocity	=	XMFLOAT3(0, 0, 0);
@@ -38,6 +37,7 @@ bool Pistol::Fire()
 		tBullet->MoveTo( GetFloat3Value( Position ) );
 		tBullet->SetVelocity( tVelocity );
 		tBullet->SetTeam( GetTeam() );
+		tBullet->SetOwner( Instance );
 
 		SoundManager::GetInstance()->Play("Pistol");
 

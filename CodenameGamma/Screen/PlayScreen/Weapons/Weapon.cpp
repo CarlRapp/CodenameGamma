@@ -48,7 +48,7 @@ void Weapon::Update(float deltaTime, Terrain* terrain)
 	ReloadCountdown(deltaTime);
 }
 
-bool Weapon::Fire()
+bool Weapon::Fire( GameObject* Instance )
 {
 	return false;
 }

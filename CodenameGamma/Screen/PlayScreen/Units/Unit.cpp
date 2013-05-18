@@ -63,6 +63,7 @@ void Unit::Update(float DeltaTime, Terrain* TerrainInstance)
 {
 	if ( gHealth.first <= 0 )
 	{
+		DropWeapon();
 		SetState( Dead );
 		return;
 	}
@@ -160,7 +161,7 @@ void Unit::FireWeapon()
 {
 	if ( gCurrentWeapon )
 	{
-		/*if (*/gCurrentWeapon->Fire();/*)
+		/*if (*/gCurrentWeapon->Fire( this );/*)
 			PlayAnimation("ShootPistol");	*/	
 	}
 }

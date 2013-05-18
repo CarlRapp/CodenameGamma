@@ -6,6 +6,8 @@ PlayerUnit::PlayerUnit()
 	gHealth	=	UnitHealth( 100.0f, 100.0f );
 	gHunger	=	UnitHunger( 100.0f, 100.0f );
 	gThirst	=	UnitThirst( 100.0f, 100.0f );
+
+	gPlayerScore	=	0;
 }
 
 PlayerUnit::~PlayerUnit()
@@ -46,6 +48,8 @@ void PlayerUnit::UpdateMeters(float DeltaTime)
 
 void PlayerUnit::UpdateTrail(float deltaTime)
 {
+	gPlayerScore->PlayTime	+=	deltaTime;
+
 	//Update trailtimer
 	trailTimer += deltaTime;
 
@@ -75,8 +79,8 @@ void PlayerUnit::Hurt(float Damage)
 	float	tDamage	=	Damage * ( 2 - gHunger.first * 0.01f );
 
 	gHealth.first	-=	tDamage;
-	if( gHealth.first < 0 )
-		SetState( Dead );
+
+	Unit::Hurt( Damage );
 }
 
 void PlayerUnit::SetVelocity(XMFLOAT3 Velocity)
