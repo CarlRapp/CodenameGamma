@@ -5,6 +5,7 @@
 #include "../stdafx.h"
 #include "../Input/InputManager.h"
 #include "../Sound/SoundManager.h"
+#include "Score/Score.h"
 
 //	Add colors by writing
 //	Name	=	0xAaBbGgRr
@@ -25,7 +26,11 @@ enum	TextColor
 
 struct ScreenData
 {
-	ScreenData(){}
+	ScreenData()
+	{
+		NUMBER_OF_PLAYERS	=	0;
+		PLAYER_SCORE_LIST	=	vector<PlayerScore>();
+	}
 
 	int	WIDTH, HEIGHT;
 
@@ -41,6 +46,7 @@ struct ScreenData
 	IFW1FontWrapper*		TEXT_INSTANCE;
 
 	int						NUMBER_OF_PLAYERS;
+	vector<PlayerScore>		PLAYER_SCORE_LIST;
 };
 
 enum ScreenType

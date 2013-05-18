@@ -4,12 +4,14 @@
 
 #include "../../Input/InputManager.h"
 #include "../../Input/InputBinds.h"
-#include "Units\PlayerUnit.h";
+#include "../Score/Score.h"
+#include "Units/PlayerUnit.h";
 #include "Camera.h"
 
 class Player
 {
 private:
+	PlayerScore	*gPlayerScore;
 	PlayerUnit	*m_Unit;
 	Camera		*m_Camera;
 	Controller	*m_Controller;
@@ -38,7 +40,12 @@ public:
 	Controller*	GetController()	{ return m_Controller; }
 	PlayerUnit*	GetUnit()		{ return m_Unit; }
 
-	void	SetUnit(PlayerUnit* Instance);
+	void		SetUnit(PlayerUnit* Instance);
+
+	PlayerScore*	GetPlayerScore()
+	{ 
+		return gPlayerScore; 
+	}
 };
 
 #endif

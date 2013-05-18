@@ -1,11 +1,12 @@
 #include "Bullet.h"
 #include "../../Units/Unit.h"
+#include "../../Units/PlayerUnit.h"
 #include "../../Structures/StructureList.h"
 
 Bullet::Bullet()
 {
 	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "Bullet" ) );
-	gDamage	=	ProjectileDamage(1.0f, 1.0f);
+	gDamage	=	10.0f;
 
 	gLifeSpan	=	1.5f;
 }
@@ -18,19 +19,39 @@ bool Bullet::Intersects(GameObject* B, vector<CollisionData>& CD)
 {
 	if (IsEnemy(B))
 	{
+		
 		if ( IsOfType<Unit>(B) )
-			return BoxVsBone(this, B, CD, false);
+			return	BoxVsBone(this, B, CD, false);
 
 		if ( IsOfType<Structure>(B) )
-			return SphereVsBone(this, B);
+			return	SphereVsBone(this, B);
+
 	}
+
 	return false;
 }
 
 void Bullet::CollideWith(GameObject* Instance, vector<CollisionData> CD)
 {	
+	if( !IsAlive() )
+		return;
+
 	if ( IsOfType<Unit>(Instance) )
-		Instance->SetState(Dead);
+	{
+		Unit*	tUnit	=	((Unit*)Instance);
+
+		tUnit->Hurt( gDamage );
+		
+		if( IsOfType<PlayerUnit>( gOwner ) )
+		{
+			((PlayerUnit*)gOwner)->GetPlayerScore()->PlayScore	+=	10 * gDamage;
+
+			if( !tUnit->IsAlive() )
+				((PlayerUnit*)gOwner)->GetPlayerScore()->PlayKillCount	+=	1;
+		}
+
+		SetState(Dead);	
+	}
 
 	if ( IsOfType<Structure>(Instance) )
 		SetState(Dead);	

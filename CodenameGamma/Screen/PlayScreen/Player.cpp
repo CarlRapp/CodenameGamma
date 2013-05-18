@@ -3,20 +3,22 @@
 
 Player::Player(void)
 {
-	m_Controller = InputManager::GetInstance()->GetController(0);
-	m_Camera = new Camera();	
-	m_Camera->SetPosition(2000, 100, 500);
-	m_Unit = NULL;
-	m_PlayerIndex = 0;
+	m_Controller	=	InputManager::GetInstance()->GetController(0);
+	m_Camera		=	new Camera();
+	m_Unit			=	NULL;
+	m_PlayerIndex	=	0;
+	gPlayerScore	=	new PlayerScore();
 }
 
 Player::Player(int index)
 {
-	m_Controller = InputManager::GetInstance()->GetController(index);
-	m_Camera = new Camera();
+	m_Controller	=	InputManager::GetInstance()->GetController(index);
+	m_Camera		=	new Camera();
+	m_Unit			=	NULL;
+	m_PlayerIndex	=	index;
+	gPlayerScore	=	new PlayerScore( index );
+
 	m_Camera->SetPosition(2000, 100, 500);
-	m_Unit = NULL;
-	m_PlayerIndex = index;
 }
 
 Player::~Player(void)

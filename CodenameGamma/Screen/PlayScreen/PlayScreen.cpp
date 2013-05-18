@@ -4,6 +4,7 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 {
 	LoadScreenData(Setup);
 	gScreenData	=	Setup;
+	gScreenData->PLAYER_SCORE_LIST.clear();
 
 	SystemData	tData			=	SystemData();
 	tData.DEVICE				=	gDevice;
@@ -14,36 +15,8 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 
 	gLevel	=	new Level(tData);
 	gLevel->LoadLevel("FlatMap");
-	//gLevel->LoadLevel("TestMap");
-
-	/*
-	gModel = new Model(gDevice, gTexMgr, "DATA\\Models\\obj\\pacman.obj", "DATA/Models/Textures/");
-
-	for (int i = 0; i < 10; ++i)
-	{
-		float x = MathHelper::RandF(0, 4000);
-		float y = 12;
-		float z = MathHelper::RandF(0, 4000);
-
-		AddInstance(x, y, z, gModel);
-	}
-
-	AddDirectionalLight();
-	AddPointLight();
-	AddSpotLight();
-	*/
 
 	SetNumberOfPlayers(Setup->NUMBER_OF_PLAYERS);
-	/*
-	for (int i = 0; i < gPlayers.size(); ++i)
-	{
-		if (gLevel->GetGameObjects().size() > i)
-		{
-			gPlayers.at(i)->SetGameObject(gLevel->GetGameObjects().at(i));		
-			gLevel->GetGameObjects().at(i)->SetTeam(Team1);
-		}
-	}
-	*/
 }
 
 #pragma region Load / Unload
@@ -69,11 +42,15 @@ void PlayScreen::Update(float DeltaTime)
 	if ( InputManager::GetInstance()->GetController(0)->GetButtonState( START ) == PRESSED ||
 		InputManager::GetInstance()->GetKeyboard()->GetKeyState(VK_ESCAPE) == PRESSED)
 		gGotoNextFrame	=	MAIN_MENU_SCREEN;
-
-
 	
 	if( gLevel->IsGameOver() )
+	{
+		vector<PlayerScore>	PlayerScores	=	vector<PlayerScore>();
+		for each( Player* p in gLevel->GetPlayers() )
+			gScreenData->PLAYER_SCORE_LIST.push_back( *p->GetPlayerScore() );
+
 		gGotoNextFrame	=	POST_PLAY_SCREEN;
+	}
 }
 
 void PlayScreen::Render()
@@ -135,5 +112,6 @@ ScreenType PlayScreen::GetScreenType()
 
 void PlayScreen::Reset()
 {
-	SetNumberOfPlayers(gScreenData->NUMBER_OF_PLAYERS);
+	if( gLevel->IsGameOver() )
+		SetNumberOfPlayers( gScreenData->NUMBER_OF_PLAYERS );
 }

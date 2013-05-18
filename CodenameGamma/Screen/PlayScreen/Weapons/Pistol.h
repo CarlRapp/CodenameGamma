@@ -15,7 +15,7 @@ public:
 
 	bool	CanFire();
 
-	bool	Fire();
+	bool	Fire( GameObject* Instance );
 };
 
 #endif

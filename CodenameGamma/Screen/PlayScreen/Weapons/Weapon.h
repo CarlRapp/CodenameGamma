@@ -44,7 +44,7 @@ public:
 
 	virtual	bool	CanFire() { return (gCooldown.first <= 0); }
 
-	virtual bool	Fire();
+	virtual bool	Fire( GameObject* Instance );
 
 	bool			NeedReload() { return gClip.first <= 0 && gState != Reloading; }
 
