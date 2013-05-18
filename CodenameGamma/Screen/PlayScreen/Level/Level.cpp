@@ -139,6 +139,7 @@ void Level::LoadLevel(string Levelname)
 	}
 	for each( Light* LIGHT in Result.Lights )
 		AddLight( LIGHT );
+	gNodeMap	=	Result.NodeMapInstance;
 
 
 	
@@ -235,76 +236,14 @@ void Level::LoadLevel(string Levelname)
 		AddGameObject(tGO);
 	}
 
-
-	
-	/*
-	float	SIZE	=	2 * 16.6665f;
-	for ( int n = 0; n <= 4; ++n )
-	{
-		int test	=	7 - 2 * n;
-		for ( int i = 1; i <= test; ++i )
-		{
-			tGO	=	new UnitCube();
-			tGO->MoveTo( XMFLOAT3( 2000 - (-(int)(test*0.5f) + i) * SIZE, n * SIZE, 2000 - 400 ) );
-			AddGameObject(tGO);
-		}
-
-	}
-
-	for( int n = 0; n < 10; ++n )
-	{
-		tGO	=	new UnitCube();
-		tGO->MoveTo( XMFLOAT3( 2000 - n * SIZE, 0, 2000 - 800 ) );
-		AddGameObject(tGO);
-	}*/
-
-	gNodeMap	=	new NodeMap();
-
-	PatrolNode*	Nodes[4];
-	Nodes[0]	=	new PatrolNode( XMFLOAT2( 1000, 1000 ) );
-	Nodes[1]	=	new PatrolNode( XMFLOAT2( 1000, 2700 ) );
-	Nodes[2]	=	new PatrolNode( XMFLOAT2( 3000, 1000 ) );
-	Nodes[3]	=	new PatrolNode( XMFLOAT2( 3000, 2700 ) );
-	/*
-	Nodes[4]	=	new PatrolNode( XMFLOAT2( 600, 400 ) );
-	Nodes[5]	=	new PatrolNode( XMFLOAT2( 700, 400 ) );
-
-	Nodes[6]	=	new PatrolNode( XMFLOAT2( 500, 300 ) );
-	Nodes[7]	=	new PatrolNode( XMFLOAT2( 600, 300 ) );
-	Nodes[8]	=	new PatrolNode( XMFLOAT2( 700, 300 ) );
-	*/
-	for( int i = 0; i < 4; ++i )
-	{
-		gNodeMap->AddNode( Nodes[i] );
-
-		//tGO	=	new CannedFood();
-		//tGO->MoveTo( XMFLOAT3( Nodes[i]->Position.x, 10, Nodes[i]->Position.y ) );
-		//AddGameObject(tGO);
-	}
-	
-	gNodeMap->SetNodeAdjacent( Nodes[0], Nodes[1] );
-	gNodeMap->SetNodeAdjacent( Nodes[2], Nodes[3] );
-	gNodeMap->SetNodeAdjacent( Nodes[0], Nodes[2] );
-	gNodeMap->SetNodeAdjacent( Nodes[1], Nodes[3] );
-	/*
-	gNodeMap->SetNodeAdjacent( Nodes[1], Nodes[4] );
-	gNodeMap->SetNodeAdjacent( Nodes[2], Nodes[5] );
-	gNodeMap->SetNodeAdjacent( Nodes[3], Nodes[4] );
-	gNodeMap->SetNodeAdjacent( Nodes[3], Nodes[6] );
-	gNodeMap->SetNodeAdjacent( Nodes[4], Nodes[5] );
-	gNodeMap->SetNodeAdjacent( Nodes[4], Nodes[7] );
-	gNodeMap->SetNodeAdjacent( Nodes[5], Nodes[8] );
-	gNodeMap->SetNodeAdjacent( Nodes[6], Nodes[7] );
-	gNodeMap->SetNodeAdjacent( Nodes[7], Nodes[8] );*/
-
-	for ( int i = 0; i < 6; ++i  )
+	for ( int i = 0; i < 10; ++i  )
 	{
 		PatrolNode*	tNode	=	gNodeMap->GetRandomNode();
 		Rat*		tRat	=	new Rat();
 		tRat->SetNodeMap( gNodeMap );
 
-		//XMFLOAT3	tPosition	=	XMFLOAT3( tNode->Position.x, 0, tNode->Position.y );
-		XMFLOAT3	tPosition	=	XMFLOAT3( MathHelper::RandF(500, 3500), 0, MathHelper::RandF(2500, 3500) );
+		XMFLOAT3	tPosition	=	XMFLOAT3( tNode->Position.x, 0, tNode->Position.y );
+		//XMFLOAT3	tPosition	=	XMFLOAT3( MathHelper::RandF(500, 3500), 0, MathHelper::RandF(2500, 3500) );
 		tRat->MoveTo( tPosition );
 
 		AddGameObject( tRat );
@@ -712,7 +651,7 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 			continue;
 
 		PlayerUnit*	pUnit	=	new CrazyBitch();
-		pUnit->MoveTo( XMFLOAT3( 200, 0, 500 ) );
+		pUnit->MoveTo( XMFLOAT3( 3333, 0, gTerrain->GetDimensions().y - 50*33.333f ) );
 		pUnit->SetPlayerScore( p->GetPlayerScore() );
 		pUnit->SetTeam( (GOTeam)i );
 		pUnit->LoopAnimation( "Back" );
