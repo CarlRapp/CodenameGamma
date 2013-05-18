@@ -21,7 +21,7 @@ bool Shotgun::CanFire()
 	return (gClip.first > 0 && gCooldown.first <= 0);
 }
 
-bool Shotgun::Fire()
+bool Shotgun::Fire( GameObject* Instance )
 {
 	if ( CanFire() )
 	{
@@ -37,6 +37,7 @@ bool Shotgun::Fire()
 		tBullet->MoveTo( GetFloat3Value( Position ) );
 		tBullet->SetVelocity( tVelocity );
 		tBullet->SetTeam( GetTeam() );
+		tBullet->SetOwner( Instance );
 
 		SoundManager::GetInstance()->Play("Shotgun_Fire");
 
