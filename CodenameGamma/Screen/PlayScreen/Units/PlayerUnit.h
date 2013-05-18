@@ -3,6 +3,7 @@
 #define PLAYERUNIT_H
 
 #include "Unit.h"
+#include "../../Score/Score.h"
 
 
 #define TRAIL_INTERVAL 0.1f
@@ -37,6 +38,7 @@ struct Trail
 
 class PlayerUnit : public Unit
 {
+	
 	vector<Trail> gTrails;
 
 	float trailTimer;
@@ -44,8 +46,9 @@ class PlayerUnit : public Unit
 	void UpdateTrail(float deltaTime);
 
 protected:
-	UnitHunger	gHunger;
-	UnitThirst	gThirst;
+	PlayerScore*	gPlayerScore;
+	UnitHunger		gHunger;
+	UnitThirst		gThirst;
 
 	void	UpdateMeters(float DeltaTime);
 public:
@@ -82,6 +85,15 @@ public:
 		return trails;
 	}
 
+
+	void	SetPlayerScore( PlayerScore* Instance )
+	{
+		gPlayerScore	=	Instance;
+	}
+	PlayerScore*	GetPlayerScore()
+	{
+		return	gPlayerScore;
+	}
 };
 
 #endif
