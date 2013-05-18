@@ -51,7 +51,7 @@ enum ScreenType
 
 	PRE_PLAY_SCREEN,
 	PLAY_SCREEN,
-
+	POST_PLAY_SCREEN,
 
 
 
