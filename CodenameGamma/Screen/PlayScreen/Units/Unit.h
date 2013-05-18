@@ -4,7 +4,6 @@
 
 #include "../GameObject.h"
 #include "../Weapons/Weapon.h"
-#include "../Weapons/Pistol.h"
 
 using namespace DirectX;
 
