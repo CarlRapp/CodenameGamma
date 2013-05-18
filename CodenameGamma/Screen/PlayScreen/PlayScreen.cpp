@@ -14,7 +14,7 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 	tData.SCREEN_HEIGHT			=	gScreenHeight;
 
 	gLevel	=	new Level(tData);
-	gLevel->LoadLevel("FlatMap");
+	gLevel->LoadLevel("City_1");
 
 	SetNumberOfPlayers(Setup->NUMBER_OF_PLAYERS);
 }
