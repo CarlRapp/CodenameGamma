@@ -61,7 +61,6 @@ bool PlayScreen::Unload()
 	return true;
 }
 #pragma endregion
-float lol = 0;
 void PlayScreen::Update(float DeltaTime)
 {
 	gLevel->Update(DeltaTime);
@@ -71,10 +70,10 @@ void PlayScreen::Update(float DeltaTime)
 		InputManager::GetInstance()->GetKeyboard()->GetKeyState(VK_ESCAPE) == PRESSED)
 		gGotoNextFrame	=	MAIN_MENU_SCREEN;
 
-	if ( InputManager::GetInstance()->GetController(0)->GetButtonState( X ) == DOWN )
-		lol += DeltaTime;
-	if ( InputManager::GetInstance()->GetController(0)->GetButtonState( Y ) == PRESSED )
-		lol = 0;
+
+	
+	if( gLevel->IsGameOver() )
+		gGotoNextFrame	=	POST_PLAY_SCREEN;
 }
 
 void PlayScreen::Render()
@@ -82,58 +81,51 @@ void PlayScreen::Render()
 	gLevel->Render();
 
 
-	PlayerUnit*	DERP	=	gLevel->GetPlayers()[0]->GetUnit();
-	UnitHealth	HEALTH	=	DERP->GetHealth();
-	UnitHunger	HUNGER	=	DERP->GetHungerMeter();
-	UnitThirst	THIRST	=	DERP->GetThirstMeter();
-
-	for ( int i = 0; i < 4; ++i)
+	for each( Player* p in gLevel->GetPlayers() )
 	{
-		float	a, b;
-		string title;
-		if ( i == 0 )
-		{
-			title	=	"Health: ";
-			a = (int)HEALTH.first;
-			b = (int)HEALTH.second;
-		}
-		else if ( i == 1 )
-		{
-			title	=	"Hunger: ";
-			a = (int)HUNGER.first;
-			b = (int)HUNGER.second;
-		}
-		else if ( i == 2)
-		{
-			title	=	"Thirst: ";
-			a = (int)THIRST.first;
-			b = (int)THIRST.second;
-		}
-		else
-		{
-			a	=	DERP->GetSpeed();
-			b	=	0;
-		}
-		DrawString(
-			*gTextInstance,
-			title + to_string((long double)a) + " / " + to_string((long double)b),
-			10,
-			10 + i * 20,
-			20,
-			White,
-			0
-		);
-	}
+		PlayerUnit*	tUnit	=	p->GetUnit();
+		if( tUnit == 0 )
+			continue;
 
-	DrawString(
-		*gTextInstance,
-		"Time: " + to_string((long double)lol),
-		10,
-		10 + 5 * 20,
-		20,
-		White,
-		0
-	);
+		UnitHealth	HEALTH	=	tUnit->GetHealth();
+		UnitHunger	HUNGER	=	tUnit->GetHungerMeter();
+		UnitThirst	THIRST	=	tUnit->GetThirstMeter();
+
+		D3D11_VIEWPORT	VP	=	p->GetCamera()->GetViewPort();
+
+		for ( int i = 0; i < 3; ++i)
+		{
+			float	a, b;
+			string title;
+			if ( i == 0 )
+			{
+				title	=	"Health: ";
+				a = (int)HEALTH.first;
+				b = (int)HEALTH.second;
+			}
+			else if ( i == 1 )
+			{
+				title	=	"Hunger: ";
+				a = (int)HUNGER.first;
+				b = (int)HUNGER.second;
+			}
+			else if ( i == 2)
+			{
+				title	=	"Thirst: ";
+				a = (int)THIRST.first;
+				b = (int)THIRST.second;
+			}
+			DrawString(
+				*gTextInstance,
+				title + to_string((long double)a) + " / " + to_string((long double)b),
+				VP.TopLeftX + 10,
+				VP.TopLeftY + 10 + i * 20,
+				20,
+				White,
+				0
+			);
+		}
+	}
 }
 
 ScreenType PlayScreen::GetScreenType()

@@ -102,7 +102,14 @@ private:
 		RemoveGameObject(go);
 
 		if ( go->GetState() != Hidden )
+		{
+			if( IsOfType<PlayerUnit>( go ) )
+				for each( Player* p in gPlayers )
+					if( p->GetUnit() == go )
+						p->SetUnit( 0 );
 			delete go;
+			go	=	0;
+		}
 	}
 
 	/*
@@ -169,6 +176,16 @@ public:
 	vector<GameObject*>	GetGameObjects() { return gGameObjects; }
 
 	vector<Player*>		GetPlayers()	{ return gPlayers; }
+
+	bool	IsGameOver()
+	{
+		bool	allDead	=	true;
+		for each( Player* p in gPlayers )
+			if( p->GetUnit() != 0 )
+				allDead	=	false;
+
+		return allDead;
+	}
 };
 
 #endif

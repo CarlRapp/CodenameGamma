@@ -1,5 +1,6 @@
 #include "LevelParser.h"
 #include "../Structures/StructureList.h"
+#include "../Graphics/ModelManager.h"
 
 LevelParser* LevelParser::gInstance	=	0;
 LevelParser::LevelParser()
@@ -210,30 +211,37 @@ GameObject* LevelParser::GetGameObject( string GameObjectName )
 
 	if( GameObjectName == "UnitCube" )
 	{
+		ModelManager::GetInstance()->LoadModel("UnitCube", "UnitCube.obj", "DATA/Models/UnitCube/");
 		Result	=	new UnitCube();
 	}
 	else if( GameObjectName == "CrowdBarrier" )
 	{
+		ModelManager::GetInstance()->LoadModel("CrowdBarrier", "CrowdBarrier.obj", "DATA/Models/CrowdBarrier/");
 		Result	=	new CrowdBarrier();
 	}
 	else if( GameObjectName == "SmallStore" )
 	{
+		ModelManager::GetInstance()->LoadModel("SmallStore", "SmallStore.obj", "DATA/Models/SmallStore/");
 		Result	=	new SmallStore();
 	}
 	else if( GameObjectName == "TownHall" )
 	{
+		ModelManager::GetInstance()->LoadModel("TownHall", "TownHall.dae", "DATA/Models/TownHall/");
 		Result	=	new TownHall();
 	}
 	else if( GameObjectName == "Container" )
 	{
+		ModelManager::GetInstance()->LoadModel("Container", "Container.obj", "DATA/Models/Container/");
 		Result	=	new Container();
 	}
 	else if( GameObjectName == "TrashCan" )
 	{
+		ModelManager::GetInstance()->LoadModel("TrashCan", "TrashCan.obj", "DATA/Models/TrashCan/");
 		Result	=	new TrashCan();
 	}
 	else if( GameObjectName == "VolvoCar" )
 	{
+		ModelManager::GetInstance()->LoadModel("VolvoCar", "VolvoCar.obj", "DATA/Models/VolvoCar/");
 		Result	=	new VolvoCar();
 	}
 

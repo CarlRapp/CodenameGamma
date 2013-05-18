@@ -1,5 +1,6 @@
 #include "ScreenManager.h"
 #include "PrePlayScreen.h"
+#include "PostPlayScreen.h"
 
 ScreenManager::ScreenManager()
 {
@@ -145,6 +146,8 @@ Screen* ScreenManager::LoadScreen(ScreenType Type)
 
 	else if(Type == PRE_PLAY_SCREEN)
 		return	new PrePlayScreen(gScreenData);
+	else if(Type == POST_PLAY_SCREEN)
+		return	new PostPlayScreen(gScreenData);
 
 	//	When this is called it means
 	//	there is a screen type that not
