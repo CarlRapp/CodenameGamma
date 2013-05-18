@@ -668,10 +668,10 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 
 
 	gPlayers.clear();
-	Player *player1 =  new Player(0);
-	Player *player2 = new Player(1);
-	Player *player3 = new Player(2);
-	Player *player4 = new Player(3);
+	Player*	player1	=	new Player(0);
+	Player*	player2	=	new Player(1);
+	Player*	player3	=	new Player(2);
+	Player*	player4	=	new Player(3);
 
 	switch (noPlayers)
 	{
@@ -705,31 +705,21 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 			break;
 	}
 
-	for (int i = 0; i < gPlayers.size(); ++i)
+	int i = 0;
+	for each( Player* p in gPlayers )
 	{
-		if ( gPlayers[i]->GetUnit() == 0 )
-		{
-			PlayerUnit* unit	=	new CrazyBitch();
-			//GO->UsePose("Stand");
-			//GO->PlayAnimation("Walk");
-			unit->LoopAnimation("Back");
-			unit->MoveTo(DirectX::XMFLOAT3(200, 0, 500));
-			unit->SetScale(TESTSCALE);
+		if( p->GetUnit() != 0 )
+			continue;
 
-			//Hur man sätter callbackmetoden.
-			//unit->SetAddLight(std::bind(&Level::AddLight, this, std::placeholders::_1));
-			//unit->SetRemoveLight(std::bind(&Level::RemoveLight, this, std::placeholders::_1));
+		PlayerUnit*	pUnit	=	new CrazyBitch();
+		pUnit->MoveTo( XMFLOAT3( 200, 0, 500 ) );
+		pUnit->SetPlayerScore( p->GetPlayerScore() );
+		pUnit->SetTeam( (GOTeam)i );
+		pUnit->LoopAnimation( "Back" );
+		p->SetUnit( pUnit );
 
-			AddGameObject(unit);
-
-			gPlayers[i]->SetUnit(unit);
-			gPlayers[i]->GetUnit()->SetTeam(Team1);
-			/*
-			Pistol *pistol = new Pistol();
-			AddGameObject(pistol);
-
-			gPlayers[i]->GetUnit()->SetWeapon(pistol);*/
-		}
+		AddGameObject( pUnit );
+		++i;
 	}
 
 }
