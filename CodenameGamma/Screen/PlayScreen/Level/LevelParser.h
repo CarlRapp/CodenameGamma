@@ -8,6 +8,7 @@
 #include "../../ScreenEnums.h"
 #include "../GameObject.h"
 #include "../Graphics/LightHelper.h"
+#include "../../../AI/Patrol/NodeMap.h"
 #include "LevelData.h"
 #include <fstream>
 
@@ -17,6 +18,7 @@ struct EntityData
 	EntityData() {}
 	vector<GameObject*>	GameObjects;
 	vector<Light*>		Lights;
+	NodeMap*			NodeMapInstance;
 };
 
 class LevelParser
@@ -31,6 +33,7 @@ private:
 	static	GameObject*	ParseGameObject( string Line, string GameObjectName, LevelData Data );
 	static	SpotLight*	ParseSpotLight( string Line, LevelData Data );
 	static	PointLight*	ParsePointLight( string Line, LevelData Data );
+	static	PatrolNode*	ParsePatrolNode( string Line, LevelData Data );
 
 public:
 	~LevelParser(void);

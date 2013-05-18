@@ -143,6 +143,8 @@ EntityData LevelParser::ParseLevelEntities(LevelData Data)
 	vector<GameObject*>	GameObjects		=	vector<GameObject*>();
 	vector<Light*>		Lights			=	vector<Light*>();
 	vector<string>		GameObjectNames	=	vector<string>();
+	vector<PatrolNode*>	PatrolNodes		=	vector<PatrolNode*>();
+	NodeMap*			NodeMapInstance	=	new NodeMap();
 
 	ifstream	tFileStream;
 	string		tLine, tToken, tStr;
@@ -159,6 +161,8 @@ EntityData LevelParser::ParseLevelEntities(LevelData Data)
 	{
 		//	Read the current line
 		getline(tFileStream, tLine);
+		if( tLine == "" )
+			break;
 
 		//	A new GameObject name
 		if( tLine[0] == '-' )
@@ -192,14 +196,51 @@ EntityData LevelParser::ParseLevelEntities(LevelData Data)
 			if( tLight != 0 )
 				Lights.push_back( tLight );
 		}
+		else if( tLine[0] == '&' )
+		{
+			string tString	=	tLine.substr( 1 );
+
+			PatrolNode*	tNode	=	ParsePatrolNode( tString, Data );
+
+			if( tNode != 0 )
+				PatrolNodes.push_back( tNode );
+		}
+		else if( tLine[0] == '?' )
+		{
+			string tString	=	tLine.substr( 1, tLine.find( ';' ) - 1 );
+			int	Index		=	atoi( tString.c_str() );
+			tLine			=	tLine.substr( tString.size() + 2 );
+
+			PatrolNode*	NodeA	=	PatrolNodes[Index];
+
+			bool	Last	=	false;
+			while(!Last)
+			{
+				if( tLine.find( ';' ) == -1 )
+					Last	=	true;
+
+				int			IndexB	=	atoi( tLine.substr( 0, tLine.find( ';' ) ).c_str() );
+				PatrolNode*	NodeB	=	PatrolNodes[ IndexB ];
+
+				NodeMapInstance->SetNodeAdjacent( NodeA, NodeB );
+
+				//	Remove the index 
+				if( !Last )
+					tLine	=	tLine.substr( tLine.find( ';' ) + 1 );
+			}
+		}
 
 
 	}
 	tFileStream.close();
 
-	EntityData	Result	=	EntityData();
-	Result.GameObjects	=	GameObjects;
-	Result.Lights		=	Lights;
+	for each( PatrolNode* PN in PatrolNodes )
+		NodeMapInstance->AddNode( PN );
+
+	EntityData	Result		=	EntityData();
+	Result.GameObjects		=	GameObjects;
+	Result.Lights			=	Lights;
+	Result.NodeMapInstance	=	NodeMapInstance;
 
 	return Result;
 }
@@ -372,4 +413,16 @@ PointLight* LevelParser::ParsePointLight( string Line, LevelData Data )
 	pointLight->GetGPULight()->Range		=	Range;
 
 	return	pointLight;
+}
+
+
+PatrolNode*	LevelParser::ParsePatrolNode( string Line, LevelData Data )
+{
+	XMFLOAT2	Position;
+	Position.x	=	atof( Line.substr( 0, Line.find( ';' ) ).c_str() );
+	Line	=	Line.substr( Line.find( ';' ) + 1 );
+
+	Position.y	=	Data.Height - atof( Line.c_str() );
+
+	return new PatrolNode( Position );
 }
