@@ -7,15 +7,28 @@
 //	Buildings
 #include "TownHall.h"
 #include "SmallStore.h"
+#include "AbandonedBuilding.h"
+#include "ApartmentBuilding.h"
+#include "HotDogStand.h"
+#include "FactoryBuilding.h"
+#include "MarketStore.h"
+#include "SmallShop_A.h"
+#include "SmallShop_B.h"
 
 //	Vehicles
 #include "VolvoCar.h"
+#include "PickupTruck.h"
 
 //	Obstacles
 #include "Container.h"
 #include "TrashCan.h"
+#include "Crate.h"
+#include "FireHydrant.h"
 #include "CrowdBarrier.h"
-
+#include "Lamp.h"
+#include "SandBag.h"
+#include "TankBarrier.h"
+#include "UtilityPole.h"
 
 //	Misc
 #include "UnitCube.h"

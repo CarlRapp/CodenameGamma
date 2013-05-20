@@ -1,22 +1,22 @@
 #pragma once
-#ifndef CANNEDFOOD_H
-#define CANNEDFOOD_H
+#ifndef CANISTER_H
+#define CANISTER_H
 
 #include "Item.h"
 
-
 using namespace DirectX;
 
-class CannedFood : public Item
+class Canister : public Item
 {
 protected:
 	void	OnPickUp(Unit* Instance);
 
 public:
-	CannedFood(void);
-	~CannedFood(void);
+	Canister(void);
+	~Canister(void);
 
 	void	Update(float DeltaTime, Terrain* terrain);
+	
 };
 
 #endif

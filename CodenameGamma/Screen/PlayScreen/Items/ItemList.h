@@ -6,6 +6,7 @@
 
 //	Foodz
 #include "CannedFood.h"
+#include "Canister.h"
 
 //	Weaponz
 #include "WeaponOnGround.h"
