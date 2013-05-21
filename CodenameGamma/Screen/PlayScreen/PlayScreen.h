@@ -20,6 +20,9 @@ private:
 
 	Level*		gLevel;
 
+
+	ID3D11ShaderResourceView*	gHealthBar[10];
+	void	RenderGUI( Player* P );
 protected:
 	bool	Load();
 	bool	Unload();

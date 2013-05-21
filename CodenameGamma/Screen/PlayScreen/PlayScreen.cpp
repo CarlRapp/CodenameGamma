@@ -22,6 +22,7 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 #pragma region Load / Unload
 bool PlayScreen::Load()
 {
+
 	return true;
 }
 
@@ -114,4 +115,11 @@ void PlayScreen::Reset()
 {
 	if( gLevel->IsGameOver() )
 		SetNumberOfPlayers( gScreenData->NUMBER_OF_PLAYERS );
+}
+
+void PlayScreen::RenderGUI( Player* P )
+{
+
+	GraphicsManager*	GM	=	gLevel->GetGraphicsManager();
+
 }

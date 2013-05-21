@@ -355,6 +355,11 @@ GameObject* LevelParser::GetGameObject( string GameObjectName )
 		ModelManager::GetInstance()->LoadModel("AbandonedBuilding", "AbandonedBuilding.obj", "DATA/Models/AbandonedBuilding/");
 		Result	=	new AbandonedBuilding();
 	}
+	else if( GameObjectName == "OilBarrel" )
+	{
+		ModelManager::GetInstance()->LoadModel("OilBarrel", "OilBarrel.obj", "DATA/Models/OilBarrel/");
+		Result	=	new OilBarrel();
+	}
 	else
 	{
 		ModelManager::GetInstance()->LoadModel("UnitCube", "UnitCube.obj", "DATA/Models/UnitCube/");
