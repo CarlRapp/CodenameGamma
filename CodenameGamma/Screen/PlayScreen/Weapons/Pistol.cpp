@@ -9,7 +9,15 @@ Pistol::Pistol()
 	gClip		=	WeaponClip(9, 9);
 	gReloadTime	=	WeaponReloadTime(0.0f, 2.5f);
 
-	SetScale(2.0f);
+	gWeaponAnimations.Aim				= "PistolAim";
+	gWeaponAnimations.Draw				= "PistolDraw";
+	gWeaponAnimations.DrawReloadPutAway = "PistolDrawReloadPutAway";
+	gWeaponAnimations.PutAway			= "PistolPutAway";
+	gWeaponAnimations.Shoot				= "PistolShoot";
+	gWeaponAnimations.ShootReload		= "PistolShootReload";
+	gWeaponAnimations.UpperWalk			= "PistolUpperWalk";
+	gWeaponAnimations.UpperRun			= "PistolUpperRun";
+	gWeaponAnimations.UpperStand		= "PistolUpperStand";
 }
 
 Pistol::~Pistol()
@@ -34,7 +42,14 @@ bool Pistol::Fire( GameObject* Instance )
 		tVelocity.z	=	tBullet->GetSpeed() * sin( tRotationY - PI * 0.5f );
 
 		tBullet->SetRotation( XMFLOAT3( 0, tRotationY, 0 ) );
-		tBullet->MoveTo( GetFloat3Value( Position ) );
+
+		XMFLOAT3 pipePos;
+
+		if (GetJointPosition("Pipe", pipePos))
+			tBullet->MoveTo( pipePos );
+		else
+			tBullet->MoveTo( GetFloat3Value( Position ) );
+
 		tBullet->SetVelocity( tVelocity );
 		tBullet->SetTeam( GetTeam() );
 		tBullet->SetOwner( Instance );

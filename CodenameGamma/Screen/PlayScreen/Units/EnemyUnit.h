@@ -16,7 +16,7 @@ enum EnemyBehaviourState
 class EnemyUnit : public Unit
 {
 
-#define UpdateHuntTime 0.1f
+#define UpdateHuntTime 1.0 / 30.0f
 
 	bool hasTargetPos;
 	float updateHuntTimer;

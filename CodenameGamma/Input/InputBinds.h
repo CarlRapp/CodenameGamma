@@ -10,7 +10,8 @@ enum XboxBinds
 	XShoot	=	RIGHT_TRIGGER,
 	XAim	=	LEFT_TRIGGER,
 	XDrop	=	B,
-	XReload	=	X
+	XReload	=	X,
+	XCrouch	=	LEFT_STICK
 };
 
 enum KeyboardBinds

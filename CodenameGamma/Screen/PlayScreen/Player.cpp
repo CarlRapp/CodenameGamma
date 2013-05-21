@@ -42,8 +42,14 @@ void Player::Update(float deltaTime)
 			m_Unit->LookAt(XMFLOAT3(tPosition.x + rStickDir.x, 0, tPosition.z + rStickDir.y));
 
 		XMFLOAT2	lStickDir		=	m_Controller->GetStickDirection( LEFT );
-		float		lStickLength	=	m_Controller->GetStickLength( LEFT ) * (160);
-		lStickLength				*=	1 + m_Controller->GetTriggerValue( RIGHT );
+		float		lStickLength	=	m_Controller->GetStickLength( LEFT ) * m_Unit->GetWalkSpeed() * UnitsPerMeter;
+
+		if (IsButtonState( XAim, UP ) && m_Unit->CanRun())
+		{
+			float walkSpeed = m_Unit->GetWalkSpeed();
+			float runSpeed = m_Unit->GetRunSpeed();
+			lStickLength				*=	1.0f + ( (runSpeed - walkSpeed) / walkSpeed) * m_Controller->GetTriggerValue( RIGHT );
+		}
 
 		newVel	=	XMFLOAT3(lStickDir.x * lStickLength, 0, lStickDir.y * lStickLength);
 
@@ -82,17 +88,33 @@ void Player::Update(float deltaTime)
 				newVel	=	XMFLOAT3(walkdir.x * speed, 0, walkdir.y * speed);
 		}
 
-		m_Unit->SetVelocity(newVel);
+		if (m_Unit->Crouching())
+			m_Unit->SetVelocity(XMFLOAT3(0, 0, 0));
+		else
+			m_Unit->SetVelocity(newVel);
 		
 		m_Camera->SetPosition(tPosition.x, tPosition.y + 300, tPosition.z - 100);
 		m_Camera->SetLookAt(tPosition);
 
-		if ( IsButtonState( XAim, PRESSED ) )
-			m_Unit->PlayAnimation("Draw");
 
-		if ( IsButtonState( XAim, DOWN ) )
+		switch (m_Controller->GetButtonState( (Xbox_Button)XAim ) )
+		{
+		case PRESSED:
+			m_Unit->SetWeaponState(Unit::Aim);
+			break;
+		case DOWN:
 			if ( IsButtonState( XShoot, DOWN ) || IsButtonState( MShoot, DOWN ) )
 				m_Unit->FireWeapon();
+			break;
+		case RELEASED:
+			m_Unit->SetWeaponState(Unit::Hold);
+			break;
+		}
+
+		if ( IsButtonState( XCrouch, PRESSED) )
+		{
+			m_Unit->SwitchCrouchStand();
+		}
 
 		if ( IsButtonState( XReload, PRESSED ) || IsButtonState( KReload, PRESSED ) )
 			m_Unit->ReloadWeapon();

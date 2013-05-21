@@ -149,6 +149,9 @@ XMFLOAT2 Controller::GetStickDirection(Xbox_Direction Stick)
 	direction.y	=	(direction.y < -1) ? -1 : direction.y;
 	direction.y	=	(direction.y > 1) ? 1 : direction.y;
 	
+
+	XMStoreFloat2( &direction, XMVector2Normalize( XMLoadFloat2( &direction ) ) );
+
 	return direction;
 }
 

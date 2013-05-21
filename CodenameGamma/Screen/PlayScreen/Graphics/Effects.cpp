@@ -553,6 +553,7 @@ CombineFinalEffect::CombineFinalEffect(ID3D11Device* device, const std::wstring&
 	BlendMonoTech  = mFX->GetTechniqueByName("BlendMono");
 	ColorTech  = mFX->GetTechniqueByName("Color");
 	BlendColorTech  = mFX->GetTechniqueByName("BlendColor");
+	AlphaClipColorTech  = mFX->GetTechniqueByName("AlphaClipColor");
 
 	Opacity = mFX->GetVariableByName("g_Opacity")->AsScalar();
 

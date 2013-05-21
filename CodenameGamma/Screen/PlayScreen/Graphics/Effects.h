@@ -694,6 +694,7 @@ public:
 	ID3DX11EffectTechnique* BlendMonoTech;
 	ID3DX11EffectTechnique* ColorTech;
 	ID3DX11EffectTechnique* BlendColorTech;
+	ID3DX11EffectTechnique* AlphaClipColorTech;
 		
 	ID3DX11EffectScalarVariable*		Opacity;
 

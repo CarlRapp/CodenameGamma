@@ -24,6 +24,31 @@ enum WeaponState
 	Reloading
 };
 
+struct WeaponAnimations
+{
+	string Draw;
+	string Aim;
+	string PutAway;
+	string UpperStand;
+	string UpperWalk;
+	string UpperRun;
+	string Shoot;
+	string ShootReload;
+	string DrawReloadPutAway;
+
+	WeaponAnimations()
+	{
+		Aim					= "";
+		Draw				= "";
+		DrawReloadPutAway	= "";
+		PutAway				= "";
+		Shoot				= "";
+		ShootReload			= "";
+		UpperWalk			= "";
+		UpperRun			= "";
+		UpperStand			= "";
+	}
+};
 
 class Weapon : public GameObject
 {
@@ -39,6 +64,8 @@ public:
 	Weapon(void);
 	~Weapon(void);
 
+	WeaponAnimations gWeaponAnimations;
+
 	//	This will be "master update"
 	virtual void	Update(float deltaTime, Terrain* terrain);
 
@@ -48,9 +75,11 @@ public:
 
 	bool			NeedReload() { return gClip.first <= 0 && gState != Reloading; }
 
-	virtual	void	Reload();
+	virtual	bool	Reload();
 
-	virtual bool Intersects(GameObject* B, vector<CollisionData>& CD);
+	virtual bool	Intersects(GameObject* B, vector<CollisionData>& CD);
+
+	float			GetReloadTime() { return gReloadTime.second; }
 
 	/*
 	To make it easier for the GUI

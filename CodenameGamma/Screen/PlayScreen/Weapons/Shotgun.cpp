@@ -5,10 +5,20 @@ Shotgun::Shotgun()
 {
 	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "Shotgun" ) );
 
-	gCooldown	=	WeaponCooldown(0.0f, 0.4f);
+	gCooldown	=	WeaponCooldown(0.0f, 1.0f);
 	gClip		=	WeaponClip(8, 8);
 
 	gReloadTime	=	WeaponReloadTime(0.0f, 4.0f);
+
+	gWeaponAnimations.Aim				= "ShotgunAim";
+	gWeaponAnimations.Draw				= "ShotgunDraw";
+	gWeaponAnimations.DrawReloadPutAway = "ShotgunDrawReloadPutAway";
+	gWeaponAnimations.PutAway			= "ShotgunPutAway";
+	gWeaponAnimations.Shoot				= "ShotgunShoot";
+	gWeaponAnimations.ShootReload		= "ShotgunShootReload";
+	gWeaponAnimations.UpperWalk			= "ShotgunUpperWalk";
+	gWeaponAnimations.UpperRun			= "ShotgunUpperRun";
+	gWeaponAnimations.UpperStand		= "ShotgunUpperStand";
 }
 
 Shotgun::~Shotgun()
