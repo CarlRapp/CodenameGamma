@@ -83,7 +83,7 @@ public:
 	UnitHealth		GetHealth();
 	Weapon*			GetWeapon() { return gCurrentWeapon; }
 
-	void SetMoveState(MoveState newWeaponState);
+	void SetMoveState(MoveState newMoveState);
 	void SetWeaponState(WeaponState newWeaponState);
 
 	bool CanRun() { return gMoveDirection == Forward; }
