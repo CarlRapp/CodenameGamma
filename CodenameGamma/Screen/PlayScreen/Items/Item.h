@@ -5,12 +5,18 @@
 #include "../GameObject.h"
 #include "../Units/Unit.h"
 #include "../Units/PlayerUnit.h"
+#include "../Graphics/LightHelper.h"
 
 using namespace DirectX;
 
 class Item : public GameObject
 {
 protected:
+	XMFLOAT3	gOffset;
+	float		gTimeSpan;
+	float		gCooldown;
+
+	PointLight*	gPointLight;
 	virtual	void	OnPickUp(Unit* Instance);
 
 public:

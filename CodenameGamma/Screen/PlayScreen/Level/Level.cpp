@@ -656,8 +656,10 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 		if( p->GetUnit() != 0 )
 			continue;
 		
+		XMFLOAT2	Pos	=	gNodeMap->GetRandomNode()->Position;
+
 		PlayerUnit*	pUnit	=	new CrazyBitch();
-		pUnit->MoveTo( XMFLOAT3( 3333, 0, gTerrain->GetDimensions().y - 50*33.333f ) );
+		pUnit->MoveTo( XMFLOAT3( Pos.x, 0, gTerrain->GetDimensions().y - Pos.y ) );
 		pUnit->SetPlayerScore( p->GetPlayerScore() );
 		pUnit->SetTeam( (GOTeam)i );
 		pUnit->LoopAnimation( "Back" );
