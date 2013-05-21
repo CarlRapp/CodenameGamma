@@ -48,14 +48,19 @@ PSSceneIn VSScene(VSIn input)
 //-----------------------------------------------------------------------------------------
 // PixelShader: PSSceneMain
 //-----------------------------------------------------------------------------------------
-float4 PSScene(PSSceneIn input, uniform bool gColor) : SV_Target
+float4 PSScene(PSSceneIn input, uniform bool gColor, uniform bool gAlphaClip) : SV_Target
 {	
 	float4 result;
 
 	if (gColor)
+	{
 		result = g_Texture.Sample(g_Sampler, input.Tex);
+
+		if (gAlphaClip)
+			clip(result.a - 0.1f);
+	}
 	else
-		result = pow(g_Texture.Sample(g_Sampler, input.Tex).x, 200);
+		result = g_Texture.Sample(g_Sampler, input.Tex).x;
 
 	result.a = g_Opacity;
 
@@ -97,11 +102,12 @@ technique11 Mono
 		// Set VS, GS, and PS
         SetVertexShader( CompileShader( vs_4_0, VSScene() ) );
         SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_4_0, PSScene(false) ) );
+        SetPixelShader( CompileShader( ps_4_0, PSScene(false, false) ) );
 		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 	    //SetRasterizerState( NoCulling );
     }  
 }
+
 
 //-----------------------------------------------------------------------------------------
 // Technique: BlendMono  
@@ -113,7 +119,7 @@ technique11 BlendMono
 		// Set VS, GS, and PS
         SetVertexShader( CompileShader( vs_4_0, VSScene() ) );
         SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_4_0, PSScene(false) ) );
+        SetPixelShader( CompileShader( ps_4_0, PSScene(false, false) ) );
 		SetBlendState(AdditiveBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 	    //SetRasterizerState( NoCulling );
     }  
@@ -129,7 +135,23 @@ technique11 Color
 		// Set VS, GS, and PS
         SetVertexShader( CompileShader( vs_4_0, VSScene() ) );
         SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_4_0, PSScene(true) ) );
+        SetPixelShader( CompileShader( ps_4_0, PSScene(true, false) ) );
+		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+	    //SetRasterizerState( NoCulling );
+    }  
+}
+
+//-----------------------------------------------------------------------------------------
+// Technique: AlphaClipColor 
+//-----------------------------------------------------------------------------------------
+technique11 AlphaClipColor
+{
+    pass p0
+    {
+		// Set VS, GS, and PS
+        SetVertexShader( CompileShader( vs_4_0, VSScene() ) );
+        SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_4_0, PSScene(true, true) ) );
 		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 	    //SetRasterizerState( NoCulling );
     }  
@@ -145,7 +167,7 @@ technique11 BlendColor
 		// Set VS, GS, and PS
         SetVertexShader( CompileShader( vs_4_0, VSScene() ) );
         SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_4_0, PSScene(true) ) );
+        SetPixelShader( CompileShader( ps_4_0, PSScene(true, false) ) );
 		SetBlendState(AdditiveBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 	    //SetRasterizerState( NoCulling );
     }  
