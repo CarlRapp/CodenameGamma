@@ -105,7 +105,7 @@ void EnemyUnit::FollowPath()
 
 	//	Calculate the new velocity.
 	XMFLOAT3	newVelocity;
-	XMStoreFloat3(&newVelocity, 3 * UnitsPerMeter * XMVector3Normalize( XMLoadFloat3( &gTargetPos ) - XMLoadFloat3( &GetFloat3Value( Position ) ) ) );
+	XMStoreFloat3(&newVelocity, gWalkSpeed * UnitsPerMeter * XMVector3Normalize( XMLoadFloat3( &gTargetPos ) - XMLoadFloat3( &GetFloat3Value( Position ) ) ) );
 
 	SetVelocity( newVelocity );
 
@@ -156,7 +156,7 @@ void EnemyUnit::UpdateHunt(float deltaTime, Terrain* terrain)
 
 	//	Calculate the new velocity.
 	XMFLOAT3	newVelocity;
-	XMStoreFloat3(&newVelocity, 5 * UnitsPerMeter * XMVector3Normalize( XMLoadFloat3( &target ) - XMLoadFloat3( &GetFloat3Value( Position ) ) ));
+	XMStoreFloat3(&newVelocity, gRunSpeed * UnitsPerMeter * XMVector3Normalize( XMLoadFloat3( &target ) - XMLoadFloat3( &GetFloat3Value( Position ) ) ));
 
 	SetVelocity( newVelocity );
 	LookAt( target );

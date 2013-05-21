@@ -32,8 +32,8 @@ void PlayerUnit::UpdateMeters(float DeltaTime)
 	//	speed based on
 	//	how fast the unit
 	//	is going.
-	gHunger.first	-=	DeltaTime * speed;
-	gThirst.first	-=	DeltaTime * speed;
+	//gHunger.first	-=	DeltaTime * speed;
+	//gThirst.first	-=	DeltaTime * speed;
 
 	gHunger.first	=	( gHunger.first < 0 ) ? 0 : gHunger.first;
 	gThirst.first	=	( gThirst.first < 0 ) ? 0 : gThirst.first;
