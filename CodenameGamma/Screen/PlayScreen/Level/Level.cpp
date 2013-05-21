@@ -118,7 +118,7 @@ void Level::LoadLevel(string Levelname)
 
 	ModelManager::GetInstance()->LoadModel("CrazyBitch", "CrazyBitch.dae", "DATA/Models/CrazyBitch/");
 
-	ModelManager::GetInstance()->LoadModel("Glock", "Glock.obj", "DATA/Models/Glock/");
+	ModelManager::GetInstance()->LoadModel("Glock", "Glock.dae", "DATA/Models/Glock/");
 	ModelManager::GetInstance()->LoadModel("Shotgun", "Shotgun.obj", "DATA/Models/Shotgun/");
 
 	ModelManager::GetInstance()->LoadModel("CannedFood", "CannedFood.obj", "DATA/Models/CannedFood/");
@@ -246,7 +246,11 @@ void Level::LoadLevel(string Levelname)
 		//XMFLOAT3	tPosition	=	XMFLOAT3( MathHelper::RandF(500, 3500), 0, MathHelper::RandF(2500, 3500) );
 		tRat->MoveTo( tPosition );
 
+		Pistol* pistol = new Pistol();
+		tRat->SetWeapon(pistol);
+
 		AddGameObject( tRat );
+		AddGameObject( pistol );
 	}
 }
 
@@ -386,6 +390,9 @@ void Level::Update(float DeltaTime)
 	vector<GameObject*> trash;
 	vector<GameObject*>	tempGameObjects	=	gGameObjects;
 
+	for each (Player *p in gPlayers)
+		p->Update(DeltaTime);
+
 	//for ( int i = gGameObjects.size() - 1; i >= 0; --i )
 	for each (GameObject*	tObject in tempGameObjects)
 	{
@@ -421,8 +428,7 @@ void Level::Update(float DeltaTime)
 
 	RunCollisionTest();
 
-	for each (Player *p in gPlayers)
-		p->Update(DeltaTime);
+	
 
 	//Updaterar ljus
 	//Updaterar dirlights	
@@ -649,15 +655,20 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 	{
 		if( p->GetUnit() != 0 )
 			continue;
-
+		
 		PlayerUnit*	pUnit	=	new CrazyBitch();
 		pUnit->MoveTo( XMFLOAT3( 3333, 0, gTerrain->GetDimensions().y - 50*33.333f ) );
 		pUnit->SetPlayerScore( p->GetPlayerScore() );
 		pUnit->SetTeam( (GOTeam)i );
 		pUnit->LoopAnimation( "Back" );
+
+		Pistol* pistol = new Pistol();
+		pUnit->SetWeapon(pistol);
+
 		p->SetUnit( pUnit );
 
 		AddGameObject( pUnit );
+		AddGameObject( pistol );
 		++i;
 	}
 
