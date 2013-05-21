@@ -25,15 +25,15 @@ void PlayerUnit::Update(float DeltaTime, Terrain* terrain)
 
 void PlayerUnit::UpdateMeters(float DeltaTime)
 {
-	float	speed	=	GetSpeed();
+	float	tMultiplier	=	0.5f + 0.01f * GetSpeed();
 
 	//	TODO
 	//	Make the reduction
 	//	speed based on
 	//	how fast the unit
 	//	is going.
-	//gHunger.first	-=	DeltaTime * speed;
-	//gThirst.first	-=	DeltaTime * speed;
+	gHunger.first	-=	DeltaTime * tMultiplier;
+	gThirst.first	-=	DeltaTime * tMultiplier;
 
 	gHunger.first	=	( gHunger.first < 0 ) ? 0 : gHunger.first;
 	gThirst.first	=	( gThirst.first < 0 ) ? 0 : gThirst.first;

@@ -1,22 +1,21 @@
-#include "CannedFood.h"
+#include "Canister.h"
 
 
-CannedFood::CannedFood()
+Canister::Canister()
 {
-	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "CannedFood" ) );
+	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "Cannister" ) );
 
 	gPointLight	=	0;
 	gOffset		=	XMFLOAT3( 0, 6, 0 );
 	gTimeSpan	=	MathHelper::RandF( 0.0f, 8000.0f );
-
 }
 
-CannedFood::~CannedFood()
+Canister::~Canister()
 {
 	delete	gPointLight;
 }
 
-void CannedFood::Update(float DeltaTime, Terrain* terrain)
+void Canister::Update(float DeltaTime, Terrain* terrain)
 {
 	XMFLOAT3	newPos	=	GetFloat3Value( Position );
 
@@ -43,13 +42,13 @@ void CannedFood::Update(float DeltaTime, Terrain* terrain)
 }
 
 
-void CannedFood::OnPickUp(Unit* Instance)
+void Canister::OnPickUp(Unit* Instance)
 {
 	if ( !IsOfType<PlayerUnit>(Instance) )
 		return;
 
 	PlayerUnit*	pUnit	=	(PlayerUnit*)Instance;
-	pUnit->Eat( 15 );
+	pUnit->Drink( 15 );
 	
 	SetState( Dead );
 
