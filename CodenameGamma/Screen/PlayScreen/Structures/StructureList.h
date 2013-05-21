@@ -29,6 +29,7 @@
 #include "SandBag.h"
 #include "TankBarrier.h"
 #include "UtilityPole.h"
+#include "OilBarrel.h"
 
 //	Misc
 #include "UnitCube.h"

@@ -324,7 +324,7 @@ private:
 	void ComputeLight(vector<Camera*>& Cameras);
 	void CombineFinal();
 
-	void RenderQuad(D3D11_VIEWPORT &vp, ID3D11ShaderResourceView* SRV, ID3DX11EffectTechnique* tech);
+	
 
 public:
 	GraphicsManager(ID3D11Device *device, ID3D11DeviceContext *deviceContext, ID3D11RenderTargetView *renderTargetView, int width, int height);
@@ -344,7 +344,7 @@ public:
 	
 	//void Render(vector<Player*>& players);
 
-
+	void RenderQuad(D3D11_VIEWPORT &vp, ID3D11ShaderResourceView* SRV, ID3DX11EffectTechnique* tech);
 	void Render(vector<Camera*>& Cameras);
 };
 

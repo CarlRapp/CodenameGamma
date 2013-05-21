@@ -186,6 +186,8 @@ public:
 
 		return allDead;
 	}
+
+	GraphicsManager*	GetGraphicsManager(){ return gGraphicsManager; }
 };
 
 #endif

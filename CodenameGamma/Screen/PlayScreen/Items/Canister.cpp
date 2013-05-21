@@ -3,7 +3,7 @@
 
 Canister::Canister()
 {
-	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "Cannister" ) );
+	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "Canister" ) );
 
 	gPointLight	=	0;
 	gOffset		=	XMFLOAT3( 0, 6, 0 );
@@ -22,7 +22,7 @@ void Canister::Update(float DeltaTime, Terrain* terrain)
 	if ( !gPointLight )
 	{
 		gPointLight	=	new PointLight();
-		gPointLight->GetGPULight()->Color		=	XMFLOAT4( 1.0f, 1.0f, 1.0f, 0.0f );
+		gPointLight->GetGPULight()->Color		=	XMFLOAT4( 1.0f, 1.0f, 1.5f, 0.0f );
 		gPointLight->GetGPULight()->Position	=	newPos;
 		gPointLight->GetGPULight()->Range		=	33.333f * 0.40f;
 		gPointLight->GetGPULight()->HasShadow	=	false;
@@ -31,7 +31,7 @@ void Canister::Update(float DeltaTime, Terrain* terrain)
 	}
 
 	gTimeSpan	+=	DeltaTime;
-	
+	AddRotation( XMFLOAT3(0, DeltaTime, 0 ) );
 	newPos.y	=	gOffset.y + ( gOffset.y - 2 ) * sin( 8 * gTimeSpan );
 	MoveTo( newPos );
 	newPos.y	-=	1.0f;
