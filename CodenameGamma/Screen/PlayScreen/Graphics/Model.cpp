@@ -192,6 +192,21 @@ bool ModelInstance::PlayingAnimation(string clipName)
 	return false;
 }
 
+void ModelInstance::PlayAnimation(Animation* animation)
+{
+	for (int i = ActiveAnimations.size() - 1; i >= 0; --i)
+	{
+		Animation* temp = ActiveAnimations[i];
+		if (m_Model->SkinnedData.GetAnimationFirstBone(animation->ClipName) == (m_Model->SkinnedData.GetAnimationFirstBone(temp->ClipName)))
+		{
+			StopAnimation(temp->ClipName);
+		}
+	}
+	cout << "Starting animation " << animation->ClipName << "\t Number of animations: " << ActiveAnimations.size() + 1 << endl;
+	ActiveAnimations.push_back(animation);
+	SortAnimations();
+}
+
 bool ModelInstance::PlayAnimation(string clipName, bool loop)
 {
 	if (!m_Model)
@@ -202,23 +217,46 @@ bool ModelInstance::PlayAnimation(string clipName, bool loop)
 		Animation* animation	= new Animation();
 		animation->ClipName		= clipName;
 		animation->Loop			= loop;
-		//animation->TimePos		= 0.0f;
-		//animation->AnimationSpeed= 1.0f;
+		animation->numKeyFrames = m_Model->SkinnedData.GetNumberOfKeyFrames(clipName);
+		
+		PlayAnimation(animation);
 
-		//Stoppar alla animationer som börjar i samma ben.
-		for (int i = ActiveAnimations.size() - 1; i >= 0; --i)
-		{
-			Animation* animation = ActiveAnimations[i];
-			if (m_Model->SkinnedData.GetAnimationFirstBone(clipName) == (m_Model->SkinnedData.GetAnimationFirstBone(animation->ClipName)))
-			{
-				StopAnimation(animation->ClipName);
-			}
-		}
-		cout << "Starting animation " << clipName << "\t Number of animations: " << ActiveAnimations.size() + 1 << endl;
-		ActiveAnimations.push_back(animation);
-		SortAnimations();
 		return true;
 	}	
+	return false;
+}
+
+bool ModelInstance::PlayAnimationAfter(string current, string next, bool loop)
+{
+	if (!m_Model)
+		return false;
+	if (!m_Model->SkinnedData.HasAnimation(next))
+		return false;
+
+	for each (Animation* animation in ActiveAnimations)
+	{
+
+		while (animation)
+		{
+			if (animation->ClipName == current)
+			{
+				if (!animation->Loop)
+				{
+					Animation* nextAnimation	= new Animation();
+					nextAnimation->ClipName		= next;
+					nextAnimation->Loop			= loop;
+					nextAnimation->numKeyFrames = m_Model->SkinnedData.GetNumberOfKeyFrames(next);
+
+					animation->nextAnimation	= nextAnimation;
+
+					return true;
+				}
+				return false;
+			}
+
+			animation = animation->nextAnimation;
+		}
+	}
 	return false;
 }
 
@@ -247,6 +285,76 @@ void ModelInstance::StopAllAnimations()
 	ActiveAnimations.clear();
 }
 
+bool ModelInstance::SetAnimationSpeed(string clipName, float speed)
+{
+	for each (Animation* animation in ActiveAnimations)
+	{
+		if (animation->ClipName == clipName)
+		{
+			animation->AnimationSpeed = speed;
+			return true;
+		}
+	}
+	return false;
+}
+
+bool ModelInstance::SetAnimationProgress(string clipName, float progress)
+{
+	if (!m_Model)
+		return false;
+
+	for each (Animation* animation in ActiveAnimations)
+	{
+		if (animation->ClipName == clipName)
+		{
+			float endTime	= m_Model->SkinnedData.GetClipEndTime(clipName);
+
+			animation->TimePos = progress * endTime;
+			return true;
+		}
+	}
+	return false;
+}
+
+float ModelInstance::GetAnimationSpeed(string clipName)
+{
+	for each (Animation* animation in ActiveAnimations)
+	{
+		if (animation->ClipName == clipName)
+		{
+			return animation->AnimationSpeed;
+		}
+	}
+	return 0.0f;
+}
+
+float ModelInstance::GetAnimationProgress(string clipName)
+{
+	if (!m_Model)
+		return 1.0f;
+
+	for each (Animation* animation in ActiveAnimations)
+	{
+		if (animation->ClipName == clipName)
+		{
+			float endTime	= m_Model->SkinnedData.GetClipEndTime(clipName);
+			return animation->TimePos / endTime;
+		}
+	}
+	return 1.0f;
+}
+
+float ModelInstance::GetAnimationTime(string clipName)
+{
+	if (!m_Model)
+		return 1.0f;
+
+	if (m_Model->SkinnedData.HasAnimation(clipName))
+		return m_Model->SkinnedData.GetClipEndTime(clipName);
+
+	return 1.0f;
+}
+
 void ModelInstance::UpdateBoxes()
 {
 	if (m_Model && BoxesNeedsUpdate)
@@ -273,11 +381,12 @@ void ModelInstance::Update(float dt, float AnimationSpeed, bool UpdateAnimation)
 {
 	BoxesNeedsUpdate = true;	
 
-	if (UsingAnimationOrPose())
+	if (HasActiveAnimations())
 	{
 		for each (Animation* animation in ActiveAnimations)
 		{
-			animation->TimePos += dt * animation->AnimationSpeed;
+			if (animation->numKeyFrames > 1)
+				animation->TimePos += dt * animation->AnimationSpeed;
 			//cout << "Updating timer: " << animation->ClipName << " - " << animation->TimePos << " - " << dt * animation->AnimationSpeed << endl;
 		}
 
@@ -297,7 +406,13 @@ void ModelInstance::Update(float dt, float AnimationSpeed, bool UpdateAnimation)
 						animation->TimePos = 0.0f;
 					}
 					else
+					{
+						Animation* next = animation->nextAnimation;
 						StopAnimation(animation->ClipName);
+
+						if (next)
+							PlayAnimation(next);						
+					}
 				}
 			}
 		}
@@ -321,7 +436,7 @@ void ModelInstance::Update(float dt, float AnimationSpeed, bool UpdateAnimation)
 	}*/
 	//UpdateBoxes();	
 }
-
+/*
 void ModelInstance::UpdatePose()
 {
 	if (UsingAnimationOrPose() && !Animating)
@@ -329,3 +444,4 @@ void ModelInstance::UpdatePose()
 		m_Model->SkinnedData.GetFinalTransforms(ClipName, FinalTransforms);
 	}
 }
+*/

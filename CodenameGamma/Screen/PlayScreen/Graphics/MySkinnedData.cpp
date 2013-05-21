@@ -255,8 +255,11 @@ void SkinnedData::GetChildrenBones(int boneIndex, std::vector<int>& bones)
 
 void SkinnedData::GetFinalTransforms(std::vector<Animation*>& animations, std::vector<XMFLOAT4X4>& finalTransforms)
 {
-	if (animations.size() == 0)
+	int numAnimations = animations.size();	//Vi har inga animationer
+	if (numAnimations == 0)
 		return;
+	//else if (numAnimations == 1 && animations[0]->numKeyFrames == 1) //Vi har bara en pose. Inget annat.
+	//	return;
 
 	UINT numBones = mBoneOffsets.size();
 
@@ -338,7 +341,7 @@ void SkinnedData::GetFinalTransforms(std::vector<Animation*>& animations, std::v
 		//XMStoreFloat4x4(&finalTransforms[i], XMMatrixMultiply(globalInverseTransform, temp));
 	}
 }
-
+/*
 void SkinnedData::GetFinalTransforms(const std::string& clipName,  std::vector<XMFLOAT4X4>& finalTransforms)const
 {
 	UINT numBones = mBoneOffsets.size();
@@ -399,7 +402,7 @@ void SkinnedData::GetFinalTransforms(const std::string& clipName,  std::vector<X
 		//XMStoreFloat4x4(&finalTransforms[i], XMMatrixMultiply(temp, globalInverseTransform));
 	}
 }
-
+*/
 void SkinnedData::CreateClip(std::string name, int firstFrame, int lastFrame, float TimeScale, int FirstBone)
 {
 	if (mAnimations.empty())
@@ -450,15 +453,69 @@ void SkinnedData::CreateClip(std::string name, int firstFrame, int lastFrame, fl
 	else
 		return;
 
+	clip.numKeyFrames = clip.BoneAnimations[0].Keyframes.size();
 	mAnimations.insert(std::pair<std::string, AnimationClip>(name, clip));
 }
 
-void SkinnedData::CreatePose(std::string name, int frame)
+void SkinnedData::CreateClip(std::string name1, std::string name2, std::string name3, float TimeScale, int FirstBone)
+{
+	if (mAnimations.empty() || !HasAnimation(name2) || !HasAnimation(name3))
+		return;
+	AnimationClip clip1 = mAnimations[name2];
+	AnimationClip clip2 = mAnimations[name3];
+	AnimationClip clip;
+
+	clip.FirstBone = FirstBone;
+
+	float offset = GetClipEndTime(name2) * TimeScale;
+
+	TimeScale = 1.0f / TimeScale;
+
+	for (UINT i = 0; i < clip1.BoneAnimations.size(); i++)
+	{
+		BoneAnimation boneAni;
+		for (int j = 0; j < clip1.numKeyFrames; ++j)
+		{
+			Keyframe kframe = clip1.BoneAnimations[i].Keyframes[j];
+			kframe.TimePos *= TimeScale;
+			boneAni.Keyframes.push_back(kframe);
+		}
+
+		for (int j = 0; j < clip2.numKeyFrames; ++j)
+		{
+			Keyframe kframe = clip2.BoneAnimations[i].Keyframes[j];
+			kframe.TimePos *= TimeScale;
+			kframe.TimePos += offset;
+			boneAni.Keyframes.push_back(kframe);
+		}
+
+		clip.BoneAnimations.push_back(boneAni);
+	}
+	/*
+	for (UINT i = 0; i < clip2.BoneAnimations.size(); i++)
+	{
+		for (int j = 0; j < clip2.numKeyFrames; ++j)
+		{
+			Keyframe kframe = clip2.BoneAnimations[i].Keyframes[j];
+			kframe.TimePos += offset;
+			kframe.TimePos *= TimeScale;
+			clip.BoneAnimations[i].Keyframes.push_back(kframe);
+		}
+	}
+	*/
+	clip.numKeyFrames = clip.BoneAnimations[0].Keyframes.size();
+	mAnimations.insert(std::pair<std::string, AnimationClip>(name1, clip));
+}
+
+void SkinnedData::CreatePose(std::string name, int frame, int FirstBone)
 {
 	if (mAnimations.empty())
 		return;
+
 	AnimationClip all = mAnimations["ALL"];
-	Pose pose;
+
+	AnimationClip clip;
+	clip.FirstBone = FirstBone;
 
 	float offset = all.BoneAnimations[0].Keyframes[frame].TimePos;
 
@@ -468,9 +525,8 @@ void SkinnedData::CreatePose(std::string name, int frame)
 		Keyframe kframe = all.BoneAnimations[i].Keyframes[frame];
 		kframe.TimePos -= offset;
 		boneAni.Keyframes.push_back(kframe);
-
-		pose.BoneAnimations.push_back(boneAni);
+		clip.BoneAnimations.push_back(boneAni);
 	}
-	mPoses.insert(std::pair<std::string, Pose>(name, pose));
-	
+	clip.numKeyFrames = clip.BoneAnimations[0].Keyframes.size();
+	mAnimations.insert(std::pair<std::string, AnimationClip>(name, clip));	
 }

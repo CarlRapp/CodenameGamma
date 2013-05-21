@@ -53,14 +53,15 @@ bool Weapon::Fire( GameObject* Instance )
 	return false;
 }
 
-void Weapon::Reload()
+bool Weapon::Reload()
 {
 	if ( gState == Reloading )
-		return;
+		return false;
 	
 	gClip.first			=	0;
 	gReloadTime.first	=	gReloadTime.second;
 	gState				=	Reloading;
+	return true;
 }
 
 bool Weapon::Intersects(GameObject* B, vector<CollisionData>& CD)

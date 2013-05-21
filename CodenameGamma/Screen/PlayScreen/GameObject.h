@@ -93,6 +93,11 @@ class GameObject
 	bool		AnimateThisUpdate;
 
 protected:
+
+	enum MoveDirection { Forward, Back, Right, Left, None };
+
+	MoveDirection gMoveDirection;
+
 	LightCallback AddLight;
 	LightCallback RemoveLight;
 	GameObjectCallback AddGameObject;
@@ -171,16 +176,28 @@ public:
 	void	SetState(GOState Value);
 
 	bool	PlayingAnimation(string name);
-	bool	LoopAnimation(string name);
+	bool	LoopAnimation(string name);	
 	bool	PlayAnimation(string name);
+	bool	LoopAnimationAfter(string current, string next);
+	bool	PlayAnimationAfter(string current, string next);
 	void	StopAnimation(string name);
 	void	StopAllAnimations();
 
+	bool	GetJointPosition(string name, XMFLOAT3& pos);
+
+	bool	SetAnimationSpeed(string name, float speed);
+	bool	SetAnimationProgress(string name, float progress);
+
+	float	GetAnimationSpeed(string name);
+	float	GetAnimationProgress(string name);
+
+	float	GetAnimationTime(string name);
+
 	void	AnimateNextFrame() { AnimateThisUpdate = true; }
 
-	bool	UsePose(string name);
+	//bool	UsePose(string name);
 
-	string  CurrentAnimationOrPose();
+	//string  CurrentAnimationOrPose();
 	
 	//static bool	Intersects(const GameObject* A, const GameObject* B, vector<CollisionData>& CD);
 

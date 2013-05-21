@@ -61,13 +61,11 @@ private:
 	bool			BoxesNeedsUpdate;
 	float			UpdateTimer;
 
-	void SortAnimations();
+	void			SortAnimations();
 
 public:
 
-	float TimePos;
 	bool  Animating;
-	string ClipName;
 	vector<XMFLOAT4X4>	FinalTransforms;
 	vector<Animation*>	ActiveAnimations;
 
@@ -84,11 +82,21 @@ public:
 	void							*m_Node;
 
 	bool PlayingAnimation(string clipName);
+	void PlayAnimation(Animation* animation);
 	bool PlayAnimation(string clipName, bool loop);
+	bool PlayAnimationAfter(string current, string next, bool loop);
 	void StopAnimation(string clipName);
 	void StopAllAnimations();
+	
+	bool SetAnimationSpeed(string clipName, float speed);
+	bool SetAnimationProgress(string clipName, float progress);
 
-	bool UsingAnimationOrPose() { return !ActiveAnimations.empty(); }
+	float GetAnimationSpeed(string clipName);
+	float GetAnimationProgress(string clipName);
+
+	float GetAnimationTime(string clipName);
+
+	bool HasActiveAnimations() { return !ActiveAnimations.empty(); }
 
 	void SetModel(Model* Model)
 	{
@@ -116,7 +124,7 @@ public:
 
 	XMFLOAT4X4 GetWorld() { return m_World; }
 
-	void UpdatePose();
+	//void UpdatePose();
 
 	ModelInstance()
 	{
@@ -127,9 +135,7 @@ public:
 		//m_Translation			=	XMFLOAT3(1,1,1);
 		m_WorldInverseTranspose	=	XMFLOAT4X4(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 
-		TimePos = 0;
 		UpdateTimer = MathHelper::RandF(0.0f, UPDATE_INTERVAL);
-		ClipName = "";
 		Animating = false;
 	}
 

@@ -699,7 +699,7 @@ void GraphicsManager::RenderModelsShadowMap(UINT lightType, CXMMATRIX View, CXMM
 
 		if (modelInstance != NULL)
 		{
-			if (!modelInstance->UsingAnimationOrPose())
+			if (!modelInstance->HasActiveAnimations())
 			{
 				if (modelInstance->GetModel()->HasDiffuseMaps())				
 					TexInstances.push_back(instance);
@@ -1061,7 +1061,7 @@ void GraphicsManager::RenderModels(Camera* tCamera)
 
 		if (modelInstance != NULL)
 		{
-			if (!modelInstance->UsingAnimationOrPose())
+			if (!modelInstance->HasActiveAnimations())
 			{
 				if (modelInstance->GetModel()->HasDiffuseMaps())
 				{

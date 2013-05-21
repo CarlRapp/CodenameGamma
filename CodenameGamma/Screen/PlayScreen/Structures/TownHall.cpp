@@ -3,7 +3,7 @@
 TownHall::TownHall()
 {
 	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "TownHall" ) );
-	UsePose("StartPose");
+	PlayAnimation("StartPose");
 	//PlayAnimation("ALL");
 }
 

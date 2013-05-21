@@ -270,7 +270,7 @@ void ModelLoader::LoadAnimation(const aiScene* scene, AnimationClip& animationCl
 
 void ModelLoader::LoadAnimationClipsAndPoses(const std::string& filename, SkinnedData& skinInfo)
 {
-	skinInfo.CreatePose("StartPose", 0);
+	skinInfo.CreatePose("StartPose", 0, 0);
 	//read file
 	UINT lastIndex = filename.find_last_of('.');
 	std::string path = filename.substr(0, lastIndex) + ".txt";
@@ -303,14 +303,37 @@ void ModelLoader::LoadAnimationClipsAndPoses(const std::string& filename, Skinne
 
 			skinInfo.CreateClip(name, firstFrame, lastFrame, TimeScale, m_BoneToIndex[FirstBone]);
 		}
+		else if (token == "CombineAnimation")
+		{
+			std::string name1;
+			std::string name2;
+			std::string name3;
+			float TimeScale;
+			std::string FirstBone;
+
+			file >> name1;
+			file >> name2;
+			file >> name3;
+			file >> TimeScale;
+			file >> FirstBone;
+
+			skinInfo.CreateClip(name1, name2, name3, TimeScale, m_BoneToIndex[FirstBone]);
+		}
 		else if (token == "Pose")
 		{
 			std::string name;
 			int frame;
+			std::string FirstBone;
 
 			file >> name;
 			file >> frame;
-			skinInfo.CreatePose(name, frame);
+			file >> FirstBone;
+			skinInfo.CreatePose(name, frame, m_BoneToIndex[FirstBone]);
+		}
+		else if (token == "//")
+		{
+			string str;
+			getline(file, str);
 		}
 		else
 			return;

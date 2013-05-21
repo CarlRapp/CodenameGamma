@@ -11,6 +11,8 @@ GameObject::GameObject(void)
 	gAcceleration		=	XMFLOAT3(0, 0, 0); 
 	gRotationInFloat	=	XMFLOAT3(0, 0, 0);
 
+	gMoveDirection		=	None;
+
 	XMStoreFloat4x4(&gScale, XMMatrixScaling(1, 1, 1));
 	XMStoreFloat4x4(
 		&gTranslation,
@@ -313,6 +315,22 @@ bool GameObject::PlayAnimation(string name)
 	return false;
 }
 
+bool GameObject::LoopAnimationAfter(string current, string next)
+{
+	if (m_ModelInstance)
+	{
+		return m_ModelInstance->PlayAnimationAfter(current, next, true);
+	}
+}
+
+bool GameObject::PlayAnimationAfter(string current, string next)
+{
+	if (m_ModelInstance)
+	{
+		return m_ModelInstance->PlayAnimationAfter(current, next, false);
+	}
+}
+
 void GameObject::StopAnimation(string name)
 {
 	if (m_ModelInstance)
@@ -329,7 +347,61 @@ void GameObject::StopAllAnimations()
 	}
 }
 
+bool GameObject::SetAnimationSpeed(string name, float speed)
+{
+	if (m_ModelInstance)
+	{
+		return m_ModelInstance->SetAnimationSpeed(name, speed);
+	}
+	return false;
+}
 
+bool GameObject::SetAnimationProgress(string name, float progress)
+{
+	if (m_ModelInstance)
+	{
+		return m_ModelInstance->SetAnimationProgress(name, progress);
+	}
+	return false;
+}
+
+float GameObject::GetAnimationSpeed(string name)
+{
+	if (m_ModelInstance)
+	{
+		return m_ModelInstance->GetAnimationSpeed(name);
+	}
+	return 0.0f;
+}
+
+float GameObject::GetAnimationProgress(string name)
+{
+	if (m_ModelInstance)
+	{
+		return m_ModelInstance->GetAnimationProgress(name);
+	}
+	return 1.0f;
+}
+
+float GameObject::GetAnimationTime(string name)
+{
+	if (m_ModelInstance)
+	{
+		return m_ModelInstance->GetAnimationTime(name);
+	}
+	return 1.0f;
+}
+
+bool GameObject::GetJointPosition(string name, XMFLOAT3& pos)
+{
+	if (m_ModelInstance)
+	{
+		return m_ModelInstance->GetJointPosition(name, pos);
+	}
+	return false;
+}
+
+/*
 string GameObject::CurrentAnimationOrPose()
 {
 	if (m_ModelInstance)
@@ -338,7 +410,8 @@ string GameObject::CurrentAnimationOrPose()
 	}
 	return "";
 }
-
+*/
+/*
 bool GameObject::UsePose(string name)
 {
 	if (m_ModelInstance)
@@ -353,7 +426,7 @@ bool GameObject::UsePose(string name)
 	}
 	return false;
 }
-
+*/
 #pragma region Team Methods
 void GameObject::SetTeam(GOTeam Team)
 {

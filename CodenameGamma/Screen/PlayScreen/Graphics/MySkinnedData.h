@@ -78,17 +78,33 @@ struct AnimationNode
 	std::vector<std::string> bones;
 };
 
+struct AnimationData
+{
+	string	clipName;
+	bool	loop;
+
+	AnimationData()
+	{
+		clipName = "";
+		loop = false;
+	}
+};
+
 struct Animation
 {
 	std::string	ClipName;
 	float	TimePos;
 	float	AnimationSpeed;
 	bool	Loop;
+	int		numKeyFrames;
+
+	Animation* nextAnimation;
 
 	Animation()
 	{
 		TimePos			= 0.0f;
 		AnimationSpeed	= 1.0f;
+		nextAnimation	= 0;
 	}
 
 	bool operator==(Animation B)
@@ -105,6 +121,8 @@ struct Animation
 struct AnimationClip
 {
 	int	  FirstBone;
+	int	  numKeyFrames;
+
 	float GetClipStartTime()const;
 	float GetClipEndTime()const;
 
@@ -121,10 +139,12 @@ struct AnimationClip
 
 };
 
+/*
 struct Pose
 {
     std::vector<BoneAnimation> BoneAnimations;
 };
+*/
 
 struct Joint
 {
@@ -142,7 +162,7 @@ private:
 	std::vector<XMFLOAT4X4> mBoneOffsets;
    
 	std::map<std::string, AnimationClip>	mAnimations;
-	std::map<std::string, Pose>				mPoses;
+	//std::map<std::string, Pose>				mPoses;
 
 	std::map<std::string, int>				mNameToBoneIndex;
 	std::map<int, std::string>				mBoneIndexToName;
@@ -172,16 +192,25 @@ public:
 		return -1;
 	}
 
+	int   GetNumberOfKeyFrames(std::string name)
+	{
+		if (mAnimations.find(name) != mAnimations.end())
+		{
+			return mAnimations[name].numKeyFrames;
+		}
+		return 0;
+	}
+
 	bool  HasAnimations()
 	{
 		return (!mAnimations.empty() && !mBoneHierarchy.empty());
 	}
-
+	/*
 	bool  HasPose(std::string name)
 	{
 		return mPoses.find(name) != mPoses.end();
 	}
-
+	*/
 	AnimationClip* GetAnimation(std::string name) 
 	{ 
 		if (HasAnimation(name))
@@ -214,11 +243,12 @@ public:
 	void GetFinalTransforms(std::vector<Animation*>& animations, 
 		 std::vector<XMFLOAT4X4>& finalTransforms);
 
-	void GetFinalTransforms(const std::string& clipName, 
-		 std::vector<XMFLOAT4X4>& finalTransforms)const;
+	//void GetFinalTransforms(const std::string& clipName, 
+	//	 std::vector<XMFLOAT4X4>& finalTransforms)const;
 
 	void CreateClip(std::string, int firstFrame, int lastFrame, float TimeScale, int FirstBone);
-	void CreatePose(std::string, int frame);
+	void CreateClip(std::string name1, std::string name2, std::string name3, float TimeScale, int FirstBone);
+	void CreatePose(std::string, int frame, int FirstBone);
 
 	std::vector<BoundingOrientedBox> CreateBoneBoxes(std::vector<Vertex::PosNormalTexTanSkinned>& vertices)
 	{
