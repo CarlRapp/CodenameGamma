@@ -4,7 +4,17 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 {
 	LoadScreenData(Setup);
 	gScreenData	=	Setup;
-	gScreenData->PLAYER_SCORE_LIST.clear();
+	
+}
+
+#pragma region Load / Unload
+bool PlayScreen::Load()
+{
+	for( int n = 0; n < 10; ++n)
+	{
+		string	tPath	=	"DATA/GUI/Health/Health_" + to_string( (long double) n + 1 ) + ".png";
+		D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, tPath.c_str(), 0, 0, &gHealthBar[n], 0 );
+	}
 
 	SystemData	tData			=	SystemData();
 	tData.DEVICE				=	gDevice;
@@ -15,13 +25,9 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 
 	gLevel	=	new Level(tData);
 	gLevel->LoadLevel("City_2");
+	gScreenData->PLAYER_SCORE_LIST.clear();
 
-	SetNumberOfPlayers(Setup->NUMBER_OF_PLAYERS);
-}
-
-#pragma region Load / Unload
-bool PlayScreen::Load()
-{
+	SetNumberOfPlayers(gScreenData->NUMBER_OF_PLAYERS);
 
 	return true;
 }
@@ -31,6 +37,11 @@ bool PlayScreen::Unload()
 	
 	if ( gLevel )
 		delete	gLevel;
+
+	for( int n = 0; n < 10; ++n)
+	{
+		gHealthBar[n]->Release();
+	}
 		
 	return true;
 }
@@ -38,7 +49,6 @@ bool PlayScreen::Unload()
 void PlayScreen::Update(float DeltaTime)
 {
 	gLevel->Update(DeltaTime);
-
 
 	if ( InputManager::GetInstance()->GetController(0)->GetButtonState( START ) == PRESSED ||
 		InputManager::GetInstance()->GetKeyboard()->GetKeyState(VK_ESCAPE) == PRESSED)
@@ -52,13 +62,20 @@ void PlayScreen::Update(float DeltaTime)
 
 		gGotoNextFrame	=	POST_PLAY_SCREEN;
 	}
+
+	if( InputManager::GetInstance()->GetController(0)->GetButtonState( A ) == PRESSED )
+		if( gLevel->GetPlayers()[0]->GetUnit() )
+			gLevel->GetPlayers()[0]->GetUnit()->Hurt( 10 );
 }
 
 void PlayScreen::Render()
 {
 	gLevel->Render();
 
+	for each( Player* p in gLevel->GetPlayers() )
+		RenderGUI( p );
 
+	/*
 	for each( Player* p in gLevel->GetPlayers() )
 	{
 		PlayerUnit*	tUnit	=	p->GetUnit();
@@ -103,7 +120,7 @@ void PlayScreen::Render()
 				0
 			);
 		}
-	}
+	}*/
 }
 
 ScreenType PlayScreen::GetScreenType()
@@ -119,7 +136,37 @@ void PlayScreen::Reset()
 
 void PlayScreen::RenderGUI( Player* P )
 {
+	if( !P->GetUnit() )
+		return;
 
 	GraphicsManager*	GM	=	gLevel->GetGraphicsManager();
+	D3D11_VIEWPORT		pVP	=	P->GetCamera()->GetViewPort();
 
+	D3D11_VIEWPORT	tVP;
+	tVP.TopLeftX	=	pVP.TopLeftX;
+	tVP.TopLeftY	=	pVP.TopLeftY;
+	tVP.MinDepth	=	0.0f;
+	tVP.MaxDepth	=	1.0f;
+	tVP.Width		=	70;
+	tVP.Height		=	58;
+
+	UnitHealth	uHealth	=	P->GetUnit()->GetHealth();
+	int HP		=	(int)( 100.0f * (uHealth.first/uHealth.second) );
+	int	index	=	HP / 10;
+	if( index > 0 )
+	{
+		GM->RenderQuad( tVP, gHealthBar[index - 1], Effects::CombineFinalFX->AlphaClipColorTech );
+
+		DrawString(
+			*gTextInstance,
+			to_string( (long double)HP ),
+			tVP.TopLeftX + tVP.Width * 0.5f,
+			tVP.TopLeftY + tVP.Height * 0.5f,
+			15,
+			White,
+			Black,
+			1.0f,
+			FW1_CENTER | FW1_VCENTER
+		);
+	}
 }
