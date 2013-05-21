@@ -4,19 +4,7 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 {
 	LoadScreenData(Setup);
 	gScreenData	=	Setup;
-	gScreenData->PLAYER_SCORE_LIST.clear();
-
-	SystemData	tData			=	SystemData();
-	tData.DEVICE				=	gDevice;
-	tData.DEVICE_CONTEXT		=	gDeviceContext;
-	tData.RENDER_TARGET_VIEW	=	gRenderTargetView;
-	tData.SCREEN_WIDTH			=	gScreenWidth;
-	tData.SCREEN_HEIGHT			=	gScreenHeight;
-
-	gLevel	=	new Level(tData);
-	gLevel->LoadLevel("City_2");
-
-	SetNumberOfPlayers(Setup->NUMBER_OF_PLAYERS);
+	
 }
 
 #pragma region Load / Unload
@@ -27,6 +15,20 @@ bool PlayScreen::Load()
 		string	tPath	=	"DATA/GUI/Health/Health_" + to_string( (long double) n + 1 ) + ".png";
 		D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, tPath.c_str(), 0, 0, &gHealthBar[n], 0 );
 	}
+
+	SystemData	tData			=	SystemData();
+	tData.DEVICE				=	gDevice;
+	tData.DEVICE_CONTEXT		=	gDeviceContext;
+	tData.RENDER_TARGET_VIEW	=	gRenderTargetView;
+	tData.SCREEN_WIDTH			=	gScreenWidth;
+	tData.SCREEN_HEIGHT			=	gScreenHeight;
+
+	gLevel	=	new Level(tData);
+	gLevel->LoadLevel("City_2");
+	gScreenData->PLAYER_SCORE_LIST.clear();
+
+	SetNumberOfPlayers(gScreenData->NUMBER_OF_PLAYERS);
+
 	return true;
 }
 
@@ -47,7 +49,6 @@ bool PlayScreen::Unload()
 void PlayScreen::Update(float DeltaTime)
 {
 	gLevel->Update(DeltaTime);
-
 
 	if ( InputManager::GetInstance()->GetController(0)->GetButtonState( START ) == PRESSED ||
 		InputManager::GetInstance()->GetKeyboard()->GetKeyState(VK_ESCAPE) == PRESSED)

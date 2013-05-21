@@ -30,6 +30,8 @@ ScreenManager::ScreenManager(ScreenData* Setup)
 
 void ScreenManager::Update(float DeltaTime)
 {
+	DeltaTime	=	min(1.0f, DeltaTime);
+
 	gFpsCounter->Title	=	to_string((long double)((int)(1/DeltaTime)));
 	SoundManager::GetInstance()->Update(DeltaTime);
 	InputManager::GetInstance()->Update();
@@ -57,8 +59,6 @@ void ScreenManager::Render()
 
 	float ClearColor[4] = {0.1f,  0.1f, 0.1f, 0.0f};
 	gScreenData->DEVICE_CONTEXT->ClearRenderTargetView( gScreenData->RENDER_TARGET_VIEW, ClearColor );
-
-	gCurrentScreen->PreRenderSettings();
 	gCurrentScreen->Render();
 
 	if( gShowDebug )
