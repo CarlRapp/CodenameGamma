@@ -8,6 +8,9 @@ using namespace std;
 
 class Screen
 {
+private:
+	D3D11_VIEWPORT	gViewPort;
+
 protected:
 	bool	gInitialized, gDestroyed;
 	int		gScreenWidth, gScreenHeight;
@@ -45,6 +48,7 @@ public:
 
 	ScreenType	SwapToThisNextFrame();
 
+	void	PreRenderSettings( void );
 	void	DrawString(IFW1FontWrapper& Instance, string Text, float x, float y, float Size, TextColor Color, UINT Flags);
 	void	DrawString(IFW1FontWrapper& Instance, string Text, float x, float y, float Size, TextColor Color, TextColor BorderColor, float BorderSize, UINT Flags);
 };

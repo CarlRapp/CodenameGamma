@@ -6,6 +6,12 @@ Screen::Screen(ScreenData*	Setup)
 	gDestroyed		=	false;
 
 	LoadScreenData(Setup);
+	gViewPort.TopLeftX	=	0;
+	gViewPort.TopLeftY	=	0;
+	gViewPort.MinDepth	=	0.0f;
+	gViewPort.MaxDepth	=	1.0f;
+	gViewPort.Width		=	Setup->WIDTH;
+	gViewPort.Height	=	Setup->HEIGHT;
 }
 Screen::Screen(void)
 {
@@ -125,4 +131,9 @@ void Screen::DrawString(IFW1FontWrapper& Instance, string Text, float x, float y
 	DrawString(Instance, Text, x, y+BorderSize, Size, BorderColor, Flags);
 
 	DrawString(Instance, Text, x, y, Size, Color, Flags);
+}
+
+void Screen::PreRenderSettings()
+{
+	gDeviceContext->RSSetViewports( 1, &gViewPort );
 }

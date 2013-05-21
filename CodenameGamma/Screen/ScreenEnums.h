@@ -94,6 +94,7 @@ private:
 	};
 
 protected:
+	D3D11_VIEWPORT			gViewPort;
 	static	DebugScreen*	gInstance;
 	DebugScreen(ScreenData* Setup);
 

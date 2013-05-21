@@ -58,6 +58,7 @@ void ScreenManager::Render()
 	float ClearColor[4] = {0.1f,  0.1f, 0.1f, 0.0f};
 	gScreenData->DEVICE_CONTEXT->ClearRenderTargetView( gScreenData->RENDER_TARGET_VIEW, ClearColor );
 
+	gCurrentScreen->PreRenderSettings();
 	gCurrentScreen->Render();
 
 	if( gShowDebug )
