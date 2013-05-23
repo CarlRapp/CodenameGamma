@@ -24,7 +24,7 @@ bool PlayScreen::Load()
 	tData.SCREEN_HEIGHT			=	gScreenHeight;
 
 	gLevel	=	new Level(tData);
-	gLevel->LoadLevel("City_2");
+	gLevel->LoadLevel( gScreenData->LEVEL_NAME );
 	gScreenData->PLAYER_SCORE_LIST.clear();
 
 	SetNumberOfPlayers(gScreenData->NUMBER_OF_PLAYERS);

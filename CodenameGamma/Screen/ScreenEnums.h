@@ -17,11 +17,23 @@ enum	TextColor
 {
 	White	=	(UINT32)0xFFFFFFFF,
 	Black	=	(UINT32)0xFF000000,
+
 	Red		=	(UINT32)0xFF0000FF,
 	Green	=	(UINT32)0xFF00FF00,
 	Blue	=	(UINT32)0xFFFF0000,
+
 	Yellow	=	(UINT32)0xFF00FFFF,
-	Orange	=	(UINT32)0xFF00CCFF
+	Orange	=	(UINT32)0xFF00CCFF,
+
+
+	//	Transparent colors
+	WhiteTrans	=	(UINT32)0x33FFFFFF,
+	BlackTrans	=	(UINT32)0x33000000,
+	RedTrans	=	(UINT32)0x330000FF,
+	GreenTrans	=	(UINT32)0x3300FF00,
+	BlueTrans	=	(UINT32)0x33FF0000,
+	YellowTrans	=	(UINT32)0x3300FFFF,
+	OrangeTrans	=	(UINT32)0x3300CCFF
 };
 
 struct ScreenData
@@ -45,6 +57,7 @@ struct ScreenData
 
 	IFW1FontWrapper*		TEXT_INSTANCE;
 
+	string					LEVEL_NAME;
 	int						NUMBER_OF_PLAYERS;
 	vector<PlayerScore>		PLAYER_SCORE_LIST;
 };
@@ -55,6 +68,7 @@ enum ScreenType
 	OPTIONS_SCREEN,
 	CREDITS_SCREEN,
 
+	LEVEL_SELECT_SCREEN,
 	PRE_PLAY_SCREEN,
 	PLAY_SCREEN,
 	POST_PLAY_SCREEN,
