@@ -27,6 +27,7 @@ struct LevelData
 	LevelTexture	Textures[4];
 	LevelMap		HeightMap;
 	string			BlendMap;
+	XMFLOAT3		DirectionalLight;
 
 	bool IsLoaded()
 	{

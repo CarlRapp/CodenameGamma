@@ -129,6 +129,25 @@ LevelData LevelParser::ParseLevel(string LevelName, string LevelsRootPath)
 			tStr	=	tStr.substr(tToken.size());
 			LData.TextureY	=	atoi(tToken.c_str());
 		}
+		else if ( tToken == "DirectionalLight" )
+		{
+			// -0.5;-1;0.5
+			tStr	=	tLine.substr(tToken.size() + 1);
+
+			string X	=	tStr.substr( 0, tStr.find( ';' ) );
+			tStr		=	tStr.substr( X.size() + 1 );
+
+			string Y	=	tStr.substr(0, tStr.find( ';' ) );
+			tStr		=	tStr.substr( Y.size() + 1 );
+
+			string Z	=	tStr;
+
+			LData.DirectionalLight	=	XMFLOAT3(
+											atof( X.c_str() ),
+											atof( Y.c_str() ),
+											atof( Z.c_str() )
+										);
+		}
 			
 
 
@@ -387,7 +406,7 @@ GameObject* LevelParser::ParseGameObject( string Line, string GameObjectName, Le
 	if( Result == 0 )
 		return Result;
 
-	float	PosX, PosY, PosZ, RotationY, RotationX;
+	float	PosX, PosY, PosZ, RotationY, RotationX, RotationZ;
 
 	PosX	=	atof( Line.substr( 0, Line.find( ';' ) ).c_str() );
 	Line	=	Line.substr( Line.find( ';' ) + 1 );
@@ -401,9 +420,11 @@ GameObject* LevelParser::ParseGameObject( string Line, string GameObjectName, Le
 	RotationY	=	atof( Line.substr( 0, Line.find( ';' ) ).c_str() ) + PI;
 	Line		=	Line.substr( Line.find( ';' ) + 1 );
 	RotationX	=	atof( Line.substr( 0, Line.find( ';' ) ).c_str() );
+	Line		=	Line.substr( Line.find( ';' ) + 1 );
+	RotationZ	=	atof( Line.substr( 0, Line.find( ';' ) ).c_str() );
 
 	Result->MoveTo( XMFLOAT3( PosX, PosY, PosZ ) );
-	Result->SetRotation( XMFLOAT3( RotationX, RotationY, 0 ) );
+	Result->SetRotation( XMFLOAT3( RotationX, RotationY, RotationZ ) );
 
 	return Result;
 }
