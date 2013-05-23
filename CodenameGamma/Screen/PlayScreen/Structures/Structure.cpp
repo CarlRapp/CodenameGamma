@@ -1,5 +1,6 @@
 #include "Structure.h"
 #include "../Units/Unit.h"
+#include "../Units/EnemyUnit.h"
 #include "UnitCube.h"
 
 Structure::Structure()
@@ -14,14 +15,14 @@ Structure::~Structure()
 
 bool Structure::Intersects(GameObject* B, vector<CollisionData>& CD)
 {
-	if ( IsOfType<Unit>(B) )
+	if ( IsOfType<Unit>(B) && !IsOfType<EnemyUnit>(B) )
 		return BoxVsAllBones(B, this, CD, true);
 	return false;
 }
 
 void Structure::CollideWith(GameObject* Instance, vector<CollisionData> CD)
 {
-	if ( IsOfType<Unit>(Instance) )
+	if ( IsOfType<Unit>(Instance) && !IsOfType<EnemyUnit>(Instance) )
 	{
 		for each (CollisionData cd in CD)
 		{
