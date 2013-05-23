@@ -6,8 +6,8 @@
 #include "../../Score/Score.h"
 
 
-#define TRAIL_INTERVAL 0.1f
-#define TRAIL_LIFETIME 5.0f
+#define TRAIL_INTERVAL 1.0f / 20.0f
+#define TRAIL_LIFETIME 4.0f
 
 //	Is arranged like <Current, Max>
 typedef pair<float, float>	UnitHunger;
