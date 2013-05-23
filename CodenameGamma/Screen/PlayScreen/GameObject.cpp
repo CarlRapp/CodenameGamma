@@ -36,6 +36,8 @@ GameObject::GameObject(void)
 	SetState( Alive );
 
 	SetTeam(Team2);
+
+	gDeathTime = 0.0f;
 }
 
 GameObject::~GameObject(void)
@@ -44,8 +46,21 @@ GameObject::~GameObject(void)
 
 void GameObject::Update(float deltaTime, Terrain* terrain)
 {
-	if ( !IsAlive() || terrain == 0)
+	if ( WantsRemove() || terrain == 0)
 		return;
+	
+	AnimateThisUpdate = false;
+	if (m_ModelInstance)
+		m_ModelInstance->Update(deltaTime, 1.0f, AnimateThisUpdate);
+
+	if ( gState == Dying )
+	{
+		gDeathTimer += deltaTime;
+		
+		if (gDeathTimer >= gDeathTime)
+			gState = Dead;
+		return;
+	}
 
 	float heigth = gPosition.y - terrain->GetHeight(gPosition.x, gPosition.z);
 
@@ -96,10 +111,6 @@ void GameObject::Update(float deltaTime, Terrain* terrain)
 	}
 #pragma endregion Wallbounce
 
-	if (m_ModelInstance)
-		m_ModelInstance->Update(deltaTime, 1.0f, AnimateThisUpdate);
-
-	AnimateThisUpdate = false;
 	MoveTo(newPos);
 
 	//Move(XMFLOAT3(gVelocity.x * deltaTime, 0, gVelocity.z * deltaTime));
@@ -399,6 +410,13 @@ bool GameObject::GetJointPosition(string name, XMFLOAT3& pos)
 		return m_ModelInstance->GetJointPosition(name, pos);
 	}
 	return false;
+}
+
+void GameObject::Kill()
+{
+	SetState( Dying );
+	
+	gDeathTimer = 0.0f;
 }
 
 /*
