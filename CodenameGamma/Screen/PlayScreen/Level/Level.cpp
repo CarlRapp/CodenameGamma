@@ -5,6 +5,8 @@
 #include "../Weapons/WeaponList.h"
 #include "LevelParser.h"
 #include "../Units/Rat.h"
+#include "../Units/Tank.h"
+#include "../Units/Ghost.h"
 
 #define TESTSCALE 1.0f
 
@@ -117,6 +119,9 @@ void Level::LoadLevel(string Levelname)
 	
 
 	ModelManager::GetInstance()->LoadModel("CrazyBitch", "CrazyBitch.dae", "DATA/Models/CrazyBitch/");
+	ModelManager::GetInstance()->LoadModel("Rat", "Rat.dae", "DATA/Models/Rat/");
+	//ModelManager::GetInstance()->LoadModel("Ghost", "Ghost.dae", "DATA/Models/Ghost/");
+	//ModelManager::GetInstance()->LoadModel("Tank", "Tank.dae", "DATA/Models/Tank/");
 
 	ModelManager::GetInstance()->LoadModel("Glock", "Glock.dae", "DATA/Models/Glock/");
 	ModelManager::GetInstance()->LoadModel("Shotgun", "Shotgun.obj", "DATA/Models/Shotgun/");
@@ -236,7 +241,7 @@ void Level::LoadLevel(string Levelname)
 		AddGameObject(tGO);
 	}
 
-	for ( int i = 0; i < 10; ++i  )
+	for ( int i = 0; i < 3; ++i  )
 	{
 		PatrolNode*	tNode	=	gNodeMap->GetRandomNode();
 		Rat*		tRat	=	new Rat();
@@ -246,11 +251,7 @@ void Level::LoadLevel(string Levelname)
 		//XMFLOAT3	tPosition	=	XMFLOAT3( MathHelper::RandF(500, 3500), 0, MathHelper::RandF(2500, 3500) );
 		tRat->MoveTo( tPosition );
 
-		Pistol* pistol = new Pistol();
-		tRat->SetWeapon(pistol);
-
 		AddGameObject( tRat );
-		AddGameObject( pistol );
 	}
 }
 
@@ -403,7 +404,7 @@ void Level::Update(float DeltaTime)
 		{
 			gQuadTree->Update(tObject);
 		}
-		else		
+		else if ( tObject->WantsRemove() )		
 			trash.push_back(tObject);
 
 		if( IsOfType<EnemyUnit>(tObject) )

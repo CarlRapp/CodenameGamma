@@ -50,6 +50,7 @@ enum GOState
 	Alive,
 	Idle,
 	Hidden,	//	When an object wants to be removed from tree, but not from game
+	Dying,	//	When an object is dead but will not be removed from the game
 	Dead	//	Will remove the object from the game, and hence DELETE it
 };
 
@@ -92,6 +93,8 @@ class GameObject
 
 	bool		AnimateThisUpdate;
 
+	float		gDeathTimer;
+
 protected:
 
 	enum MoveDirection { Forward, Back, Right, Left, None };
@@ -105,6 +108,8 @@ protected:
 	GameObjectCallback DeleteGameObject;
 
 	ModelInstance *m_ModelInstance;
+
+	float		  gDeathTime;
 
 public:
 	GameObject(void);
@@ -195,6 +200,8 @@ public:
 
 	void	AnimateNextFrame() { AnimateThisUpdate = true; }
 
+	void	Kill();
+
 	//bool	UsePose(string name);
 
 	//string  CurrentAnimationOrPose();
@@ -204,7 +211,8 @@ public:
 	virtual bool Intersects(GameObject* B, vector<CollisionData>& CD) = 0;
 
 	GOState	GetState()	{ return gState; }
-	bool	IsAlive()	{ return (gState != Dead) && (gState != Hidden); }
+	bool	IsAlive()	{ return (gState == Alive) || (gState == Idle); }
+	bool	WantsRemove() { return (gState == Dead) || (gState == Hidden); }
 
 	bool	IsEnemy(GameObject* Instance);
 	virtual void	SetTeam(GOTeam Value);

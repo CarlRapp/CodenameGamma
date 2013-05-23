@@ -265,6 +265,7 @@ void ModelLoader::LoadAnimation(const aiScene* scene, AnimationClip& animationCl
 			}
 		}
 		animationClip.BoneAnimations = BoneAnimations;
+		animationClip.numKeyFrames   = animationClip.BoneAnimations[0].Keyframes.size();
 	}	
 }
 

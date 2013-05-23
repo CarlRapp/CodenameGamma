@@ -69,14 +69,25 @@ void Unit::SetHealth(UnitHealth HealthData)
 
 void Unit::Update(float DeltaTime, Terrain* TerrainInstance)
 {
-	if ( gHealth.first <= 0 )
+	if ( IsAlive() && gHealth.first <= 0 )
 	{
 		DropWeapon();
-		SetState( Dead );
-		return;
+		Kill();
+		StopAllAnimations();
+		PlayAnimation("Death");
+		PlayAnimationAfter("Death", "Dead");
+
+		if (!PlayingAnimation("Death"))
+		{
+			SetState( Dead );
+			return;
+		}		
 	}
 
 	GameObject::Update(DeltaTime, TerrainInstance);
+
+	if ( GetState() == Dying )
+		return;
 
 	XMVECTOR vel = XMLoadFloat3(&GetFloat3Value( Velocity ));
 	if (!XMVector3Equal(vel, XMVectorZero()))
@@ -384,8 +395,8 @@ void Unit::Hurt(float Damage)
 {
 	gHealth.first	-=	Damage;
 
-	if ( gHealth.first <= 0 )
-		SetState( Dead );
+	//if ( gHealth.first <= 0 )
+	//	SetState( Dead );
 }
 
 void Unit::ReloadWeapon()

@@ -43,7 +43,7 @@ protected:
 	void	FollowPath();
 	void	GetNewPath(Terrain* terrain);
 
-	void	ScanForEnemies();
+	void	ScanForEnemies(Terrain* terrain);
 
 	void SetTargetPos(XMFLOAT3 pos)
 	{
@@ -56,6 +56,9 @@ public:
 	~EnemyUnit(void);
 
 	void	Update(float deltaTime, Terrain* terrain);
+
+	virtual bool Intersects(GameObject* B, vector<CollisionData>& CD);
+	void	CollideWith(GameObject* Instance, vector<CollisionData> CD);
 
 	void	SetNodeMap( NodeMap* Instance )
 	{

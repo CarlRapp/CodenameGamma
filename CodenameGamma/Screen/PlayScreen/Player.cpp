@@ -38,7 +38,7 @@ void Player::Update(float deltaTime)
 
 		XMFLOAT2	rStickDir		=	m_Controller->GetStickDirection( RIGHT );
 
-		if ( m_Controller->GetStickLength( RIGHT ) > 0.3f)
+		if ( m_Controller->GetStickLength( RIGHT ) > 0.3f && m_Unit->IsAlive())
 			m_Unit->LookAt(XMFLOAT3(tPosition.x + rStickDir.x, 0, tPosition.z + rStickDir.y));
 
 		XMFLOAT2	lStickDir		=	m_Controller->GetStickDirection( LEFT );
