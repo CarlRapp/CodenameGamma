@@ -15,6 +15,11 @@ EnemyUnit::~EnemyUnit()
 
 void EnemyUnit::Update(float DeltaTime, Terrain* terrain)
 {
+	Unit::Update(DeltaTime, terrain);
+
+	if (!IsAlive())
+		return;
+
 	if ( gBehaviourState == Hunting)
 	{
 		UpdateHunt(DeltaTime, terrain);
@@ -25,7 +30,7 @@ void EnemyUnit::Update(float DeltaTime, Terrain* terrain)
 			GetNewPath(terrain);
 
 		FollowPath();
-		ScanForEnemies();
+		ScanForEnemies(terrain);
 	}
 
 	/*
@@ -44,7 +49,7 @@ void EnemyUnit::Update(float DeltaTime, Terrain* terrain)
 			break;
 	}
 	*/
-	Unit::Update(DeltaTime, terrain);
+	
 }
 
 void EnemyUnit::GetNewPath(Terrain* terrain)
@@ -168,7 +173,7 @@ void EnemyUnit::UpdateHunt(float deltaTime, Terrain* terrain)
 		gBehaviourState	= Returning;
 }
 
-void EnemyUnit::ScanForEnemies()
+void EnemyUnit::ScanForEnemies(Terrain* terrain)
 {
 	for each (PlayerUnit* target in gTargets)
 	{
@@ -176,10 +181,38 @@ void EnemyUnit::ScanForEnemies()
 		XMStoreFloat(&tLength, XMVector3Length( XMLoadFloat3( &target->GetFloat3Value( Position ) ) - XMLoadFloat3( &GetFloat3Value( Position ) ) ));
 		if( tLength < 5 * UnitsPerMeter )
 		{
-			hasTargetPos	= false;
-			gTargetPlayer	= target;
-			gBehaviourState	= Hunting;
+			if (terrain->IsShortestPathFree( GetFloat3Value( Position ), target->GetFloat3Value( Position ) ))
+			{
+				XMVECTOR lookDir	= XMLoadFloat3(&GetFloat3Value( Direction ));
+				XMVECTOR targetDir	= XMLoadFloat3(&target->GetFloat3Value( Position )) - XMLoadFloat3(&GetFloat3Value( Position ));				
+				float angle = XMVectorGetX(XMVector3AngleBetweenVectors(lookDir, targetDir));
+
+				if (angle < 0.25 * PI)
+				{
+					hasTargetPos	= false;
+					gTargetPlayer	= target;
+					gBehaviourState	= Hunting;
+					return;
+				}
+			}			
 		}
+	}
+}
+
+
+bool EnemyUnit::Intersects(GameObject* B, vector<CollisionData>& CD)
+{
+	if ( IsOfType<EnemyUnit>(B) )
+		return BoxVsBox(this, B, CD, false);
+	return false;
+}
+
+void EnemyUnit::CollideWith(GameObject* Instance, vector<CollisionData> CD)
+{
+	if ( IsOfType<EnemyUnit>(Instance))
+	{
+		//om "this" är bakom Instance och vinkel mellan dem inte skiljer mer än 0.5f * PI
+		//då låter vi "this" stå still i 1.0f sekunder. detta låter Instance flytta på sig innan "this" går vidare.
 	}
 }
 
