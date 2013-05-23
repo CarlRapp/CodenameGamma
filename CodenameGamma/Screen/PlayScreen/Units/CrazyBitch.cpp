@@ -7,6 +7,8 @@ CrazyBitch::CrazyBitch()
 
 	gWalkSpeed = 5.0f;
 	gRunSpeed  = 8.0f;
+
+	gDeathTime = 10.0f;
 }
 
 CrazyBitch::~CrazyBitch()
