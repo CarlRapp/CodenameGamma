@@ -20,6 +20,9 @@
 #define SAFE_DELETE_ARRAY(x) if( x ) { delete[](x); (x) = NULL; }
 #define PI (3.14159265358979323846f)
 
+static	float	UnitsPerMeter	=	33.333f;
+static	float	MeterPerUnits	=	1 / UnitsPerMeter;
+
 #include "FW1FontWrapper.h"
 #pragma comment (lib, "FW1FontWrapper.lib")
 
