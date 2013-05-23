@@ -195,6 +195,17 @@ EntityData LevelParser::ParseLevelEntities(LevelData Data)
 
 			GameObject*	tObject	=	ParseGameObject( tLine, GameObjectNames[Index], Data );
 
+			if (IsOfType<Lamp>(tObject))
+			{
+				PointLight *tLight = new PointLight();
+				tLight->GetGPULight()->Color		= XMFLOAT4(1.5f, 1.5f, 1.5f, 0);
+				tLight->GetGPULight()->Position		= tObject->GetFloat3Value( Position );
+				tLight->GetGPULight()->Position.y	+= 2.0f * UnitsPerMeter;
+				tLight->GetGPULight()->Range		= 6.0f * UnitsPerMeter;
+				tLight->GetGPULight()->HasShadow	= false;
+				Lights.push_back( tLight );
+			}
+
 			if( tObject != 0 )
 				GameObjects.push_back( tObject );
 		}

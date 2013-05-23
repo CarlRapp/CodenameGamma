@@ -101,7 +101,7 @@ private:
 	{
 		RemoveGameObject(go);
 
-		if ( go->GetState() != Hidden )
+		if ( go->GetState() == Dead )
 		{
 			if( IsOfType<PlayerUnit>( go ) )
 				for each( Player* p in gPlayers )
