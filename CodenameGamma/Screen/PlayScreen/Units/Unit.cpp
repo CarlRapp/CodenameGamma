@@ -469,3 +469,9 @@ void Unit::CollideWith(GameObject* Instance)
 {
 
 }
+
+void Unit::Heal( float Value )
+{
+	gHealth.first	+=	Value;
+	gHealth.first	=	( gHealth.first >= gHealth.second ) ? gHealth.second : gHealth.first;
+}
