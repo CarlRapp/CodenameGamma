@@ -6,6 +6,7 @@ Screen::Screen(ScreenData*	Setup)
 	gDestroyed		=	false;
 
 	LoadScreenData(Setup);
+	gViewPort	=	D3D11_VIEWPORT();
 	gViewPort.TopLeftX	=	0;
 	gViewPort.TopLeftY	=	0;
 	gViewPort.MinDepth	=	0.0f;

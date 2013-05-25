@@ -22,7 +22,12 @@ private:
 
 
 	ID3D11ShaderResourceView*	gHealthBar[10];
+	ID3D11ShaderResourceView*	gHungerBar[6];
+	ID3D11ShaderResourceView*	gThirstBar[6];
 	void	RenderGUI( Player* P );
+	void	RenderGUISprite( D3D11_VIEWPORT VP, ID3D11ShaderResourceView* Sprite );
+	void	RenderGUIText( XMFLOAT2 Position, string Text, float TextSize, TextColor Color );
+
 protected:
 	bool	Load();
 	bool	Unload();

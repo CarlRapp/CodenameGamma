@@ -10,10 +10,19 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 #pragma region Load / Unload
 bool PlayScreen::Load()
 {
+	string	tPath;
 	for( int n = 0; n < 10; ++n)
 	{
-		string	tPath	=	"DATA/GUI/Health/Health_" + to_string( (long double) n + 1 ) + ".png";
+		tPath	=	"DATA/GUI/Health/Health_" + to_string( (long double) n + 1 ) + ".png";
 		D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, tPath.c_str(), 0, 0, &gHealthBar[n], 0 );
+	}
+	for( int n = 0; n <= 5; ++n)
+	{
+		tPath	=	"DATA/GUI/Hunger/Hunger_" + to_string( (long double) n ) + ".png";
+		D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, tPath.c_str(), 0, 0, &gHungerBar[n], 0 );
+
+		tPath	=	"DATA/GUI/Thirst/Thirst_" + to_string( (long double) n ) + ".png";
+		D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, tPath.c_str(), 0, 0, &gThirstBar[n], 0 );
 	}
 
 	SystemData	tData			=	SystemData();
@@ -41,6 +50,12 @@ bool PlayScreen::Unload()
 	for( int n = 0; n < 10; ++n)
 	{
 		gHealthBar[n]->Release();
+
+		if( n <= 5 )
+		{
+			gHungerBar[n]->Release();
+			gThirstBar[n]->Release();
+		}
 	}
 		
 	return true;
@@ -65,7 +80,7 @@ void PlayScreen::Update(float DeltaTime)
 
 	if( InputManager::GetInstance()->GetController(0)->GetButtonState( A ) == PRESSED )
 		if( gLevel->GetPlayers()[0]->GetUnit() )
-			gLevel->GetPlayers()[0]->GetUnit()->Hurt( 10 );
+			gLevel->GetPlayers()[0]->GetUnit()->Hurt( 1 );
 }
 
 void PlayScreen::Render()
@@ -139,34 +154,152 @@ void PlayScreen::RenderGUI( Player* P )
 	if( !P->GetUnit() )
 		return;
 
-	GraphicsManager*	GM	=	gLevel->GetGraphicsManager();
-	D3D11_VIEWPORT		pVP	=	P->GetCamera()->GetViewPort();
+	XMFLOAT2	tHealthPos, tHungerPos, tThirstPos;
+	D3D11_VIEWPORT		pVP		=	P->GetCamera()->GetViewPort();
 
 	D3D11_VIEWPORT	tVP;
-	tVP.TopLeftX	=	pVP.TopLeftX;
+	tVP.TopLeftX	=	pVP.TopLeftX + 10;
+	tVP.TopLeftY	=	pVP.TopLeftY + 10;
+	tVP.MinDepth	=	0.0f;
+	tVP.MaxDepth	=	1.0f;
+	tVP.Width		=	80;
+	tVP.Height		=	70;
+
+	//	The stats
+	UnitHealth			uHealth	=	P->GetUnit()->GetHealth();
+	UnitHunger			uHunger	=	P->GetUnit()->GetHungerMeter();
+	UnitThirst			uThirst	=	P->GetUnit()->GetThirstMeter();
+	int	tPercent;
+	int	tIndex;
+	
+	//	Health
+	tPercent	=	(int)ceil( 100.f * ( uHealth.first / uHealth.second ) );
+	tPercent	=	MathHelper::Clamp(0, tPercent, 100);
+	tIndex		=	(int)( (float)0.1f * (float)tPercent );
+	tIndex		=	MathHelper::Clamp(0, tIndex, 9);
+	RenderGUISprite( tVP, gHealthBar[tIndex] );
+	tHealthPos.x	=	tVP.TopLeftX + tVP.Width * 0.5f;
+	tHealthPos.y	=	tVP.TopLeftY + tVP.Height * 0.5f;
+	
+	//	Move the viewport
+	tVP.TopLeftY	+=	70;
+	tVP.TopLeftX	+=	5;
+	tVP.Width		=	25;
+	tVP.Height		=	50;
+
+	//	Hunger
+	tPercent	=	(int)ceil( 100.f * ( uHunger.first / uHunger.second ) );
+	tPercent	=	MathHelper::Clamp(0, tPercent, 100);
+	tIndex		=	(int)( 0.05f * tPercent );
+	tIndex		=	MathHelper::Clamp(0, tIndex, 5);
+	RenderGUISprite( tVP, gHungerBar[tIndex] );
+	tHungerPos.x	=	tVP.TopLeftX + tVP.Width * 0.5f;
+	tHungerPos.y	=	tVP.TopLeftY + tVP.Height * 0.5f;
+
+	//	Move the viewport
+	tVP.TopLeftX	+=	45;
+	tVP.Width		=	25;
+	tVP.Height		=	50;
+
+	//	Thirst
+	tPercent	=	(int)ceil( 100.f * ( uThirst.first / uThirst.second ) );
+	tPercent	=	MathHelper::Clamp(0, tPercent, 100);
+	tIndex		=	(int)( 0.05f * tPercent );
+	tIndex		=	MathHelper::Clamp(0, tIndex, 5);
+	RenderGUISprite( tVP, gThirstBar[tIndex] );
+	tThirstPos.x	=	tVP.TopLeftX + tVP.Width * 0.5f;
+	tThirstPos.y	=	tVP.TopLeftY + tVP.Height * 0.5f;
+
+	//	Render the text
+	RenderGUIText( tHealthPos, to_string( (long double)( (int)(100.0f * ( uHealth.first / uHealth.second ) ) ) ), 18, White );
+	//RenderGUIText( tHungerPos, to_string( (long double)( (int)(100.0f * ( uHunger.first / uHunger.second ) ) ) ), 10, White );
+	//RenderGUIText( tThirstPos, to_string( (long double)( (int)(100.0f * ( uThirst.first / uThirst.second ) ) ) ), 10, White );
+}
+
+void PlayScreen::RenderGUISprite( D3D11_VIEWPORT VP, ID3D11ShaderResourceView* Sprite )
+{
+	gLevel->GetGraphicsManager()->RenderQuad( VP, Sprite, Effects::CombineFinalFX->AlphaClipColorTech );
+}
+
+void PlayScreen::RenderGUIText( XMFLOAT2 Position, string Text, float TextSize, TextColor Color )
+{
+	DrawString(
+		*gTextInstance,
+		Text,
+		Position.x,
+		Position.y,
+		TextSize,
+		Color,
+		Black,
+		2.0f,
+		FW1_CENTER | FW1_VCENTER
+	);
+}
+/*
+void PlayScreen::RenderHunger( Player* P )
+{
+	GraphicsManager*	GM		=	gLevel->GetGraphicsManager();
+	D3D11_VIEWPORT		pVP		=	P->GetCamera()->GetViewPort();
+	UnitHunger			uHunger	=	P->GetUnit()->GetHungerMeter();
+
+	D3D11_VIEWPORT	tVP;
+	tVP.TopLeftX	=	pVP.TopLeftX + 200;
 	tVP.TopLeftY	=	pVP.TopLeftY;
 	tVP.MinDepth	=	0.0f;
 	tVP.MaxDepth	=	1.0f;
-	tVP.Width		=	70;
-	tVP.Height		=	58;
+	tVP.Width		=	50;
+	tVP.Height		=	100;
 
-	UnitHealth	uHealth	=	P->GetUnit()->GetHealth();
-	int HP		=	(int)( 100.0f * (uHealth.first/uHealth.second) );
-	int	index	=	HP / 10;
-	if( index > 0 )
-	{
-		GM->RenderQuad( tVP, gHealthBar[index - 1], Effects::CombineFinalFX->AlphaClipColorTech );
+	
 
-		DrawString(
-			*gTextInstance,
-			to_string( (long double)HP ),
-			tVP.TopLeftX + tVP.Width * 0.5f,
-			tVP.TopLeftY + tVP.Height * 0.5f,
-			15,
-			White,
-			Black,
-			1.0f,
-			FW1_CENTER | FW1_VCENTER
-		);
-	}
+	int	tPercent	=	( uHunger.first/uHunger.second );
+	int	tIndex		=	(int)( 0.05f * ceil( 100.0f * tPercent ) );
+
+	GM->RenderQuad( tVP, gHungerBar[tIndex], Effects::CombineFinalFX->AlphaClipColorTech );
+
+	DrawString(
+		*gTextInstance,
+		to_string( (long double)( 100.0f * tPercent ) ),
+		tVP.TopLeftX + tVP.Width * 0.5f,
+		tVP.TopLeftY + tVP.Height * 0.5f,
+		15,
+		White,
+		Black,
+		2.0f,
+		FW1_CENTER | FW1_VCENTER
+	);
 }
+
+void PlayScreen::RenderThirst( Player* P )
+{
+	GraphicsManager*	GM		=	gLevel->GetGraphicsManager();
+	D3D11_VIEWPORT		pVP		=	P->GetCamera()->GetViewPort();
+	UnitThirst			uThirst	=	P->GetUnit()->GetThirstMeter();
+
+	D3D11_VIEWPORT	tVP;
+	tVP.TopLeftX	=	pVP.TopLeftX + 200;
+	tVP.TopLeftY	=	pVP.TopLeftY;
+	tVP.MinDepth	=	0.0f;
+	tVP.MaxDepth	=	1.0f;
+	tVP.Width		=	90;
+	tVP.Height		=	169;
+
+	
+
+	int	tPercent	=	( uThirst.first/uThirst.second );
+	int	tIndex		=	(int)( 0.05f * ceil( 100.0f * tPercent ) );
+
+	GM->RenderQuad( tVP, gThirstBar[tIndex], Effects::CombineFinalFX->AlphaClipColorTech );
+
+	DrawString(
+		*gTextInstance,
+		to_string( (long double)( 100.0f * tPercent ) ),
+		tVP.TopLeftX + tVP.Width * 0.5f,
+		tVP.TopLeftY + tVP.Height * 0.5f,
+		15,
+		White,
+		Black,
+		2.0f,
+		FW1_CENTER | FW1_VCENTER
+	);
+}*/

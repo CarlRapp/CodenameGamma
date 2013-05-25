@@ -113,6 +113,7 @@ public:
 	float GetWalkSpeed() { return gWalkSpeed; }
 	float GetRunSpeed() { return gRunSpeed; }
 
+	virtual	void	Heal( float Value );
 };
 
 #endif

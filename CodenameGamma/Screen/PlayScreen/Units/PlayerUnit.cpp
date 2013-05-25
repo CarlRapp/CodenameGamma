@@ -3,7 +3,7 @@
 
 PlayerUnit::PlayerUnit()
 {
-	gHealth	=	UnitHealth( 100.0f, 100.0f );
+	gHealth	=	UnitHealth( 98.0f, 100.0f );
 	gHunger	=	UnitHunger( 100.0f, 100.0f );
 	gThirst	=	UnitThirst( 100.0f, 100.0f );
 
@@ -39,10 +39,19 @@ void PlayerUnit::UpdateMeters(float DeltaTime)
 	gThirst.first	=	( gThirst.first < 0 ) ? 0 : gThirst.first;
 
 	
-	if ( gHunger.first == 0 )
-		Hurt( 1.0f * DeltaTime );
-	if ( gThirst.first == 0 )
-		Hurt( 1.0f * DeltaTime );
+	float	hungerPercent	=	gHunger.first / gHunger.second;
+	float	thirstPercent	=	gThirst.first / gThirst.second;
+
+	if ( hungerPercent > 0.85f && thirstPercent > 0.85f )
+		Heal( 0 * ( hungerPercent + thirstPercent ) );
+	else
+	{
+		if ( gHunger.first == 0 )
+			Hurt( 1.0f * DeltaTime );
+
+		if ( gThirst.first == 0 )
+			Hurt( 1.0f * DeltaTime );
+	}
 		
 }
 
