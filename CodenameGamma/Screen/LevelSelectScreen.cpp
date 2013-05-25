@@ -41,7 +41,7 @@ void LevelSelectScreen::Update(float DeltaTime)
 
 	if( IM->GetKeyboard()->GetKeyState( VK_RETURN ) == PRESSED )
 	{
-		gScreenData->LEVEL_NAME	=	gMapMenu[gStartIndex].second.Name;
+		gScreenData->LEVEL_NAME	=	gMapMenu[gCurrentIndex].second.Name;
 
 		gGotoNextFrame	=	PRE_PLAY_SCREEN;
 	}

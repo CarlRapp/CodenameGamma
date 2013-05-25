@@ -127,11 +127,13 @@ void Level::LoadLevel(string Levelname)
 	ModelManager::GetInstance()->LoadModel("Shotgun", "Shotgun.obj", "DATA/Models/Shotgun/");
 
 	ModelManager::GetInstance()->LoadModel("CannedFood", "CannedFood.obj", "DATA/Models/CannedFood/");
+	ModelManager::GetInstance()->LoadModel("Canister", "Canister.obj", "DATA/Models/Canister/");
+	ModelManager::GetInstance()->LoadModel("MediPack", "MediPack.obj", "DATA/Models/MediPack/");
 
 	ModelManager::GetInstance()->LoadModel("Bullet", "PistolBullet.obj", "DATA/Models/PistolBullet/");
 	
 
-	ModelManager::GetInstance()->LoadModel("Canister", "Canister.obj", "DATA/Models/Canister/");
+	
 
 	Model*	model	=	ModelManager::GetInstance()->GetModel("CrazyBitch");
 
@@ -388,6 +390,7 @@ void Level::AddInstance(float x, float y, float z, Model *model)
 
 void Level::Update(float DeltaTime)
 {
+	DeltaTime	=	min( 1.0f, DeltaTime );
 	vector<GameObject*> trash;
 	vector<GameObject*>	tempGameObjects	=	gGameObjects;
 

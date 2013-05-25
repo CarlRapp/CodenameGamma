@@ -8,10 +8,8 @@ using namespace std;
 
 class Screen
 {
-private:
-	D3D11_VIEWPORT	gViewPort;
-
 protected:
+	D3D11_VIEWPORT	gViewPort;
 	bool	gInitialized, gDestroyed;
 	int		gScreenWidth, gScreenHeight;
 
