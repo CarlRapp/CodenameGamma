@@ -158,12 +158,12 @@ void PlayScreen::RenderGUI( Player* P )
 	D3D11_VIEWPORT		pVP		=	P->GetCamera()->GetViewPort();
 
 	D3D11_VIEWPORT	tVP;
-	tVP.TopLeftX	=	pVP.TopLeftX + 10;
-	tVP.TopLeftY	=	pVP.TopLeftY + 10;
+	tVP.TopLeftX	=	pVP.TopLeftX + pVP.Height * 0.014f;
+	tVP.TopLeftY	=	pVP.TopLeftY + pVP.Height * 0.014f;
 	tVP.MinDepth	=	0.0f;
 	tVP.MaxDepth	=	1.0f;
-	tVP.Width		=	80;
-	tVP.Height		=	70;
+	tVP.Width		=	pVP.Height * 0.11f;
+	tVP.Height		=	pVP.Height * 0.09f;
 
 	//	The stats
 	UnitHealth			uHealth	=	P->GetUnit()->GetHealth();
@@ -181,11 +181,12 @@ void PlayScreen::RenderGUI( Player* P )
 	tHealthPos.x	=	tVP.TopLeftX + tVP.Width * 0.5f;
 	tHealthPos.y	=	tVP.TopLeftY + tVP.Height * 0.5f;
 	
-	//	Move the viewport
-	tVP.TopLeftY	+=	70;
-	tVP.TopLeftX	+=	5;
-	tVP.Width		=	25;
-	tVP.Height		=	50;
+	//	Move the viewport	
+	tVP.TopLeftX	=	pVP.TopLeftX + pVP.Height * 0.02f;
+	tVP.TopLeftY	=	pVP.TopLeftY + pVP.Height * 0.111f;
+	tVP.Width		=	pVP.Height * 0.035f;
+	tVP.Height		=	pVP.Height * 0.0695f;
+
 
 	//	Hunger
 	tPercent	=	(int)ceil( 100.f * ( uHunger.first / uHunger.second ) );
@@ -197,21 +198,23 @@ void PlayScreen::RenderGUI( Player* P )
 	tHungerPos.y	=	tVP.TopLeftY + tVP.Height * 0.5f;
 
 	//	Move the viewport
-	tVP.TopLeftX	+=	45;
-	tVP.Width		=	25;
-	tVP.Height		=	50;
+	tVP.TopLeftX	=	pVP.TopLeftX + pVP.Height * 0.083f;
+	tVP.TopLeftY	=	pVP.TopLeftY + pVP.Height * 0.111f;
+	tVP.Width		=	pVP.Height * 0.035f;
+	tVP.Height		=	pVP.Height * 0.0695f;
 
 	//	Thirst
 	tPercent	=	(int)ceil( 100.f * ( uThirst.first / uThirst.second ) );
 	tPercent	=	MathHelper::Clamp(0, tPercent, 100);
 	tIndex		=	(int)( 0.05f * tPercent );
 	tIndex		=	MathHelper::Clamp(0, tIndex, 5);
-	RenderGUISprite( tVP, gThirstBar[tIndex] );
+	gLevel->GetGraphicsManager()->RenderQuad( tVP, gThirstBar[tIndex], Effects::CombineFinalFX->AlphaTransparencyColorTech );
+	//RenderGUISprite( tVP,  );
 	tThirstPos.x	=	tVP.TopLeftX + tVP.Width * 0.5f;
 	tThirstPos.y	=	tVP.TopLeftY + tVP.Height * 0.5f;
 
 	//	Render the text
-	RenderGUIText( tHealthPos, to_string( (long double)( (int)(100.0f * ( uHealth.first / uHealth.second ) ) ) ), 18, White );
+	//RenderGUIText( tHealthPos, to_string( (long double)( (int)(100.0f * ( uHealth.first / uHealth.second ) ) ) ), 18, White );
 	//RenderGUIText( tHungerPos, to_string( (long double)( (int)(100.0f * ( uHunger.first / uHunger.second ) ) ) ), 10, White );
 	//RenderGUIText( tThirstPos, to_string( (long double)( (int)(100.0f * ( uThirst.first / uThirst.second ) ) ) ), 10, White );
 }
