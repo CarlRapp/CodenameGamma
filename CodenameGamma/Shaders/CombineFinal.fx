@@ -48,7 +48,7 @@ PSSceneIn VSScene(VSIn input)
 //-----------------------------------------------------------------------------------------
 // PixelShader: PSSceneMain
 //-----------------------------------------------------------------------------------------
-float4 PSScene(PSSceneIn input, uniform bool gColor, uniform bool gAlphaClip) : SV_Target
+float4 PSScene(PSSceneIn input, uniform bool gColor, uniform bool gAlphaClip, uniform bool gFixedAlpha) : SV_Target
 {	
 	float4 result;
 
@@ -62,7 +62,8 @@ float4 PSScene(PSSceneIn input, uniform bool gColor, uniform bool gAlphaClip) : 
 	else
 		result = g_Texture.Sample(g_Sampler, input.Tex).x;
 
-	result.a = g_Opacity;
+	if (gFixedAlpha)
+		result.a = g_Opacity;
 
 	return result;
 }
@@ -79,12 +80,12 @@ BlendState NoBlending
 	BlendEnable[0] = FALSE;
 };
 
-BlendState AdditiveBlending
+BlendState Transparency
 {
 	AlphaToCoverageEnable = FALSE;
 	BlendEnable[0] = TRUE;
 	SrcBlend = SRC_ALPHA;
-	DestBlend = ONE;
+	DestBlend = INV_SRC_ALPHA;
 	BlendOp = ADD;
 	SrcBlendAlpha = ZERO;
 	DestBlendAlpha = ZERO;
@@ -102,25 +103,8 @@ technique11 Mono
 		// Set VS, GS, and PS
         SetVertexShader( CompileShader( vs_4_0, VSScene() ) );
         SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_4_0, PSScene(false, false) ) );
+        SetPixelShader( CompileShader( ps_4_0, PSScene(false, false, false) ) );
 		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
-	    //SetRasterizerState( NoCulling );
-    }  
-}
-
-
-//-----------------------------------------------------------------------------------------
-// Technique: BlendMono  
-//-----------------------------------------------------------------------------------------
-technique11 BlendMono
-{
-    pass p0
-    {
-		// Set VS, GS, and PS
-        SetVertexShader( CompileShader( vs_4_0, VSScene() ) );
-        SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_4_0, PSScene(false, false) ) );
-		SetBlendState(AdditiveBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 	    //SetRasterizerState( NoCulling );
     }  
 }
@@ -135,7 +119,7 @@ technique11 Color
 		// Set VS, GS, and PS
         SetVertexShader( CompileShader( vs_4_0, VSScene() ) );
         SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_4_0, PSScene(true, false) ) );
+        SetPixelShader( CompileShader( ps_4_0, PSScene(true, false, false) ) );
 		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 	    //SetRasterizerState( NoCulling );
     }  
@@ -151,7 +135,7 @@ technique11 AlphaClipColor
 		// Set VS, GS, and PS
         SetVertexShader( CompileShader( vs_4_0, VSScene() ) );
         SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_4_0, PSScene(true, true) ) );
+        SetPixelShader( CompileShader( ps_4_0, PSScene(true, true, false) ) );
 		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 	    //SetRasterizerState( NoCulling );
     }  
@@ -160,15 +144,31 @@ technique11 AlphaClipColor
 //-----------------------------------------------------------------------------------------
 // Technique: BlendColor 
 //-----------------------------------------------------------------------------------------
-technique11 BlendColor
+technique11 AlphaTransparencyColor
 {
     pass p0
     {
 		// Set VS, GS, and PS
         SetVertexShader( CompileShader( vs_4_0, VSScene() ) );
         SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_4_0, PSScene(true, false) ) );
-		SetBlendState(AdditiveBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+        SetPixelShader( CompileShader( ps_4_0, PSScene(true, false, false) ) );
+		SetBlendState(Transparency, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+	    //SetRasterizerState( NoCulling );
+    }  
+}
+
+//-----------------------------------------------------------------------------------------
+// Technique: BlendColor 
+//-----------------------------------------------------------------------------------------
+technique11 TransparencyColor
+{
+    pass p0
+    {
+		// Set VS, GS, and PS
+        SetVertexShader( CompileShader( vs_4_0, VSScene() ) );
+        SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_4_0, PSScene(true, false, true) ) );
+		SetBlendState(Transparency, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 	    //SetRasterizerState( NoCulling );
     }  
 }
