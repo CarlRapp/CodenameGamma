@@ -691,9 +691,9 @@ public:
 	void SetTexture(ID3D11ShaderResourceView* tex)  { Texture->SetResource(tex); }
 
 	ID3DX11EffectTechnique* MonoTech;
-	ID3DX11EffectTechnique* BlendMonoTech;
 	ID3DX11EffectTechnique* ColorTech;
-	ID3DX11EffectTechnique* BlendColorTech;
+	ID3DX11EffectTechnique* AlphaTransparencyColorTech;
+	ID3DX11EffectTechnique* TransparencyColorTech;
 	ID3DX11EffectTechnique* AlphaClipColorTech;
 		
 	ID3DX11EffectScalarVariable*		Opacity;
