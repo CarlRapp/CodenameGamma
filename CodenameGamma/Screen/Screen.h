@@ -9,10 +9,10 @@ using namespace std;
 class Screen
 {
 protected:
-	D3D11_VIEWPORT	gViewPort;
 	bool	gInitialized, gDestroyed;
 	int		gScreenWidth, gScreenHeight;
 
+	ScreenData*				gScreenData;
 	ID3D11Device*			gDevice;
 	ID3D11DeviceContext*	gDeviceContext;
 
@@ -46,7 +46,6 @@ public:
 
 	ScreenType	SwapToThisNextFrame();
 
-	void	PreRenderSettings( void );
 	void	DrawString(IFW1FontWrapper& Instance, string Text, float x, float y, float Size, TextColor Color, UINT Flags);
 	void	DrawString(IFW1FontWrapper& Instance, string Text, float x, float y, float Size, TextColor Color, TextColor BorderColor, float BorderSize, UINT Flags);
 };
