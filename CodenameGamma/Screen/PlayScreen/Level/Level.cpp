@@ -147,6 +147,8 @@ void Level::LoadLevel(string Levelname)
 	for each( Light* LIGHT in Result.Lights )
 		AddLight( LIGHT );
 	gNodeMap	=	Result.NodeMapInstance;
+	gWave		=	new Wave( gNodeMap );
+	gWave->SetAddGameObject(std::bind(&Level::AddGameObject, this, std::placeholders::_1));
 
 
 	
@@ -512,6 +514,8 @@ void Level::Update(float DeltaTime)
 
 		sLight->GetGPULight()->Position.y = gTerrain->GetHeight(sLight->GetGPULight()->Position.x, sLight->GetGPULight()->Position.z) + 100.0f;
 	}
+
+	gWave->Update( DeltaTime );
 }
 
 void Level::Render()

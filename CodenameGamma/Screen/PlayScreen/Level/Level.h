@@ -15,6 +15,7 @@
 #include "LevelParser.h"
 #include "../Units/Unit.h"
 #include "../Player.h"
+#include "Wave.h"
 #include <functional>
 struct SystemData
 {
@@ -58,6 +59,7 @@ private:
 
 	vector<Player*>		gPlayers;
 	NodeMap*			gNodeMap;
+	Wave*				gWave;
 
 	//	Lights
 	vector<DirectionalLight*>	gDirLights;
