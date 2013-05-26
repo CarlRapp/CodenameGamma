@@ -14,6 +14,7 @@
 #include "../Graphics/QuadTree.h"
 #include "LevelParser.h"
 #include "../Units/Unit.h"
+#include "../Units/EnemyUnit.h"
 #include "../Player.h"
 #include "Wave.h"
 #include <functional>
@@ -102,6 +103,9 @@ private:
 	void DeleteGameObject(GameObject* go)
 	{
 		RemoveGameObject(go);
+
+		if( IsOfType<EnemyUnit>( go ) )
+			gWave->UnitKilled();
 
 		if ( go->GetState() == Dead )
 		{
