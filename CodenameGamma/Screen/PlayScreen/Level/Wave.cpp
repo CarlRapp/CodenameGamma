@@ -8,6 +8,7 @@ Wave::Wave()
 	gHealthMultiplier	=	1.0f;
 	gSpeedMultiplier	=	1.0f;
 	gDamageMultiplier	=	1.0f;
+	gUnitsSpawned		=	WaveUnits( 0, 80 );
 }
 
 Wave::Wave(NodeMap* Instance)
@@ -16,6 +17,7 @@ Wave::Wave(NodeMap* Instance)
 	gHealthMultiplier	=	1.0f;
 	gSpeedMultiplier	=	1.0f;
 	gDamageMultiplier	=	1.0f;
+	gUnitsSpawned		=	WaveUnits( 0, 10 );
 	gNodeMap			=	Instance;
 }
 
@@ -32,17 +34,23 @@ void Wave::Update(float DeltaTime)
 #pragma region New Wave method
 void Wave::NewWave()
 {
-	for( int i = 0; i < 5; ++i )
-	{
-		EnemyUnit*	Unit	=	new Rat();
-		PatrolNode*	Node	=	gNodeMap->GetRandomNode();
-		XMFLOAT3	Pos		=	XMFLOAT3( Node->Position.x, 0, Node->Position.y );
+	if( gUnitsSpawned.first < gUnitsSpawned.second )
+		for( int i = 0; i < 5; ++i )
+		{
+			EnemyUnit*	Unit	=	new Rat();
+			PatrolNode*	Node	=	gNodeMap->GetRandomNode();
+			XMFLOAT3	Pos		=	XMFLOAT3( Node->Position.x, 0, Node->Position.y );
 
-		Unit->SetNodeMap( gNodeMap );
-		Unit->MoveTo( Pos );
+			Unit->SetNodeMap( gNodeMap );
+			Unit->MoveTo( Pos );
 
-		AddGameObject(Unit);
-	}
+			AddGameObject(Unit);
+
+
+			++gUnitsSpawned.first;
+			if( gUnitsSpawned.first == gUnitsSpawned.second )
+				break;
+		}
 
 	gWaveTimer.first	=	gWaveTimer.second;
 }
