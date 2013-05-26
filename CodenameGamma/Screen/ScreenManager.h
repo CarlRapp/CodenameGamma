@@ -12,6 +12,7 @@ using namespace std;
 class ScreenManager
 {
 private:
+	D3D11_VIEWPORT		gViewPort;
 	ScreenData*			gScreenData;
 
 	vector<Screen*>*	gLoadedScreens;

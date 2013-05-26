@@ -8,7 +8,7 @@ LevelSelectScreen::LevelSelectScreen(ScreenData* Setup)
 	LoadScreenData(Setup);
 
 	gScreenData	=	Setup;
-	gScreenData->NUMBER_OF_PLAYERS	=	1;
+	//gScreenData->NUMBER_OF_PLAYERS	=	1;
 
 	gMapMenu	=	vector<MapMenuEntry>();
 
@@ -55,7 +55,7 @@ void LevelSelectScreen::Update(float DeltaTime)
 void LevelSelectScreen::Render()
 {
 	XMFLOAT2	tPos	=	XMFLOAT2(gScreenWidth * 0.05f, gScreenHeight * 0.05f);
-
+	
 	DrawString(*gTextInstance, "Level Selection", tPos.x, tPos.y, 72, Black, White, 2, FW1_LEFT);
 
 	tPos.y	+=	1.5f * 72;

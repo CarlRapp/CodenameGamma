@@ -18,13 +18,6 @@ DebugScreen::DebugScreen(ScreenData* Setup)
 
 	gLogIndex	=	0;
 	gLogMaxRows	=	10;
-
-	gViewPort.TopLeftX	=	0;
-	gViewPort.TopLeftY	=	0;
-	gViewPort.MinDepth	=	0.0f;
-	gViewPort.MaxDepth	=	1.0f;
-	gViewPort.Width		=	Setup->WIDTH;
-	gViewPort.Height	=	Setup->HEIGHT;
 }
 
 DebugScreen::~DebugScreen()
@@ -117,8 +110,6 @@ void DebugScreen::Update(float DeltaTime)
 
 void DebugScreen::Render()
 {
-	gDeviceContext->RSSetViewports( 1, &gViewPort );
-
 	for(int i = gLogIndex; i <= (gLogIndex + gLogMaxRows); ++i)
 	{
 		if ( i >= (int)gDebugLog->size() || i == (gLogIndex + gLogMaxRows) )

@@ -12,8 +12,10 @@ void PostPlayScreen::Update(float DeltaTime)
 	Controller*	controller	=	InputManager::GetInstance()->GetController(0);
 
 	if( controller->GetButtonState( A ) == PRESSED )
+	{
 		gGotoNextFrame	=	MAIN_MENU_SCREEN;
-
+		gScreenData->PLAYER_SCORE_LIST.clear();
+	}
 }
 
 void PostPlayScreen::Render()
@@ -25,7 +27,7 @@ void PostPlayScreen::Render()
 	tPos.y	=	gScreenHeight * 0.25f;
 
 	int	textSize	=	28;
-	for( int i = 0; i < gScreenData->PLAYER_SCORE_LIST.size(); ++i )
+	for( int i = 0; i < gScreenData->PLAYER_SCORE_LIST.size(); ++i ) 
 	{
 		PlayerScore	tScore	=	gScreenData->PLAYER_SCORE_LIST[i];
 		if( !tScore.IsValid() )

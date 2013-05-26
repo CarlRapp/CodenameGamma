@@ -14,7 +14,9 @@
 #include "../Graphics/QuadTree.h"
 #include "LevelParser.h"
 #include "../Units/Unit.h"
+#include "../Units/EnemyUnit.h"
 #include "../Player.h"
+#include "Wave.h"
 #include <functional>
 struct SystemData
 {
@@ -58,6 +60,7 @@ private:
 
 	vector<Player*>		gPlayers;
 	NodeMap*			gNodeMap;
+	Wave*				gWave;
 
 	//	Lights
 	vector<DirectionalLight*>	gDirLights;
@@ -100,6 +103,9 @@ private:
 	void DeleteGameObject(GameObject* go)
 	{
 		RemoveGameObject(go);
+
+		if( IsOfType<EnemyUnit>( go ) )
+			gWave->UnitKilled();
 
 		if ( go->GetState() == Dead )
 		{

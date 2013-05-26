@@ -347,7 +347,7 @@ GameObject* LevelParser::GetGameObject( string GameObjectName )
 	}
 	else if( GameObjectName == "MarketStore" )
 	{
-		ModelManager::GetInstance()->LoadModel("MarketStore", "MarketStore.obj", "DATA/Models/MarketStore/");
+		ModelManager::GetInstance()->LoadModel("MarketStore", "MarketStore.dae", "DATA/Models/MarketStore/");
 		Result	=	new MarketStore();
 	}
 	else if( GameObjectName == "Lamp" )
