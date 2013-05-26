@@ -147,6 +147,8 @@ void Level::LoadLevel(string Levelname)
 	for each( Light* LIGHT in Result.Lights )
 		AddLight( LIGHT );
 	gNodeMap	=	Result.NodeMapInstance;
+	gWave		=	new Wave( gNodeMap );
+	gWave->SetAddGameObject(std::bind(&Level::AddGameObject, this, std::placeholders::_1));
 
 
 	
@@ -395,7 +397,17 @@ void Level::Update(float DeltaTime)
 	vector<GameObject*>	tempGameObjects	=	gGameObjects;
 
 	for each (Player *p in gPlayers)
+	{
 		p->Update(DeltaTime);
+
+		if( gWave->IsLimitReached() )
+		{
+			PlayerUnit*	tUnit	=	p->GetUnit();
+			tUnit->Drink( -1.0f * DeltaTime );
+			tUnit->Eat( -1.0f * DeltaTime );
+			tUnit->Hurt( 10.0f * DeltaTime );
+		}
+	}
 
 	//for ( int i = gGameObjects.size() - 1; i >= 0; --i )
 	for each (GameObject*	tObject in tempGameObjects)
@@ -512,6 +524,8 @@ void Level::Update(float DeltaTime)
 
 		sLight->GetGPULight()->Position.y = gTerrain->GetHeight(sLight->GetGPULight()->Position.x, sLight->GetGPULight()->Position.z) + 100.0f;
 	}
+
+	gWave->Update( DeltaTime );
 }
 
 void Level::Render()

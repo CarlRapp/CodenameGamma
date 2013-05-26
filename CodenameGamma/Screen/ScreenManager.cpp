@@ -24,6 +24,14 @@ ScreenManager::ScreenManager(ScreenData* Setup)
 	gFpsCounter->Value	=	"FPS";
 	gFpsCounter->ValueColor	=	Green;
 	gFpsCounter->TitleColor	=	White;
+
+	gViewPort	=	D3D11_VIEWPORT();
+	gViewPort.TopLeftX	=	0;
+	gViewPort.TopLeftY	=	0;
+	gViewPort.MinDepth	=	0.0f;
+	gViewPort.MaxDepth	=	1.0f;
+	gViewPort.Width		=	Setup->WIDTH;
+	gViewPort.Height	=	Setup->HEIGHT;
 	
 
 	DebugScreen::GetInstance()->AddLogMessage("Screen Manager: Initialized!", Green);
@@ -57,13 +65,17 @@ void ScreenManager::Render()
 {
 	if(	!gCurrentScreen )
 		return;
-
 	float ClearColor[4] = {0.1f,  0.1f, 0.1f, 0.0f};
 	gScreenData->DEVICE_CONTEXT->ClearRenderTargetView( gScreenData->RENDER_TARGET_VIEW, ClearColor );
+
+	gScreenData->DEVICE_CONTEXT->RSSetViewports( 1, &gViewPort );
 	gCurrentScreen->Render();
 
 	if( gShowDebug )
+	{
+		gScreenData->DEVICE_CONTEXT->RSSetViewports( 1, &gViewPort );
 		DebugScreen::GetInstance()->Render();
+	}
 }
 
 bool ScreenManager::CloseGame()
