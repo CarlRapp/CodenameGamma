@@ -36,7 +36,7 @@ void Weapon::ReloadCountdown(float DeltaTime)
 			gState				=	Ready;
 			gReloadTime.first	=	0;
 
-			SoundManager::GetInstance()->Play("Reload");
+			SoundManager::GetInstance()->Play("Reload", SFX);
 		}
 	}
 }
