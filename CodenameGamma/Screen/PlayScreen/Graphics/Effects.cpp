@@ -207,6 +207,7 @@ TiledLightningEffect::TiledLightningEffect(ID3D11Device* device, const std::wstr
 	Resolution			= mFX->GetVariableByName("gResolution")->AsVector();
 	ShadowMapSwitches	= mFX->GetVariableByName("gShadowMapSwitches")->AsVector();
 	ShadowMapResolution	= mFX->GetVariableByName("gShadowMapResolution")->AsVector();
+	GlobalLight			= mFX->GetVariableByName("gGlobalLight")->AsVector();
 
 	AlbedoMap		= mFX->GetVariableByName("gAlbedoMap")->AsShaderResource();
 	NormalSpecMap   = mFX->GetVariableByName("gNormalSpecMap")->AsShaderResource();

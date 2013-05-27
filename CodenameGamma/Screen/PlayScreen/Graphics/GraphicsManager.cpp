@@ -1522,6 +1522,7 @@ void GraphicsManager::ComputeLight(vector<Camera*>& Cameras)
 		Effects::TiledLightningFX->SetDirLightMap(dirLightMap);
 		Effects::TiledLightningFX->SetPointLightMap(pointLightMap);
 		Effects::TiledLightningFX->SetSpotLightMap(spotLightMap);
+		Effects::TiledLightningFX->SetGlobalLight(*m_GlobalLight);
 
 		tech->GetPassByIndex(p)->Apply(0, m_DeviceContext);
 

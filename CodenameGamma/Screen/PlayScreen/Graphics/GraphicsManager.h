@@ -52,8 +52,10 @@ class GraphicsManager
 	vector<SpotLight*>					*m_SpotLights;
 
 	StructuredBuffer<GPUDirectionalLight>	*m_DirLightBuffer;
-	StructuredBuffer<GPUPointLight>		*m_PointLightBuffer;
+	StructuredBuffer<GPUPointLight>			*m_PointLightBuffer;
 	StructuredBuffer<GPUSpotLight>			*m_SpotLightBuffer;
+
+	XMFLOAT3							*m_GlobalLight;
 
 	XMFLOAT4X4 m_ViewProjTexs[MAX_SHADOWMAPS];
 	XMFLOAT4X4 m_ViewProj[MAX_SHADOWMAPS];
@@ -334,11 +336,13 @@ public:
 	void SetQuadTree(QuadTree *quadTree) { g_QuadTree = quadTree; }
 	void SetLights(	vector<DirectionalLight*>			*DirLights,
 					vector<PointLight*>					*PointLights,
-					vector<SpotLight*>					*SpotLights)
+					vector<SpotLight*>					*SpotLights,
+					XMFLOAT3							*GlobalLight)
 	{
 		m_DirLights		= DirLights;
 		m_PointLights	= PointLights;
 		m_SpotLights	= SpotLights;
+		m_GlobalLight	= GlobalLight;
 	}
 
 	

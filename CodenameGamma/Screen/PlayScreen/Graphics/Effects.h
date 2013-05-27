@@ -249,6 +249,7 @@ public:
 	void SetResolution(const XMFLOAT2 v)					{ Resolution->SetRawValue(&v, 0, sizeof(XMFLOAT2)); }
 	void SetShadowMapSwitches(const XMFLOAT3 v)				{ ShadowMapSwitches->SetRawValue(&v, 0, sizeof(XMFLOAT3)); }	
 	void SetShadowMapResolution(const XMFLOAT2 v)			{ ShadowMapResolution->SetRawValue(&v, 0, sizeof(XMFLOAT2)); }
+	void SetGlobalLight(const XMFLOAT3 v)					{ GlobalLight->SetRawValue(&v, 0, sizeof(XMFLOAT3)); }
 
 	void SetAlbedoMap(ID3D11ShaderResourceView* tex)		{ AlbedoMap->SetResource(tex); }
 	void SetNormalSpecMap(ID3D11ShaderResourceView* tex)    { NormalSpecMap->SetResource(tex); }
@@ -275,6 +276,7 @@ public:
 	ID3DX11EffectVectorVariable* Resolution;
 	ID3DX11EffectVectorVariable* ShadowMapSwitches;
 	ID3DX11EffectVectorVariable* ShadowMapResolution;
+	ID3DX11EffectVectorVariable* GlobalLight;
 
 	ID3DX11EffectShaderResourceVariable* AlbedoMap;
 	ID3DX11EffectShaderResourceVariable* NormalSpecMap;

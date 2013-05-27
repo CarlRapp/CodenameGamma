@@ -66,6 +66,7 @@ private:
 	vector<DirectionalLight*>	gDirLights;
 	vector<PointLight*>			gPointLights;
 	vector<SpotLight*>			gSpotLights;
+	XMFLOAT3					gGlobalLight;
 
 	vector<XMFLOAT3> rotpos;
 	vector<float>	 angle;

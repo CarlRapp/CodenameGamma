@@ -129,7 +129,7 @@ LevelData LevelParser::ParseLevel(string LevelName, string LevelsRootPath)
 			tStr	=	tStr.substr(tToken.size());
 			LData.TextureY	=	atoi(tToken.c_str());
 		}
-		else if ( tToken == "DirectionalLight" )
+		else if ( tToken == "DirectionalLightColor" )
 		{
 			// -0.5;-1;0.5
 			tStr	=	tLine.substr(tToken.size() + 1);
@@ -142,15 +142,52 @@ LevelData LevelParser::ParseLevel(string LevelName, string LevelsRootPath)
 
 			string Z	=	tStr;
 
-			LData.DirectionalLight	=	XMFLOAT3(
+			LData.SunColor	=	XMFLOAT4(
+											atof( X.c_str() ),
+											atof( Y.c_str() ),
+											atof( Z.c_str() ),
+											1
+										);
+		}
+		else if ( tToken == "DirectionalLightDirection" )
+		{
+			// -0.5;-1;0.5
+			tStr	=	tLine.substr(tToken.size() + 1);
+
+			string X	=	tStr.substr( 0, tStr.find( ';' ) );
+			tStr		=	tStr.substr( X.size() + 1 );
+
+			string Y	=	tStr.substr(0, tStr.find( ';' ) );
+			tStr		=	tStr.substr( Y.size() + 1 );
+
+			string Z	=	tStr;
+
+			LData.SunDirection	=	XMFLOAT4(
+											atof( X.c_str() ),
+											atof( Y.c_str() ),
+											atof( Z.c_str() ),
+											0
+										);
+		}
+		else if ( tToken == "AmbientLightColor" )
+		{
+			// -0.5;-1;0.5
+			tStr	=	tLine.substr(tToken.size() + 1);
+
+			string X	=	tStr.substr( 0, tStr.find( ';' ) );
+			tStr		=	tStr.substr( X.size() + 1 );
+
+			string Y	=	tStr.substr(0, tStr.find( ';' ) );
+			tStr		=	tStr.substr( Y.size() + 1 );
+
+			string Z	=	tStr;
+
+			LData.GlobalLight	=	XMFLOAT3(
 											atof( X.c_str() ),
 											atof( Y.c_str() ),
 											atof( Z.c_str() )
 										);
 		}
-			
-
-
 	}
 	tFileStream.close();
 
