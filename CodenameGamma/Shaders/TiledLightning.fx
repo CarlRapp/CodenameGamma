@@ -13,6 +13,7 @@ cbuffer perFrame
 	float4x4	gInvViewProjs[4];
 	float4		gCamPositions[4];
 	float3		gShadowMapSwitches;
+	float3		gGlobalLight;
 	float2		gResolution;
 	float2		gShadowMapResolution;
 };
@@ -441,7 +442,7 @@ void TiledLightningCS(	uniform int gViewportCount,
 
 	GroupMemoryBarrierWithGroupSync(); //Väntar på alla trådarna i gruppen
 
-	float4 ambient	= float4(0.0f, 0.0f, 0.0f, 0.0f);
+	float4 ambient	= float4(gGlobalLight, 0.0f);
 	float4 diffuse	= float4(0.0f, 0.0f, 0.0f, 0.0f);
 	float4 spec		= float4(0.0f, 0.0f, 0.0f, 0.0f);
 
@@ -453,10 +454,9 @@ void TiledLightningCS(	uniform int gViewportCount,
 			DirectionalLight light = gDirLightBuffer[i];			
 			float shadowFactor = CalcualteShadowFactor(light, posW, viewportIndex);
 
-			float4 A, D, S;
-			ComputeDirectionalLight(mat, light, normalW, toEye, A, D, S);
-
-			ambient += A;    
+			float4 D, S;
+			ComputeDirectionalLight(mat, light, normalW, toEye, D, S);
+  
 			diffuse += D * shadowFactor;
 			spec    += S * shadowFactor;
 		}

@@ -58,12 +58,10 @@ struct Material
 //---------------------------------------------------------------------------------------
 void ComputeDirectionalLight(Material mat, DirectionalLight L, 
                              float3 normal, float3 toEye,
-					         out float4 ambient,
 						     out float4 diffuse,
 						     out float4 spec)
 {
 	// Initialize outputs.
-	ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	spec    = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
@@ -71,7 +69,7 @@ void ComputeDirectionalLight(Material mat, DirectionalLight L,
 	float3 lightVec = normalize(-L.Direction.xyz);
 	
 	// Add ambient term.
-	ambient = L.Color * 0.1f;	
+	//ambient = L.Color * 0.1f;	
 
 	// Add diffuse and specular term, provided the surface is in 
 	// the line of site of the light.

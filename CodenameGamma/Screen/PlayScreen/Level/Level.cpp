@@ -22,17 +22,17 @@ Level::Level(SystemData LData)
 
 	gGraphicsManager	=	new GraphicsManager(LData.DEVICE, LData.DEVICE_CONTEXT, LData.RENDER_TARGET_VIEW, LData.SCREEN_WIDTH, LData.SCREEN_HEIGHT);
 	gGraphicsManager->SetTerrain(gTerrain);
-	gGraphicsManager->SetLights(&gDirLights, &gPointLights, &gSpotLights);
-
+	gGraphicsManager->SetLights(&gDirLights, &gPointLights, &gSpotLights, &gGlobalLight);
+	
 	//GameObject.SetTestar( std::bind(&Level::AddGameObject, this, std::placeholders::_1) );
 
-	
+	/*
 	for(int i = 0; i < 0; ++i)
 		AddDirectionalLight(false);
 
-	for(int i = 0; i < 1; ++i)
+	for(int i = 0; i < 0; ++i)
 		AddDirectionalLight(true);
-	/*
+	
 	for( int i = 0; i < 0; ++i)	
 		AddPointLight(false);
 
@@ -105,6 +105,17 @@ void Level::LoadLevel(string Levelname)
 
 	LevelData	LData	=	LevelParser::ParseLevel(Levelname, tLevelRootPath);
 	
+	gGlobalLight = LData.GlobalLight;
+
+	if (!XMVector4Equal(XMLoadFloat4(&LData.SunColor), XMLoadFloat4(&XMFLOAT4(0,0,0,1))))
+	{
+		DirectionalLight *dirLight = new DirectionalLight();
+		dirLight->GetGPULight()->Color = LData.SunColor;
+		dirLight->GetGPULight()->Direction = LData.SunDirection;
+		dirLight->GetGPULight()->HasShadow = true;
+		dirLight->GetGPULight()->Resolution = SHADOWMAP_4096;
+		AddLight(dirLight);
+	}
 
 	if ( LData.IsLoaded() )
 		gTerrain->LoadTerrain(LData);
@@ -120,7 +131,7 @@ void Level::LoadLevel(string Levelname)
 
 	ModelManager::GetInstance()->LoadModel("CrazyBitch", "CrazyBitch.dae", "DATA/Models/CrazyBitch/");
 	ModelManager::GetInstance()->LoadModel("Rat", "Rat.dae", "DATA/Models/Rat/");
-	//ModelManager::GetInstance()->LoadModel("Ghost", "Ghost.dae", "DATA/Models/Ghost/");
+	ModelManager::GetInstance()->LoadModel("Ghost", "Ghost.dae", "DATA/Models/Ghost/");
 	//ModelManager::GetInstance()->LoadModel("Tank", "Tank.dae", "DATA/Models/Tank/");
 
 	ModelManager::GetInstance()->LoadModel("Glock", "Glock.dae", "DATA/Models/Glock/");
@@ -677,7 +688,7 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 		XMFLOAT2	Pos	=	gNodeMap->GetRandomNode()->Position;
 
 		PlayerUnit*	pUnit	=	new CrazyBitch();
-		pUnit->MoveTo( XMFLOAT3( Pos.x, 0, gTerrain->GetDimensions().y - Pos.y ) );
+		pUnit->MoveTo( XMFLOAT3( Pos.x, 0, Pos.y ) );
 		pUnit->SetPlayerScore( p->GetPlayerScore() );
 		pUnit->SetTeam( (GOTeam)i );
 		pUnit->LoopAnimation( "Back" );
