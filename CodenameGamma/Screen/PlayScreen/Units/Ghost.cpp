@@ -8,6 +8,7 @@ Ghost::Ghost()
 	gWalkSpeed = 3.0f;
 	gRunSpeed  = 5.0f;
 
+	gDeathTime = 5.0f;
 }
 
 Ghost::~Ghost()

@@ -222,11 +222,10 @@ float4 PS(VertexOut pin,
 		// Sum the light contribution from each light source.  
 		for(int i = 0; i < totalLights; i++)
 		{
-			float4 A, D, S;
+			float4 D, S;
 			ComputeDirectionalLight(gMaterial, gDirLightBuffer[i], bumpedNormalW, toEye, 
-				A, D, S);
-
-			ambient += A;    
+				D, S);
+  
 			diffuse += D;
 			spec    += S;
 		}
