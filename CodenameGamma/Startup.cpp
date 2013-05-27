@@ -9,9 +9,6 @@
 #include <io.h>
 #include <fcntl.h>
 
-#define WINDOW_WIDTH 1280
-#define WINDOW_HEIGHT 720
-
 //--------------------------------------------------------------------------------------
 // Global Variables
 //--------------------------------------------------------------------------------------
@@ -30,6 +27,7 @@ ID3D11DeviceContext*	g_DeviceContext			= NULL;
 */
 ScreenData*				ScreenSetupData			=	NULL;
 ScreenManager*			ScreenM					=	NULL;
+int						Settings[6];
 
 
 //--------------------------------------------------------------------------------------
@@ -44,10 +42,69 @@ HRESULT				InitDirect3D();
 char*				FeatureLevelToString(D3D_FEATURE_LEVEL featureLevel);
 
 //Main
+void LoadSettings()
+{
+	//	Pre settings
+	Settings[0]		=	1280;
+	Settings[1]		=	720;
+	Settings[2]		=	0;
+	Settings[3]		=	10;
+	Settings[4]		=	10;
+	Settings[5]		=	10;
+
+	ifstream	tFileStream;
+
+	//	Try and open the file
+	tFileStream.open( "DATA/Settings.cfg" );
+			
+	//	If we can't open the file,
+	//	create it
+	if ( !tFileStream.is_open() )
+	{
+		ofstream settingsFile;
+		settingsFile.open( "DATA/Settings.cfg" );
+
+		settingsFile << "Width 1280" << endl;
+		settingsFile << "Height 720" << endl;
+		settingsFile << "Fullscreen 0" << endl;
+		settingsFile << "Master 10" << endl;
+		settingsFile << "Song 10" << endl;
+		settingsFile << "SFX 10" << endl;
+
+		settingsFile.close();
+		return;
+	}
+	string	ResX, ResY, Fullscreen, Master, SFX, Song;
+	getline(tFileStream, ResX);
+	getline(tFileStream, ResY);
+	getline(tFileStream, Fullscreen);
+	getline(tFileStream, Master);
+	getline(tFileStream, Song);
+	getline(tFileStream, SFX);
+	tFileStream.close();
+
+	if( ResX == "" || ResY == "" || Fullscreen == "" || Master == "" || SFX == "" || Song == "" )
+		return;
+
+	ResX		=	ResX.substr( ResX.find(' ') );
+	ResY		=	ResY.substr( ResY.find(' ') );
+	Fullscreen	=	Fullscreen.substr( Fullscreen.find(' ') );
+	Master		=	Master.substr( Master.find(' ') );
+	SFX			=	SFX.substr( SFX.find(' ') );
+	Song		=	Song.substr( Song.find(' ') );
+
+	Settings[0]		=	atoi( ResX.c_str() );
+	Settings[1]		=	atoi( ResY.c_str() );
+	Settings[2]		=	atoi( Fullscreen.c_str() );
+	Settings[3]		=	atoi( Master.c_str() );
+	Settings[4]		=	atoi( SFX.c_str() );
+	Settings[5]		=	atoi( Song.c_str() );
+
+}
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nShowCmd)
 {
 	AllocConsole();
-
+	LoadSettings();
 
 	HANDLE handle_out = GetStdHandle(STD_OUTPUT_HANDLE);
     int hCrt = _open_osfhandle((long) handle_out, _O_TEXT);
@@ -79,8 +136,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	ShowCursor(true);
 
 	ScreenSetupData	=	new ScreenData();
-	ScreenSetupData->WIDTH	=	WINDOW_WIDTH;
-	ScreenSetupData->HEIGHT	=	WINDOW_HEIGHT;
+	ScreenSetupData->WIDTH		=	Settings[0];
+	ScreenSetupData->HEIGHT		=	Settings[1];
+	ScreenSetupData->FULLSCREEN	=	Settings[2] == 1;
 
 	ScreenSetupData->DEPTH_STENCIL		=	g_DepthStencil;
 	ScreenSetupData->DEPTH_STENCIL_VIEW	=	g_DepthStencilView;
@@ -98,13 +156,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 
 	DebugScreen::Initialize(ScreenSetupData);
 
+	InputManager::Initialize(&hInstance, &g_hWndMain, Settings[0], Settings[1]);
+
 	SoundManager::GetInstance();
-	InputManager::Initialize(&hInstance, &g_hWndMain, WINDOW_WIDTH, WINDOW_HEIGHT);
+	SoundManager::GetInstance()->SetVolume( Master, 0.1f * Settings[3] );
+	SoundManager::GetInstance()->SetVolume( Song, 0.1f * Settings[4] );
+	SoundManager::GetInstance()->SetVolume( SFX, 0.1f * Settings[5] );
+	
 	ModelManager::Initialize(g_Device);
 	
 	ScreenM	=	new ScreenManager(ScreenSetupData);
 
 	ScreenM->ChangeScreen(MAIN_MENU_SCREEN);
+
 
 	return Run();
 }
@@ -131,7 +195,7 @@ bool InitWndApp(HINSTANCE hInstanceHandle, int show)
 
 	DWORD	wStyle	=	WS_POPUP;
 
-	RECT rc = { 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT };
+	RECT rc = { 0, 0, Settings[0], Settings[1] };
 	AdjustWindowRect( &rc, wStyle, FALSE );
 
 	g_hWndMain = ::CreateWindow("Window", 
@@ -163,8 +227,8 @@ HRESULT InitDirect3D()
 {
 	HRESULT hr = S_OK;;
 
-	int screenWidth = WINDOW_WIDTH;
-	int screenHeight = WINDOW_HEIGHT;
+	int screenWidth = Settings[0];
+	int screenHeight = Settings[1];
 
 	UINT createDeviceFlags = 0;
 #ifdef _DEBUG
@@ -192,7 +256,7 @@ HRESULT InitDirect3D()
 	sd.OutputWindow = g_hWndMain;
 	sd.SampleDesc.Count = 1;
 	sd.SampleDesc.Quality = 0;
-	sd.Windowed = true;
+	sd.Windowed = Settings[2] == 0;
 
 	D3D_FEATURE_LEVEL featureLevelsToTry[] = {
 		D3D_FEATURE_LEVEL_11_0,
@@ -323,6 +387,10 @@ int Run()
 
 void CloseApplication()
 {
+	Effects::DestroyAll();
+	RenderStates::DestroyAll();
+	InputLayouts::DestroyAll();
+
 	if( ScreenSetupData->TEXT_INSTANCE )	ScreenSetupData->TEXT_INSTANCE->Release();
 
 	ScreenSetupData	=	NULL;
@@ -359,9 +427,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		case WM_KEYDOWN:
 			switch (wParam)
 			{
-				case VK_ESCAPE:					//Avslutar programmet om man trycker på escape.
-					CloseApplication();
-					::DestroyWindow(hWnd);
+				//case VK_ESCAPE:					//Avslutar programmet om man trycker på escape.
+					//CloseApplication();
+					//::DestroyWindow(hWnd);
 			}
 			return 0;
 	}
