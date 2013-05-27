@@ -127,13 +127,12 @@ void SoundManager::Load(string Name, string Path, FMOD_MODE Flags)
 	gLoadedSounds[gLoadedSounds.size()]	=	SoundEntry(Name, tSound);
 }
 
-void SoundManager::Play(string Name)
+void SoundManager::Play(string Name, SoundType Type)
 {
-	Play(Name, false);
+	Play(Name, Type, false);
 }
 
-
-void SoundManager::Play(string Name, bool Loop)
+void SoundManager::Play(string Name, SoundType Type, bool Loop)
 {
 	if(!Exists(Name))
 	{
@@ -148,18 +147,28 @@ void SoundManager::Play(string Name, bool Loop)
 	ErrorCheck(gResult);
 	gResult = gChannel->setPaused(false);
 	ErrorCheck(gResult);
-	gChannel->setVolume(gMasterVolume);
+
+	switch(Type)
+	{
+	case Song:
+		gChannel->setVolume( gMusicVolume * gMasterVolume );
+		break;
+
+	case SFX:
+		gChannel->setVolume( gEffectVolume * gMasterVolume );
+		break;
+	}
 
 	gPlayingSounds->push_back(new PlayingSound(Name, gChannel));
 }
 
-void SoundManager::Play3D(string Name, XMFLOAT3 Position)
+void SoundManager::Play3D(string Name, SoundType Type, XMFLOAT3 Position)
 {
-	Play3D(Name, Position, false);
+	Play3D(Name, Type, Position, false);
 }
 
 
-void SoundManager::Play3D(string Name, XMFLOAT3 Position, bool Loop)
+void SoundManager::Play3D(string Name, SoundType Type, XMFLOAT3 Position, bool Loop)
 {
 	if(!Exists(Name))
 	{
@@ -174,7 +183,16 @@ void SoundManager::Play3D(string Name, XMFLOAT3 Position, bool Loop)
 
 	ErrorCheck(gChannel->setPaused(false));
 
-	ErrorCheck(gChannel->setVolume(gMasterVolume));
+	switch(Type)
+	{
+	case Song:
+		gChannel->setVolume( gMusicVolume * gMasterVolume );
+		break;
+
+	case SFX:
+		gChannel->setVolume( gEffectVolume * gMasterVolume );
+		break;
+	}
 
 	FMOD_VECTOR	tVelocity	=	{0, 0, 0};
 	gResult	=	gChannel->set3DAttributes(&gListenerPosition, &tVelocity);
@@ -280,4 +298,44 @@ void SoundManager::SetListenerPosition(float X, float Y, float Z)
 	gListenerPosition.x	=	X;
 	gListenerPosition.y	=	Y;
 	gListenerPosition.z	=	Z;
+}
+
+void SoundManager::SetVolume(SoundType VolumeType, float Value)
+{
+	Value	=	MathHelper::Clamp(0.0f, Value, 1.0f);
+
+	switch(VolumeType)
+	{
+	case SFX:
+		gEffectVolume	=	Value;
+		break;
+
+	case Song:
+		gMusicVolume	=	Value;
+		break;
+
+	case Master:
+		gMasterVolume	=	Value;
+		break;
+	}
+}
+
+float SoundManager::GetVolume(SoundType VolumeType)
+{
+	switch(VolumeType)
+	{
+	case SFX:
+		return gEffectVolume;
+		break;
+
+	case Song:
+		return gMusicVolume;
+		break;
+
+	case Master:
+		return gMasterVolume;
+		break;
+	}
+
+	return -1.0f;
 }
