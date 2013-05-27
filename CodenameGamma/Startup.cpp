@@ -387,10 +387,6 @@ int Run()
 
 void CloseApplication()
 {
-	Effects::DestroyAll();
-	RenderStates::DestroyAll();
-	InputLayouts::DestroyAll();
-
 	if( ScreenSetupData->TEXT_INSTANCE )	ScreenSetupData->TEXT_INSTANCE->Release();
 
 	ScreenSetupData	=	NULL;
