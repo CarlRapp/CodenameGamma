@@ -27,7 +27,10 @@ struct LevelData
 	LevelTexture	Textures[4];
 	LevelMap		HeightMap;
 	string			BlendMap;
-	XMFLOAT3		DirectionalLight;
+
+	XMFLOAT4		SunColor;
+	XMFLOAT4		SunDirection;
+	XMFLOAT3		GlobalLight;
 
 	bool IsLoaded()
 	{

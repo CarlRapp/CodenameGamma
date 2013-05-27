@@ -150,11 +150,9 @@ float4 PS(VertexOut pin,
 		[unroll]
 		for(int i = 0; i < gLightCount; ++i)
 		{
-			float4 A, D, S;
-			ComputeDirectionalLight(gMaterial, gDirLights[i], pin.NormalW, toEye, 
-				A, D, S);
-
-			ambient += ambientAccess*A;    
+			float4 D, S;
+			ComputeDirectionalLight(gMaterial, gDirLights[i], pin.NormalW, toEye, D, S);
+			  
 			diffuse += shadow[i]*D;
 			spec    += shadow[i]*S;
 		}
