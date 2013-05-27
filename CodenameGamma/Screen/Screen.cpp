@@ -35,11 +35,10 @@ void Screen::LoadScreenData(ScreenData* Setup)
 
 void Screen::Initialize()
 {
-	if(gInitialized)
+	if( gInitialized )
 		return;
 
-	if(Load())
-		gInitialized	=	true;
+	gInitialized	=	Load();
 }
 
 void Screen::Destroy()

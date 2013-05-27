@@ -13,38 +13,63 @@ LevelSelectScreen::LevelSelectScreen(ScreenData* Setup)
 	gMapMenu	=	vector<MapMenuEntry>();
 
 	gStartIndex		=	0;
-	gListLimit		=	3;
+	gListLimit		=	8;
 	gCurrentIndex	=	0;
-	gMenuTextSize	=	32;
+	gMenuTextSize	=	36;
 
 	CreateMapMenu();
 }
 
+bool LevelSelectScreen::Load()
+{
+	IFW1Factory				*pFW1Factory = 0;
+	FW1CreateFactory(FW1_VERSION, &pFW1Factory);
+	pFW1Factory->CreateFontWrapper(gDevice, L"Andale Mono", &gTextInstance);
+	pFW1Factory->Release();
+
+	return true;
+}
+
+bool LevelSelectScreen::Unload()
+{
+	SAFE_RELEASE( gTextInstance );
+
+	return true;
+}
+
 void LevelSelectScreen::Update(float DeltaTime)
 {
-	InputManager*	IM	=	InputManager::GetInstance();
+	Controller*	tC	=	InputManager::GetInstance()->GetController(0);
+	Keyboard*	tK	=	InputManager::GetInstance()->GetKeyboard();
 
-	if( IM->GetKeyboard()->GetKeyState( VK_DOWN ) == PRESSED )
-	{
-		++gCurrentIndex;
+	bool	UP		=	tC->GetButtonState( D_UP ) == PRESSED		|| tK->GetKeyState( VK_UP ) == PRESSED		|| tK->GetKeyState( 'W' ) == PRESSED;
+	bool	DOWN	=	tC->GetButtonState( D_DOWN ) == PRESSED		|| tK->GetKeyState( VK_DOWN ) == PRESSED	|| tK->GetKeyState( 'S' ) == PRESSED;
+	bool	CONFIRM	=	tC->GetButtonState( A ) == PRESSED			|| tK->GetKeyState( VK_RETURN ) == PRESSED;
+	bool	BACK	=	tC->GetButtonState( B ) == PRESSED			|| tK->GetKeyState( VK_ESCAPE ) == PRESSED;
 
-		if( gCurrentIndex >= gMapMenu.size() )
-			gCurrentIndex	=	0;
-	}
-	if( IM->GetKeyboard()->GetKeyState( VK_UP ) == PRESSED )
+	if( UP )
 	{
 		--gCurrentIndex;
 
 		if( gCurrentIndex < 0 )
 			gCurrentIndex	=	gMapMenu.size() - 1;
 	}
+	if( DOWN )
+	{
+		++gCurrentIndex;
 
-	if( IM->GetKeyboard()->GetKeyState( VK_RETURN ) == PRESSED )
+		if( gCurrentIndex >= gMapMenu.size() )
+			gCurrentIndex	=	0;
+	}
+
+	if( CONFIRM )
 	{
 		gScreenData->LEVEL_NAME	=	gMapMenu[gCurrentIndex].second.Name;
 
 		gGotoNextFrame	=	PRE_PLAY_SCREEN;
 	}
+	if( BACK )
+		gGotoNextFrame	=	MAIN_MENU_SCREEN;
 
 	gStartIndex	=	( gStartIndex < gCurrentIndex - gListLimit ) ? gCurrentIndex - gListLimit : gStartIndex;
 	gStartIndex	=	( gStartIndex > gCurrentIndex ) ? gCurrentIndex : gStartIndex;
@@ -56,10 +81,9 @@ void LevelSelectScreen::Render()
 {
 	XMFLOAT2	tPos	=	XMFLOAT2(gScreenWidth * 0.05f, gScreenHeight * 0.05f);
 	
-	DrawString(*gTextInstance, "Level Selection", tPos.x, tPos.y, 72, Black, White, 2, FW1_LEFT);
+	DrawString(*gTextInstance, "Level Selection", tPos.x, tPos.y, 72, White, WhiteTrans, 2, FW1_LEFT);
 
 	tPos.y	+=	1.5f * 72;
-	tPos.x	+=	0.5f * gMenuTextSize;
 
 	//	Print the list
 	for( int i = gStartIndex; i <= gStartIndex + gListLimit; ++i )
@@ -73,19 +97,19 @@ void LevelSelectScreen::Render()
 			DrawString(*gTextInstance, gMapMenu[i].first, tPos.x, tPos.y + 1.5f * gMenuTextSize * ( i - gStartIndex ), gMenuTextSize, WhiteTrans, BlackTrans, 2, FW1_LEFT);
 	}
 
-	tPos	=	XMFLOAT2(gScreenWidth * 0.40f, tPos.y);
+	tPos	=	XMFLOAT2(gScreenWidth * 0.50f, tPos.y);
 
 	//	Print info about the map
 	LevelInfo	tInfo	=	gMapMenu[ gCurrentIndex ].second;
 
-	string	tArea	=	to_string( (long double)( tInfo.Width * tInfo.Height ) );
-	string	tWidth	=	to_string( (long double)tInfo.Width );
-	string	tHeight	=	to_string( (long double)tInfo.Height );
-	string	tPlayers=	to_string( (long double)tInfo.PlayerCount );
-	
-	DrawString(*gTextInstance, "Map Details:", tPos.x, tPos.y, gMenuTextSize, White, Black, 2, FW1_LEFT);
-	DrawString(*gTextInstance, "Area: " + tWidth + "x" + tHeight + " meter", tPos.x, tPos.y + 1.5f * gMenuTextSize, gMenuTextSize, White, Black, 2, FW1_LEFT);
-	DrawString(*gTextInstance, "Players: " + tPlayers, tPos.x, tPos.y + 3.0f * gMenuTextSize, gMenuTextSize, White, Black, 2, FW1_LEFT);
+	string	tArea		=	to_string( (long double)( tInfo.Width * tInfo.Height ) );
+	string	tWidth		=	to_string( (long double)tInfo.Width );
+	string	tHeight		=	to_string( (long double)tInfo.Height );
+	string	tPlayers	=	to_string( (long double)tInfo.PlayerCount );
+	float	tInfoSize	=	0.8f * gMenuTextSize;
+
+	DrawString(*gTextInstance, "Area:      " + tWidth + "x" + tHeight + " m2", tPos.x, tPos.y, tInfoSize, White, BlackTrans, 2, FW1_LEFT);
+	DrawString(*gTextInstance, "Players:  " + tPlayers, tPos.x, tPos.y + 1.2f * tInfoSize, tInfoSize, White, BlackTrans, 2, FW1_LEFT);
 }
 
 ScreenType LevelSelectScreen::GetScreenType()
@@ -146,5 +170,12 @@ void LevelSelectScreen::CreateMapMenu()
 		closedir( RootFolder );
 	}
 
+	if( gMapMenu.size() < gListLimit )
+		gListLimit	=	gMapMenu.size() - 1;
+}
 
+void LevelSelectScreen::Reset()
+{
+	gStartIndex		=	0;
+	gCurrentIndex	=	0;
 }
