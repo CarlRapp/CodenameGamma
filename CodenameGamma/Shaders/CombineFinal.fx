@@ -13,6 +13,13 @@ SamplerState g_Sampler
     AddressV = CLAMP;
 };
 
+SamplerState samLinearClamp
+{
+	Filter = MIN_MAG_MIP_LINEAR;
+	AddressU = CLAMP;
+	AddressV = CLAMP;
+};
+
 struct VSIn
 {
 	float2 Pos 	: POSITION;
@@ -57,7 +64,7 @@ float4 PSScene(PSSceneIn input, uniform bool gColor, uniform bool gAlphaClip, un
 		result = g_Texture.Sample(g_Sampler, input.Tex);
 
 		if (gAlphaClip)
-			clip(result.a - 0.1f);
+			clip(g_Texture.SampleLevel(samLinearClamp, input.Tex, 0).a - 0.1f);
 	}
 	else
 		result = g_Texture.Sample(g_Sampler, input.Tex).x;
@@ -151,7 +158,7 @@ technique11 AlphaTransparencyColor
 		// Set VS, GS, and PS
         SetVertexShader( CompileShader( vs_4_0, VSScene() ) );
         SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_4_0, PSScene(true, false, false) ) );
+        SetPixelShader( CompileShader( ps_4_0, PSScene(true, true, false) ) );
 		SetBlendState(Transparency, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 	    //SetRasterizerState( NoCulling );
     }  
@@ -167,7 +174,7 @@ technique11 TransparencyColor
 		// Set VS, GS, and PS
         SetVertexShader( CompileShader( vs_4_0, VSScene() ) );
         SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_4_0, PSScene(true, false, true) ) );
+        SetPixelShader( CompileShader( ps_4_0, PSScene(true, true, true) ) );
 		SetBlendState(Transparency, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 	    //SetRasterizerState( NoCulling );
     }  

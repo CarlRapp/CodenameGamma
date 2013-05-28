@@ -74,8 +74,8 @@ void Level::LoadLevel(string Levelname)
 
 	ModelManager::GetInstance()->LoadModel("CrazyBitch", "CrazyBitch.dae", "DATA/Models/CrazyBitch/");
 	ModelManager::GetInstance()->LoadModel("Rat", "Rat.dae", "DATA/Models/Rat/");
-	//ModelManager::GetInstance()->LoadModel("Ghost", "Ghost.dae", "DATA/Models/Ghost/");
-	//ModelManager::GetInstance()->LoadModel("Tank", "Tank.dae", "DATA/Models/Tank/");
+	ModelManager::GetInstance()->LoadModel("Ghost", "Ghost.dae", "DATA/Models/Ghost/");
+	ModelManager::GetInstance()->LoadModel("Tank", "Tank.dae", "DATA/Models/Tank/");
 
 	ModelManager::GetInstance()->LoadModel("Glock", "Glock.dae", "DATA/Models/Glock/");
 	ModelManager::GetInstance()->LoadModel("Shotgun", "Shotgun.obj", "DATA/Models/Shotgun/");

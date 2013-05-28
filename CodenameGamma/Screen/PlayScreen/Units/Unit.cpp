@@ -271,9 +271,9 @@ void Unit::SetMoveState(MoveState newMoveState)
 		if (PlayingAnimation(GetAnimation("DrawReloadPutAway")))
 			LoopAnimationAfter(GetAnimation("DrawReloadPutAway"), GetAnimation("UpperRun"));
 
-		else if (PlayingAnimation(GetAnimation("ShootReload")))
+		else if (PlayingAnimation(GetAnimation("Reload")))
 		{
-			PlayAnimationAfter(GetAnimation("ShootReload"), GetAnimation("PutAway"));
+			PlayAnimationAfter(GetAnimation("Reload"), GetAnimation("PutAway"));
 			LoopAnimationAfter(GetAnimation("PutAway"), GetAnimation("UpperRun"));
 		}
 
@@ -286,7 +286,7 @@ void Unit::SetMoveState(MoveState newMoveState)
 
 			if (!BodyInSync)
 			{
-				float progress = GetAnimationProgress(GetAnimation("UpperRun")) + 0.0f;
+				float progress = GetAnimationProgress(GetAnimation("UpperRun")) + 0.5f;
 				progress -= (int)progress;
 				if (SetAnimationProgress(GetAnimation("UpperRun"), progress))
 					BodyInSync = true;
@@ -344,8 +344,8 @@ void Unit::SetWeaponState(WeaponState newWeaponState)
 			if (PlayingAnimation(GetAnimation("DrawReloadPutAway")))
 				PlayAnimationAfter(GetAnimation("DrawReloadPutAway"), GetAnimation("Draw"));
 
-			else if (PlayingAnimation(GetAnimation("ShootReload")))
-				PlayAnimationAfter(GetAnimation("ShootReload"), GetAnimation("Draw"));
+			else if (PlayingAnimation(GetAnimation("Reload")))
+				PlayAnimationAfter(GetAnimation("Reload"), GetAnimation("Draw"));
 
 			else
 			{
@@ -371,8 +371,8 @@ void Unit::SetWeaponState(WeaponState newWeaponState)
 			StopAnimation(GetAnimation("Aim"));
 			StopAnimation(GetAnimation("Draw"));
 
-			if (PlayingAnimation(GetAnimation("ShootReload")))
-				PlayAnimationAfter(GetAnimation("ShootReload"), GetAnimation("PutAway"));
+			if (PlayingAnimation(GetAnimation("Reload")))
+				PlayAnimationAfter(GetAnimation("Reload"), GetAnimation("PutAway"));
 
 			else if (PlayingAnimation(GetAnimation("DrawReloadPutAway")))
 				PlayAnimationAfter(GetAnimation("DrawReloadPutAway"), GetAnimation("PutAway"));
@@ -428,7 +428,7 @@ void Unit::ReloadWeapon()
 				SetAnimationSpeed(animation, GetAnimationTime(animation) / reloadTime);
 				break;
 			case Aim:
-				animation = GetAnimation("ShootReload");
+				animation = GetAnimation("Reload");
 				animationAfter = GetAnimation("Aim");
 
 				if (PlayingAnimation(GetAnimation("Draw")))

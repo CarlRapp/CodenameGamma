@@ -813,7 +813,7 @@ void GraphicsManager::RenderModelShadowMap(ModelInstance& instance, CXMMATRIX vi
 	XMMATRIX world;
 	world = XMLoadFloat4x4(&instance.GetWorld());
 
-	XMMATRIX tex = XMMatrixTranslation(1, 1, 1);
+	XMMATRIX tex = XMMatrixTranslation(0, 0, 0);
 
 	Effects::ShadowMapFX->SetWorldViewProj(world * view * proj);
 	Effects::ShadowMapFX->SetTexTransform(tex);
@@ -834,7 +834,7 @@ void GraphicsManager::RenderAnimatedModelShadowMap(ModelInstance& instance, CXMM
 	XMMATRIX world;
 	world = XMLoadFloat4x4(&instance.GetWorld());
 
-	XMMATRIX tex = XMMatrixTranslation(1, 1, 1);
+	XMMATRIX tex = XMMatrixTranslation(0, 0, 0);
 
 	Effects::ShadowMapFX->SetWorldViewProj(world * view * proj);
 	Effects::ShadowMapFX->SetTexTransform(tex);
@@ -1171,7 +1171,7 @@ void GraphicsManager::RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMA
 	XMMATRIX worldView;
 	XMMATRIX worldInvTransposeView;
 	XMMATRIX worldViewProj;
-	XMMATRIX tex = XMMatrixTranslation(1, 1, 1);
+	XMMATRIX tex = XMMatrixTranslation(0, 0, 0);
 
 	world = XMLoadFloat4x4(&instance.GetWorld());
 	//float a = MathHelper::InverseTranspose(world);
@@ -1216,7 +1216,7 @@ void GraphicsManager::RenderAnimatedModel(ModelInstance& instance, CXMMATRIX vie
 	XMMATRIX worldView;
 	XMMATRIX worldInvTransposeView;
 	XMMATRIX worldViewProj;
-	XMMATRIX tex = XMMatrixTranslation(1, 1, 1);
+	XMMATRIX tex = XMMatrixTranslation(0, 0, 0);
 
 	world = XMLoadFloat4x4(&instance.GetWorld());
 	//float a = MathHelper::InverseTranspose(world);
