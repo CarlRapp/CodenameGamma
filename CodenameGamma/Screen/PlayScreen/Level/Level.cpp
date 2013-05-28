@@ -23,63 +23,6 @@ Level::Level(SystemData LData)
 	gGraphicsManager	=	new GraphicsManager(LData.DEVICE, LData.DEVICE_CONTEXT, LData.RENDER_TARGET_VIEW, LData.SCREEN_WIDTH, LData.SCREEN_HEIGHT);
 	gGraphicsManager->SetTerrain(gTerrain);
 	gGraphicsManager->SetLights(&gDirLights, &gPointLights, &gSpotLights, &gGlobalLight);
-	
-	//GameObject.SetTestar( std::bind(&Level::AddGameObject, this, std::placeholders::_1) );
-
-	/*
-	for(int i = 0; i < 0; ++i)
-		AddDirectionalLight(false);
-
-	for(int i = 0; i < 0; ++i)
-		AddDirectionalLight(true);
-	
-	for( int i = 0; i < 0; ++i)	
-		AddPointLight(false);
-
-	for( int i = 0; i < 0; ++i)	
-		AddPointLight(true);
-
-	for( int i = 0; i < 0; ++i)
-		AddSpotLight(false);
-
-	for( int i = 0; i < 0; ++i)	
-		AddSpotLight(true);
-		*/
-	
-	AddPointLight(true, XMFLOAT3(1700,120,2200));
-
-	//AddPointLight(true, XMFLOAT3(1800,0,1800));
-	//AddPointLight(true, XMFLOAT3(2200,0,2800));
-	//AddPointLight(true, XMFLOAT3(1800,0,2800));
-
-
-	AddPointLight(true, XMFLOAT3(1000,120,1000));
-	AddPointLight(true, XMFLOAT3(1000,120,3000));
-	AddPointLight(true, XMFLOAT3(3000,120,1000));
-	AddPointLight(true, XMFLOAT3(3000,120,3000));
-
-
-	AddSpotLight(true, XMFLOAT3(2200,0,2100));
-	AddSpotLight(true, XMFLOAT3(1700,0,2650));
-
-
-	AddSpotLight(true, XMFLOAT3(500,0,500));
-	AddSpotLight(true, XMFLOAT3(500,0,3500));
-	AddSpotLight(true, XMFLOAT3(3500,0,500));
-	AddSpotLight(true, XMFLOAT3(3500,0,3500));
-
-	
-	/*
-
-
-	AddSpotLight(true, XMFLOAT3(0,0,0));
-	AddSpotLight(true, XMFLOAT3(0,0,0));
-	AddSpotLight(true, XMFLOAT3(0,0,0));
-	AddSpotLight(true, XMFLOAT3(0,0,0));
-	AddSpotLight(true, XMFLOAT3(0,0,0));
-	AddSpotLight(true, XMFLOAT3(0,0,0));
-	*/
-
 
 	gQuadTree = NULL;
 }
@@ -414,9 +357,9 @@ void Level::Update(float DeltaTime)
 		if( gWave->IsLimitReached() )
 		{
 			PlayerUnit*	tUnit	=	p->GetUnit();
-			tUnit->Drink( -1.0f * DeltaTime );
-			tUnit->Eat( -1.0f * DeltaTime );
-			tUnit->Hurt( 10.0f * DeltaTime );
+			//tUnit->Drink( -1.0f * DeltaTime );
+			//tUnit->Eat( -1.0f * DeltaTime );
+			//tUnit->Hurt( 1.0f * DeltaTime );
 		}
 	}
 
