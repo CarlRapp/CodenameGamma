@@ -13,7 +13,7 @@ Wave::Wave()
 
 Wave::Wave(NodeMap* Instance)
 {
-	gWaveTimer			=	WaveTimer( 0.0f, 5.0f );
+	gWaveTimer			=	WaveTimer( 5.0f, 5.0f );
 	gHealthMultiplier	=	1.0f;
 	gSpeedMultiplier	=	1.0f;
 	gDamageMultiplier	=	1.0f;
@@ -43,6 +43,7 @@ void Wave::NewWave()
 
 			Unit->SetNodeMap( gNodeMap );
 			Unit->MoveTo( Pos );
+			Unit->LoopAnimation("ALL");
 
 			AddGameObject(Unit);
 
