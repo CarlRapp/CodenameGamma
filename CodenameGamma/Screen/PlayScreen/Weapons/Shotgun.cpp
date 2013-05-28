@@ -10,15 +10,15 @@ Shotgun::Shotgun()
 
 	gReloadTime	=	WeaponReloadTime(0.0f, 4.0f);
 
-	gWeaponAnimations.Aim				= "ShotgunAim";
-	gWeaponAnimations.Draw				= "ShotgunDraw";
+	gWeaponAnimations.Aim				= "WeaponAim";
+	gWeaponAnimations.Draw				= "WeaponDraw";
 	gWeaponAnimations.DrawReloadPutAway = "ShotgunDrawReloadPutAway";
-	gWeaponAnimations.PutAway			= "ShotgunPutAway";
+	gWeaponAnimations.PutAway			= "WeaponPutAway";
 	gWeaponAnimations.Shoot				= "ShotgunShoot";
-	gWeaponAnimations.ShootReload		= "ShotgunShootReload";
-	gWeaponAnimations.UpperWalk			= "ShotgunUpperWalk";
-	gWeaponAnimations.UpperRun			= "ShotgunUpperRun";
-	gWeaponAnimations.UpperStand		= "ShotgunUpperStand";
+	gWeaponAnimations.Reload			= "ShotgunReload";
+	gWeaponAnimations.UpperWalk			= "WeaponUpperWalk";
+	gWeaponAnimations.UpperRun			= "WeaponUpperRun";
+	gWeaponAnimations.UpperStand		= "WeaponUpperStand";
 }
 
 Shotgun::~Shotgun()

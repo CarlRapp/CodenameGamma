@@ -33,7 +33,7 @@ struct WeaponAnimations
 	string UpperWalk;
 	string UpperRun;
 	string Shoot;
-	string ShootReload;
+	string Reload;
 	string DrawReloadPutAway;
 
 	WeaponAnimations()
@@ -43,7 +43,7 @@ struct WeaponAnimations
 		DrawReloadPutAway	= "";
 		PutAway				= "";
 		Shoot				= "";
-		ShootReload			= "";
+		Reload				= "";
 		UpperWalk			= "";
 		UpperRun			= "";
 		UpperStand			= "";
