@@ -48,8 +48,8 @@ protected:
 			else if (name == "Shoot")		
 				return gCurrentWeapon->gWeaponAnimations.Shoot;
 		
-			else if (name == "ShootReload")		
-				return gCurrentWeapon->gWeaponAnimations.ShootReload;
+			else if (name == "Reload")		
+				return gCurrentWeapon->gWeaponAnimations.Reload;
 
 			else if (name == "UpperStand")
 				return gCurrentWeapon->gWeaponAnimations.UpperStand;

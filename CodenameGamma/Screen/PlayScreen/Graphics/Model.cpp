@@ -194,10 +194,15 @@ bool ModelInstance::PlayingAnimation(string clipName)
 
 void ModelInstance::PlayAnimation(Animation* animation)
 {
+	int bone = m_Model->SkinnedData.GetAnimationFirstBone(animation->ClipName);
+
+	if (bone == -1)
+		return;
+
 	for (int i = ActiveAnimations.size() - 1; i >= 0; --i)
 	{
 		Animation* temp = ActiveAnimations[i];
-		if (m_Model->SkinnedData.GetAnimationFirstBone(animation->ClipName) == (m_Model->SkinnedData.GetAnimationFirstBone(temp->ClipName)))
+		if (bone == (m_Model->SkinnedData.GetAnimationFirstBone(temp->ClipName)))
 		{
 			StopAnimation(temp->ClipName);
 		}
