@@ -208,7 +208,7 @@ void PlayScreen::RenderGUI( Player* P )
 	tPercent	=	MathHelper::Clamp(0, tPercent, 100);
 	tIndex		=	(int)( 0.05f * tPercent );
 	tIndex		=	MathHelper::Clamp(0, tIndex, 5);
-	gLevel->GetGraphicsManager()->RenderQuad( tVP, gThirstBar[tIndex], Effects::CombineFinalFX->AlphaTransparencyColorTech );
+	RenderGUISprite( tVP,gThirstBar[tIndex] );
 	//RenderGUISprite( tVP,  );
 	tThirstPos.x	=	tVP.TopLeftX + tVP.Width * 0.5f;
 	tThirstPos.y	=	tVP.TopLeftY + tVP.Height * 0.5f;
@@ -221,7 +221,7 @@ void PlayScreen::RenderGUI( Player* P )
 
 void PlayScreen::RenderGUISprite( D3D11_VIEWPORT VP, ID3D11ShaderResourceView* Sprite )
 {
-	gLevel->GetGraphicsManager()->RenderQuad( VP, Sprite, Effects::CombineFinalFX->AlphaClipColorTech );
+	gLevel->GetGraphicsManager()->RenderQuad( VP, Sprite, Effects::CombineFinalFX->AlphaTransparencyColorTech );
 }
 
 void PlayScreen::RenderGUIText( XMFLOAT2 Position, string Text, float TextSize, TextColor Color )

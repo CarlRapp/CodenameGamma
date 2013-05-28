@@ -25,6 +25,13 @@ SamplerState samLinear
 	AddressV = WRAP;
 };
 
+SamplerState samPoint
+{
+	Filter = MIN_MAG_MIP_POINT;
+	AddressU = CLAMP;
+	AddressV = CLAMP;
+};
+
 struct VertexIn
 {
 	float3 PosL     : POSITION;
@@ -132,7 +139,8 @@ PsOut PS(VertexOut pin,
 		//return texColor;
 		if(gAlphaClip)
 		{
-			clip(pout.Albedo.a - 0.1f);
+			float alpha = gDiffuseMap.SampleLevel( samPoint, pin.Tex, 0 ).a;
+			clip(alpha - 0.1f);
 		}
 	}
 
