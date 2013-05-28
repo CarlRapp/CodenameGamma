@@ -74,7 +74,7 @@ void Level::LoadLevel(string Levelname)
 
 	ModelManager::GetInstance()->LoadModel("CrazyBitch", "CrazyBitch.dae", "DATA/Models/CrazyBitch/");
 	ModelManager::GetInstance()->LoadModel("Rat", "Rat.dae", "DATA/Models/Rat/");
-	ModelManager::GetInstance()->LoadModel("Ghost", "Ghost.dae", "DATA/Models/Ghost/");
+	//ModelManager::GetInstance()->LoadModel("Ghost", "Ghost.dae", "DATA/Models/Ghost/");
 	//ModelManager::GetInstance()->LoadModel("Tank", "Tank.dae", "DATA/Models/Tank/");
 
 	ModelManager::GetInstance()->LoadModel("Glock", "Glock.dae", "DATA/Models/Glock/");
@@ -197,19 +197,6 @@ void Level::LoadLevel(string Levelname)
 
 		
 		AddGameObject(tGO);
-	}
-
-	for ( int i = 0; i < 3; ++i  )
-	{
-		PatrolNode*	tNode	=	gNodeMap->GetRandomNode();
-		Rat*		tRat	=	new Rat();
-		tRat->SetNodeMap( gNodeMap );
-
-		XMFLOAT3	tPosition	=	XMFLOAT3( tNode->Position.x, 0, tNode->Position.y );
-		//XMFLOAT3	tPosition	=	XMFLOAT3( MathHelper::RandF(500, 3500), 0, MathHelper::RandF(2500, 3500) );
-		tRat->MoveTo( tPosition );
-
-		AddGameObject( tRat );
 	}
 }
 
@@ -479,7 +466,7 @@ void Level::Update(float DeltaTime)
 		sLight->GetGPULight()->Position.y = gTerrain->GetHeight(sLight->GetGPULight()->Position.x, sLight->GetGPULight()->Position.z) + 100.0f;
 	}
 
-	gWave->Update( DeltaTime );
+	//gWave->Update( DeltaTime );
 }
 
 void Level::Render()
