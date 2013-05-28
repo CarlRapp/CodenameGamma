@@ -11,11 +11,11 @@ cbuffer cbSkinned
 
 Texture2D gDiffuseMap;
 
-SamplerState samLinear
+SamplerState samPoint
 {
-	Filter = MIN_MAG_MIP_LINEAR;
-	AddressU = WRAP;
-	AddressV = WRAP;
+	Filter = MIN_MAG_MIP_POINT;
+	AddressU = CLAMP;
+	AddressV = CLAMP;
 };
 
 struct VSIn
@@ -164,7 +164,7 @@ PSSceneInPosTex VSSkinnedAlphaClip(SkinnedVertexIn vin)
 //-----------------------------------------------------------------------------------------
 void PSSceneAlphaClip(PSSceneInPosTex input)// : SV_Target
 {
-	clip(gDiffuseMap.Sample(samLinear, input.Tex).a - 0.1f);
+	clip(gDiffuseMap.SampleLevel(samPoint, input.Tex, 0).a - 0.1f);
 }
 
 DepthStencilState DepthStencil
