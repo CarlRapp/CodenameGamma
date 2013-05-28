@@ -48,7 +48,7 @@ void Weapon::Update(float deltaTime, Terrain* terrain)
 	ReloadCountdown(deltaTime);
 }
 
-bool Weapon::Fire( GameObject* Instance )
+bool Weapon::Fire( GameObject* Instance, float DamageMul  )
 {
 	return false;
 }
@@ -67,4 +67,9 @@ bool Weapon::Reload()
 bool Weapon::Intersects(GameObject* B, vector<CollisionData>& CD)
 {
 	return false;
+}
+
+bool Weapon::IsDropable()
+{
+	return true;
 }
