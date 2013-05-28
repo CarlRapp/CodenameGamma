@@ -9,6 +9,13 @@ using namespace std;
 
 const	float	DISTANCEFACTOR			=	1.0f;	// Units per meter.  I.e feet would = 3.28.  centimeters would = 100.
 
+enum SoundType
+{
+	SFX,
+	Song,
+	Master
+};
+
 class SoundManager
 {
 private:
@@ -47,14 +54,17 @@ public:
 	void	Update(float DeltaTime);
 	void	Load(string Name, string Path, FMOD_MODE Flags);
 
-	void	Play(string Name);
-	void	Play(string Name, bool Loop);
-	void	Play3D(string Name, XMFLOAT3 Position);
-	void	Play3D(string Name, XMFLOAT3 Position, bool Loop);
+	void	Play(string Name, SoundType Type);
+	void	Play(string Name, SoundType Type, bool Loop);
+	void	Play3D(string Name, SoundType Type, XMFLOAT3 Position);
+	void	Play3D(string Name, SoundType Type, XMFLOAT3 Position, bool Loop);
 
 	void	Stop(string Name);
 
 	void	SetListenerPosition(float X, float Y, float Z);
+
+	void	SetVolume(SoundType VolumeType, float Value);
+	float	GetVolume(SoundType VolumeType);
 };
 
 #endif;

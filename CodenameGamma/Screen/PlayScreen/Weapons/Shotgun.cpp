@@ -49,7 +49,7 @@ bool Shotgun::Fire( GameObject* Instance )
 		tBullet->SetTeam( GetTeam() );
 		tBullet->SetOwner( Instance );
 
-		SoundManager::GetInstance()->Play("Shotgun_Fire");
+		SoundManager::GetInstance()->Play("Shotgun_Fire", SFX);
 
 		gCooldown.first	=	gCooldown.second;
 		--gClip.first;
@@ -60,7 +60,7 @@ bool Shotgun::Fire( GameObject* Instance )
 	}
 	else if ( gClip.first == 0 && gCooldown.first <= 0)
 	{
-		SoundManager::GetInstance()->Play("EmptyClip");
+		SoundManager::GetInstance()->Play("EmptyClip", SFX);
 		gCooldown.first	=	gCooldown.second;
 	}
 	return false;

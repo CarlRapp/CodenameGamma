@@ -27,11 +27,15 @@ private:
 
 	void	CreateMapMenu( void );
 
+	bool	Load();
+	bool	Unload();
+
 public:
 	LevelSelectScreen(ScreenData* Setup);
 
 	void	Update(float DeltaTime);
 	void	Render();
+	void	Reset();
 
 	ScreenType	GetScreenType();
 };
