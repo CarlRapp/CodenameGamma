@@ -286,7 +286,7 @@ void Unit::SetMoveState(MoveState newMoveState)
 
 			if (!BodyInSync)
 			{
-				float progress = GetAnimationProgress(GetAnimation("UpperRun")) + 0.0f;
+				float progress = GetAnimationProgress(GetAnimation("UpperRun")) + 0.5f;
 				progress -= (int)progress;
 				if (SetAnimationProgress(GetAnimation("UpperRun"), progress))
 					BodyInSync = true;

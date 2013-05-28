@@ -29,6 +29,13 @@ SamplerState samLinear
 	AddressV = WRAP;
 };
 
+SamplerState samLinearClamp
+{
+	Filter = MIN_MAG_MIP_LINEAR;
+	AddressU = CLAMP;
+	AddressV = CLAMP;
+};
+
 struct VertexIn
 {
 	float3 PosL     : POSITION;
@@ -88,7 +95,7 @@ PsOut PS(VertexOut pin,
 	float4 BlendData = float4(0, 0, 0, 0);
 	if(gUseTexure || gUseNormalMap)
 	{
-		BlendData = gBlendMap.Sample( samLinear, pin.TexB );
+		BlendData = gBlendMap.Sample( samLinearClamp, pin.TexB );
 	}
 	
     // Default to multiplicative identity.
