@@ -2,6 +2,7 @@
 #include "PrePlayScreen.h"
 #include "PostPlayScreen.h"
 #include "LevelSelectScreen.h"
+#include "OptionScreen.h"
 
 ScreenManager::ScreenManager()
 {
@@ -101,8 +102,8 @@ void ScreenManager::ChangeScreen(ScreenType Type)
 	//	Check if the selected screen is loaded
 	for each(Screen* tScreen in *gLoadedScreens)
 	{
-		Type;
-		tScreen->GetScreenType();
+		//Type;
+		//tScreen->GetScreenType();
 
 		if(tScreen->GetScreenType() == Type)
 		{
@@ -148,7 +149,7 @@ Screen* ScreenManager::LoadScreen(ScreenType Type)
 
 	//	Options
 	else if(Type == OPTIONS_SCREEN)
-		return	NULL;
+		return	new OptionScreen(gScreenData);
 
 	//	Play Screen
 	else if(Type == PLAY_SCREEN)

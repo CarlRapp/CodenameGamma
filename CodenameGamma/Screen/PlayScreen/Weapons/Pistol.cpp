@@ -54,7 +54,7 @@ bool Pistol::Fire( GameObject* Instance )
 		tBullet->SetTeam( GetTeam() );
 		tBullet->SetOwner( Instance );
 
-		SoundManager::GetInstance()->Play("Pistol");
+		SoundManager::GetInstance()->Play("Pistol", SFX);
 
 		gCooldown.first	=	gCooldown.second;
 		--gClip.first;
@@ -65,7 +65,7 @@ bool Pistol::Fire( GameObject* Instance )
 	}
 	else if ( gClip.first == 0 && gCooldown.first <= 0)
 	{
-		SoundManager::GetInstance()->Play("EmptyClip");
+		SoundManager::GetInstance()->Play("EmptyClip", SFX);
 		gCooldown.first	=	gCooldown.second;
 	}
 

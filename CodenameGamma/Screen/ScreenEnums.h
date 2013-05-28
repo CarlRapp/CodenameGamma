@@ -44,7 +44,8 @@ struct ScreenData
 		PLAYER_SCORE_LIST	=	vector<PlayerScore>();
 	}
 
-	int	WIDTH, HEIGHT;
+	int		WIDTH, HEIGHT;
+	bool	FULLSCREEN;
 
 	ID3D11Device*			DEVICE;
 	ID3D11DeviceContext*	DEVICE_CONTEXT;
