@@ -14,7 +14,7 @@ Pistol::Pistol()
 	gWeaponAnimations.DrawReloadPutAway = "PistolDrawReloadPutAway";
 	gWeaponAnimations.PutAway			= "PistolPutAway";
 	gWeaponAnimations.Shoot				= "PistolShoot";
-	gWeaponAnimations.ShootReload		= "PistolShootReload";
+	gWeaponAnimations.Reload		= "PistolReload";
 	gWeaponAnimations.UpperWalk			= "PistolUpperWalk";
 	gWeaponAnimations.UpperRun			= "PistolUpperRun";
 	gWeaponAnimations.UpperStand		= "PistolUpperStand";

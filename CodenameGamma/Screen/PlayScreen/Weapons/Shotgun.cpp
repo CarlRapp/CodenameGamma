@@ -15,7 +15,7 @@ Shotgun::Shotgun()
 	gWeaponAnimations.DrawReloadPutAway = "ShotgunDrawReloadPutAway";
 	gWeaponAnimations.PutAway			= "WeaponPutAway";
 	gWeaponAnimations.Shoot				= "ShotgunShoot";
-	gWeaponAnimations.ShootReload		= "ShotgunShootReload";
+	gWeaponAnimations.Reload			= "ShotgunReload";
 	gWeaponAnimations.UpperWalk			= "WeaponUpperWalk";
 	gWeaponAnimations.UpperRun			= "WeaponUpperRun";
 	gWeaponAnimations.UpperStand		= "WeaponUpperStand";
