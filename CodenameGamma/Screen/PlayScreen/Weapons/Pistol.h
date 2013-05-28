@@ -15,7 +15,7 @@ public:
 
 	bool	CanFire();
 
-	bool	Fire( GameObject* Instance );
+	bool	Fire( GameObject* Instance, float DamageMul );
 };
 
 #endif

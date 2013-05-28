@@ -30,11 +30,13 @@ bool Pistol::CanFire()
 	return (gClip.first > 0 && gCooldown.first <= 0);
 }
 
-bool Pistol::Fire( GameObject* Instance )
+bool Pistol::Fire( GameObject* Instance, float DamageMul )
 {
 	if ( CanFire() )
 	{
-		Bullet*	tBullet	=	new Bullet();		
+		Bullet*	tBullet	=	new Bullet();
+		tBullet->MultiplyDamage( DamageMul );
+
 		float	tRotationY	=	GetFloat3Value( Rotations ).y;
 
 		XMFLOAT3	tVelocity	=	XMFLOAT3(0, 0, 0);
