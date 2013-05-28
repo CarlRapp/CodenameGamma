@@ -9,6 +9,7 @@
 #include "SmallStore.h"
 #include "AbandonedBuilding.h"
 #include "ApartmentBuilding.h"
+#include "ApartmentComplex.h"
 #include "HotDogStand.h"
 #include "FactoryBuilding.h"
 #include "MarketStore.h"
@@ -17,6 +18,7 @@
 
 //	Vehicles
 #include "VolvoCar.h"
+#include "AstonMartin.h"
 #include "PickupTruck.h"
 
 //	Obstacles
@@ -30,6 +32,7 @@
 #include "TankBarrier.h"
 #include "UtilityPole.h"
 #include "OilBarrel.h"
+#include "Fence.h"
 
 //	Misc
 #include "UnitCube.h"

@@ -317,22 +317,22 @@ GameObject* LevelParser::GetGameObject( string GameObjectName )
 {
 	GameObject*	Result	=	0;
 
-	if( GameObjectName == "UnitCube" )
+	if( GameObjectName == "Unit Cube" )
 	{
 		ModelManager::GetInstance()->LoadModel("UnitCube", "UnitCube.obj", "DATA/Models/UnitCube/");
 		Result	=	new UnitCube();
 	}
-	else if( GameObjectName == "CrowdBarrier" )
+	else if( GameObjectName == "Crowd Barrier" )
 	{
 		ModelManager::GetInstance()->LoadModel("CrowdBarrier", "CrowdBarrier.obj", "DATA/Models/CrowdBarrier/");
 		Result	=	new CrowdBarrier();
 	}
-	else if( GameObjectName == "SmallStore" )
+	else if( GameObjectName == "Small Store" )
 	{
 		ModelManager::GetInstance()->LoadModel("SmallStore", "SmallStore.obj", "DATA/Models/SmallStore/");
 		Result	=	new SmallStore();
 	}
-	else if( GameObjectName == "TownHall" )
+	else if( GameObjectName == "Town Hall" )
 	{
 		ModelManager::GetInstance()->LoadModel("TownHall", "TownHall.dae", "DATA/Models/TownHall/");
 		Result	=	new TownHall();
@@ -342,47 +342,47 @@ GameObject* LevelParser::GetGameObject( string GameObjectName )
 		ModelManager::GetInstance()->LoadModel("Container", "Container.obj", "DATA/Models/Container/");
 		Result	=	new Container();
 	}
-	else if( GameObjectName == "TrashCan" )
+	else if( GameObjectName == "Trash Can" )
 	{
 		ModelManager::GetInstance()->LoadModel("TrashCan", "TrashCan.obj", "DATA/Models/TrashCan/");
 		Result	=	new TrashCan();
 	}
-	else if( GameObjectName == "VolvoCar" )
+	else if( GameObjectName == "Volvo Car" )
 	{
 		ModelManager::GetInstance()->LoadModel("VolvoCar", "VolvoCar.obj", "DATA/Models/VolvoCar/");
 		Result	=	new VolvoCar();
 	}
-	else if( GameObjectName == "UtilityPole" )
+	else if( GameObjectName == "Utility Pole" )
 	{
 		ModelManager::GetInstance()->LoadModel("UtilityPole", "UtilityPole.obj", "DATA/Models/UtilityPole/");
 		Result	=	new UtilityPole();
 	}
-	else if( GameObjectName == "TankBarrier" )
+	else if( GameObjectName == "Tank Barrier" )
 	{
 		ModelManager::GetInstance()->LoadModel("TankBarrier", "TankBarrier.obj", "DATA/Models/TankBarrier/");
 		Result	=	new TankBarrier();
 	}
-	else if( GameObjectName == "SmallShop_B" )
+	else if( GameObjectName == "SmallShop Carlbucks" )
 	{
-		ModelManager::GetInstance()->LoadModel("SmallShop", "SmallShop_B.obj", "DATA/Models/SmallShop_B/");
+		ModelManager::GetInstance()->LoadModel("SmallShopCarlbucks", "SmallShopCarlbucks.obj", "DATA/Models/SmallShopCarlbucks/");
 		Result	=	new SmallShop_B();
 	}
-	else if( GameObjectName == "SmallShop_A" )
+	else if( GameObjectName == "SmallShop Base" )
 	{
-		ModelManager::GetInstance()->LoadModel("SmallShopBase", "SmallShop_A.obj", "DATA/Models/SmallShop_A/");
+		ModelManager::GetInstance()->LoadModel("SmallShopBase", "SmallShopBase.obj", "DATA/Models/SmallShopBase/");
 		Result	=	new SmallShop_A();
 	}
-	else if( GameObjectName == "SandBag" )
+	else if( GameObjectName == "Sand Bag" )
 	{
 		ModelManager::GetInstance()->LoadModel("SandBag", "SandBag.obj", "DATA/Models/SandBag/");
 		Result	=	new SandBag();
 	}
-	else if( GameObjectName == "PickUpTruck" )
+	else if( GameObjectName == "Pickup Truck" )
 	{
 		ModelManager::GetInstance()->LoadModel("PickUpTruck", "PickUpTruck.obj", "DATA/Models/PickUpTruck/");
 		Result	=	new PickupTruck();
 	}
-	else if( GameObjectName == "MarketStore" )
+	else if( GameObjectName == "Market Store" )
 	{
 		ModelManager::GetInstance()->LoadModel("MarketStore", "MarketStore.dae", "DATA/Models/MarketStore/");
 		Result	=	new MarketStore();
@@ -392,17 +392,17 @@ GameObject* LevelParser::GetGameObject( string GameObjectName )
 		ModelManager::GetInstance()->LoadModel("Lamp", "Lamp.obj", "DATA/Models/Lamp/");
 		Result	=	new Lamp();
 	}
-	else if( GameObjectName == "HotDogStand" )
+	else if( GameObjectName == "Hotdog Stand" )
 	{
 		ModelManager::GetInstance()->LoadModel("HotDogStand", "HotDogStand.obj", "DATA/Models/HotDogStand/");
 		Result	=	new HotDogStand();
 	}
-	else if( GameObjectName == "FireHydrant" )
+	else if( GameObjectName == "Fire Hydrant" )
 	{
 		ModelManager::GetInstance()->LoadModel("FireHydrant", "FireHydrant.obj", "DATA/Models/FireHydrant/");
 		Result	=	new FireHydrant();
 	}
-	else if( GameObjectName == "FactoryBuilding" )
+	else if( GameObjectName == "Factory Building" )
 	{
 		ModelManager::GetInstance()->LoadModel("FactoryBuilding", "FactoryBuilding.obj", "DATA/Models/FactoryBuilding/");
 		Result	=	new FactoryBuilding();
@@ -412,20 +412,35 @@ GameObject* LevelParser::GetGameObject( string GameObjectName )
 		ModelManager::GetInstance()->LoadModel("Crate", "Crate.obj", "DATA/Models/Crate/");
 		Result	=	new Crate();
 	}
-	else if( GameObjectName == "ApartmentBuilding" )
+	else if( GameObjectName == "Apartment Building" )
 	{
 		ModelManager::GetInstance()->LoadModel("ApartmentBuilding", "ApartmentBuilding.obj", "DATA/Models/ApartmentBuilding/");
 		Result	=	new ApartmentBuilding();
 	}
-	else if( GameObjectName == "AbandonedBuilding" )
+	else if( GameObjectName == "Abandoned Building" )
 	{
 		ModelManager::GetInstance()->LoadModel("AbandonedBuilding", "AbandonedBuilding.obj", "DATA/Models/AbandonedBuilding/");
 		Result	=	new AbandonedBuilding();
 	}
-	else if( GameObjectName == "OilBarrel" )
+	else if( GameObjectName == "Apartment Complex" )
+	{
+		ModelManager::GetInstance()->LoadModel("ApartmentComplex", "ApartmentComplex.obj", "DATA/Models/ApartmentComplex/");
+		Result	=	new ApartmentComplex();
+	}
+	else if( GameObjectName == "Oil Barrel" )
 	{
 		ModelManager::GetInstance()->LoadModel("OilBarrel", "OilBarrel.obj", "DATA/Models/OilBarrel/");
 		Result	=	new OilBarrel();
+	}
+	else if( GameObjectName == "Fence" )
+	{
+		ModelManager::GetInstance()->LoadModel("Fence", "Fence.obj", "DATA/Models/Fence/");
+		Result	=	new Fence();
+	}
+	else if( GameObjectName == "Aston Martin" )
+	{
+		ModelManager::GetInstance()->LoadModel("AstonMartin", "AstroMartinCar.obj", "DATA/Models/AstroMartinCar/");
+		Result	=	new AstonMartin();
 	}
 	else
 	{
