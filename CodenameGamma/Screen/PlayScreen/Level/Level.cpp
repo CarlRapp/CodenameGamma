@@ -101,7 +101,10 @@ void Level::LoadLevel(string Levelname)
 	for each( Light* LIGHT in Result.Lights )
 		AddLight( LIGHT );
 	gNodeMap	=	Result.NodeMapInstance;
+
+	//	Create the Wave system
 	gWave		=	new Wave( gNodeMap );
+	gWave->LoadWaveData( tLevelRootPath + Levelname + "/");
 	gWave->SetAddGameObject(std::bind(&Level::AddGameObject, this, std::placeholders::_1));
 
 
@@ -344,9 +347,9 @@ void Level::Update(float DeltaTime)
 		if( gWave->IsLimitReached() )
 		{
 			PlayerUnit*	tUnit	=	p->GetUnit();
-			//tUnit->Drink( -1.0f * DeltaTime );
-			//tUnit->Eat( -1.0f * DeltaTime );
-			//tUnit->Hurt( 1.0f * DeltaTime );
+			tUnit->Drink( -1.0f * DeltaTime );
+			tUnit->Eat( -1.0f * DeltaTime );
+			tUnit->Hurt( 1.0f * DeltaTime );
 		}
 	}
 
@@ -466,7 +469,7 @@ void Level::Update(float DeltaTime)
 		sLight->GetGPULight()->Position.y = gTerrain->GetHeight(sLight->GetGPULight()->Position.x, sLight->GetGPULight()->Position.z) + 100.0f;
 	}
 
-	//gWave->Update( DeltaTime );
+	gWave->Update( DeltaTime );
 }
 
 void Level::Render()
@@ -624,7 +627,7 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 		pUnit->MoveTo( XMFLOAT3( Pos.x, 0, Pos.y ) );
 		pUnit->SetPlayerScore( p->GetPlayerScore() );
 		pUnit->SetTeam( (GOTeam)team );
-		pUnit->LoopAnimation( "Back" );
+		pUnit->LoopAnimation( "StartPose" );
 		pUnit->SetTextureIndex(i);
 
 		Pistol* pistol = new Pistol();

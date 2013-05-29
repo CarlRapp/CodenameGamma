@@ -7,6 +7,10 @@ EnemyUnit::EnemyUnit()
 	gBehaviourState	= Returning;
 	hasTargetPos	= false;
 	updateHuntTimer = 0.0f;
+
+	gMultipliers[0]	=	1.0f;
+	gMultipliers[1]	=	1.0f;
+	gMultipliers[2]	=	1.0f;
 }
 EnemyUnit::~EnemyUnit()
 {

@@ -31,11 +31,12 @@ bool Shotgun::CanFire()
 	return (gClip.first > 0 && gCooldown.first <= 0);
 }
 
-bool Shotgun::Fire( GameObject* Instance )
+bool Shotgun::Fire( GameObject* Instance, float DamageMul )
 {
 	if ( CanFire() )
 	{
-		Bullet*	tBullet	=	new Bullet();		
+		Bullet*	tBullet	=	new Bullet();
+		tBullet->MultiplyDamage( DamageMul );
 
 		float	tRotationY	=	GetFloat3Value( Rotations ).y;
 

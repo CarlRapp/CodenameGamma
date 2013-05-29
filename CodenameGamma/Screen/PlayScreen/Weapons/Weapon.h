@@ -69,15 +69,16 @@ public:
 	//	This will be "master update"
 	virtual void	Update(float deltaTime, Terrain* terrain);
 
-	virtual	bool	CanFire() { return (gCooldown.first <= 0); }
+	virtual	bool	CanFire() { return (gCooldown.first <= 0 && gClip.first > 0 && gState == Ready); }
 
-	virtual bool	Fire( GameObject* Instance );
+	virtual bool	Fire( GameObject* Instance, float DamageMul );
 
 	bool			NeedReload() { return gClip.first <= 0 && gState != Reloading; }
 
 	virtual	bool	Reload();
 
 	virtual bool	Intersects(GameObject* B, vector<CollisionData>& CD);
+	virtual	bool	IsDropable();
 
 	float			GetReloadTime() { return gReloadTime.second; }
 
