@@ -138,7 +138,10 @@ public:
 		//UpdateBoxes();
 	}
 
-	void SetTextureIndex(int index) { m_TextureIndex = MathHelper::Clamp(0, index, m_Model->GetTPM() - 1); }
+	void SetTextureIndex(int index) 
+	{ 
+		m_TextureIndex = MathHelper::Clamp<int>(index, 0, m_Model->GetTPM() - 1); 
+	}
 
 	int GetTextureIndex() { return m_TextureIndex; }
 
