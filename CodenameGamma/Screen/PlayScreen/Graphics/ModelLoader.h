@@ -23,8 +23,8 @@ struct MaterialLoader
 	Material Mat;
 	bool AlphaClip;
 	std::string EffectTypeName;
-	std::string DiffuseMapName;
-	std::string NormalMapName;
+	std::vector<std::string> DiffuseMapNames;
+	std::vector<std::string> NormalMapNames;
 };
 
 class ModelLoader
@@ -44,14 +44,16 @@ private:
 		std::vector<Vertex::PosNormalTexTanSkinnedTemp>& vertices, 
 		std::vector<UINT>& indices, 
 		std::vector<Mesh::Subset>& subsets,
-		std::vector<MaterialLoader>& matst);
+		std::vector<MaterialLoader>& mats,
+		const std::string& path);
 	
 	void GetVerts(const aiScene* scene, 
 		aiMesh *mesh, 
 		std::vector<Vertex::PosNormalTexTanSkinnedTemp>& vertices, 
 		std::vector<UINT>& indices, 
 		std::vector<Mesh::Subset>& subsets,
-		std::vector<MaterialLoader>& mats);
+		std::vector<MaterialLoader>& mats,
+		const std::string& path);
 	
 	bool PlayAnimation(std::string name)
 	{
@@ -65,6 +67,8 @@ private:
 	void LoadAnimation(const aiScene* scene, AnimationClip& animationClip);
 
 	void LoadAnimationClipsAndPoses(const std::string& filename, SkinnedData& skinInfo);
+
+	bool LoadTextures(const std::string& path, const std::string& matName, MaterialLoader& mat);
 
 	//void ModelLoader::LoadAnimationNodes(const aiScene*	scene, aiNode* node);
 

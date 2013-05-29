@@ -77,9 +77,12 @@ bool ModelLoader::Load(const std::string& filename,
 	//LoadAnimationNodes(scene, scene->mRootNode);	
 	//LoadAnimations(scene);
 
+	UINT lastIndex = filename.find_last_of('/');
+	std::string path = filename.substr(0, lastIndex + 1);
+
 
 	std::vector<Vertex::PosNormalTexTanSkinnedTemp> tempVerts;
-	GetVerts(scene, scene->mRootNode, tempVerts, indices, subsets, mats);
+	GetVerts(scene, scene->mRootNode, tempVerts, indices, subsets, mats, path);
 
 
 	for each (Vertex::PosNormalTexTanSkinnedTemp vertex in tempVerts)
@@ -342,12 +345,77 @@ void ModelLoader::LoadAnimationClipsAndPoses(const std::string& filename, Skinne
 	}
 }
 
+bool ModelLoader::LoadTextures(const std::string& path, const std::string& matName, MaterialLoader& mat)
+{
+	std::string filepath = path + "textures.txt";
+
+	std::string token;
+
+	std::ifstream file;
+	file.open(filepath);
+
+	if(!file)
+		return false;
+
+	bool foundMaterial = false;;
+	while(!file.eof())
+	{
+		file >> token;
+		if (token == "mat")
+		{
+			std::string name;
+			file >> name;
+
+			if (name == matName)
+			{
+				foundMaterial = true;
+				break;
+			}
+
+		}
+		else
+		{
+			string str;
+			getline(file, str);
+		}
+	}
+
+	if (!foundMaterial)
+		return false;
+
+	while(!file.eof())
+	{
+		file >> token;
+
+		if (token == "DIF")
+		{
+			std::string name;
+
+			file >> name;
+
+			mat.DiffuseMapNames.push_back(name);
+		}
+		else if (token == "NRM")
+		{
+			std::string name;
+
+			file >> name;
+
+			mat.NormalMapNames.push_back(name);
+		}
+		else
+			return true;
+	}
+	return true;
+}
+
 
 void ModelLoader::GetVerts(const aiScene* scene, aiNode *node, 
 		std::vector<Vertex::PosNormalTexTanSkinnedTemp>& vertices, 
 		std::vector<UINT>& indices, 
 		std::vector<Mesh::Subset>& subsets,
-		std::vector<MaterialLoader>& mats)
+		std::vector<MaterialLoader>& mats,
+		const std::string& path)
 {
 	if (!node)
 		return;
@@ -366,14 +434,14 @@ void ModelLoader::GetVerts(const aiScene* scene, aiNode *node,
 
 	for (int i = 0; i < nodNumMesh; i++)
 	{
-		GetVerts(scene, scene->mMeshes[node->mMeshes[i]], vertices, indices, subsets, mats);
+		GetVerts(scene, scene->mMeshes[node->mMeshes[i]], vertices, indices, subsets, mats, path);
 	}
 
 	int numChildren = node->mNumChildren;
 
 	for (int i = 0; i < numChildren; i++)
 	{
-		GetVerts(scene, node->mChildren[i], vertices, indices, subsets, mats);
+		GetVerts(scene, node->mChildren[i], vertices, indices, subsets, mats, path);
 	}
 }
 
@@ -382,7 +450,8 @@ void  ModelLoader::GetVerts(const aiScene* scene,
 		std::vector<Vertex::PosNormalTexTanSkinnedTemp>& vertices, 
 		std::vector<UINT>& indices, 
 		std::vector<Mesh::Subset>& subsets,
-		std::vector<MaterialLoader>& mats)
+		std::vector<MaterialLoader>& mats,
+		const std::string& path)
 {
 	if (!mesh)
 		return;
@@ -416,27 +485,36 @@ void  ModelLoader::GetVerts(const aiScene* scene,
 		const char* a = mesh->mBones[i]->mName.C_Str();
 		int hejrasda = 113246;
 	}
+	
+	string matName;
+	aiString temp;
+	scene->mMaterials[mesh->mMaterialIndex]->Get<aiString>(AI_MATKEY_NAME, temp);
+	matName = temp.data;
 
-	if (scene->mMaterials[mesh->mMaterialIndex]->GetTextureCount(aiTextureType_DIFFUSE) > 0)
+	if (!LoadTextures(path, matName, material))
 	{
-		aiString path;
-		scene->mMaterials[mesh->mMaterialIndex]->GetTexture(aiTextureType_DIFFUSE, 0, &path, NULL, NULL, NULL, NULL, NULL);
-		material.DiffuseMapName = path.C_Str();
+		if (scene->mMaterials[mesh->mMaterialIndex]->GetTextureCount(aiTextureType_DIFFUSE) > 0)
+		{
+			aiString path;
+			scene->mMaterials[mesh->mMaterialIndex]->GetTexture(aiTextureType_DIFFUSE, 0, &path, NULL, NULL, NULL, NULL, NULL);
+			material.DiffuseMapNames.push_back(path.C_Str());
+		}
+
+		if (scene->mMaterials[mesh->mMaterialIndex]->GetTextureCount(aiTextureType_HEIGHT) > 0)
+		{
+			aiString path;
+			scene->mMaterials[mesh->mMaterialIndex]->GetTexture(aiTextureType_HEIGHT, 0, &path, NULL, NULL, NULL, NULL, NULL);
+			material.NormalMapNames.push_back(path.C_Str());
+		}
+
+		if (scene->mMaterials[mesh->mMaterialIndex]->GetTextureCount(aiTextureType_NORMALS) > 0)
+		{
+			aiString path;
+			scene->mMaterials[mesh->mMaterialIndex]->GetTexture(aiTextureType_NORMALS, 0, &path, NULL, NULL, NULL, NULL, NULL);
+			material.NormalMapNames.push_back(path.C_Str());
+		}	
 	}
-
-	if (scene->mMaterials[mesh->mMaterialIndex]->GetTextureCount(aiTextureType_HEIGHT) > 0)
-	{
-		aiString path;
-		material.NormalMapName = scene->mMaterials[mesh->mMaterialIndex]->GetTexture(aiTextureType_HEIGHT, 0, &path, NULL, NULL, NULL, NULL, NULL);
-		material.NormalMapName = path.C_Str();
-	}
-
-	if (scene->mMaterials[mesh->mMaterialIndex]->GetTextureCount(aiTextureType_NORMALS) > 0)
-	{
-		aiString path;
-		material.NormalMapName = scene->mMaterials[mesh->mMaterialIndex]->GetTexture(aiTextureType_NORMALS, 0, &path, NULL, NULL, NULL, NULL, NULL);
-		material.NormalMapName = path.C_Str();
-	}	
+	
 	mats.push_back(material);
 
 	Mesh::Subset subset;

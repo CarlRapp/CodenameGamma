@@ -821,7 +821,7 @@ void GraphicsManager::RenderModelShadowMap(ModelInstance& instance, CXMMATRIX vi
 	for(UINT subset = 0; subset < instance.GetModel()->SubsetCount; ++subset)
 	{
 		if (instance.GetModel()->HasDiffuseMaps())
-			Effects::ShadowMapFX->SetDiffuseMap(instance.GetModel()->DiffuseMapSRV[subset]);
+			Effects::ShadowMapFX->SetDiffuseMap(instance.GetModel()->GetDiffuseMap(subset, instance.GetTextureIndex()));
 
 		tech->GetPassByIndex(pass)->Apply(0, m_DeviceContext);
 		instance.GetModel()->ModelMesh.Draw(m_DeviceContext, subset);
@@ -843,7 +843,7 @@ void GraphicsManager::RenderAnimatedModelShadowMap(ModelInstance& instance, CXMM
 	for(UINT subset = 0; subset < instance.GetModel()->SubsetCount; ++subset)
 	{
 		if (instance.GetModel()->HasDiffuseMaps())
-			Effects::ShadowMapFX->SetDiffuseMap(instance.GetModel()->DiffuseMapSRV[subset]);
+			Effects::ShadowMapFX->SetDiffuseMap(instance.GetModel()->GetDiffuseMap(subset, instance.GetTextureIndex()));
 
 		tech->GetPassByIndex(pass)->Apply(0, m_DeviceContext);
 		instance.GetModel()->ModelMesh.Draw(m_DeviceContext, subset);
@@ -1194,10 +1194,10 @@ void GraphicsManager::RenderModel(ModelInstance& instance, CXMMATRIX view, CXMMA
 		Effects::ObjectDeferredFX->SetMaterial(instance.GetModel()->Mat[subset]);
 
 		if (instance.GetModel()->HasDiffuseMaps())
-			Effects::ObjectDeferredFX->SetDiffuseMap(instance.GetModel()->DiffuseMapSRV[subset]);
+			Effects::ObjectDeferredFX->SetDiffuseMap(instance.GetModel()->GetDiffuseMap(subset, instance.GetTextureIndex()));
 
 		if (instance.GetModel()->HasNormalMaps())
-			Effects::ObjectDeferredFX->SetNormalMap(instance.GetModel()->NormalMapSRV[subset]);
+			Effects::ObjectDeferredFX->SetNormalMap(instance.GetModel()->GetNormalMap(subset, instance.GetTextureIndex()));
 
 		tech->GetPassByIndex(pass)->Apply(0, m_DeviceContext);
 		instance.GetModel()->ModelMesh.Draw(m_DeviceContext, subset);
@@ -1240,10 +1240,10 @@ void GraphicsManager::RenderAnimatedModel(ModelInstance& instance, CXMMATRIX vie
 		Effects::ObjectDeferredFX->SetMaterial(instance.GetModel()->Mat[subset]);
 
 		if (instance.GetModel()->HasDiffuseMaps())
-			Effects::ObjectDeferredFX->SetDiffuseMap(instance.GetModel()->DiffuseMapSRV[subset]);
+			Effects::ObjectDeferredFX->SetDiffuseMap(instance.GetModel()->GetDiffuseMap(subset, instance.GetTextureIndex()));
 
 		if (instance.GetModel()->HasNormalMaps())
-			Effects::ObjectDeferredFX->SetNormalMap(instance.GetModel()->NormalMapSRV[subset]);
+			Effects::ObjectDeferredFX->SetNormalMap(instance.GetModel()->GetNormalMap(subset, instance.GetTextureIndex()));
 
 		tech->GetPassByIndex(pass)->Apply(0, m_DeviceContext);
 		instance.GetModel()->ModelMesh.Draw(m_DeviceContext, subset);

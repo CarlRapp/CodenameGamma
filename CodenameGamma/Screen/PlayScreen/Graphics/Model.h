@@ -12,20 +12,33 @@ using namespace std;
 
 class Model
 {
+	int TPM;
+	vector<ID3D11ShaderResourceView*> DiffuseMapSRV;
+	vector<ID3D11ShaderResourceView*> NormalMapSRV;
 public:
 	Model(ID3D11Device* device, TextureManager& texMgr, const std::string& modelFilename, const std::string& texturePath);
 	~Model(void);
 
-
-
 	UINT SubsetCount;
 
 	vector<Material> Mat;
-	vector<ID3D11ShaderResourceView*> DiffuseMapSRV;
-	vector<ID3D11ShaderResourceView*> NormalMapSRV;
-
+	
 	bool HasDiffuseMaps() { return !DiffuseMapSRV.empty(); }
 	bool HasNormalMaps() { return !NormalMapSRV.empty(); }
+
+	int  GetTPM() { return TPM; }
+
+	ID3D11ShaderResourceView* GetDiffuseMap(int Subset, int textureIndex)
+	{
+		int index = TPM * Subset + textureIndex;
+		return DiffuseMapSRV[index];
+	}
+
+	ID3D11ShaderResourceView* GetNormalMap(int Subset, int textureIndex)
+	{
+		int index = TPM * Subset + textureIndex;
+		return NormalMapSRV[index];
+	}
 	
 	// Keep CPU copies of the mesh data to read from.  
 	vector<Vertex::PosNormalTexTanSkinned> Vertices;
@@ -61,6 +74,8 @@ private:
 	bool			BoxesNeedsUpdate;
 	float			UpdateTimer;
 
+	int				m_TextureIndex;
+
 	void			SortAnimations();
 
 public:
@@ -69,6 +84,7 @@ public:
 	vector<XMFLOAT4X4>	FinalTransforms;
 	vector<Animation*>	ActiveAnimations;
 
+	
 
 	void UpdateBoxes();
 	void Update(float dt, float AnimationSpeed, bool UpdateAnimation);
@@ -122,6 +138,10 @@ public:
 		//UpdateBoxes();
 	}
 
+	void SetTextureIndex(int index) { m_TextureIndex = MathHelper::Clamp(0, index, m_Model->GetTPM() - 1); }
+
+	int GetTextureIndex() { return m_TextureIndex; }
+
 	XMFLOAT4X4 GetWorld() { return m_World; }
 
 	//void UpdatePose();
@@ -131,8 +151,7 @@ public:
 		m_Model					=	NULL;
 		m_World					=	XMFLOAT4X4(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 		m_Scale					=	1;
-		//m_Rotation				=	XMFLOAT4(0,0,0,0);
-		//m_Translation			=	XMFLOAT3(1,1,1);
+		m_TextureIndex			=	0;
 		m_WorldInverseTranspose	=	XMFLOAT4X4(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 
 		UpdateTimer = MathHelper::RandF(0.0f, UPDATE_INTERVAL);
