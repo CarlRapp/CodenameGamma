@@ -200,6 +200,8 @@ public:
 
 	void	AnimateNextFrame() { AnimateThisUpdate = true; }
 
+	void	SetTextureIndex(int index) { if (m_ModelInstance) m_ModelInstance->SetTextureIndex(index); }
+
 	void	Kill();
 
 	//bool	UsePose(string name);

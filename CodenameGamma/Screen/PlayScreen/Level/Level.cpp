@@ -612,9 +612,12 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 			break;
 	}
 
-	int i = 0;
-	for each( Player* p in gPlayers )
+	int team = 0;
+
+	for (int i = 0; i < gPlayers.size(); ++i)
+	//for each( Player* p in gPlayers )
 	{
+		Player* p = gPlayers[i];
 		if( p->GetUnit() != 0 )
 			continue;
 		
@@ -623,8 +626,9 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 		PlayerUnit*	pUnit	=	new CrazyBitch();
 		pUnit->MoveTo( XMFLOAT3( Pos.x, 0, Pos.y ) );
 		pUnit->SetPlayerScore( p->GetPlayerScore() );
-		pUnit->SetTeam( (GOTeam)i );
+		pUnit->SetTeam( (GOTeam)team );
 		pUnit->LoopAnimation( "StartPose" );
+		pUnit->SetTextureIndex(i);
 
 		Pistol* pistol = new Pistol();
 		pUnit->SetWeapon(pistol);
@@ -633,7 +637,7 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 
 		AddGameObject( pUnit );
 		AddGameObject( pistol );
-		++i;
+		++team;
 	}
 
 }

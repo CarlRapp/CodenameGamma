@@ -19,10 +19,31 @@ Model::Model(ID3D11Device* device, TextureManager& texMgr, const std::string& mo
 
 	SubsetCount = mats.size();
 
+	TPM = mats[0].DiffuseMapNames.size();
 	for(UINT i = 0; i < SubsetCount; ++i)
 	{
 		Mat.push_back(mats[i].Mat);
 
+		for (int j = 0; j < mats[i].DiffuseMapNames.size(); ++j)
+		{
+			if (mats[i].DiffuseMapNames[j] != "")
+			{
+				ID3D11ShaderResourceView* diffuseMapSRV = texMgr.CreateTexture(texturePath + mats[i].DiffuseMapNames[j]);
+				if (diffuseMapSRV)
+					DiffuseMapSRV.push_back(diffuseMapSRV);
+			}
+		}
+
+		for (int j = 0; j < mats[i].NormalMapNames.size(); ++j)
+		{
+			if (mats[i].NormalMapNames[j] != "")
+			{
+				ID3D11ShaderResourceView* normalMapSRV = texMgr.CreateTexture(texturePath + mats[i].NormalMapNames[j]);
+				if (normalMapSRV)
+					NormalMapSRV.push_back(normalMapSRV);
+			}
+		}
+		/*
 		if (mats[i].DiffuseMapName != "")
 		{
 			ID3D11ShaderResourceView* diffuseMapSRV = texMgr.CreateTexture(texturePath + mats[i].DiffuseMapName);
@@ -35,7 +56,7 @@ Model::Model(ID3D11Device* device, TextureManager& texMgr, const std::string& mo
 			ID3D11ShaderResourceView* normalMapSRV = texMgr.CreateTexture(texturePath + mats[i].NormalMapName);
 			if (normalMapSRV)
 				NormalMapSRV.push_back(normalMapSRV);
-		}
+		}*/
 	}
 	
 	m_BoneBoxes = SkinnedData.CreateBoneBoxes(Vertices);
