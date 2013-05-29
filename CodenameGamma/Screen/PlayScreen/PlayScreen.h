@@ -20,8 +20,9 @@ private:
 
 	Level*		gLevel;
 
-	bool	isPaused;
-	int		gPauseScreenIndex;
+	bool			isPaused;
+	int				gPauseScreenIndex;
+	vector<string>	gPauseScreenEntry;
 
 	ID3D11ShaderResourceView*	gHealthBar[10];
 	ID3D11ShaderResourceView*	gHungerBar[6];

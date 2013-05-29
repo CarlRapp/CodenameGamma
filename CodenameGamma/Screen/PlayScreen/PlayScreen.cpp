@@ -5,6 +5,10 @@ PlayScreen::PlayScreen(ScreenData* Setup)
 {
 	LoadScreenData(Setup);
 	gScreenData	=	Setup;
+
+	gPauseScreenEntry.push_back( "Resume" );
+	gPauseScreenEntry.push_back( "Quit" );
+	gPauseScreenIndex	=	0;
 	
 	isPaused	=	false;
 }
@@ -41,7 +45,6 @@ bool PlayScreen::Load()
 
 bool PlayScreen::Unload()
 {
-	
 	if ( gLevel )
 		delete	gLevel;
 
@@ -77,11 +80,17 @@ void PlayScreen::Update(float DeltaTime)
 	if( isPaused )
 	{
 		if( DOWN )
+		{
 			++gPauseScreenIndex;
+			gPauseScreenIndex	=	( gPauseScreenIndex >= gPauseScreenEntry.size() ) ? 0 : gPauseScreenIndex;
+		}
 		if( UP )
+		{
 			--gPauseScreenIndex;
-		gPauseScreenIndex	=	( gPauseScreenIndex > 1 ) ? 0 : gPauseScreenIndex;
-		gPauseScreenIndex	=	( gPauseScreenIndex < 1 ) ? 1 : gPauseScreenIndex;
+			gPauseScreenIndex	=	( gPauseScreenIndex < 0 ) ? gPauseScreenEntry.size() - 1 : gPauseScreenIndex;
+		}
+		
+		
 
 		if( CONFIRM )
 		{
@@ -91,8 +100,8 @@ void PlayScreen::Update(float DeltaTime)
 				return;
 			}
 
-
-			gGotoNextFrame	=	MAIN_MENU_SCREEN;
+			if( gPauseScreenIndex == gPauseScreenEntry.size() - 1 )
+				gGotoNextFrame	=	MAIN_MENU_SCREEN;
 		}
 
 		return;
@@ -144,6 +153,7 @@ void PlayScreen::Reset()
 	SetNumberOfPlayers(gScreenData->NUMBER_OF_PLAYERS);
 
 	isPaused	=	false;
+	SoundManager::GetInstance()->Stop("Theme");
 }
 
 void PlayScreen::RenderGUI( Player* P )
@@ -219,13 +229,16 @@ void PlayScreen::RenderGUI( Player* P )
 
 
 	//	Weapon info
-	Weapon::WeaponInfo	tInfo	=	P->GetUnit()->GetWeapon()->GetInfo();
-	string	tClipInfo;
-	tClipInfo	+=	to_string( (long double)tInfo.Magazine.first ) + "/";
-	tClipInfo	+=	to_string( (long double)tInfo.Magazine.second );
-	tClipPos.x	=	tHealthPos.x;
-	tClipPos.y	=	tVP.TopLeftY + tVP.Height * 0.5f + 25;
-	RenderGUIText( tClipPos, tClipInfo, 18, White );
+	if( P->GetUnit()->GetWeapon() )
+	{
+		Weapon::WeaponInfo	tInfo	=	P->GetUnit()->GetWeapon()->GetInfo();
+		string	tClipInfo;
+		tClipInfo	+=	to_string( (long double)tInfo.Magazine.first ) + "/";
+		tClipInfo	+=	to_string( (long double)tInfo.Magazine.second );
+		tClipPos.x	=	tHealthPos.x;
+		tClipPos.y	=	tVP.TopLeftY + tVP.Height * 0.5f + 25;
+		RenderGUIText( tClipPos, tClipInfo, 18, White );
+	}
 
 	//RenderGUIText( tHungerPos, to_string( (long double)( (int)(100.0f * ( uHunger.first / uHunger.second ) ) ) ), 10, White );
 	//RenderGUIText( tThirstPos, to_string( (long double)( (int)(100.0f * ( uThirst.first / uThirst.second ) ) ) ), 10, White );
@@ -257,5 +270,17 @@ void PlayScreen::RenderPauseScreen()
 
 	XMFLOAT2	tPos	=	XMFLOAT2(gScreenWidth * 0.5f, gScreenHeight * 0.10f);
 	RenderGUIText( tPos, "Paused", 72, White );
+	tPos.y	+=	72 * 1.5f;
+
+	int	i	=	0;
+	for each( string tText in gPauseScreenEntry )
+	{
+		if( i == gPauseScreenIndex )
+			DrawString(*gTextInstance, tText, tPos.x, tPos.y + 1.5f * i * 38, 38, Green, Black, 2, FW1_CENTER);
+		else
+			DrawString(*gTextInstance, tText, tPos.x, tPos.y + 1.5f * i * 38, 38, WhiteTrans, BlackTrans, 2, FW1_CENTER);
+
+		++i;
+	}
 
 }
