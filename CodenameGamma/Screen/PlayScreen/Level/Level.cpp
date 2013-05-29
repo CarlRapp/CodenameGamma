@@ -11,7 +11,7 @@
 #define TESTSCALE 1.0f
 
 Level::Level(){}
-Level::Level(SystemData LData)
+Level::Level(SystemData LData, GraphicsManager* Instance)
 {
 	gLData = LData;
 	Effects::InitAll(LData.DEVICE);
@@ -20,7 +20,7 @@ Level::Level(SystemData LData)
 
 	gTerrain	=	new Terrain(LData.DEVICE, LData.DEVICE_CONTEXT);
 
-	gGraphicsManager	=	new GraphicsManager(LData.DEVICE, LData.DEVICE_CONTEXT, LData.RENDER_TARGET_VIEW, LData.SCREEN_WIDTH, LData.SCREEN_HEIGHT);
+	gGraphicsManager	=	Instance;
 	gGraphicsManager->SetTerrain(gTerrain);
 	gGraphicsManager->SetLights(&gDirLights, &gPointLights, &gSpotLights, &gGlobalLight);
 
@@ -31,12 +31,6 @@ Level::~Level()
 {
 	if ( gTerrain )
 		delete	gTerrain;
-	if ( gGraphicsManager )
-		delete	gGraphicsManager;
-
-	Effects::DestroyAll();
-	RenderStates::DestroyAll();
-	InputLayouts::DestroyAll();
 }
 
 void Level::LoadLevel(string Levelname)

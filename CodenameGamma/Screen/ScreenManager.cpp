@@ -8,11 +8,13 @@ ScreenManager::ScreenManager()
 {
 	gLoadedScreens	=	new vector<Screen*>();
 	gCurrentScreen	=	NULL;
+	gGraphicsManager=	0;
 }
-ScreenManager::ScreenManager(ScreenData* Setup)
+ScreenManager::ScreenManager(ScreenData* Setup, GraphicsManager* Instance)
 {
 	gScreenData	=	Setup;
 
+	gGraphicsManager=	Instance;
 	gLoadedScreens	=	new vector<Screen*>();
 	gCurrentScreen	=	NULL;
 
@@ -126,6 +128,8 @@ void ScreenManager::ChangeScreen(ScreenType Type)
 			return;
 
 		tScreen->Initialize();
+		tScreen->SetGraphicsManager( gGraphicsManager );
+
 		gLoadedScreens->push_back(tScreen);
 
 		gCurrentScreen	=	tScreen;
@@ -182,6 +186,9 @@ ScreenManager::~ScreenManager()
 	}
 	gCurrentScreen	=	0;
 	gLoadedScreens->clear();
+
+	if( gGraphicsManager )
+		gGraphicsManager->~GraphicsManager();
 }
 
 void ScreenManager::ToggleDebug()

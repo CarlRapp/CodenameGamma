@@ -1,5 +1,6 @@
 #include "Screen.h"
 
+GraphicsManager*	Screen::gGraphicsManager	=	0;
 Screen::Screen(ScreenData*	Setup)
 {
 	gInitialized	=	false;
@@ -16,6 +17,7 @@ Screen::Screen(void)
 
 void Screen::LoadScreenData(ScreenData* Setup)
 {
+	gScreenData		=	Setup;
 	gScreenWidth	=	Setup->WIDTH;
 	gScreenHeight	=	Setup->HEIGHT;
 
@@ -31,6 +33,14 @@ void Screen::LoadScreenData(ScreenData* Setup)
 	gTextInstance		=	Setup->TEXT_INSTANCE;
 
 	gGotoNextFrame		=	UNDEFINED_SCREEN;
+
+	gFullscreenVP			=	D3D11_VIEWPORT();
+	gFullscreenVP.TopLeftX	=	0.0f;
+	gFullscreenVP.TopLeftY	=	0.0f;
+	gFullscreenVP.MinDepth	=	0.0f;
+	gFullscreenVP.MaxDepth	=	1.0f;
+	gFullscreenVP.Width		=	gScreenWidth;
+	gFullscreenVP.Height	=	gScreenHeight;
 }
 
 void Screen::Initialize()

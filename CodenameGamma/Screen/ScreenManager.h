@@ -5,6 +5,7 @@
 #include "Screen.h"
 #include "MainMenuScreen.h"
 #include "PlayScreen\PlayScreen.h"
+#include "PlayScreen/Graphics/GraphicsManager.h"
 using namespace std;
 
 
@@ -17,6 +18,7 @@ private:
 
 	vector<Screen*>*	gLoadedScreens;
 	Screen*				gCurrentScreen;
+	GraphicsManager*	gGraphicsManager;
 
 
 	Screen*	LoadScreen(ScreenType Type);
@@ -28,7 +30,7 @@ private:
 
 public:
 	ScreenManager(void);
-	ScreenManager(ScreenData* Setup);
+	ScreenManager(ScreenData* Setup, GraphicsManager* Instance);
 	~ScreenManager(void);
 
 	void	ChangeScreen(ScreenType Type);

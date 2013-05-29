@@ -28,11 +28,11 @@ MainMenuScreen::MainMenuScreen(ScreenData* Setup)
 
 bool MainMenuScreen::Load()
 {
-	SoundManager::GetInstance()->Load("TEST", "DATA/Sounds/Heart.wav", FMOD_SOFTWARE | FMOD_2D);
-	SoundManager::GetInstance()->Load("TEST2", "DATA/Sounds/Save.wav", FMOD_SOFTWARE | FMOD_2D);
+	SoundManager::GetInstance()->Load("MenuChange", "DATA/Sounds/MenuChange.mp3", FMOD_SOFTWARE | FMOD_2D);
+	SoundManager::GetInstance()->Load("MenuPick", "DATA/Sounds/MenuPick.mp3", FMOD_SOFTWARE | FMOD_2D);
 
 	SoundManager::GetInstance()->Load("Theme", "DATA/Sounds/Theme.mp3", FMOD_SOFTWARE | FMOD_2D);
-	SoundManager::GetInstance()->Load("MenuPick", "DATA/Sounds/MenuPick.wav", FMOD_SOFTWARE | FMOD_2D);
+	
 
 	SoundManager::GetInstance()->Load("Pistol", "DATA/Sounds/Pistol.wav", FMOD_SOFTWARE | FMOD_2D);
 	SoundManager::GetInstance()->Load("Reload", "DATA/Sounds/Reload.wav", FMOD_SOFTWARE | FMOD_2D);
@@ -41,11 +41,20 @@ bool MainMenuScreen::Load()
 
 	SoundManager::GetInstance()->Play("Theme", Song, true);
 
+	D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, "DATA/MAIN_MENU.png", 0, 0, &gBackground, 0 );
+
+	IFW1Factory				*pFW1Factory = 0;
+	FW1CreateFactory(FW1_VERSION, &pFW1Factory);
+	pFW1Factory->CreateFontWrapper(gDevice, L"Apocalypse 1", &gTextInstance);
+	pFW1Factory->Release();
+
 	return true;
 }
 
 bool MainMenuScreen::Unload()
 {
+	SAFE_RELEASE( gBackground );
+	SAFE_RELEASE( gTextInstance );
 	return true;
 }
 void MainMenuScreen::Update(float DeltaTime)
@@ -65,14 +74,14 @@ void MainMenuScreen::Update(float DeltaTime)
 		gTextSizeActiveTicker	=	0;
 
 		gCurrentIndex	=	(gCurrentIndex + 1 >= (int)gMenuEntries.size()) ? 0 : gCurrentIndex + 1;
-		SoundManager::GetInstance()->Play("MenuPick", SFX);
+		SoundManager::GetInstance()->Play("MenuChange", SFX);
 	}
 	if( UP )
 	{
 		gTextSizeActiveTicker	=	0;
 
 		gCurrentIndex	=	(gCurrentIndex - 1 < 0) ? gMenuEntries.size() - 1 : gCurrentIndex - 1;
-		SoundManager::GetInstance()->Play("TEST", SFX);
+		SoundManager::GetInstance()->Play("MenuChange", SFX);
 	}
 	if( CONFIRM )
 	{
@@ -97,8 +106,8 @@ void MainMenuScreen::Update(float DeltaTime)
 
 void MainMenuScreen::Render()
 {
+	gGraphicsManager->RenderQuad( gFullscreenVP, gBackground, Effects::CombineFinalFX->AlphaTransparencyColorTech );
 	
-
 	XMFLOAT2	tPos	=	XMFLOAT2(gScreenWidth * 0.5f, gScreenHeight * 0.1f);
 	DrawString(*gTextInstance, "Codename: Gamma", tPos.x, tPos.y, 72, Red, RedTrans, 2, FW1_CENTER);
 	
@@ -106,13 +115,14 @@ void MainMenuScreen::Render()
 	for ( gMenuIterator = gMenuEntries.begin(); gMenuIterator != gMenuEntries.end(); gMenuIterator++ )
 	{
 		MenuEntry	tMenuEntry	=	gMenuIterator->second;
-		TextColor	tTColor		=	(i == gCurrentIndex) ? Orange : WhiteTrans;
-		TextColor	tBColor		=	(i == gCurrentIndex) ? OrangeTrans : BlackTrans;
-		string		tText		=	(i == gCurrentIndex) ? ((char)235) + tMenuEntry.first + ((char)233) : tMenuEntry.first;
+		bool		isActive	=	(i == gCurrentIndex);
+		TextColor	tTColor		=	isActive ? Orange : WhiteTrans;
+		TextColor	tBColor		=	isActive ? OrangeTrans : BlackTrans;
+		string		tText		=	isActive ? ((char)235) + tMenuEntry.first + ((char)233) : tMenuEntry.first;
 
 		XMFLOAT2	tPosition	=	XMFLOAT2(gScreenWidth * 0.5f, gScreenHeight * 0.3f + i * (gTextSize + gTextSize * 0.1f));
 
-		float		tTextSize	=	(i == gCurrentIndex) ? gTextSizeActive : gTextSize;
+		float		tTextSize	=	isActive ? gTextSizeActive : gTextSize;
 
 		DrawString(*gTextInstance, tText, tPosition.x, tPosition.y, tTextSize, tTColor, tBColor, 2, FW1_CENTER);
 		i++;

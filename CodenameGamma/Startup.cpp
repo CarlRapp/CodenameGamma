@@ -3,6 +3,7 @@
 #include "Screen/ScreenManager.h"
 #include "Sound/SoundManager.h"
 #include "Screen/PlayScreen/Graphics/ModelManager.h"
+#include "Screen/PlayScreen/Graphics/GraphicsManager.h"
 #include <ctime> 
 #include <iostream>
 #include <stdio.h>
@@ -27,7 +28,7 @@ ID3D11DeviceContext*	g_DeviceContext			= NULL;
 */
 ScreenData*				ScreenSetupData			=	NULL;
 ScreenManager*			ScreenM					=	NULL;
-int						Settings[6];
+int						Settings[7];
 
 
 //--------------------------------------------------------------------------------------
@@ -48,9 +49,10 @@ void LoadSettings()
 	Settings[0]		=	1280;
 	Settings[1]		=	720;
 	Settings[2]		=	0;
-	Settings[3]		=	10;
+	Settings[3]		=	0;
 	Settings[4]		=	10;
 	Settings[5]		=	10;
+	Settings[6]		=	10;
 
 	ifstream	tFileStream;
 
@@ -67,6 +69,7 @@ void LoadSettings()
 		settingsFile << "Width 1280" << endl;
 		settingsFile << "Height 720" << endl;
 		settingsFile << "Fullscreen 0" << endl;
+		settingsFile << "MouseVisible 0" << endl;
 		settingsFile << "Master 10" << endl;
 		settingsFile << "Song 10" << endl;
 		settingsFile << "SFX 10" << endl;
@@ -74,21 +77,23 @@ void LoadSettings()
 		settingsFile.close();
 		return;
 	}
-	string	ResX, ResY, Fullscreen, Master, SFX, Song;
+	string	ResX, ResY, Fullscreen, MouseVisible, Master, SFX, Song;
 	getline(tFileStream, ResX);
 	getline(tFileStream, ResY);
 	getline(tFileStream, Fullscreen);
+	getline(tFileStream, MouseVisible);
 	getline(tFileStream, Master);
 	getline(tFileStream, Song);
 	getline(tFileStream, SFX);
 	tFileStream.close();
 
-	if( ResX == "" || ResY == "" || Fullscreen == "" || Master == "" || SFX == "" || Song == "" )
+	if( ResX == "" || ResY == "" || Fullscreen == "" || MouseVisible == "" || Master == "" || SFX == "" || Song == "" )
 		return;
 
 	ResX		=	ResX.substr( ResX.find(' ') );
 	ResY		=	ResY.substr( ResY.find(' ') );
 	Fullscreen	=	Fullscreen.substr( Fullscreen.find(' ') );
+	MouseVisible=	MouseVisible.substr( MouseVisible.find(' ') );
 	Master		=	Master.substr( Master.find(' ') );
 	SFX			=	SFX.substr( SFX.find(' ') );
 	Song		=	Song.substr( Song.find(' ') );
@@ -96,9 +101,10 @@ void LoadSettings()
 	Settings[0]		=	atoi( ResX.c_str() );
 	Settings[1]		=	atoi( ResY.c_str() );
 	Settings[2]		=	atoi( Fullscreen.c_str() );
-	Settings[3]		=	atoi( Master.c_str() );
-	Settings[4]		=	atoi( SFX.c_str() );
+	Settings[3]		=	atoi( MouseVisible.c_str() );
+	Settings[4]		=	atoi( Master.c_str() );
 	Settings[5]		=	atoi( Song.c_str() );
+	Settings[6]		=	atoi( SFX.c_str() );
 
 }
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nShowCmd)
@@ -133,12 +139,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	int centerX = (Rect->left + Rect->right) / 2;
 	int centerY = (Rect->top + Rect->bottom) / 2;
 	SetCursorPos(centerX, centerY);
-	ShowCursor(true);
+	ShowCursor( Settings[3] == 1 );
 
 	ScreenSetupData	=	new ScreenData();
 	ScreenSetupData->WIDTH		=	Settings[0];
 	ScreenSetupData->HEIGHT		=	Settings[1];
 	ScreenSetupData->FULLSCREEN	=	Settings[2] == 1;
+	ScreenSetupData->MOUSEVISIBLE=	Settings[3] == 1;
 
 	ScreenSetupData->DEPTH_STENCIL		=	g_DepthStencil;
 	ScreenSetupData->DEPTH_STENCIL_VIEW	=	g_DepthStencilView;
@@ -159,13 +166,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	InputManager::Initialize(&hInstance, &g_hWndMain, Settings[0], Settings[1]);
 
 	SoundManager::GetInstance();
-	SoundManager::GetInstance()->SetVolume( Master, 0.1f * Settings[3] );
-	SoundManager::GetInstance()->SetVolume( Song, 0.1f * Settings[4] );
-	SoundManager::GetInstance()->SetVolume( SFX, 0.1f * Settings[5] );
+	SoundManager::GetInstance()->SetVolume( Master, 0.1f * Settings[4] );
+	SoundManager::GetInstance()->SetVolume( Song, 0.1f * Settings[5] );
+	SoundManager::GetInstance()->SetVolume( SFX, 0.1f * Settings[6] );
 	
 	ModelManager::Initialize(g_Device);
-	
-	ScreenM	=	new ScreenManager(ScreenSetupData);
+
+	Effects::InitAll( g_Device );
+	RenderStates::InitAll( g_Device );
+	InputLayouts::InitAll( g_Device );
+
+	ScreenM	=	new ScreenManager(ScreenSetupData, new GraphicsManager( ScreenSetupData->DEVICE, ScreenSetupData->DEVICE_CONTEXT, ScreenSetupData->RENDER_TARGET_VIEW, ScreenSetupData->WIDTH, ScreenSetupData->HEIGHT ));
 
 	ScreenM->ChangeScreen(MAIN_MENU_SCREEN);
 
@@ -388,6 +399,10 @@ int Run()
 void CloseApplication()
 {
 	if( ScreenSetupData->TEXT_INSTANCE )	ScreenSetupData->TEXT_INSTANCE->Release();
+
+	Effects::DestroyAll();
+	RenderStates::DestroyAll();
+	InputLayouts::DestroyAll();
 
 	ScreenSetupData	=	NULL;
 
