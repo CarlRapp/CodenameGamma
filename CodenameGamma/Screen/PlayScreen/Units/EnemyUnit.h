@@ -36,6 +36,10 @@ protected:
 
 	EnemyBehaviourState	gBehaviourState;
 
+
+	//	0 = Health, 1 = Damage, 2 = Speed
+	float	gMultipliers[3];
+
 	//void	UpdateWalkBack(float deltaTime, Terrain* terrain);
 	//void	UpdatePatrol(float deltaTime);
 	void	UpdateHunt(float deltaTime, Terrain* terrain);
@@ -51,11 +55,25 @@ protected:
 		hasTargetPos = true;
 	}
 
+	void	Boost()
+	{
+		//	Update health
+		gHealth.second	*=	gMultipliers[0];
+		gHealth.first	=	gHealth.second;
+
+		//	Update health
+		gHealth.second	*=	gMultipliers[0];
+
+		//	Update speed
+		gWalkSpeed	*=		gMultipliers[2];
+		gRunSpeed	*=		gMultipliers[2];
+	}
+
 public:
 	EnemyUnit(void);
 	~EnemyUnit(void);
 
-	void	Update(float deltaTime, Terrain* terrain);
+	virtual	void	Update(float deltaTime, Terrain* terrain);
 
 	virtual bool Intersects(GameObject* B, vector<CollisionData>& CD);
 	void	CollideWith(GameObject* Instance, vector<CollisionData> CD);
@@ -68,6 +86,18 @@ public:
 	void	SetTargets( vector<PlayerUnit*> Targets )
 	{
 		gTargets = Targets;
+	}
+
+	void	SetMultipliers( float Health, float Damage, float Speed )
+	{
+		gMultipliers[0]	=	Health;
+		gMultipliers[1]	=	Damage;
+		gMultipliers[2]	=	Speed;
+	}
+	void	Boost( int NumberOfTimes )
+	{
+		for( int n = 0; n < NumberOfTimes; ++n )
+			Boost();
 	}
 };
 

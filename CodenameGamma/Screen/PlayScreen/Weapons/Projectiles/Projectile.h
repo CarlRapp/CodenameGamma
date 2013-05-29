@@ -25,6 +25,11 @@ public:
 	virtual	float	GetSpeed(){	return 0.0f; }
 
 	virtual	void	SetOwner( GameObject* Instance );
+
+	virtual void	MultiplyDamage( float Amount )
+	{
+		gDamage	*=	Amount;
+	};
 };
 
 #endif

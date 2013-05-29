@@ -24,6 +24,9 @@ void Unit::DropWeapon()
 {
 	if ( gCurrentWeapon )
 	{
+		if( !gCurrentWeapon->IsDropable() )
+			return;
+
 		WeaponOnGround*	tWoG	=	new WeaponOnGround( gCurrentWeapon );
 		tWoG->MoveTo( gCurrentWeapon->GetFloat3Value( Position ) );
 
@@ -451,7 +454,7 @@ void Unit::FireWeapon()
 	{
 		if (gWeaponState == Aim && !PlayingAnimation(GetAnimation("Draw")))
 		{
-			if (gCurrentWeapon->Fire( this ))
+			if (gCurrentWeapon->Fire( this, 1.0f ))
 			{
 				PlayAnimation(GetAnimation("Shoot"));
 				PlayAnimationAfter(GetAnimation("Shoot"), GetAnimation("Aim"));
