@@ -196,9 +196,9 @@ RasterizerState DepthDir
 
 	// You need to experiment with these values for your scene.
 
-	DepthBias = 1500;
+	DepthBias = 5000;
     DepthBiasClamp = 0.0f;
-	SlopeScaledDepthBias = 8.0f;
+	SlopeScaledDepthBias = 1.8f;
 	CullMode = NONE;
 };
 

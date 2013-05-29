@@ -108,10 +108,10 @@ void Unit::Update(float DeltaTime, Terrain* TerrainInstance)
 
 		//cout << 180 * angle / PI << endl;
 
-		if (fabs(angle) <= PI * 0.20f)
+		if (fabs(angle) <= PI * 0.25f)
 			gMoveDirection = Forward;
 
-		else if (fabs(angle) > PI * 0.80f)
+		else if (fabs(angle) > PI * 0.75f)
 			gMoveDirection = Back;
 
 		else if (angle < 0)
