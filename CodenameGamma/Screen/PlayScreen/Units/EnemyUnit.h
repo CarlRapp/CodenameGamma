@@ -36,6 +36,7 @@ protected:
 
 	EnemyBehaviourState	gBehaviourState;
 
+	bool	HasVisionOnTarget;
 
 	//	0 = Health, 1 = Damage, 2 = Speed
 	float	gMultipliers[3];

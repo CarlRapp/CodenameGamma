@@ -92,7 +92,7 @@ void Mouse::Update()
 		gNewKeyState[i]	=	(gMouseState.rgbButtons[i] & 0x80) == 0x80;
 	}
 
-	FixPosition();
+	//FixPosition();
 
 	gMouseScrollValue	+=	gMouseState.lZ;
 	if( gMouseScrollValue != 0 )
