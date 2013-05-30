@@ -24,14 +24,17 @@ bool LevelSelectScreen::Load()
 {
 	IFW1Factory				*pFW1Factory = 0;
 	FW1CreateFactory(FW1_VERSION, &pFW1Factory);
-	pFW1Factory->CreateFontWrapper(gDevice, L"Andale Mono", &gTextInstance);
+	pFW1Factory->CreateFontWrapper(gDevice, L"Apocalypse 1", &gTextInstance);
 	pFW1Factory->Release();
+
+	D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, "DATA/MAIN_MENU.png", 0, 0, &gBackground, 0 );
 
 	return true;
 }
 
 bool LevelSelectScreen::Unload()
 {
+	SAFE_RELEASE( gBackground );
 	SAFE_RELEASE( gTextInstance );
 
 	return true;
@@ -49,6 +52,7 @@ void LevelSelectScreen::Update(float DeltaTime)
 
 	if( UP )
 	{
+		SoundManager::GetInstance()->Play("MenuChange", SFX);
 		--gCurrentIndex;
 
 		if( gCurrentIndex < 0 )
@@ -56,16 +60,18 @@ void LevelSelectScreen::Update(float DeltaTime)
 	}
 	if( DOWN )
 	{
+		SoundManager::GetInstance()->Play("MenuChange", SFX);
 		++gCurrentIndex;
 
 		if( gCurrentIndex >= gMapMenu.size() )
 			gCurrentIndex	=	0;
+
 	}
 
 	if( CONFIRM )
 	{
 		gScreenData->LEVEL_NAME	=	gMapMenu[gCurrentIndex].second.Name;
-
+		SoundManager::GetInstance()->Play("MenuPick", SFX);
 		gGotoNextFrame	=	PRE_PLAY_SCREEN;
 	}
 	if( BACK )
@@ -79,6 +85,8 @@ void LevelSelectScreen::Update(float DeltaTime)
 
 void LevelSelectScreen::Render()
 {
+	gGraphicsManager->RenderQuad( gFullscreenVP, gBackground, Effects::CombineFinalFX->AlphaTransparencyColorTech );
+
 	XMFLOAT2	tPos	=	XMFLOAT2(gScreenWidth * 0.05f, gScreenHeight * 0.05f);
 	
 	DrawString(*gTextInstance, "Level Selection", tPos.x, tPos.y, 72, White, WhiteTrans, 2, FW1_LEFT);
@@ -108,7 +116,7 @@ void LevelSelectScreen::Render()
 	string	tPlayers	=	to_string( (long double)tInfo.PlayerCount );
 	float	tInfoSize	=	0.8f * gMenuTextSize;
 
-	DrawString(*gTextInstance, "Area:      " + tWidth + "x" + tHeight + " m2", tPos.x, tPos.y, tInfoSize, White, BlackTrans, 2, FW1_LEFT);
+	DrawString(*gTextInstance, "Area:     " + tWidth + "x" + tHeight + " m2", tPos.x, tPos.y, tInfoSize, White, BlackTrans, 2, FW1_LEFT);
 	DrawString(*gTextInstance, "Players:  " + tPlayers, tPos.x, tPos.y + 1.2f * tInfoSize, tInfoSize, White, BlackTrans, 2, FW1_LEFT);
 }
 

@@ -17,6 +17,8 @@ protected:
 	bool	Load();
 	bool	Unload();
 
+	ID3D11ShaderResourceView*	gBackground;
+
 public:
 	MainMenuScreen(void);
 	MainMenuScreen(ScreenData* Setup);

@@ -23,7 +23,7 @@ Player::Player(int index)
 
 Player::~Player(void)
 {
-
+	delete m_Camera;
 }
 
 void Player::Update(float deltaTime)

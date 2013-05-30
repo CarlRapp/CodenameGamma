@@ -27,6 +27,11 @@ Wave::Wave(NodeMap* Instance)
 	gCurrentWave		=	0;
 }
 
+Wave::~Wave()
+{
+
+}
+
 void Wave::Update(float DeltaTime)
 {
 	gWaveTimer.first	-=	DeltaTime;

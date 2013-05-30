@@ -171,7 +171,7 @@ private:
 
 public:
 	Level(void);
-	Level(SystemData Data);
+	Level(SystemData Data, GraphicsManager* Instance);
 	~Level(void);
 
 	void	LoadLevel(string Levelname);
@@ -195,8 +195,6 @@ public:
 
 		return allDead;
 	}
-
-	GraphicsManager*	GetGraphicsManager(){ return gGraphicsManager; }
 };
 
 #endif

@@ -20,10 +20,15 @@ private:
 
 	Level*		gLevel;
 
+	bool			isPaused;
+	int				gPauseScreenIndex;
+	vector<string>	gPauseScreenEntry;
 
 	ID3D11ShaderResourceView*	gHealthBar[10];
 	ID3D11ShaderResourceView*	gHungerBar[6];
 	ID3D11ShaderResourceView*	gThirstBar[6];
+	ID3D11ShaderResourceView*	gBackground;
+
 	void	RenderGUI( Player* P );
 	void	RenderGUISprite( D3D11_VIEWPORT VP, ID3D11ShaderResourceView* Sprite );
 	void	RenderGUIText( XMFLOAT2 Position, string Text, float TextSize, TextColor Color );
@@ -41,6 +46,8 @@ public:
 	ScreenType	GetScreenType();
 
 	void	Reset();
+
+	void	RenderPauseScreen();
 };
 
 #endif

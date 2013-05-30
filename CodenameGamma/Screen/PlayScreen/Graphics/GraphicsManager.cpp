@@ -1580,9 +1580,7 @@ void GraphicsManager::CombineFinal()
 {
 	m_DeviceContext->RSSetState(RenderStates::NoCullRS);
 	m_DeviceContext->RSSetViewports( 1, &m_ViewPort );
-	m_DeviceContext->OMSetRenderTargets( 1, &m_RenderTargetView, NULL );
-	m_DeviceContext->IASetInputLayout(InputLayouts::Quad);
-	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);	
+	m_DeviceContext->OMSetRenderTargets( 1, &m_RenderTargetView, NULL );	
 	m_DeviceContext->OMSetDepthStencilState(RenderStates::NoDSS, 0);
 
 	//Effects::CombineFinalFX->SetTexture(m_FinalSRV);
@@ -1626,6 +1624,9 @@ void GraphicsManager::CombineFinal()
 void GraphicsManager::RenderQuad(D3D11_VIEWPORT &vp, ID3D11ShaderResourceView* SRV, ID3DX11EffectTechnique* tech)
 {
 	m_DeviceContext->RSSetViewports( 1, &vp );
+	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	m_DeviceContext->IASetInputLayout( InputLayouts::Quad );
+
 	D3DX11_TECHNIQUE_DESC techDesc;
 	tech->GetDesc( &techDesc );
 

@@ -14,7 +14,6 @@ private:
 		Volume,
 		Checkbox
 	};
-
 	typedef pair<OptionType, int>	EntryData;
 	typedef pair<string, EntryData>	OptionEntry;
 	vector<OptionEntry>			gMenu;
@@ -22,6 +21,8 @@ private:
 
 	typedef pair<int, int>	ResolutionEntry;
 	ResolutionEntry			gResolutions[2];
+
+	ID3D11ShaderResourceView*	gBackground;
 
 	void	Confirm(void);
 	void	UpdateVolume( SoundType VolumeType, int Value );
