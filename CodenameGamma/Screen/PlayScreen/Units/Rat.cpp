@@ -28,7 +28,6 @@ void Rat::Update( float deltaTime, Terrain* terrain )
 	EnemyUnit::Update( deltaTime, terrain );
 	GetWeapon()->Update( deltaTime, terrain );
 
-
 	if( gTargetPlayer == 0 || GetState() == Dying )
 		return;
 
@@ -43,9 +42,8 @@ void Rat::Update( float deltaTime, Terrain* terrain )
 
 	SetVelocity( XMFLOAT3( 0, 0, 0 ) );
 	
-	if( GetWeapon()->Fire( NULL, 0 ) )
+	if( GetWeapon()->Fire( this, gTargetPlayer, gMultipliers[1] ) )
 	{
 		PlayAnimation( "Attack" );
-		gTargetPlayer->Hurt( 1.5f * gMultipliers[1] );
 	}
 }

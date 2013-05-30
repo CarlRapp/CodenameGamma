@@ -19,6 +19,8 @@ Shotgun::Shotgun()
 	gWeaponAnimations.UpperWalk			= "WeaponUpperWalk";
 	gWeaponAnimations.UpperRun			= "WeaponUpperRun";
 	gWeaponAnimations.UpperStand		= "WeaponUpperStand";
+
+	gReloadSound = "Reload";
 }
 
 Shotgun::~Shotgun()
@@ -31,7 +33,7 @@ bool Shotgun::CanFire()
 	return (gClip.first > 0 && gCooldown.first <= 0);
 }
 
-bool Shotgun::Fire( GameObject* Instance, float DamageMul )
+bool Shotgun::Fire( GameObject* Owner, GameObject* Target, float DamageMul )
 {
 	if ( CanFire() )
 	{
@@ -48,7 +50,7 @@ bool Shotgun::Fire( GameObject* Instance, float DamageMul )
 		tBullet->MoveTo( GetFloat3Value( Position ) );
 		tBullet->SetVelocity( tVelocity );
 		tBullet->SetTeam( GetTeam() );
-		tBullet->SetOwner( Instance );
+		tBullet->SetOwner( Owner );
 
 		SoundManager::GetInstance()->Play("Shotgun_Fire", SFX);
 
