@@ -5,12 +5,22 @@
 
 Structure::Structure()
 {
+	gVegModel = "";
+	SetTeam( Neutral );
 
+	gVegetation = NULL;
 }
 
 Structure::~Structure()
 {
+}
 
+void Structure::Update(float deltaTime, Terrain* terrain)
+{
+	GameObject::Update(deltaTime, terrain);
+
+	if (gVegetation)
+		gVegetation->SetWorld( GetFloat4x4Value( Translation ), GetFloat4x4Value( Scale ), GetFloat4x4Value( Rotation ) );
 }
 
 bool Structure::Intersects(GameObject* B, vector<CollisionData>& CD)
@@ -64,5 +74,36 @@ void Structure::CollideWith(GameObject* Instance, vector<CollisionData> CD)
 			Instance->Move( deltaMove );
 		}
 		*/
+	}
+}
+
+void Structure::SetState(GOState Value)
+{
+	GameObject::SetState( Value );
+
+	if (gVegetation)
+		gVegetation->SetState( Value );
+}
+
+void Structure::SetOvergrown(bool value)
+{
+	if (value)
+	{
+		if (!gVegetation)
+		{
+			if (gVegModel != "")
+			{
+				gVegetation = new Vegetation( gVegModel );
+				AddGameObject( gVegetation );
+			}
+		}
+	}
+	else
+	{
+		if (gVegetation)
+		{
+			gVegetation->SetState( Dead );
+			gVegetation = NULL;
+		}
 	}
 }
