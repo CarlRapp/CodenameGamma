@@ -196,7 +196,7 @@ LevelData LevelParser::ParseLevel(string LevelName, string LevelsRootPath)
 
 EntityData LevelParser::ParseLevelEntities(LevelData Data)
 {
-	vector<GameObject*>	GameObjects		=	vector<GameObject*>();
+	vector<GameObjectData*>	gameObjectData =	vector<GameObjectData*>();;
 	vector<Light*>		Lights			=	vector<Light*>();
 	vector<string>		GameObjectNames	=	vector<string>();
 	vector<PatrolNode*>	PatrolNodes		=	vector<PatrolNode*>();
@@ -230,21 +230,26 @@ EntityData LevelParser::ParseLevelEntities(LevelData Data)
 			int	Index		=	atoi( tString.c_str() );
 			tLine			=	tLine.substr( tString.size() + 2 );
 
-			GameObject*	tObject	=	ParseGameObject( tLine, GameObjectNames[Index], Data );
+			GameObjectData*	tObject	=	ParseGameObject( tLine, GameObjectNames[Index], Data );
 
-			if (IsOfType<Lamp>(tObject))
+			if (IsOfType<Lamp>(tObject->gameObject))
 			{
 				PointLight *tLight = new PointLight();
 				tLight->GetGPULight()->Color		= XMFLOAT4(1.5f, 1.5f, 1.5f, 0);
-				tLight->GetGPULight()->Position		= tObject->GetFloat3Value( Position );
+				tLight->GetGPULight()->Position		= tObject->gameObject->GetFloat3Value( Position );
 				tLight->GetGPULight()->Position.y	+= 2.0f * UnitsPerMeter;
 				tLight->GetGPULight()->Range		= 6.0f * UnitsPerMeter;
 				tLight->GetGPULight()->HasShadow	= false;
 				Lights.push_back( tLight );
 			}
+			else if (IsOfType<Structure>(tObject->gameObject))
+				tObject->vegetation = true;
 
 			if( tObject != 0 )
-				GameObjects.push_back( tObject );
+			{
+				if( tObject->gameObject != 0 )
+					gameObjectData.push_back( tObject );
+			}
 		}
 		else if( tLine[0] == '$' )
 		{
@@ -305,7 +310,7 @@ EntityData LevelParser::ParseLevelEntities(LevelData Data)
 		NodeMapInstance->AddNode( PN );
 
 	EntityData	Result		=	EntityData();
-	Result.GameObjects		=	GameObjects;
+	Result.gameObjectData	=	gameObjectData;
 	Result.Lights			=	Lights;
 	Result.NodeMapInstance	=	NodeMapInstance;
 
@@ -325,121 +330,145 @@ GameObject* LevelParser::GetGameObject( string GameObjectName )
 	else if( GameObjectName == "Crowd Barrier" )
 	{
 		ModelManager::GetInstance()->LoadModel("CrowdBarrier", "CrowdBarrier.obj", "DATA/Models/CrowdBarrier/");
+		ModelManager::GetInstance()->LoadModel("CrowdBarrier_VEG", "CrowdBarrier_VEG.obj", "DATA/Models/Vegetation/CrowdBarrier/");
 		Result	=	new CrowdBarrier();
 	}
 	else if( GameObjectName == "Small Store" )
 	{
 		ModelManager::GetInstance()->LoadModel("SmallStore", "SmallStore.obj", "DATA/Models/SmallStore/");
+		ModelManager::GetInstance()->LoadModel("SmallStore_VEG", "SmallStore_VEG.obj", "DATA/Models/Vegetation/SmallStore/");
 		Result	=	new SmallStore();
 	}
 	else if( GameObjectName == "Town Hall" )
 	{
 		ModelManager::GetInstance()->LoadModel("TownHall", "TownHall.dae", "DATA/Models/TownHall/");
+		ModelManager::GetInstance()->LoadModel("TownHall_VEG", "TownHall_VEG.obj", "DATA/Models/Vegetation/TownHall/");
 		Result	=	new TownHall();
 	}
 	else if( GameObjectName == "Container" )
 	{
 		ModelManager::GetInstance()->LoadModel("Container", "Container.obj", "DATA/Models/Container/");
+		ModelManager::GetInstance()->LoadModel("Container_VEG", "Container_VEG.obj", "DATA/Models/Vegetation/Container/");
 		Result	=	new Container();
 	}
 	else if( GameObjectName == "Trash Can" )
 	{
 		ModelManager::GetInstance()->LoadModel("TrashCan", "TrashCan.obj", "DATA/Models/TrashCan/");
+		ModelManager::GetInstance()->LoadModel("TrashCan_VEG", "TrashCan_VEG.obj", "DATA/Models/Vegetation/TrashCan/");
 		Result	=	new TrashCan();
 	}
 	else if( GameObjectName == "Volvo Car" )
 	{
 		ModelManager::GetInstance()->LoadModel("VolvoCar", "VolvoCar.obj", "DATA/Models/VolvoCar/");
+		ModelManager::GetInstance()->LoadModel("VolvoCar_VEG", "VolvoCar_VEG.obj", "DATA/Models/Vegetation/VolvoCar/");
 		Result	=	new VolvoCar();
 	}
 	else if( GameObjectName == "Utility Pole" )
 	{
 		ModelManager::GetInstance()->LoadModel("UtilityPole", "UtilityPole.obj", "DATA/Models/UtilityPole/");
+		ModelManager::GetInstance()->LoadModel("UtilityPole_VEG", "UtilityPole_VEG.obj", "DATA/Models/Vegetation/UtilityPole/");
 		Result	=	new UtilityPole();
 	}
 	else if( GameObjectName == "Tank Barrier" )
 	{
 		ModelManager::GetInstance()->LoadModel("TankBarrier", "TankBarrier.obj", "DATA/Models/TankBarrier/");
+		ModelManager::GetInstance()->LoadModel("TankBarrier_VEG", "TankBarrier_VEG.obj", "DATA/Models/Vegetation/TankBarrier/");
 		Result	=	new TankBarrier();
 	}
 	else if( GameObjectName == "SmallShop Carlbucks" )
 	{
 		ModelManager::GetInstance()->LoadModel("SmallShopCarlbucks", "SmallShopCarlbucks.obj", "DATA/Models/SmallShopCarlbucks/");
+		ModelManager::GetInstance()->LoadModel("SmallShopCarlbucks_VEG", "SmallShopCarlbucks_VEG.obj", "DATA/Models/Vegetation/SmallShopCarlbucks/");
 		Result	=	new SmallShop_B();
 	}
 	else if( GameObjectName == "SmallShop Base" )
 	{
 		ModelManager::GetInstance()->LoadModel("SmallShopBase", "SmallShopBase.obj", "DATA/Models/SmallShopBase/");
+		ModelManager::GetInstance()->LoadModel("SmallShopBase_VEG", "SmallShopBase_VEG.obj", "DATA/Models/Vegetation/SmallShopBase/");
 		Result	=	new SmallShop_A();
 	}
 	else if( GameObjectName == "Sand Bag" )
 	{
 		ModelManager::GetInstance()->LoadModel("SandBag", "SandBag.obj", "DATA/Models/SandBag/");
+		ModelManager::GetInstance()->LoadModel("SandBag_VEG", "SandBag_VEG.obj", "DATA/Models/Vegetation/SandBag/");
 		Result	=	new SandBag();
 	}
 	else if( GameObjectName == "Pickup Truck" )
 	{
 		ModelManager::GetInstance()->LoadModel("PickUpTruck", "PickUpTruck.obj", "DATA/Models/PickUpTruck/");
+		ModelManager::GetInstance()->LoadModel("PickUpTruck_VEG", "PickUpTruck_VEG.obj", "DATA/Models/Vegetation/PickUpTruck/");
 		Result	=	new PickupTruck();
 	}
 	else if( GameObjectName == "Market Store" )
 	{
 		ModelManager::GetInstance()->LoadModel("MarketStore", "MarketStore.dae", "DATA/Models/MarketStore/");
+		ModelManager::GetInstance()->LoadModel("MarketStore_VEG", "MarketStore_VEG.obj", "DATA/Models/Vegetation/MarketStore/");
 		Result	=	new MarketStore();
 	}
 	else if( GameObjectName == "Lamp" )
 	{
 		ModelManager::GetInstance()->LoadModel("Lamp", "Lamp.obj", "DATA/Models/Lamp/");
+		ModelManager::GetInstance()->LoadModel("Lamp_VEG", "Lamp_VEG.obj", "DATA/Models/Vegetation/Lamp/");
 		Result	=	new Lamp();
 	}
 	else if( GameObjectName == "Hotdog Stand" )
 	{
 		ModelManager::GetInstance()->LoadModel("HotDogStand", "HotDogStand.obj", "DATA/Models/HotDogStand/");
+		ModelManager::GetInstance()->LoadModel("HotDogStand_VEG", "HotDogStand_VEG.obj", "DATA/Models/Vegetation/HotDogStand/");
 		Result	=	new HotDogStand();
 	}
 	else if( GameObjectName == "Fire Hydrant" )
 	{
 		ModelManager::GetInstance()->LoadModel("FireHydrant", "FireHydrant.obj", "DATA/Models/FireHydrant/");
+		ModelManager::GetInstance()->LoadModel("FireHydrant_VEG", "FireHydrant_VEG.obj", "DATA/Models/Vegetation/FireHydrant/");
 		Result	=	new FireHydrant();
 	}
 	else if( GameObjectName == "Factory Building" )
 	{
 		ModelManager::GetInstance()->LoadModel("FactoryBuilding", "FactoryBuilding.obj", "DATA/Models/FactoryBuilding/");
+		ModelManager::GetInstance()->LoadModel("FactoryBuilding_VEG", "FactoryBuilding_VEG.obj", "DATA/Models/Vegetation/FactoryBuilding/");
 		Result	=	new FactoryBuilding();
 	}
 	else if( GameObjectName == "Crate" )
 	{
 		ModelManager::GetInstance()->LoadModel("Crate", "Crate.obj", "DATA/Models/Crate/");
+		ModelManager::GetInstance()->LoadModel("Crate_VEG", "Crate_VEG.obj", "DATA/Models/Vegetation/Crate/");
 		Result	=	new Crate();
 	}
 	else if( GameObjectName == "Apartment Building" )
 	{
 		ModelManager::GetInstance()->LoadModel("ApartmentBuilding", "ApartmentBuilding.obj", "DATA/Models/ApartmentBuilding/");
+		ModelManager::GetInstance()->LoadModel("ApartmentBuilding_VEG", "ApartmentBuilding_VEG.obj", "DATA/Models/Vegetation/ApartmentBuilding/");
 		Result	=	new ApartmentBuilding();
 	}
 	else if( GameObjectName == "Abandoned Building" )
 	{
 		ModelManager::GetInstance()->LoadModel("AbandonedBuilding", "AbandonedBuilding.obj", "DATA/Models/AbandonedBuilding/");
+		ModelManager::GetInstance()->LoadModel("AbandonedBuilding_VEG", "AbandonedBuilding_VEG.obj", "DATA/Models/Vegetation/AbandonedBuilding/");
 		Result	=	new AbandonedBuilding();
 	}
 	else if( GameObjectName == "Apartment Complex" )
 	{
 		ModelManager::GetInstance()->LoadModel("ApartmentComplex", "ApartmentComplex.obj", "DATA/Models/ApartmentComplex/");
+		ModelManager::GetInstance()->LoadModel("ApartmentComplex_VEG", "ApartmentComplex_VEG.obj", "DATA/Models/Vegetation/ApartmentComplex/");
 		Result	=	new ApartmentComplex();
 	}
 	else if( GameObjectName == "Oil Barrel" )
 	{
 		ModelManager::GetInstance()->LoadModel("OilBarrel", "OilBarrel.obj", "DATA/Models/OilBarrel/");
+		ModelManager::GetInstance()->LoadModel("OilBarrel_VEG", "OilBarrel_VEG.obj", "DATA/Models/Vegetation/OilBarrel/");
 		Result	=	new OilBarrel();
 	}
 	else if( GameObjectName == "Fence" )
 	{
 		ModelManager::GetInstance()->LoadModel("Fence", "Fence.obj", "DATA/Models/Fence/");
+		ModelManager::GetInstance()->LoadModel("Fence_VEG", "Fence_VEG.obj", "DATA/Models/Vegetation/Fence/");
 		Result	=	new Fence();
 	}
 	else if( GameObjectName == "Aston Martin" )
 	{
 		ModelManager::GetInstance()->LoadModel("AstonMartin", "AstroMartinCar.obj", "DATA/Models/AstroMartinCar/");
+		ModelManager::GetInstance()->LoadModel("AstroMartinCar_VEG", "AstroMartinCar_VEG.obj", "DATA/Models/Vegetation/AstroMartinCar/");
 		Result	=	new AstonMartin();
 	}
 	else
@@ -452,10 +481,11 @@ GameObject* LevelParser::GetGameObject( string GameObjectName )
 
 	return Result;
 }
-GameObject* LevelParser::ParseGameObject( string Line, string GameObjectName, LevelData Data )
+GameObjectData* LevelParser::ParseGameObject( string Line, string GameObjectName, LevelData Data )
 {
-	GameObject*	Result	=	GetGameObject( GameObjectName );
-	if( Result == 0 )
+	GameObjectData*	Result = new GameObjectData();
+	Result->gameObject	=	GetGameObject( GameObjectName );
+	if( Result->gameObject == 0 )
 		return Result;
 
 	float	PosX, PosY, PosZ, RotationY, RotationX, RotationZ;
@@ -475,8 +505,8 @@ GameObject* LevelParser::ParseGameObject( string Line, string GameObjectName, Le
 	Line		=	Line.substr( Line.find( ';' ) + 1 );
 	RotationZ	=	atof( Line.substr( 0, Line.find( ';' ) ).c_str() );
 
-	Result->MoveTo( XMFLOAT3( PosX, PosY, PosZ ) );
-	Result->SetRotation( XMFLOAT3( RotationX, RotationY, RotationZ ) );
+	Result->gameObject->MoveTo( XMFLOAT3( PosX, PosY, PosZ ) );
+	Result->gameObject->SetRotation( XMFLOAT3( RotationX, RotationY, RotationZ ) );
 
 	return Result;
 }
