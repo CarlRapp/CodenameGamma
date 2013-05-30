@@ -125,6 +125,8 @@ public:
 	XMFLOAT3	GetFloat3Value(GOFloat3Value Value);
 	XMFLOAT4X4	GetFloat4x4Value(GOFloat4x4Value Value);
 
+	void		SetWorld(XMFLOAT4X4 translation, XMFLOAT4X4 scale, XMFLOAT4X4 rotation);
+
 	vector<BoundingOrientedBox> GetBoundingBoxes()
 	{
 		vector<BoundingOrientedBox> boxes;
@@ -176,7 +178,7 @@ public:
 
 	virtual	void	SetVelocity(XMFLOAT3 Velocity);
 
-	void	SetState(GOState Value);
+	virtual void	SetState(GOState Value);
 
 	bool	PlayingAnimation(string name);
 	bool	LoopAnimation(string name);	
