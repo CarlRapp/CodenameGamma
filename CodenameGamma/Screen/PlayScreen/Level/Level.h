@@ -93,12 +93,14 @@ private:
 		}		
 	}
 
+	void SetCallbackFunctions(GameObject* go);
+
 	void AddGameObject(GameObject* go);
 	
 	void RemoveGameObject(GameObject* go) 
 	{ 
 		gQuadTree->Delete(go); 
-		gGameObjects.erase(remove(gGameObjects.begin(), gGameObjects.end(), go), gGameObjects.end());		
+		gGameObjects.erase(remove(gGameObjects.begin(), gGameObjects.end(), go), gGameObjects.end());
 	}
 	
 	void DeleteGameObject(GameObject* go)

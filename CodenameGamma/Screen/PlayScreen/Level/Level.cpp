@@ -85,6 +85,7 @@ void Level::LoadLevel(string Levelname)
 	ModelManager::GetInstance()->LoadModel("MediPack", "MediPack.obj", "DATA/Models/MediPack/");
 
 	ModelManager::GetInstance()->LoadModel("Bullet", "PistolBullet.obj", "DATA/Models/PistolBullet/");
+	ModelManager::GetInstance()->LoadModel("EnergyOrb", "EnergyOrb.obj", "DATA/Models/EnergyOrb/");
 	
 
 	
@@ -643,11 +644,17 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 }
 #pragma endregion
 
-void Level::AddGameObject(GameObject* go)
-{ 
+void Level::SetCallbackFunctions(GameObject* go)
+{
 	go->SetAddLight(std::bind(&Level::AddLight, this, std::placeholders::_1));
 	go->SetRemoveLight(std::bind(&Level::RemoveLight, this, std::placeholders::_1));
+	go->SetSetCallbackFunctions(std::bind(&Level::SetCallbackFunctions, this, std::placeholders::_1));
 	go->SetAddGameObject(std::bind(&Level::AddGameObject, this, std::placeholders::_1));
+}
+
+void Level::AddGameObject(GameObject* go)
+{ 
+	SetCallbackFunctions(go);
 
 	gGameObjects.push_back(go); 
 	sort( gGameObjects.begin(), gGameObjects.end() );
