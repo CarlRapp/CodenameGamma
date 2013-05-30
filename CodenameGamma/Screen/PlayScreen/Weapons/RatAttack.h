@@ -8,15 +8,12 @@ using namespace DirectX;
 
 class RatAttack : public Weapon
 {
-protected:
-
-	void	ReloadCountdown(float DeltaTime);
 public:
 	RatAttack(void);
 	~RatAttack(void);
 
 	bool	IsDropable(){	return false;	}
-	bool	Fire( GameObject* Instance, float DamageMul );
+	bool	Fire( GameObject* Owner, GameObject* Target, float DamageMul );
 };
 
 #endif
