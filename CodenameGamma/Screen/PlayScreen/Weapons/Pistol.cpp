@@ -14,10 +14,12 @@ Pistol::Pistol()
 	gWeaponAnimations.DrawReloadPutAway = "PistolDrawReloadPutAway";
 	gWeaponAnimations.PutAway			= "PistolPutAway";
 	gWeaponAnimations.Shoot				= "PistolShoot";
-	gWeaponAnimations.Reload		= "PistolReload";
+	gWeaponAnimations.Reload			= "PistolReload";
 	gWeaponAnimations.UpperWalk			= "PistolUpperWalk";
 	gWeaponAnimations.UpperRun			= "PistolUpperRun";
 	gWeaponAnimations.UpperStand		= "PistolUpperStand";
+
+	gReloadSound = "Reload";
 }
 
 Pistol::~Pistol()
@@ -25,12 +27,7 @@ Pistol::~Pistol()
 
 }
 
-bool Pistol::CanFire()
-{
-	return (gClip.first > 0 && gCooldown.first <= 0);
-}
-
-bool Pistol::Fire( GameObject* Instance, float DamageMul )
+bool Pistol::Fire( GameObject* Owner, GameObject* Target, float DamageMul )
 {
 	if ( CanFire() )
 	{
@@ -54,7 +51,7 @@ bool Pistol::Fire( GameObject* Instance, float DamageMul )
 
 		tBullet->SetVelocity( tVelocity );
 		tBullet->SetTeam( GetTeam() );
-		tBullet->SetOwner( Instance );
+		tBullet->SetOwner( Owner );
 
 		SoundManager::GetInstance()->Play("Pistol", SFX);
 

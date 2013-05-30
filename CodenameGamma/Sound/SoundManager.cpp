@@ -201,6 +201,25 @@ void SoundManager::Play3D(string Name, SoundType Type, XMFLOAT3 Position, bool L
 	gPlayingSounds->push_back(new PlayingSound(Name, gChannel));
 }
 
+bool SoundManager::IsPlaying(string Name)
+{
+	for(int i = gPlayingSounds->size() - 1; i >= 0; --i)
+	{
+		PlayingSound*	tSound	=	gPlayingSounds->at(i);
+		bool	tPlaying	=	false;
+		if ( tSound->first == Name)
+		{
+			ErrorCheck( tSound->second->isPlaying( &tPlaying ) );
+
+			if(tPlaying)
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 void SoundManager::Stop(string Name)
 {
 	if(!Exists(Name))

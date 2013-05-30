@@ -1,16 +1,17 @@
 #pragma once
-#ifndef RATATTACK_H
-#define RATATTACK_H
+#ifndef GHOSTATTACK_H
+#define GHOSTATTACK_H
 
 #include "Weapon.h"
+#include "Projectiles\Orb.h"
 
 using namespace DirectX;
 
-class RatAttack : public Weapon
+class GhostAttack : public Weapon
 {
 public:
-	RatAttack(void);
-	~RatAttack(void);
+	GhostAttack(void);
+	~GhostAttack(void);
 
 	bool	IsDropable(){	return false;	}
 	bool	Fire( GameObject* Owner, GameObject* Target, float DamageMul );

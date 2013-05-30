@@ -196,9 +196,9 @@ void ModelInstance::SortAnimations()
 
 	for (int i = 0; i < ActiveAnimations.size(); ++i)
 	{
-		cout << "Animation " << i << ": " << ActiveAnimations[i]->ClipName << endl;
+		//cout << "Animation " << i << ": " << ActiveAnimations[i]->ClipName << endl;
 	}
-	cout << endl;
+	//cout << endl;
 }
 
 bool ModelInstance::PlayingAnimation(string clipName)
@@ -228,7 +228,7 @@ void ModelInstance::PlayAnimation(Animation* animation)
 			StopAnimation(temp->ClipName);
 		}
 	}
-	cout << "Starting animation " << animation->ClipName << "\t Number of animations: " << ActiveAnimations.size() + 1 << endl;
+	//cout << "Starting animation " << animation->ClipName << "\t Number of animations: " << ActiveAnimations.size() + 1 << endl;
 	ActiveAnimations.push_back(animation);
 	SortAnimations();
 }
@@ -294,7 +294,7 @@ void ModelInstance::StopAnimation(string clipName)
 		if (animation->ClipName == clipName)
 		{
 			temp = animation;
-			cout << "Stopping animation " << clipName << "\t Number of animations: " << ActiveAnimations.size() - 1 << endl;
+			//cout << "Stopping animation " << clipName << "\t Number of animations: " << ActiveAnimations.size() - 1 << endl;
 			break;
 		}
 	}

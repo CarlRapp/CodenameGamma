@@ -103,9 +103,8 @@ protected:
 
 	LightCallback AddLight;
 	LightCallback RemoveLight;
+	GameObjectCallback SetCallbackFunctions;
 	GameObjectCallback AddGameObject;
-	GameObjectCallback RemoveGameObject;
-	GameObjectCallback DeleteGameObject;
 
 	ModelInstance *m_ModelInstance;
 
@@ -163,9 +162,8 @@ public:
 	void	SetAddLight(LightCallback callback) { AddLight = callback; }
 	void	SetRemoveLight(LightCallback callback) { RemoveLight = callback; }
 
+	void	SetSetCallbackFunctions(GameObjectCallback callback) { SetCallbackFunctions = callback; }
 	void	SetAddGameObject(GameObjectCallback callback) { AddGameObject = callback; }
-	void	SetRemoveGameObject(GameObjectCallback callback) { RemoveGameObject = callback; }
-	void	SetDeleteGameObject(GameObjectCallback callback) { DeleteGameObject = callback; }
 
 	void	AddRotation(XMFLOAT3 Delta);
 	void	SetRotation(XMFLOAT3 Rotation);
@@ -204,6 +202,7 @@ public:
 
 	void	Kill();
 
+	bool	GotCallbackFunctions() { return (AddLight && RemoveLight && SetCallbackFunctions && AddGameObject); }
 	//bool	UsePose(string name);
 
 	//string  CurrentAnimationOrPose();

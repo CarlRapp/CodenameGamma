@@ -58,6 +58,8 @@ protected:
 	WeaponClip			gClip;
 	WeaponReloadTime	gReloadTime;
 
+	string				gReloadSound;
+
 	virtual	void	LowerCooldown(float DeltaTime);
 	virtual	void	ReloadCountdown(float DeltaTime);
 public:
@@ -71,7 +73,7 @@ public:
 
 	virtual	bool	CanFire() { return (gCooldown.first <= 0 && gClip.first > 0 && gState == Ready); }
 
-	virtual bool	Fire( GameObject* Instance, float DamageMul );
+	virtual bool	Fire( GameObject* Owner, GameObject* Target, float DamageMul );
 
 	bool			NeedReload() { return gClip.first <= 0 && gState != Reloading; }
 

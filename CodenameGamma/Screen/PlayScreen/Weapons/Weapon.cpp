@@ -7,6 +7,8 @@ Weapon::Weapon(void)
 	gReloadTime	=	WeaponReloadTime( 0.0f, 0.0f );
 
 	gState		=	Ready;
+
+	gReloadSound = "";
 }
 
 Weapon::~Weapon(void)
@@ -36,7 +38,8 @@ void Weapon::ReloadCountdown(float DeltaTime)
 			gState				=	Ready;
 			gReloadTime.first	=	0;
 
-			SoundManager::GetInstance()->Play("Reload", SFX);
+			if (gReloadSound != "")
+				SoundManager::GetInstance()->Play(gReloadSound, SFX);
 		}
 	}
 }
@@ -48,7 +51,7 @@ void Weapon::Update(float deltaTime, Terrain* terrain)
 	ReloadCountdown(deltaTime);
 }
 
-bool Weapon::Fire( GameObject* Instance, float DamageMul  )
+bool Weapon::Fire( GameObject* Owner, GameObject* Target, float DamageMul  )
 {
 	return false;
 }

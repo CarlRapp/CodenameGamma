@@ -1,5 +1,7 @@
 #include "Projectile.h"
 #include "../../Units/Unit.h"
+#include "../../Units/PlayerUnit.h"
+#include "../../Structures/StructureList.h"
 
 Projectile::Projectile(void)
 {
@@ -24,7 +26,42 @@ void Projectile::Update(float DeltaTime, Terrain* terrain)
 
 bool Projectile::Intersects(GameObject* B, vector<CollisionData>& CD)
 {
+	if (IsEnemy(B))	{
+		
+		if ( IsOfType<Unit>(B) )
+			return	BoxVsBone(this, B, CD, false);
+
+		if ( IsOfType<Structure>(B) )
+			return	SphereVsBone(this, B);
+	}
+
 	return false;
+}
+
+void Projectile::CollideWith(GameObject* Instance, vector<CollisionData> CD)
+{
+	if( !IsAlive() )
+		return;
+
+	if ( IsOfType<Unit>(Instance) )
+	{
+		Unit*	tUnit	=	((Unit*)Instance);
+
+		tUnit->Hurt( gDamage );
+		
+		if( IsOfType<PlayerUnit>( gOwner ) )
+		{
+			((PlayerUnit*)gOwner)->GetPlayerScore()->PlayScore	+=	10 * gDamage;
+
+			if( !tUnit->IsAlive() )
+				((PlayerUnit*)gOwner)->GetPlayerScore()->PlayKillCount	+=	1;
+		}
+
+		SetState(Dead);	
+	}
+
+	if ( IsOfType<Structure>(Instance) )
+		SetState(Dead);	
 }
 
 void Projectile::SetOwner( GameObject* Instance )
@@ -36,4 +73,14 @@ void Projectile::SetOwner( GameObject* Instance )
 	}
 
 	gOwner	=	Instance;
+}
+
+TargetProjectile::TargetProjectile(void)
+{
+	gTarget = 0;
+}
+
+TargetProjectile::~TargetProjectile(void)
+{
+
 }
