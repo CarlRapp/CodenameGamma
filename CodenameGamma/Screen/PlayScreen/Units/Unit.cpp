@@ -454,7 +454,7 @@ void Unit::FireWeapon()
 	{
 		if (gWeaponState == Aim && !PlayingAnimation(GetAnimation("Draw")))
 		{
-			if (gCurrentWeapon->Fire( this, 1.0f ))
+			if (gCurrentWeapon->Fire( this, NULL, 1.0f ))
 			{
 				PlayAnimation(GetAnimation("Shoot"));
 				PlayAnimationAfter(GetAnimation("Shoot"), GetAnimation("Aim"));
