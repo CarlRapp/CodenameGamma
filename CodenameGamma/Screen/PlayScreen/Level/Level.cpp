@@ -103,10 +103,16 @@ void Level::LoadLevel(string Levelname)
 
 	EntityData	Result	=	LevelParser::ParseLevelEntities(LData);
 	//	Structures from the level
-	for each( GameObject* GO in Result.GameObjects )
+	for each( GameObjectData* GOD in Result.gameObjectData )
 	{
-		AddGameObject( GO );
-		BlockPathWithObject( GO );
+		AddGameObject( GOD->gameObject );
+		BlockPathWithObject( GOD->gameObject );
+
+		GOD->gameObject->SetTextureIndex(GOD->textureIndex);
+
+		if (GOD->vegetation)
+			((Structure*)GOD->gameObject)->SetOvergrown(true);
+
 	}
 	for each( Light* LIGHT in Result.Lights )
 		AddLight( LIGHT );
