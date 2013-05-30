@@ -126,6 +126,6 @@ ScreenType MainMenuScreen::GetScreenType()
 
 void MainMenuScreen::Reset()
 {
-	SoundManager::GetInstance()->Stop("Theme");
-	SoundManager::GetInstance()->Play("Theme", Song, true);
+	if (!SoundManager::GetInstance()->IsPlaying("Theme"))
+		SoundManager::GetInstance()->Play("Theme", Song, true);
 }
