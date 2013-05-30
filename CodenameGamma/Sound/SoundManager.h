@@ -59,6 +59,8 @@ public:
 	void	Play3D(string Name, SoundType Type, XMFLOAT3 Position);
 	void	Play3D(string Name, SoundType Type, XMFLOAT3 Position, bool Loop);
 
+	bool	IsPlaying(string Name);
+
 	void	Stop(string Name);
 
 	void	SetListenerPosition(float X, float Y, float Z);
