@@ -25,6 +25,8 @@ private:
 	int	gCurrentIndex;
 	int	gMenuTextSize;
 
+	ID3D11ShaderResourceView*	gBackground;
+
 	void	CreateMapMenu( void );
 
 	bool	Load();

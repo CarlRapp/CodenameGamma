@@ -16,6 +16,7 @@ OptionScreen::OptionScreen(ScreenData* Setup)
 	gMenu	=	vector<OptionEntry>();
 	gMenu.push_back( OptionEntry( "Resolution: ", EntryData( Resolution, ResIndex ) ) );
 	gMenu.push_back( OptionEntry( "Fullscreen: ", EntryData( Checkbox, (int)Setup->FULLSCREEN ) ) );
+	gMenu.push_back( OptionEntry( "Visible Mouse: ", EntryData( Checkbox, (int)Setup->MOUSEVISIBLE ) ) );
 	gMenu.push_back( OptionEntry( "Master Volume: ", EntryData( Volume, (int)( 10.0f * SoundManager::GetInstance()->GetVolume( Master ) ) ) ) );
 	gMenu.push_back( OptionEntry( "Song Volume: ", EntryData( Volume, (int)( 10.0f * SoundManager::GetInstance()->GetVolume( Song ) ) ) ) );
 	gMenu.push_back( OptionEntry( "SFX Volume: ", EntryData( Volume, (int)( 10.0f * SoundManager::GetInstance()->GetVolume( SFX ) ) ) ) );
@@ -26,14 +27,17 @@ bool OptionScreen::Load()
 {
 	IFW1Factory				*pFW1Factory = 0;
 	FW1CreateFactory(FW1_VERSION, &pFW1Factory);
-	pFW1Factory->CreateFontWrapper(gDevice, L"Courier New", &gTextInstance);
+	pFW1Factory->CreateFontWrapper(gDevice, L"Visitor TT1 BRK", &gTextInstance);
 	pFW1Factory->Release();
+
+	D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, "DATA/MAIN_MENU.png", 0, 0, &gBackground, 0 );
 
 	return true;
 }
 
 bool OptionScreen::Unload()
 {
+	SAFE_RELEASE( gBackground );
 	SAFE_RELEASE( gTextInstance );
 
 	return true;
@@ -63,7 +67,7 @@ void OptionScreen::Update(float DeltaTime)
 		case Resolution:
 			if( LEFT && gMenu[gMenuIndex].second.second > 0)
 				--gMenu[gMenuIndex].second.second;
-			if( RIGHT  && gMenu[gMenuIndex].second.second < 2)
+			if( RIGHT  && gMenu[gMenuIndex].second.second < 1)
 				++gMenu[gMenuIndex].second.second;
 			break;
 
@@ -97,6 +101,8 @@ void OptionScreen::Update(float DeltaTime)
 
 void OptionScreen::Render()
 {
+	gGraphicsManager->RenderQuad( gFullscreenVP, gBackground, Effects::CombineFinalFX->AlphaTransparencyColorTech );
+
 	XMFLOAT2	tPos	=	XMFLOAT2(gScreenWidth * 0.05f, gScreenHeight * 0.05f);
 	DrawString(*gTextInstance, "Options", tPos.x, tPos.y, 72, White, Black, 2, FW1_LEFT);
 	tPos.y	+=	1.2f * 72;
@@ -108,8 +114,9 @@ void OptionScreen::Render()
 	for each( OptionEntry Entry in gMenu )
 	{
 		EntryData	tData		=	Entry.second;
-		TextColor	tTColor		=	(i == gMenuIndex) ? Green : WhiteTrans;
-		TextColor	tBColor		=	(i == gMenuIndex) ? Black : BlackTrans;
+		bool		isActive	=	(i == gMenuIndex);
+		TextColor	tTColor		=	isActive ? Green : WhiteTrans;
+		TextColor	tBColor		=	isActive ? Black : BlackTrans;
 
 		XMFLOAT2	tPosition	=	XMFLOAT2( tPos.x, gScreenHeight * 0.3f + i * ( 1.5f * gTextSize ) );
 
@@ -120,8 +127,16 @@ void OptionScreen::Render()
 		{
 			for( int n = 1; n <= 10; ++n )
 			{
-				tTColor		=	( n <= tData.second ) ? GreenTrans : WhiteTrans;
-				tBColor		=	( n <= tData.second ) ? WhiteTrans : Black;
+				if( isActive )
+				{
+					tTColor		=	( n <= tData.second ) ? Green : WhiteTrans;
+					tBColor		=	( n <= tData.second ) ? BlackTrans : BlackTrans;
+				}
+				else
+				{
+					tTColor		=	( n <= tData.second ) ? YellowTrans : WhiteTrans;
+					tBColor		=	( n <= tData.second ) ? BlackTrans : BlackTrans;
+				}
 				tPosition.x	=	gScreenWidth * 0.25f;
 
 				DrawString(*gTextInstance, "|", tPosition.x + n * gTextSize, tPosition.y, gTextSize, tTColor, tBColor, 1, FW1_LEFT);
@@ -130,16 +145,17 @@ void OptionScreen::Render()
 		}
 		else if( tData.first == Checkbox )
 		{
-			tTColor		=	( tData.second == 1) ? GreenTrans : WhiteTrans;
-			tBColor		=	( tData.second == 1 ) ? WhiteTrans : Black;
+			tTColor		=	isActive ? Green : WhiteTrans;
+			tBColor		=	isActive ? BlackTrans : BlackTrans;
 			tPosition.x	=	gScreenWidth * 0.25f;
 
-			DrawString(*gTextInstance, "[x]", tPosition.x + gTextSize, tPosition.y, gTextSize, tTColor, tBColor, 1, FW1_LEFT);
+			string	tText	=	tData.second == 1 ? "YES" : "NO";
+			DrawString(*gTextInstance, tText, tPosition.x + gTextSize, tPosition.y, gTextSize, tTColor, tBColor, 1, FW1_LEFT);
 		}
 		else if( tData.first == Resolution )
 		{
-			tTColor					=	GreenTrans;
-			tBColor					=	WhiteTrans;
+			tTColor					=	isActive ? Green : WhiteTrans;
+			tBColor					=	isActive ? BlackTrans : BlackTrans;
 			tPosition.x				=	gScreenWidth * 0.25f;
 			ResolutionEntry	tRes	=	gResolutions[ tData.second ];
 
@@ -170,9 +186,9 @@ void OptionScreen::Confirm()
 	//	asd
 
 	//	Set the volumes
-	UpdateVolume( Master,	gMenu[2].second.second );
-	UpdateVolume( Song,		gMenu[3].second.second );
-	UpdateVolume( SFX,		gMenu[4].second.second );
+	UpdateVolume( Master,	gMenu[3].second.second );
+	UpdateVolume( Song,		gMenu[4].second.second );
+	UpdateVolume( SFX,		gMenu[5].second.second );
 
 	
 	ResolutionEntry	tRes	=	gResolutions[ gMenu[0].second.second ];
@@ -183,9 +199,10 @@ void OptionScreen::Confirm()
 	settingsFile << "Width " + to_string( (long double)tRes.first ) << endl;
 	settingsFile << "Height " + to_string( (long double)tRes.second ) << endl;
 	settingsFile << "Fullscreen " + to_string( (long double)gMenu[1].second.second ) << endl;
-	settingsFile << "Master " + to_string( (long double)gMenu[2].second.second ) << endl;
-	settingsFile << "Song " + to_string( (long double)gMenu[3].second.second ) << endl;
-	settingsFile << "SFX " + to_string( (long double)gMenu[4].second.second ) << endl;
+	settingsFile << "MouseVisible " + to_string( (long double)gMenu[2].second.second ) << endl;
+	settingsFile << "Master " + to_string( (long double)gMenu[3].second.second ) << endl;
+	settingsFile << "Song " + to_string( (long double)gMenu[4].second.second ) << endl;
+	settingsFile << "SFX " + to_string( (long double)gMenu[5].second.second ) << endl;
 
 	settingsFile.close();
 

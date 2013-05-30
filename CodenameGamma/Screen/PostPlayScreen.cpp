@@ -7,6 +7,26 @@ PostPlayScreen::PostPlayScreen(ScreenData* Setup)
 	gScreenData	=	Setup;
 }
 
+bool PostPlayScreen::Load()
+{
+	D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, "DATA/MAIN_MENU.png", 0, 0, &gBackground, 0 );
+
+	IFW1Factory				*pFW1Factory = 0;
+	FW1CreateFactory(FW1_VERSION, &pFW1Factory);
+	pFW1Factory->CreateFontWrapper(gDevice, L"Apocalypse 1", &gTextInstance);
+	pFW1Factory->Release();
+
+	return true;
+}
+
+bool PostPlayScreen::Unload()
+{
+	SAFE_RELEASE( gBackground );
+	SAFE_RELEASE( gTextInstance );
+
+	return true;
+}
+
 void PostPlayScreen::Update(float DeltaTime)
 {
 	Controller*	tC	=	InputManager::GetInstance()->GetController(0);
@@ -27,10 +47,7 @@ void PostPlayScreen::Update(float DeltaTime)
 void PostPlayScreen::Render()
 {
 	XMFLOAT2	tPos	=	XMFLOAT2(gScreenWidth * 0.5f, gScreenHeight * 0.1f);
-	DrawString(*gTextInstance, "LOL U BE DEEEEAD!!!!", tPos.x, tPos.y, 72, Yellow, Black, 2, FW1_CENTER);
-	tPos.y	=	gScreenHeight * 0.9f;
-	DrawString(*gTextInstance, "Press (A) to go back to the main menu.", tPos.x, tPos.y, 48, White, Black, 2, FW1_CENTER);
-	tPos.y	=	gScreenHeight * 0.25f;
+	DrawString(*gTextInstance, "Game Over!", tPos.x, tPos.y, 72, White, WhiteTrans, 2, FW1_CENTER);
 
 	int	textSize	=	28;
 	for( int i = 0; i < gScreenData->PLAYER_SCORE_LIST.size(); ++i ) 
@@ -42,7 +59,7 @@ void PostPlayScreen::Render()
 		if( i == 0 || i == 2 )
 		{
 			tPos.x	=	gScreenWidth * 0.20f;
-			tPos.y	=	gScreenHeight * 0.4f + i * gScreenHeight * 0.05f;
+			tPos.y	=	gScreenHeight * 0.30f + i * gScreenHeight * 0.05f;
 			DrawString(*gTextInstance, "Player " + to_string( (long double)tScore.PlayerIndex + 1), tPos.x, tPos.y + (2 * i + 0) * textSize, textSize, White, Black, 2, FW1_LEFT);
 			DrawString(*gTextInstance, "Kill Count: " + to_string( (long double)tScore.PlayKillCount ), tPos.x, tPos.y + (2 * i + 1) * textSize, textSize, White, Black, 2, FW1_LEFT);
 			DrawString(*gTextInstance, "Score: " + to_string( (long double)tScore.PlayScore ), tPos.x, tPos.y + (2 * i + 2) * textSize, textSize, White, Black, 2, FW1_LEFT);
@@ -51,7 +68,7 @@ void PostPlayScreen::Render()
 		else if( i == 1 || i == 3 )
 		{
 			tPos.x	=	gScreenWidth * 0.60f;
-			tPos.y	=	gScreenHeight * 0.4f + (i - 1) * gScreenHeight * 0.05f;
+			tPos.y	=	gScreenHeight * 0.30f + (i - 1) * gScreenHeight * 0.05f;
 			DrawString(*gTextInstance, "Player " + to_string( (long double)tScore.PlayerIndex + 1 ), tPos.x, tPos.y + (2 * (i - 1) + 0) * textSize, textSize, White, Black, 2, FW1_LEFT);
 			DrawString(*gTextInstance, "Kill Count: " + to_string( (long double)tScore.PlayKillCount ), tPos.x, tPos.y + (2 * (i - 1) + 1) * textSize, textSize, White, Black, 2, FW1_LEFT);
 			DrawString(*gTextInstance, "Score: " + to_string( (long double)tScore.PlayScore ), tPos.x, tPos.y + (2 * (i - 1) + 2) * textSize, textSize, White, Black, 2, FW1_LEFT);
@@ -59,6 +76,9 @@ void PostPlayScreen::Render()
 		}
 
 	}
+
+	tPos	=	XMFLOAT2(gScreenWidth * 0.5f, gScreenHeight * 0.9f);
+	DrawString(*gTextInstance, "Press (A) to go back to the main menu.", tPos.x, tPos.y, 32, White, WhiteTrans, 2, FW1_CENTER);
 }
 
 ScreenType PostPlayScreen::GetScreenType()

@@ -9,6 +9,8 @@ class PrePlayScreen : public MainMenuScreen
 private:
 	ScreenData*	gScreenData;
 
+	ID3D11ShaderResourceView*	gBackground;
+
 	bool	Load();
 	bool	Unload();
 public:

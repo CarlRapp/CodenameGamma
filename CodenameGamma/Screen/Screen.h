@@ -3,14 +3,19 @@
 #define SCREEN_H
 
 #include "ScreenEnums.h"
+#include "PlayScreen/Graphics/GraphicsManager.h"
 
 using namespace std;
 
 class Screen
 {
 protected:
+	static	GraphicsManager*	gGraphicsManager;
+
 	bool	gInitialized, gDestroyed;
 	int		gScreenWidth, gScreenHeight;
+
+	D3D11_VIEWPORT			gFullscreenVP;
 
 	ScreenData*				gScreenData;
 	ID3D11Device*			gDevice;
@@ -48,5 +53,7 @@ public:
 
 	void	DrawString(IFW1FontWrapper& Instance, string Text, float x, float y, float Size, TextColor Color, UINT Flags);
 	void	DrawString(IFW1FontWrapper& Instance, string Text, float x, float y, float Size, TextColor Color, TextColor BorderColor, float BorderSize, UINT Flags);
+
+	static	void	SetGraphicsManager( GraphicsManager* Instance ){ gGraphicsManager = Instance; }
 };
 #endif

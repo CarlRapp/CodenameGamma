@@ -7,6 +7,7 @@
 #include "../Sound/SoundManager.h"
 #include "Score/Score.h"
 
+
 //	Add colors by writing
 //	Name	=	0xAaBbGgRr
 //	Aa	=	Alpha
@@ -46,6 +47,7 @@ struct ScreenData
 
 	int		WIDTH, HEIGHT;
 	bool	FULLSCREEN;
+	bool	MOUSEVISIBLE;
 
 	ID3D11Device*			DEVICE;
 	ID3D11DeviceContext*	DEVICE_CONTEXT;

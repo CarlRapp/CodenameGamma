@@ -11,16 +11,13 @@
 #define TESTSCALE 1.0f
 
 Level::Level(){}
-Level::Level(SystemData LData)
+Level::Level(SystemData LData, GraphicsManager* Instance)
 {
 	gLData = LData;
-	Effects::InitAll(LData.DEVICE);
-	RenderStates::InitAll(LData.DEVICE);
-	InputLayouts::InitAll(LData.DEVICE);
 
 	gTerrain	=	new Terrain(LData.DEVICE, LData.DEVICE_CONTEXT);
 
-	gGraphicsManager	=	new GraphicsManager(LData.DEVICE, LData.DEVICE_CONTEXT, LData.RENDER_TARGET_VIEW, LData.SCREEN_WIDTH, LData.SCREEN_HEIGHT);
+	gGraphicsManager	=	Instance;
 	gGraphicsManager->SetTerrain(gTerrain);
 	gGraphicsManager->SetLights(&gDirLights, &gPointLights, &gSpotLights, &gGlobalLight);
 
@@ -31,12 +28,24 @@ Level::~Level()
 {
 	if ( gTerrain )
 		delete	gTerrain;
-	if ( gGraphicsManager )
-		delete	gGraphicsManager;
 
-	Effects::DestroyAll();
-	RenderStates::DestroyAll();
-	InputLayouts::DestroyAll();
+	for each( Player* P in gPlayers )
+		delete P;
+
+	for each( GameObject* GO in gGameObjects )
+		DeleteGameObject( GO );
+
+	for each( DirectionalLight* tLight in gDirLights )
+		RemoveLight( tLight );
+
+	for each( PointLight* tLight in gPointLights )
+		RemoveLight( tLight );
+
+	for each( SpotLight* tLight in gSpotLights )
+		RemoveLight( tLight );
+
+	for each( GameObject* GO in gGameObjects )
+		delete GO;
 }
 
 void Level::LoadLevel(string Levelname)
@@ -130,39 +139,7 @@ void Level::LoadLevel(string Levelname)
 
 		AddGameObject(tGO);
 	}
-	/*
-	tGO	=	new TownHall();
-	tGO->MoveTo( XMFLOAT3( 2000, 0, 2000 + 400 ) );
-	AddGameObject(tGO);
-	BlockPathWithObject(tGO);
 
-	//	Lilla scenen 
-	tGO	=	new CrowdBarrier();
-	tGO->MoveTo( XMFLOAT3( 2000 - 85, 0, 2000 ) );
-	AddGameObject(tGO);
-	BlockPathWithObject(tGO);
-
-	tGO	=	new SmallStore();
-	tGO->MoveTo( XMFLOAT3( 2000 - 200, 0, 2000 ) );
-	AddGameObject(tGO);
-	BlockPathWithObject(tGO);
-	
-	tGO	=	new TrashCan();
-	tGO->MoveTo( XMFLOAT3( 2000 - 130, 0, 2000 - 80 ) );
-	AddGameObject(tGO);
-	BlockPathWithObject(tGO);
-	
-	tGO	=	new VolvoCar();
-	tGO->MoveTo( XMFLOAT3( 2000 - 350, 0, 2000 - 100 ) );
-	tGO->SetRotation( XMFLOAT3( 0, PI * 0.25f, 0 ) );
-	AddGameObject(tGO);
-	BlockPathWithObject(tGO);
-	
-	tGO	=	new Container();
-	tGO->MoveTo( XMFLOAT3( 2000 + 200, 0, 2000 - 400 ) );
-	AddGameObject(tGO);
-	BlockPathWithObject(tGO);
-	*/
 	for (int i = 0; i < 100; ++i)
 	{
 		float x = MathHelper::RandF(100, 3900);
