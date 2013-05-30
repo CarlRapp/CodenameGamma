@@ -6,6 +6,7 @@ EnemyUnit::EnemyUnit()
 	gTargetPlayer	= 0;
 	gBehaviourState	= Returning;
 	hasTargetPos	= false;
+	HasVisionOnTarget = false;
 	updateHuntTimer = 0.0f;
 
 	gMultipliers[0]	=	1.0f;
@@ -36,24 +37,6 @@ void EnemyUnit::Update(float DeltaTime, Terrain* terrain)
 		FollowPath();
 		ScanForEnemies(terrain);
 	}
-
-	/*
-	switch( gBehaviourState )
-	{
-		case Roaming:
-			UpdatePatrol( DeltaTime );
-			break;
-
-		case Hunting:
-			UpdateHunt( DeltaTime );
-			break;
-
-		case Returning:
-			UpdateWalkBack( DeltaTime, terrain );
-			break;
-	}
-	*/
-	
 }
 
 void EnemyUnit::GetNewPath(Terrain* terrain)
@@ -129,6 +112,7 @@ void EnemyUnit::UpdateHunt(float deltaTime, Terrain* terrain)
 
 	updateHuntTimer = 0.0f;
 
+	HasVisionOnTarget = false;
 	XMFLOAT3 target = gTargetPlayer->GetFloat3Value( Position );
 	if (!terrain->IsShortestPathFree( GetFloat3Value( Position ), target ))
 	{
@@ -157,8 +141,8 @@ void EnemyUnit::UpdateHunt(float deltaTime, Terrain* terrain)
 			return;
 		}
 	}	
-	//else
-	//	std::cout << "Following target " << gTargetPlayer->GetTrails().size() << endl;
+	else
+		HasVisionOnTarget = true;
 
 	//terrain->FindPath(GetFloat3Value( Position ), target, gPath);
 	//target = gPath.back();
@@ -174,7 +158,10 @@ void EnemyUnit::UpdateHunt(float deltaTime, Terrain* terrain)
 	XMStoreFloat(&tLength, XMVector3Length( XMLoadFloat3( &target ) - XMLoadFloat3( &GetFloat3Value( Position ) ) ));
 
 	if( tLength > 20 * UnitsPerMeter )
+	{
 		gBehaviourState	= Returning;
+		HasVisionOnTarget = false;
+	}
 }
 
 void EnemyUnit::ScanForEnemies(Terrain* terrain)
