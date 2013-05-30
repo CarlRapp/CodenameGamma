@@ -332,6 +332,7 @@ bool GameObject::LoopAnimationAfter(string current, string next)
 	{
 		return m_ModelInstance->PlayAnimationAfter(current, next, true);
 	}
+	return false;
 }
 
 bool GameObject::PlayAnimationAfter(string current, string next)
@@ -340,6 +341,7 @@ bool GameObject::PlayAnimationAfter(string current, string next)
 	{
 		return m_ModelInstance->PlayAnimationAfter(current, next, false);
 	}
+	return false;
 }
 
 void GameObject::StopAnimation(string name)
