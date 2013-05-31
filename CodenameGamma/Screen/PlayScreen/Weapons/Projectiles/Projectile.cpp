@@ -43,7 +43,7 @@ void Projectile::CollideWith(GameObject* Instance, vector<CollisionData> CD)
 	if( !IsAlive() )
 		return;
 
-	if ( IsOfType<Unit>(Instance) )
+	if ( IsOfType<Unit>(Instance) && IsEnemy( Instance ) )
 	{
 		Unit*	tUnit	=	((Unit*)Instance);
 

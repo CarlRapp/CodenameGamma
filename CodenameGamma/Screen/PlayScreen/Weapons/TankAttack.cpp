@@ -7,6 +7,7 @@ TankAttack::TankAttack()
 	gClip		=	WeaponClip(1, 1);
 	gReloadTime	=	WeaponReloadTime(0.0f, 4.0f);
 
+	gAmmo		=	-1;
 	gWeaponAnimations.Shoot				= "Shoot";
 }
 

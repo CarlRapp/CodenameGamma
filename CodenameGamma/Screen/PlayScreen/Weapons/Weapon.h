@@ -21,7 +21,8 @@ typedef pair<int, int>		WeaponClip;
 enum WeaponState
 {
 	Ready,
-	Reloading
+	Reloading,
+	Empty
 };
 
 struct WeaponAnimations
@@ -57,8 +58,9 @@ protected:
 	WeaponCooldown		gCooldown;
 	WeaponClip			gClip;
 	WeaponReloadTime	gReloadTime;
-
+	int					gAmmo;
 	string				gReloadSound;
+	int					gReloadSoundIndex;
 
 	virtual	void	LowerCooldown(float DeltaTime);
 	virtual	void	ReloadCountdown(float DeltaTime);
@@ -83,6 +85,13 @@ public:
 	virtual	bool	IsDropable();
 
 	float			GetReloadTime() { return gReloadTime.second; }
+	void			CancelReload()
+	{
+		SoundManager::GetInstance()->Stop( gReloadSoundIndex );
+		gClip.first			=	0;
+		gReloadTime.first	=	gReloadTime.second;
+		gState				=	Ready;
+	}
 
 	/*
 	To make it easier for the GUI
@@ -94,6 +103,7 @@ public:
 	{
 		WeaponCooldown		Cooldown;
 		WeaponClip			Magazine;
+		int					Ammo;
 		WeaponReloadTime	ReloadTime;
 
 		WeaponInfo( Weapon* Instance )
@@ -101,6 +111,7 @@ public:
 			Cooldown	=	Instance->gCooldown;
 			Magazine	=	Instance->gClip;
 			ReloadTime	=	Instance->gReloadTime;
+			Ammo		=	Instance->gAmmo;
 		}
 	};
 	WeaponInfo	GetInfo()

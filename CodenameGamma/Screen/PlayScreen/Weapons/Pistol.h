@@ -14,6 +14,8 @@ public:
 	~Pistol(void);
 
 	bool	Fire( GameObject* Owner, GameObject* Target, float DamageMul );
+
+	bool	IsDropable(){ return false; }
 };
 
 #endif

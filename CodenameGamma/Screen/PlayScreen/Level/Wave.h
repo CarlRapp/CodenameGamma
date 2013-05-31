@@ -60,6 +60,21 @@ public:
 	void	UnitKilled(){ --gUnitsSpawned.first; }
 
 	void	LoadWaveData( string LevelPath );
+
+	struct WaveGUIInfo
+	{
+		WaveGUIInfo( Wave* Instance )
+		{
+			Wave	=	Instance->gCurrentWave;
+			Timer	=	Instance->gWaveTimer;
+			Units	=	Instance->gUnitsSpawned;
+		}
+		int			Wave;
+		WaveTimer	Timer;
+		WaveUnits	Units;
+
+	};
+	WaveGUIInfo	GetGUIInfo(){ return WaveGUIInfo( this ); }
 };
 
 #endif

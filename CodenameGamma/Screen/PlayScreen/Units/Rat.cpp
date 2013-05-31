@@ -13,9 +13,10 @@ Rat::Rat()
 	gWalkSpeed = 3.0f;
 	gRunSpeed  = 5.0f;
 
-	gDeathTime = 5.0f;
+	gDeathTime = 3.5f;
 
-	SetWeapon( new RatAttack() );
+	gCurrentWeapon	=	new RatAttack();
+	gPrimaryWeapon	=	gCurrentWeapon;
 
 	AttackRange = 1.5f;
 	AttackMaxRange = 2.0f;
