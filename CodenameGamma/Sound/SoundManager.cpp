@@ -159,7 +159,7 @@ void SoundManager::Play(string Name, SoundType Type, bool Loop)
 		break;
 	}
 
-	gPlayingSounds->push_back(new PlayingSound(Name, gChannel));
+	gPlayingSounds->push_back(new PlayingSound(Name, PSEntry( Type, gChannel )));
 }
 
 void SoundManager::Play3D(string Name, SoundType Type, XMFLOAT3 Position)
@@ -198,7 +198,7 @@ void SoundManager::Play3D(string Name, SoundType Type, XMFLOAT3 Position, bool L
 	gResult	=	gChannel->set3DAttributes(&gListenerPosition, &tVelocity);
 	ErrorCheck(gResult);
 
-	gPlayingSounds->push_back(new PlayingSound(Name, gChannel));
+	gPlayingSounds->push_back(new PlayingSound(Name, PSEntry( Type, gChannel )));
 }
 
 bool SoundManager::IsPlaying(string Name)
@@ -209,7 +209,8 @@ bool SoundManager::IsPlaying(string Name)
 		bool	tPlaying	=	false;
 		if ( tSound->first == Name)
 		{
-			ErrorCheck( tSound->second->isPlaying( &tPlaying ) );
+			PSEntry	tEntry	=	tSound->second;
+			ErrorCheck( tEntry.second->isPlaying( &tPlaying ) );
 
 			if(tPlaying)
 			{
@@ -234,12 +235,13 @@ void SoundManager::Stop(string Name)
 		bool	tPlaying	=	false;
 		if ( tSound->first == Name)
 		{
-			ErrorCheck( tSound->second->isPlaying( &tPlaying ) );
+			PSEntry	tEntry	=	tSound->second;
+			ErrorCheck( tEntry.second->isPlaying( &tPlaying ) );
 
 			if(tPlaying)
 			{
 				gPlayingSounds->erase(gPlayingSounds->begin() + i);
-				tSound->second->stop();
+				tEntry.second->stop();
 				delete tSound;
 				return;
 			}
@@ -302,7 +304,7 @@ void SoundManager::Update(float DeltaTime)
 		for(int i = gPlayingSounds->size() - 1; i >= 0; --i)
 		{
 			PlayingSound*	tSound	=	gPlayingSounds->at(i);
-			ErrorCheck( tSound->second->isPlaying( &playing ) );
+			ErrorCheck( tSound->second.second->isPlaying( &playing ) );
 
 			if(!playing)
 				gPlayingSounds->erase(gPlayingSounds->begin() + i);
@@ -336,6 +338,23 @@ void SoundManager::SetVolume(SoundType VolumeType, float Value)
 	case Master:
 		gMasterVolume	=	Value;
 		break;
+	}
+
+	for( int i = 0; i < gPlayingSounds->size(); ++i )
+	{
+		PlayingSound*	tSound	=	gPlayingSounds->at( i );
+		PSEntry			tEntry	=	tSound->second;
+
+		if( tEntry.first == VolumeType )
+		{
+			float	newVolume	=	gMasterVolume;
+			if( VolumeType == SFX )
+				newVolume	*=	gEffectVolume;
+			else if( VolumeType == Song )
+				newVolume	*=	gMusicVolume;
+
+			tEntry.second->setVolume( newVolume );
+		}
 	}
 }
 

@@ -29,7 +29,9 @@ private:
 
 	//	Fields for loaded sounds
 	typedef pair<string, FMOD::Sound*>		SoundEntry;
-	typedef	pair<string, FMOD::Channel*>	PlayingSound;
+
+	typedef	pair<SoundType, FMOD::Channel*>	PSEntry;
+	typedef	pair<string, PSEntry>			PlayingSound;
 
 	map <const int, SoundEntry>				gLoadedSounds;
 	map <const int, SoundEntry>::iterator	gSoundIterator;
