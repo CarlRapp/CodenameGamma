@@ -27,6 +27,7 @@ SoundManager::SoundManager()
 	gListenerPosition.x	=	0;
 	gListenerPosition.y	=	0;
 	gListenerPosition.z	=	0;
+	gUniqueIndex		=	0;
 
 	/*
 	Create a System object and initialize.
@@ -127,17 +128,17 @@ void SoundManager::Load(string Name, string Path, FMOD_MODE Flags)
 	gLoadedSounds[gLoadedSounds.size()]	=	SoundEntry(Name, tSound);
 }
 
-void SoundManager::Play(string Name, SoundType Type)
+int SoundManager::Play(string Name, SoundType Type)
 {
-	Play(Name, Type, false);
+	return Play(Name, Type, false);
 }
 
-void SoundManager::Play(string Name, SoundType Type, bool Loop)
+int SoundManager::Play(string Name, SoundType Type, bool Loop)
 {
 	if(!Exists(Name))
 	{
 		DebugScreen::GetInstance()->AddLogMessage("Sound: \"" + Name + "\" does not exist.", Red);
-		return;
+		return -1;
 	}
 
 	if(Loop)
@@ -159,21 +160,25 @@ void SoundManager::Play(string Name, SoundType Type, bool Loop)
 		break;
 	}
 
-	gPlayingSounds->push_back(new PlayingSound(Name, PSEntry( Type, gChannel )));
+	
+	gPlayingSounds->push_back(new PlayingSound(PSIndex( gUniqueIndex, Name ), PSEntry( Type, gChannel )));
+	++gUniqueIndex;
+
+	return gUniqueIndex - 1;
 }
 
-void SoundManager::Play3D(string Name, SoundType Type, XMFLOAT3 Position)
+int SoundManager::Play3D(string Name, SoundType Type, XMFLOAT3 Position)
 {
-	Play3D(Name, Type, Position, false);
+	return Play3D(Name, Type, Position, false);
 }
 
 
-void SoundManager::Play3D(string Name, SoundType Type, XMFLOAT3 Position, bool Loop)
+int SoundManager::Play3D(string Name, SoundType Type, XMFLOAT3 Position, bool Loop)
 {
 	if(!Exists(Name))
 	{
 		DebugScreen::GetInstance()->AddLogMessage("Sound: \"" + Name + "\" does not exist.", Red);
-		return;
+		return -1;
 	}
 
 	if(Loop)
@@ -198,7 +203,10 @@ void SoundManager::Play3D(string Name, SoundType Type, XMFLOAT3 Position, bool L
 	gResult	=	gChannel->set3DAttributes(&gListenerPosition, &tVelocity);
 	ErrorCheck(gResult);
 
-	gPlayingSounds->push_back(new PlayingSound(Name, PSEntry( Type, gChannel )));
+	gPlayingSounds->push_back(new PlayingSound(PSIndex( gUniqueIndex, Name ), PSEntry( Type, gChannel )));
+	++gUniqueIndex;
+
+	return gUniqueIndex - 1;
 }
 
 bool SoundManager::IsPlaying(string Name)
@@ -207,7 +215,7 @@ bool SoundManager::IsPlaying(string Name)
 	{
 		PlayingSound*	tSound	=	gPlayingSounds->at(i);
 		bool	tPlaying	=	false;
-		if ( tSound->first == Name)
+		if ( tSound->first.second == Name)
 		{
 			PSEntry	tEntry	=	tSound->second;
 			ErrorCheck( tEntry.second->isPlaying( &tPlaying ) );
@@ -233,7 +241,7 @@ void SoundManager::Stop(string Name)
 	{
 		PlayingSound*	tSound	=	gPlayingSounds->at(i);
 		bool	tPlaying	=	false;
-		if ( tSound->first == Name)
+		if ( tSound->first.second == Name)
 		{
 			PSEntry	tEntry	=	tSound->second;
 			ErrorCheck( tEntry.second->isPlaying( &tPlaying ) );
@@ -253,6 +261,34 @@ void SoundManager::Stop(string Name)
 	}
 
 	DebugScreen::GetInstance()->AddLogMessage("Sound: Trying to stop \"" + Name + "\", but it is not playing.", Red);
+}
+
+void SoundManager::Stop(int Index)
+{
+	for(int i = gPlayingSounds->size() - 1; i >= 0; --i)
+	{
+		PlayingSound*	tSound	=	gPlayingSounds->at(i);
+		bool	tPlaying	=	false;
+		if ( tSound->first.first == Index)
+		{
+			PSEntry	tEntry	=	tSound->second;
+			ErrorCheck( tEntry.second->isPlaying( &tPlaying ) );
+
+			if(tPlaying)
+			{
+				gPlayingSounds->erase(gPlayingSounds->begin() + i);
+				tEntry.second->stop();
+				delete tSound;
+				return;
+			}
+			else
+			{
+				gPlayingSounds->erase(gPlayingSounds->begin() + i);
+			}
+		}
+	}
+
+	DebugScreen::GetInstance()->AddLogMessage("Sound: Trying to stop index " + to_string((long double)Index) + ", but it is not playing.", Red);
 }
 
 

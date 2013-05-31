@@ -25,13 +25,15 @@ private:
 	//	System fields
 	FMOD::System	*gSystem;
 	FMOD::Channel	*gChannel;
+	int				gUniqueIndex;
 
 
 	//	Fields for loaded sounds
 	typedef pair<string, FMOD::Sound*>		SoundEntry;
 
 	typedef	pair<SoundType, FMOD::Channel*>	PSEntry;
-	typedef	pair<string, PSEntry>			PlayingSound;
+	typedef	pair<int, string>				PSIndex;
+	typedef	pair<PSIndex, PSEntry>			PlayingSound;
 
 	map <const int, SoundEntry>				gLoadedSounds;
 	map <const int, SoundEntry>::iterator	gSoundIterator;
@@ -56,14 +58,15 @@ public:
 	void	Update(float DeltaTime);
 	void	Load(string Name, string Path, FMOD_MODE Flags);
 
-	void	Play(string Name, SoundType Type);
-	void	Play(string Name, SoundType Type, bool Loop);
-	void	Play3D(string Name, SoundType Type, XMFLOAT3 Position);
-	void	Play3D(string Name, SoundType Type, XMFLOAT3 Position, bool Loop);
+	int	Play(string Name, SoundType Type);
+	int	Play(string Name, SoundType Type, bool Loop);
+	int	Play3D(string Name, SoundType Type, XMFLOAT3 Position);
+	int	Play3D(string Name, SoundType Type, XMFLOAT3 Position, bool Loop);
 
 	bool	IsPlaying(string Name);
 
 	void	Stop(string Name);
+	void	Stop(int Index);
 
 	void	SetListenerPosition(float X, float Y, float Z);
 
