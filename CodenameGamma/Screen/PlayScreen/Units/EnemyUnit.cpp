@@ -12,6 +12,11 @@ EnemyUnit::EnemyUnit()
 	gMultipliers[0]	=	1.0f;
 	gMultipliers[1]	=	1.0f;
 	gMultipliers[2]	=	1.0f;
+
+	AttackRange = 1.0f;
+	AttackMaxRange = 1.0f;
+	Attacking = false;
+
 }
 EnemyUnit::~EnemyUnit()
 {
@@ -37,6 +42,42 @@ void EnemyUnit::Update(float DeltaTime, Terrain* terrain)
 		FollowPath();
 		ScanForEnemies(terrain);
 	}
+
+	if (GetWeapon() != NULL)
+	{
+		GetWeapon()->Update( DeltaTime, terrain );
+
+		if (!GetWeapon()->GotCallbackFunctions())
+			SetCallbackFunctions(GetWeapon());
+	}
+
+	if ( gTargetPlayer == 0 || !HasVisionOnTarget || gBehaviourState != Hunting )
+	{
+		Attacking = false;
+		if (gWeaponState != Unit::Hold)
+			SetWeaponState(Unit::Hold);
+		return;
+	}
+
+	float	distance;
+
+	XMStoreFloat(&distance, XMVector3Length( XMLoadFloat3( &gTargetPlayer->GetFloat3Value( Position ) ) - XMLoadFloat3( &GetFloat3Value( Position ) ) ) );
+
+	if( (Attacking && distance > AttackMaxRange * UnitsPerMeter) || (!Attacking && distance > AttackRange * UnitsPerMeter))
+	{
+		Attacking = false;
+		if (gWeaponState != Unit::Hold)
+			SetWeaponState(Unit::Hold);
+		return;
+	}
+
+	SetVelocity( XMFLOAT3( 0, 0, 0 ) );
+
+	if (gWeaponState != Unit::Aim)
+		SetWeaponState(Unit::Aim);
+
+	FireWeapon(gTargetPlayer);
+	Attacking = true;
 }
 
 void EnemyUnit::GetNewPath(Terrain* terrain)
@@ -148,11 +189,6 @@ void EnemyUnit::UpdateHunt(float deltaTime, Terrain* terrain)
 	//target = gPath.back();
 
 	//	Calculate the new velocity.
-	XMFLOAT3	newVelocity;
-	XMStoreFloat3(&newVelocity, gRunSpeed * UnitsPerMeter * XMVector3Normalize( XMLoadFloat3( &target ) - XMLoadFloat3( &GetFloat3Value( Position ) ) ));
-
-	SetVelocity( newVelocity );
-	LookAt( target );
 
 	float tLength;
 	XMStoreFloat(&tLength, XMVector3Length( XMLoadFloat3( &target ) - XMLoadFloat3( &GetFloat3Value( Position ) ) ));
@@ -161,7 +197,21 @@ void EnemyUnit::UpdateHunt(float deltaTime, Terrain* terrain)
 	{
 		gBehaviourState	= Returning;
 		HasVisionOnTarget = false;
+		return;
 	}
+
+	LookAt( target );
+
+	if (Attacking)
+		return;
+
+	XMFLOAT3	newVelocity;
+	XMStoreFloat3(&newVelocity, gRunSpeed * UnitsPerMeter * XMVector3Normalize( XMLoadFloat3( &target ) - XMLoadFloat3( &GetFloat3Value( Position ) ) ));
+
+	SetVelocity( newVelocity );
+	
+
+	
 }
 
 void EnemyUnit::ScanForEnemies(Terrain* terrain)
