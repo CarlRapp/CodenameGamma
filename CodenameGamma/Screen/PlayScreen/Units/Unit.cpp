@@ -14,6 +14,10 @@ Unit::Unit(void)
 
 	gWalkSpeed = 1.0f;
 	gRunSpeed  = 1.0f;
+
+	gMultipliers[0]	=	1.0f;
+	gMultipliers[1]	=	1.0f;
+	gMultipliers[2]	=	1.0f;
 }
 
 Unit::~Unit(void)
@@ -218,23 +222,25 @@ void Unit::SetMoveState(MoveState newMoveState)
 	switch (newMoveState)
 	{
 	case Stand:
-
 		if (gMoveState == Crouch)
 		{
 			float progress = 1.0f - GetAnimationProgress("Crouching");
 			PlayAnimation("StandUp");
-			PlayAnimationAfter("StandUp", "Pose");
+			LoopAnimationAfter("StandUp", "Pose");
 			SetAnimationProgress("StandUp", progress);
 		}
 
-		if (!PlayingAnimation("StandUp"))
-			PlayAnimation("Pose");	
-
-		if (PlayingAnimation(GetAnimation("UpperWalk")) || PlayingAnimation(GetAnimation("UpperRun")))
+		if (gMoveState != Stand)
 		{
-			StopAnimation(GetAnimation("UpperWalk"));
-			StopAnimation(GetAnimation("UpperRun"));
-			LoopAnimation(GetAnimation("UpperStand"));
+			if (!PlayingAnimation("StandUp"))
+				LoopAnimation("Pose");	
+
+			if (PlayingAnimation(GetAnimation("UpperWalk")) || PlayingAnimation(GetAnimation("UpperRun")))
+			{
+				StopAnimation(GetAnimation("UpperWalk"));
+				StopAnimation(GetAnimation("UpperRun"));
+				LoopAnimation(GetAnimation("UpperStand"));
+			}
 		}
 		break;
 	case Walk:
@@ -271,30 +277,36 @@ void Unit::SetMoveState(MoveState newMoveState)
 
 		LoopAnimation("Run");
 
-		if (PlayingAnimation(GetAnimation("DrawReloadPutAway")))
+		if (PlayingAnimation("Run"))
+		{			
+			if (PlayingAnimation(GetAnimation("DrawReloadPutAway")))
 			LoopAnimationAfter(GetAnimation("DrawReloadPutAway"), GetAnimation("UpperRun"));
 
-		else if (PlayingAnimation(GetAnimation("Reload")))
-		{
-			PlayAnimationAfter(GetAnimation("Reload"), GetAnimation("PutAway"));
-			LoopAnimationAfter(GetAnimation("PutAway"), GetAnimation("UpperRun"));
-		}
-
-		else if (PlayingAnimation(GetAnimation("PutAway")))			
-			LoopAnimationAfter(GetAnimation("PutAway"), GetAnimation("UpperRun"));
-
-		else
-		{
-			LoopAnimation(GetAnimation("UpperRun"));
-
-			if (!BodyInSync)
+			else if (PlayingAnimation(GetAnimation("Reload")))
 			{
-				float progress = GetAnimationProgress(GetAnimation("UpperRun")) + 0.5f;
-				progress -= (int)progress;
-				if (SetAnimationProgress(GetAnimation("UpperRun"), progress))
-					BodyInSync = true;
+				PlayAnimationAfter(GetAnimation("Reload"), GetAnimation("PutAway"));
+				LoopAnimationAfter(GetAnimation("PutAway"), GetAnimation("UpperRun"));
+			}
+
+			else if (PlayingAnimation(GetAnimation("PutAway")))			
+				LoopAnimationAfter(GetAnimation("PutAway"), GetAnimation("UpperRun"));
+
+			else
+			{
+				LoopAnimation(GetAnimation("UpperRun"));
+
+				if (!BodyInSync)
+				{
+					float progress = GetAnimationProgress(GetAnimation("UpperRun")) + 0.5f;
+					progress -= (int)progress;
+					if (SetAnimationProgress(GetAnimation("UpperRun"), progress))
+						BodyInSync = true;
+				}
 			}
 		}
+
+		else
+			LoopAnimation("Walk");		
 
 		break;
 
@@ -448,13 +460,13 @@ void Unit::ReloadWeapon()
 	}
 }
 
-void Unit::FireWeapon()
+void Unit::FireWeapon(GameObject* Target)
 {
 	if ( gCurrentWeapon )
 	{
 		if (gWeaponState == Aim && !PlayingAnimation(GetAnimation("Draw")))
 		{
-			if (gCurrentWeapon->Fire( this, NULL, 1.0f ))
+			if (gCurrentWeapon->Fire( this, Target, gMultipliers[1] ))
 			{
 				PlayAnimation(GetAnimation("Shoot"));
 				PlayAnimationAfter(GetAnimation("Shoot"), GetAnimation("Aim"));

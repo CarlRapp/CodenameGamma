@@ -28,6 +28,23 @@ protected:
 
 	float gWalkSpeed;
 	float gRunSpeed;
+
+	//	0 = Health, 1 = Damage, 2 = Speed
+	float	gMultipliers[3];
+
+	void	Boost()
+	{
+		//	Update health
+		gHealth.second	*=	gMultipliers[0];
+		gHealth.first	=	gHealth.second;
+
+		//	Update health
+		gHealth.second	*=	gMultipliers[0];
+
+		//	Update speed
+		gWalkSpeed	*=		gMultipliers[2];
+		gRunSpeed	*=		gMultipliers[2];
+	}
 	
 	string GetAnimation(string name)
 	{
@@ -92,7 +109,7 @@ public:
 	virtual	void	Hurt(float Damage);
 
 	void	ReloadWeapon();
-	void	FireWeapon();
+	void	FireWeapon(GameObject* Target);
 
 	virtual bool Intersects(GameObject* B, vector<CollisionData>& CD);
 
@@ -112,6 +129,18 @@ public:
 
 	float GetWalkSpeed() { return gWalkSpeed; }
 	float GetRunSpeed() { return gRunSpeed; }
+
+	void	SetMultipliers( float Health, float Damage, float Speed )
+	{
+		gMultipliers[0]	=	Health;
+		gMultipliers[1]	=	Damage;
+		gMultipliers[2]	=	Speed;
+	}
+	void	Boost( int NumberOfTimes )
+	{
+		for( int n = 0; n < NumberOfTimes; ++n )
+			Boost();
+	}
 
 	virtual	void	Heal( float Value );
 };
