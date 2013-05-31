@@ -16,34 +16,12 @@ Rat::Rat()
 	gDeathTime = 5.0f;
 
 	SetWeapon( new RatAttack() );
+
+	AttackRange = 1.5f;
+	AttackMaxRange = 2.0f;
 }
 
 Rat::~Rat()
 {
 
-}
-
-void Rat::Update( float deltaTime, Terrain* terrain )
-{
-	EnemyUnit::Update( deltaTime, terrain );
-	GetWeapon()->Update( deltaTime, terrain );
-
-	if( gTargetPlayer == 0 || GetState() == Dying )
-		return;
-
-	float	distance;
-	XMStoreFloat(
-		&distance,
-		XMVector3Length( XMLoadFloat3( &gTargetPlayer->GetFloat3Value( Position ) ) - XMLoadFloat3( &GetFloat3Value( Position ) ) )
-	);
-
-	if( distance > 1.5f * UnitsPerMeter )
-		return;
-
-	SetVelocity( XMFLOAT3( 0, 0, 0 ) );
-	
-	if( GetWeapon()->Fire( this, gTargetPlayer, gMultipliers[1] ) )
-	{
-		PlayAnimation( "Attack" );
-	}
 }
