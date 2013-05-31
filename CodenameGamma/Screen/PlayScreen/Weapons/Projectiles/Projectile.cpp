@@ -26,15 +26,14 @@ void Projectile::Update(float DeltaTime, Terrain* terrain)
 
 bool Projectile::Intersects(GameObject* B, vector<CollisionData>& CD)
 {
-	if (IsEnemy(B))
+	if (IsEnemy(B))	
 	{
-		
 		if ( IsOfType<Unit>(B) )
-			return	BoxVsBone(this, B, CD, false);
-
-		if ( IsOfType<Structure>(B) )
-			return	SphereVsBone(this, B);
+			return	BoxVsBone(this, B, CD, false);		
 	}
+
+	if ( IsOfType<Structure>(B) )
+			return	SphereVsBone(this, B);
 
 	return false;
 }

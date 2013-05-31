@@ -199,6 +199,15 @@ XMFLOAT4X4 GameObject::GetFloat4x4Value(GOFloat4x4Value Value)
 }
 #pragma endregion
 
+void GameObject::SetWorld(XMFLOAT4X4 translation, XMFLOAT4X4 scale, XMFLOAT4X4 rotation)
+{
+	gTranslation = translation;
+	gScale = scale;
+	gRotation = rotation;
+
+	UpdateWorld(true);
+}
+
 #pragma region Rotation Methods
 //	Will rotate the object
 //	to Rotations value

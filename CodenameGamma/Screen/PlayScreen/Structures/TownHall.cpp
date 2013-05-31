@@ -4,7 +4,8 @@ TownHall::TownHall()
 {
 	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "TownHall" ) );
 	PlayAnimation("StartPose");
-	//PlayAnimation("ALL");
+	
+	gVegModel = "TownHall_VEG";
 }
 
 TownHall::~TownHall()

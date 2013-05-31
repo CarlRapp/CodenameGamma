@@ -28,25 +28,37 @@ void Ghost::Update( float deltaTime, Terrain* terrain )
 	if (!GetWeapon()->GotCallbackFunctions())
 		SetCallbackFunctions(GetWeapon());
 
-	if (!AddGameObject)
-		Kill();
-
 	if( gTargetPlayer == 0 || GetState() == Dying )
 		return;
 
+	if ( !HasVisionOnTarget || gBehaviourState != Hunting )
+	{
+		if (gWeaponState != Unit::Hold)
+			SetWeaponState(Unit::Hold);
+		return;
+	}
+
 	float	distance;
-	XMStoreFloat(
-		&distance,
-		XMVector3Length( XMLoadFloat3( &gTargetPlayer->GetFloat3Value( Position ) ) - XMLoadFloat3( &GetFloat3Value( Position ) ) )
-	);
+
+	XMStoreFloat(&distance, XMVector3Length( XMLoadFloat3( &gTargetPlayer->GetFloat3Value( Position ) ) - XMLoadFloat3( &GetFloat3Value( Position ) ) ) );
 
 	if( distance > 5.0f * UnitsPerMeter )
+	{
+		if (gWeaponState != Unit::Hold)
+			SetWeaponState(Unit::Hold);
 		return;
+	}
 
 	SetVelocity( XMFLOAT3( 0, 0, 0 ) );
-	
-	if( GetWeapon()->Fire( this, gTargetPlayer, 0 ) )
+
+	if (gWeaponState != Unit::Aim)
+		SetWeaponState(Unit::Aim);
+
+	FireWeapon();
+
+	/*
+	if( GetWeapon()->Fire( this, gTargetPlayer, gMultipliers[1] ) )
 	{
-		PlayAnimation( "Attack" );
-	}
+		PlayAnimation( "Shoot" );
+	}*/
 }

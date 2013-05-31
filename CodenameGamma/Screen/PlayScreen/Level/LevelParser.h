@@ -13,10 +13,25 @@
 #include <fstream>
 
 using namespace std;
+
+struct GameObjectData
+{
+	GameObject*	gameObject;
+	bool		vegetation;
+	int			textureIndex;
+
+	GameObjectData()
+	{
+		gameObject = NULL;
+		vegetation = false;
+		textureIndex = 0;
+	}
+};
+
 struct EntityData
 {
 	EntityData() {}
-	vector<GameObject*>	GameObjects;
+	vector<GameObjectData*>	gameObjectData;
 	vector<Light*>		Lights;
 	NodeMap*			NodeMapInstance;
 };
@@ -30,7 +45,7 @@ private:
 	static	string	GetToken(string Line, bool IncludeDigits);
 
 	static	GameObject*	GetGameObject( string GameObjectName );
-	static	GameObject*	ParseGameObject( string Line, string GameObjectName, LevelData Data );
+	static	GameObjectData*	ParseGameObject( string Line, string GameObjectName, LevelData Data );
 	static	SpotLight*	ParseSpotLight( string Line, LevelData Data );
 	static	PointLight*	ParsePointLight( string Line, LevelData Data );
 	static	PatrolNode*	ParsePatrolNode( string Line, LevelData Data );

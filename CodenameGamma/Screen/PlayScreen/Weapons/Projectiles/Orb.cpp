@@ -3,7 +3,7 @@
 Orb::Orb()
 {
 	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "EnergyOrb" ) );
-	gDamage	=	100.0f;
+	gDamage	=	10.0f;
 
 	gLifeSpan	=	3.5f;
 }
@@ -24,7 +24,8 @@ void Orb::Update(float deltaTime, Terrain* terrain)
 
 		XMVECTOR diff = perfect - current;
 
-		XMVECTOR newDir = (current + (diff * deltaTime * 1.0f));		
+		XMVECTOR newDir = (current + (diff * deltaTime * 1.0f));	
+		newDir = XMVectorSetY(newDir, 0.0f);
 		XMVECTOR newVel = XMVector3Normalize(newDir) * GetSpeed();
 
 		XMFLOAT3 newVelocity;
@@ -32,7 +33,7 @@ void Orb::Update(float deltaTime, Terrain* terrain)
 
 		SetVelocity( newVelocity );
 	}
-
+	
 	Projectile::Update(deltaTime, terrain);
 }
 
