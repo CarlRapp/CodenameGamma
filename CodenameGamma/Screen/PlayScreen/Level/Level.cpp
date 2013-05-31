@@ -618,7 +618,8 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 		AddGameObject( pUnit );
 		AddGameObject( pUnit->GetWeapon() );
 	}
-	Weapon*	shotgun	=	new Shotgun();
+	WeaponOnGround*	shotgun	=	new WeaponOnGround( new Shotgun() );
+
 	shotgun->MoveTo( XMFLOAT3(Pos.x + 33, 0, Pos.y) );
 	AddGameObject(shotgun);
 

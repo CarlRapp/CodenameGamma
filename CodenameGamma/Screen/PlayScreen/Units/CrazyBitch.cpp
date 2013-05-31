@@ -13,6 +13,7 @@ CrazyBitch::CrazyBitch()
 
 	gCurrentWeapon	=	new Pistol();
 	gPrimaryWeapon	=	gCurrentWeapon;
+	SetWeaponState( Hold );
 }
 
 CrazyBitch::~CrazyBitch()

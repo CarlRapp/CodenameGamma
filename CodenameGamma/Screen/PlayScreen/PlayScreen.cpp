@@ -64,6 +64,7 @@ bool PlayScreen::Unload()
 			gThirstBar[n]->Release();
 		}
 	}
+	SAFE_RELEASE( gWaveTextWrapper );
 	SAFE_RELEASE( gTextInstance );
 	SAFE_RELEASE( gBackground );
 		

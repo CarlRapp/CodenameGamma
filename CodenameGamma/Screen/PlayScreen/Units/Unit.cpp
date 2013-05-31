@@ -29,7 +29,7 @@ void Unit::DropWeapon()
 		if( !gCurrentWeapon->IsDropable() )
 			return;
 		if( gCurrentWeapon->GetState() == Reloading )
-			return;
+			gCurrentWeapon->CancelReload();
 
 		WeaponOnGround*	tWoG	=	new WeaponOnGround( gCurrentWeapon );
 		tWoG->MoveTo( gCurrentWeapon->GetFloat3Value( Position ) );
@@ -467,28 +467,35 @@ void Unit::Heal( float Value )
 
 void Unit::ChangeWeapon( )
 {
-	if( gCurrentWeapon->GetReloadTime() > 0 || gSecondaryWeapon == 0 )
+	if( !gSecondaryWeapon || !gCurrentWeapon )
 		return;
+	if( gWeaponState != Hold )
+		return;
+
+	if( gCurrentWeapon->GetState() == Reloading || gCurrentWeapon->GetInfo().ReloadTime.first > 0 )
+		gCurrentWeapon->CancelReload();
 
 	if( gCurrentWeapon == gPrimaryWeapon )
 	{
 		gPrimaryWeapon->SetState( Hidden );
 		gCurrentWeapon	=	gSecondaryWeapon;
-		AddGameObject( gCurrentWeapon );
+		gCurrentWeapon->SetState( Alive );
+		AddGameObject( gSecondaryWeapon );
 	}
 	else
 	{
 		gSecondaryWeapon->SetState( Hidden );
 		gCurrentWeapon	=	gPrimaryWeapon;
-		AddGameObject( gCurrentWeapon );
+		gCurrentWeapon->SetState( Alive );
+		AddGameObject( gPrimaryWeapon );
 	}
+	SetWeaponState( Hold );
 }
 
 void Unit::PickupWeapon( Weapon* Instance )
 {
 	//	Pick up the weapon and change
 	//	to it
-	gCurrentWeapon->SetState( Hidden );
 	gSecondaryWeapon	=	Instance;
-	gCurrentWeapon		=	gSecondaryWeapon;
+	ChangeWeapon();
 }
