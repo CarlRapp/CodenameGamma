@@ -104,7 +104,7 @@ void Player::Update(float deltaTime)
 			break;
 		case DOWN:
 			if ( IsButtonState( XShoot, DOWN ) || IsButtonState( MShoot, DOWN ) )
-				m_Unit->FireWeapon();
+				m_Unit->FireWeapon(NULL);
 			break;
 		case RELEASED:
 			m_Unit->SetWeaponState(Unit::Hold);
