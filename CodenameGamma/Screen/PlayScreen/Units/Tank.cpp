@@ -15,8 +15,9 @@ Tank::Tank()
 
 	AttackRange = 1.5f;
 	AttackMaxRange = 2.0f;
-
-	SetWeapon( new TankAttack() );
+	
+	gCurrentWeapon	=	new TankAttack();
+	gPrimaryWeapon	=	gCurrentWeapon;
 }
 
 Tank::~Tank()

@@ -1,4 +1,5 @@
 #include "CrazyBitch.h"
+#include "../Weapons/WeaponList.h"
 
 CrazyBitch::CrazyBitch()
 {
@@ -9,6 +10,10 @@ CrazyBitch::CrazyBitch()
 	gRunSpeed  = 8.0f;
 
 	gDeathTime = 10.0f;
+
+	gCurrentWeapon	=	new Pistol();
+	gPrimaryWeapon	=	gCurrentWeapon;
+	SetWeaponState( Hold );
 }
 
 CrazyBitch::~CrazyBitch()

@@ -23,8 +23,9 @@ protected:
 
 	UnitHealth	gHealth;
 
-	vector<Weapon*>	gWeaponList;
-	Weapon*			gCurrentWeapon;
+	Weapon*	gPrimaryWeapon;
+	Weapon*	gSecondaryWeapon;
+	Weapon*	gCurrentWeapon;
 
 	float gWalkSpeed;
 	float gRunSpeed;
@@ -91,8 +92,6 @@ public:
 	virtual void	SetTeam(GOTeam Value) { GameObject::SetTeam(Value); if ( gCurrentWeapon ) gCurrentWeapon->SetTeam(GetTeam()); }
 
 	void			DropWeapon();
-	void			SetWeapon(Weapon* Weapon);
-	bool			HasWeapon() { return gCurrentWeapon != 0; }
 
 	void			SetHealth(UnitHealth HealthData);
 	UnitHealth		GetHealth();
@@ -110,6 +109,9 @@ public:
 
 	void	ReloadWeapon();
 	void	FireWeapon(GameObject* Target);
+	void	ChangeWeapon();
+	void	PickupWeapon( Weapon* Instance );
+	bool	HasSecondaryWeapon() { return gSecondaryWeapon != NULL; }
 
 	virtual bool Intersects(GameObject* B, vector<CollisionData>& CD);
 

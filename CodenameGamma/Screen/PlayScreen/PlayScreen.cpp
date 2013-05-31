@@ -19,6 +19,7 @@ bool PlayScreen::Load()
 	IFW1Factory				*pFW1Factory = 0;
 	FW1CreateFactory(FW1_VERSION, &pFW1Factory);
 	pFW1Factory->CreateFontWrapper(gDevice, L"Apocalypse 1", &gTextInstance);
+	pFW1Factory->CreateFontWrapper(gDevice, L"Visitor TT1 BRK", &gWaveTextWrapper);
 	pFW1Factory->Release();
 
 	string	tPath;
@@ -37,6 +38,11 @@ bool PlayScreen::Load()
 	}
 	D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, "DATA/GUI/BlackTrans.png", 0, 0, &gBackground, 0 );
 	gLevel	=	0;
+
+	SoundManager::GetInstance()->Load("Pistol_Fire", "DATA/Sounds/Weapons/Pistol_Fire.wav", FMOD_SOFTWARE | FMOD_2D);
+	SoundManager::GetInstance()->Load("Pistol_Reload", "DATA/Sounds/Weapons/Pistol_Reload.wav", FMOD_SOFTWARE | FMOD_2D);
+	SoundManager::GetInstance()->Load("Pistol_Empty", "DATA/Sounds/Weapons/Pistol_Empty.wav", FMOD_SOFTWARE | FMOD_2D);
+	SoundManager::GetInstance()->Load("Shotgun_Fire", "DATA/Sounds/Weapons/Shotgun_Fire.wav", FMOD_SOFTWARE | FMOD_2D);
 
 	Reset();
 
@@ -58,6 +64,7 @@ bool PlayScreen::Unload()
 			gThirstBar[n]->Release();
 		}
 	}
+	SAFE_RELEASE( gWaveTextWrapper );
 	SAFE_RELEASE( gTextInstance );
 	SAFE_RELEASE( gBackground );
 		
@@ -122,6 +129,7 @@ void PlayScreen::Render()
 {
 	gLevel->Render();
 
+
 	for each( Player* p in gLevel->GetPlayers() )
 		RenderGUI( p );
 
@@ -163,16 +171,22 @@ void PlayScreen::RenderGUI( Player* P )
 	if( !P->GetUnit()->IsAlive() )
 		return;
 
-	XMFLOAT2	tHealthPos, tHungerPos, tThirstPos, tClipPos;
+	XMFLOAT2	tHealthPos, tHungerPos, tThirstPos, tClipPos, tWavePos;
 	D3D11_VIEWPORT		pVP		=	P->GetCamera()->GetViewPort();
 
+	bool	fixVP	=	( ( P->GetIndex() == 1 ||  P->GetIndex() == 3 ) && gLevel->GetPlayers().size() == 4 );
+	XMFLOAT2	EdgeOffset	=	XMFLOAT2( gFullscreenVP.Width * 0.01f, gFullscreenVP.Height * 0.01f );
+
 	D3D11_VIEWPORT	tVP;
-	tVP.TopLeftX	=	pVP.TopLeftX + pVP.Height * 0.014f;
-	tVP.TopLeftY	=	pVP.TopLeftY + pVP.Height * 0.014f;
+	tVP.TopLeftX	=	pVP.TopLeftX + pVP.Height * 0.014f + EdgeOffset.x;
+	tVP.TopLeftY	=	pVP.TopLeftY + pVP.Height * 0.014f + EdgeOffset.y;
 	tVP.MinDepth	=	0.0f;
 	tVP.MaxDepth	=	1.0f;
 	tVP.Width		=	pVP.Height * 0.11f;
 	tVP.Height		=	pVP.Height * 0.09f;
+
+	if( fixVP )
+		tVP.TopLeftX	=	pVP.TopLeftX + pVP.Width - pVP.Height * 0.014f - tVP.Width - EdgeOffset.x;
 
 	//	The stats
 	UnitHealth			uHealth	=	P->GetUnit()->GetHealth();
@@ -191,10 +205,13 @@ void PlayScreen::RenderGUI( Player* P )
 	tHealthPos.y	=	tVP.TopLeftY + tVP.Height * 0.5f;
 	
 	//	Move the viewport	
-	tVP.TopLeftX	=	pVP.TopLeftX + pVP.Height * 0.02f;
-	tVP.TopLeftY	=	pVP.TopLeftY + pVP.Height * 0.111f;
+	tVP.TopLeftX	=	pVP.TopLeftX + pVP.Height * 0.02f + EdgeOffset.x;
+	tVP.TopLeftY	=	pVP.TopLeftY + pVP.Height * 0.111f + EdgeOffset.y;
 	tVP.Width		=	pVP.Height * 0.035f;
 	tVP.Height		=	pVP.Height * 0.0695f;
+
+	if( fixVP )
+		tVP.TopLeftX	=	pVP.TopLeftX + pVP.Width - pVP.Height * 0.02f - tVP.Width - EdgeOffset.x;
 
 
 	//	Hunger
@@ -207,18 +224,20 @@ void PlayScreen::RenderGUI( Player* P )
 	tHungerPos.y	=	tVP.TopLeftY + tVP.Height * 0.5f;
 
 	//	Move the viewport
-	tVP.TopLeftX	=	pVP.TopLeftX + pVP.Height * 0.083f;
-	tVP.TopLeftY	=	pVP.TopLeftY + pVP.Height * 0.111f;
+	tVP.TopLeftX	=	pVP.TopLeftX + pVP.Height * 0.083f + EdgeOffset.x;
+	tVP.TopLeftY	=	pVP.TopLeftY + pVP.Height * 0.111f + EdgeOffset.y;
 	tVP.Width		=	pVP.Height * 0.035f;
 	tVP.Height		=	pVP.Height * 0.0695f;
+
+	if( fixVP )
+		tVP.TopLeftX	=	pVP.TopLeftX + pVP.Width - pVP.Height * 0.083f - tVP.Width - EdgeOffset.x;
 
 	//	Thirst
 	tPercent	=	(int)ceil( 100.f * ( uThirst.first / uThirst.second ) );
 	tPercent	=	MathHelper::Clamp(0, tPercent, 100);
 	tIndex		=	(int)( 0.05f * tPercent );
 	tIndex		=	MathHelper::Clamp(0, tIndex, 5);
-	RenderGUISprite( tVP,gThirstBar[tIndex] );
-	//RenderGUISprite( tVP,  );
+	RenderGUISprite( tVP, gThirstBar[tIndex] );
 	tThirstPos.x	=	tVP.TopLeftX + tVP.Width * 0.5f;
 	tThirstPos.y	=	tVP.TopLeftY + tVP.Height * 0.5f;
 
@@ -234,14 +253,28 @@ void PlayScreen::RenderGUI( Player* P )
 		Weapon::WeaponInfo	tInfo	=	P->GetUnit()->GetWeapon()->GetInfo();
 		string	tClipInfo;
 		tClipInfo	+=	to_string( (long double)tInfo.Magazine.first ) + "/";
-		tClipInfo	+=	to_string( (long double)tInfo.Magazine.second );
+		if( tInfo.Ammo == -1 )
+			tClipInfo	+=	"#";
+		else
+			tClipInfo	+=	to_string( (long double)tInfo.Ammo );
 		tClipPos.x	=	tHealthPos.x;
-		tClipPos.y	=	tVP.TopLeftY + tVP.Height * 0.5f + 25;
+		tClipPos.y	=	tVP.TopLeftY + tVP.Height * 1.10f;
 		RenderGUIText( tClipPos, tClipInfo, 18, White );
 	}
 
-	//RenderGUIText( tHungerPos, to_string( (long double)( (int)(100.0f * ( uHunger.first / uHunger.second ) ) ) ), 10, White );
-	//RenderGUIText( tThirstPos, to_string( (long double)( (int)(100.0f * ( uThirst.first / uThirst.second ) ) ) ), 10, White );
+	//	Wave info
+	Wave::WaveGUIInfo	tWave	=	gLevel->GetWaveInfo();
+	float	tWaveSize	=	26;
+	tWavePos	=	XMFLOAT2( gScreenWidth * 0.5f, gScreenHeight * 0.025f );
+	RenderGUIText( gWaveTextWrapper, tWavePos, "Wave: " + to_string( (long double)tWave.Wave ), tWaveSize, White );
+	tWavePos.y	+=	tWaveSize;
+	RenderGUIText( gWaveTextWrapper, tWavePos, to_string( (long double)ceil( tWave.Timer.first ) ), tWaveSize, White );
+	tWavePos.y	+=	tWaveSize;
+
+	if( tWave.Units.first == tWave.Units.second )
+		RenderGUIText( gWaveTextWrapper, tWavePos, to_string( (long double)tWave.Units.first ) + "/" + to_string( (long double)tWave.Units.second ), tWaveSize, Red );
+	else
+		RenderGUIText( gWaveTextWrapper, tWavePos, to_string( (long double)tWave.Units.first ) + "/" + to_string( (long double)tWave.Units.second ), tWaveSize, White );
 }
 
 void PlayScreen::RenderGUISprite( D3D11_VIEWPORT VP, ID3D11ShaderResourceView* Sprite )
@@ -251,14 +284,18 @@ void PlayScreen::RenderGUISprite( D3D11_VIEWPORT VP, ID3D11ShaderResourceView* S
 
 void PlayScreen::RenderGUIText( XMFLOAT2 Position, string Text, float TextSize, TextColor Color )
 {
+	RenderGUIText( gTextInstance, Position, Text, TextSize, Color );
+}
+void PlayScreen::RenderGUIText( IFW1FontWrapper* FontWrapper, XMFLOAT2 Position, string Text, float TextSize, TextColor Color )
+{
 	DrawString(
-		*gTextInstance,
+		*FontWrapper,
 		Text,
 		Position.x,
 		Position.y,
 		TextSize,
 		Color,
-		Black,
+		BlackTrans,
 		1.0f,
 		FW1_CENTER | FW1_VCENTER
 	);

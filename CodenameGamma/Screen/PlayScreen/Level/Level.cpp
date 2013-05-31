@@ -171,10 +171,7 @@ void Level::LoadLevel(string Levelname)
 
 		//tWeapon->SetAddGameObject(std::bind(&Level::AddGameObject, this, std::placeholders::_1));
 
-		if ( i % 2 == 0 )
-			tGO	=	new WeaponOnGround( new Pistol() );
-		else
-			tGO	=	new WeaponOnGround( new Shotgun() );
+		tGO	=	new WeaponOnGround( new Shotgun() );
 
 		tGO->MoveTo( XMFLOAT3( x, y, z ) );
 
@@ -328,9 +325,12 @@ void Level::Update(float DeltaTime)
 	{
 		p->Update(DeltaTime);
 
-		if( gWave->IsLimitReached() )
+		PlayerUnit*	tUnit	=	p->GetUnit();
+		if( gWave->IsLimitReached() && tUnit )
 		{
-			PlayerUnit*	tUnit	=	p->GetUnit();
+			if( !tUnit->IsAlive() )
+				continue;
+
 			tUnit->Drink( -1.0f * DeltaTime );
 			tUnit->Eat( -1.0f * DeltaTime );
 			tUnit->Hurt( 1.0f * DeltaTime );
@@ -597,7 +597,7 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 	}
 
 	int team = 0;
-
+	XMFLOAT2	Pos;
 	for (int i = 0; i < gPlayers.size(); ++i)
 	//for each( Player* p in gPlayers )
 	{
@@ -605,7 +605,7 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 		if( p->GetUnit() != 0 )
 			continue;
 		
-		XMFLOAT2	Pos	=	gNodeMap->GetRandomNode()->Position;
+		Pos	=	gNodeMap->GetRandomNode()->Position;
 
 		PlayerUnit*	pUnit	=	new CrazyBitch();
 		pUnit->MoveTo( XMFLOAT3( Pos.x, 0, Pos.y ) );
@@ -613,16 +613,15 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 		pUnit->SetTeam( (GOTeam)team );
 		pUnit->LoopAnimation( "StartPose" );
 		pUnit->SetTextureIndex(i);
-
-		Pistol* pistol = new Pistol();
-		pUnit->SetWeapon(pistol);
-
 		p->SetUnit( pUnit );
 
 		AddGameObject( pUnit );
-		AddGameObject( pistol );
-		++team;
+		AddGameObject( pUnit->GetWeapon() );
 	}
+	WeaponOnGround*	shotgun	=	new WeaponOnGround( new Shotgun() );
+
+	shotgun->MoveTo( XMFLOAT3(Pos.x + 33, 0, Pos.y) );
+	AddGameObject(shotgun);
 
 }
 #pragma endregion

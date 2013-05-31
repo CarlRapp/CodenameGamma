@@ -13,7 +13,8 @@ Ghost::Ghost()
 
 	gDeathTime = 5.0f;
 
-	SetWeapon( new GhostAttack() );
+	gCurrentWeapon	=	new GhostAttack();
+	gPrimaryWeapon	=	gCurrentWeapon;
 
 	AttackRange = 4.5f;
 	AttackMaxRange = 6.0f;

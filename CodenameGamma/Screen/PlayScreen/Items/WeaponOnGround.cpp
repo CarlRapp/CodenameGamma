@@ -91,10 +91,10 @@ void WeaponOnGround::OnPickUp(Unit* Instance)
 
 	
 	PlayerUnit*	pUnit	=	(PlayerUnit*)Instance;
-	if (!pUnit->HasWeapon())
+	if (!pUnit->HasSecondaryWeapon())
 	{
 		SetScale( 1 );
-		pUnit->SetWeapon( gWeapon );
+		pUnit->PickupWeapon( gWeapon );
 	
 		SetState( Dead );
 		RemoveLight( gPointLight );
