@@ -19,6 +19,7 @@ class EnemyUnit : public Unit
 #define UpdateHuntTime 1.0 / 30.0f
 
 	bool hasTargetPos;
+	bool Attacking;
 	float updateHuntTimer;
 
 protected:
@@ -38,8 +39,8 @@ protected:
 
 	bool	HasVisionOnTarget;
 
-	//	0 = Health, 1 = Damage, 2 = Speed
-	float	gMultipliers[3];
+	float	AttackRange;
+	float	AttackMaxRange;
 
 	//void	UpdateWalkBack(float deltaTime, Terrain* terrain);
 	//void	UpdatePatrol(float deltaTime);
@@ -54,20 +55,6 @@ protected:
 	{
 		gTargetPos = pos;
 		hasTargetPos = true;
-	}
-
-	void	Boost()
-	{
-		//	Update health
-		gHealth.second	*=	gMultipliers[0];
-		gHealth.first	=	gHealth.second;
-
-		//	Update health
-		gHealth.second	*=	gMultipliers[0];
-
-		//	Update speed
-		gWalkSpeed	*=		gMultipliers[2];
-		gRunSpeed	*=		gMultipliers[2];
 	}
 
 public:
@@ -87,18 +74,6 @@ public:
 	void	SetTargets( vector<PlayerUnit*> Targets )
 	{
 		gTargets = Targets;
-	}
-
-	void	SetMultipliers( float Health, float Damage, float Speed )
-	{
-		gMultipliers[0]	=	Health;
-		gMultipliers[1]	=	Damage;
-		gMultipliers[2]	=	Speed;
-	}
-	void	Boost( int NumberOfTimes )
-	{
-		for( int n = 0; n < NumberOfTimes; ++n )
-			Boost();
 	}
 };
 

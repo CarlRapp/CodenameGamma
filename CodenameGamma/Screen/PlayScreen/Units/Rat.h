@@ -11,8 +11,6 @@ class Rat : public EnemyUnit
 public:
 	Rat(void);
 	~Rat(void);
-
-	void	Update(float deltaTime, Terrain* terrain);
 };
 
 #endif

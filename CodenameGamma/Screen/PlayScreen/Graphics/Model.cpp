@@ -203,6 +203,9 @@ void ModelInstance::SortAnimations()
 
 bool ModelInstance::PlayingAnimation(string clipName)
 {
+	if (clipName == "")
+		return false;
+
 	for each (Animation* animation in ActiveAnimations)
 	{
 		if (animation->ClipName == clipName)
@@ -215,6 +218,9 @@ bool ModelInstance::PlayingAnimation(string clipName)
 
 void ModelInstance::PlayAnimation(Animation* animation)
 {
+	if (animation->ClipName == "")
+		return;
+
 	int bone = m_Model->SkinnedData.GetAnimationFirstBone(animation->ClipName);
 
 	if (bone == -1)
@@ -238,6 +244,9 @@ bool ModelInstance::PlayAnimation(string clipName, bool loop)
 	if (!m_Model)
 		return false;
 
+	if (clipName == "")
+		return false;
+
 	if (m_Model->SkinnedData.HasAnimation(clipName))
 	{
 		Animation* animation	= new Animation();
@@ -256,6 +265,10 @@ bool ModelInstance::PlayAnimationAfter(string current, string next, bool loop)
 {
 	if (!m_Model)
 		return false;
+
+	if (current == "" || next == "")
+		return false;
+
 	if (!m_Model->SkinnedData.HasAnimation(next))
 		return false;
 
@@ -283,11 +296,16 @@ bool ModelInstance::PlayAnimationAfter(string current, string next, bool loop)
 			animation = animation->nextAnimation;
 		}
 	}
-	return false;
+
+	return PlayAnimation(next, loop);
+
+	//return false;
 }
 
 void ModelInstance::StopAnimation(string clipName)
 {
+	if (clipName == "")
+		return;
 	Animation* temp;
 	for each (Animation* animation in ActiveAnimations)
 	{
@@ -313,6 +331,9 @@ void ModelInstance::StopAllAnimations()
 
 bool ModelInstance::SetAnimationSpeed(string clipName, float speed)
 {
+	if (clipName == "")
+		return false;
+
 	for each (Animation* animation in ActiveAnimations)
 	{
 		if (animation->ClipName == clipName)
@@ -327,6 +348,9 @@ bool ModelInstance::SetAnimationSpeed(string clipName, float speed)
 bool ModelInstance::SetAnimationProgress(string clipName, float progress)
 {
 	if (!m_Model)
+		return false;
+
+	if (clipName == "")
 		return false;
 
 	for each (Animation* animation in ActiveAnimations)
@@ -344,6 +368,9 @@ bool ModelInstance::SetAnimationProgress(string clipName, float progress)
 
 float ModelInstance::GetAnimationSpeed(string clipName)
 {
+	if (clipName == "")
+		return 1.0f;
+
 	for each (Animation* animation in ActiveAnimations)
 	{
 		if (animation->ClipName == clipName)
@@ -351,12 +378,15 @@ float ModelInstance::GetAnimationSpeed(string clipName)
 			return animation->AnimationSpeed;
 		}
 	}
-	return 0.0f;
+	return 1.0f;
 }
 
 float ModelInstance::GetAnimationProgress(string clipName)
 {
 	if (!m_Model)
+		return 1.0f;
+
+	if (clipName == "")
 		return 1.0f;
 
 	for each (Animation* animation in ActiveAnimations)
@@ -374,6 +404,9 @@ float ModelInstance::GetAnimationTime(string clipName)
 {
 	if (!m_Model)
 		return 1.0f;
+
+	if (clipName == "")
+		return false;
 
 	if (m_Model->SkinnedData.HasAnimation(clipName))
 		return m_Model->SkinnedData.GetClipEndTime(clipName);

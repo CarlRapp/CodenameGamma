@@ -1,22 +1,22 @@
-#include "RatAttack.h"
+#include "TankAttack.h"
 #include "../Units/Unit.h"
 
-RatAttack::RatAttack()
+TankAttack::TankAttack()
 {
 	gCooldown	=	WeaponCooldown(0.0f, 0.2f);
 	gClip		=	WeaponClip(1, 1);
 	gReloadTime	=	WeaponReloadTime(0.0f, 4.0f);
+
 	gAmmo		=	-1;
-	gWeaponAnimations.Aim				= "Aim";
 	gWeaponAnimations.Shoot				= "Shoot";
 }
 
-RatAttack::~RatAttack()
+TankAttack::~TankAttack()
 {
 
 }
 
-bool RatAttack::Fire( GameObject* Owner, GameObject* Target, float DamageMul )
+bool TankAttack::Fire( GameObject* Owner, GameObject* Target, float DamageMul )
 {
 	if ( CanFire() )
 	{
