@@ -60,6 +60,7 @@ protected:
 	WeaponReloadTime	gReloadTime;
 	int					gAmmo;
 	string				gReloadSound;
+	int					gReloadSoundIndex;
 
 	virtual	void	LowerCooldown(float DeltaTime);
 	virtual	void	ReloadCountdown(float DeltaTime);
@@ -84,6 +85,13 @@ public:
 	virtual	bool	IsDropable();
 
 	float			GetReloadTime() { return gReloadTime.second; }
+	void			CancelReload()
+	{
+		SoundManager::GetInstance()->Stop( gReloadSoundIndex );
+		gClip.first			=	0;
+		gReloadTime.first	=	gReloadTime.second;
+		gState				=	Ready;
+	}
 
 	/*
 	To make it easier for the GUI

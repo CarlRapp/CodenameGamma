@@ -69,7 +69,7 @@ bool Weapon::Fire( GameObject* Owner, GameObject* Target, float DamageMul  )
 
 bool Weapon::Reload()
 {
-	if ( gState == Reloading || gState == Empty || gAmmo == 0 )
+	if ( gState == Reloading || gState == Empty )
 		return false;
 
 	if( gClip.second == 0 )
@@ -83,7 +83,7 @@ bool Weapon::Reload()
 	gState				=	Reloading;
 
 	if (gReloadSound != "")
-		SoundManager::GetInstance()->Play(gReloadSound, SFX);
+		gReloadSoundIndex	=	SoundManager::GetInstance()->Play(gReloadSound, SFX);
 	return true;
 }
 
