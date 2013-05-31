@@ -7,11 +7,12 @@
 
 enum XboxBinds
 {
-	XShoot	=	RIGHT_TRIGGER,
-	XAim	=	LEFT_TRIGGER,
-	XDrop	=	B,
-	XReload	=	X,
-	XCrouch	=	LEFT_STICK
+	XShoot			=	RIGHT_TRIGGER,
+	XAim			=	LEFT_TRIGGER,
+	XDrop			=	B,
+	XReload			=	X,
+	XChangeWeapon	=	Y,
+	XCrouch			=	LEFT_STICK
 };
 
 enum KeyboardBinds
@@ -21,9 +22,10 @@ enum KeyboardBinds
 	KWalkDown	=	'S',
 	KWalkRight	=	'D',
 
-	KReload	=	'R',
-	KDrop	=	'G',
-	KRun	=	VK_SHIFT
+	KReload			=	'R',
+	KDrop			=	'G',
+	KChangeWeapon	=	'E',
+	KRun			=	VK_SHIFT
 
 };
 

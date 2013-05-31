@@ -22,7 +22,7 @@ bool PrePlayScreen::Load()
 	pFW1Factory->CreateFontWrapper(gDevice, L"Apocalypse 1", &gTextInstance);
 	pFW1Factory->Release();
 
-	D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, "DATA/PRE_PLAY_SCREEN.png", 0, 0, &gBackground, 0 );
+	D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, "DATA/MAIN_MENU.png", 0, 0, &gBackground, 0 );
 	return true;
 }
 bool PrePlayScreen::Unload()

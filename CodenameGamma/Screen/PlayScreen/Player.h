@@ -46,6 +46,8 @@ public:
 	{ 
 		return gPlayerScore; 
 	}
+	
+	int	GetIndex(){ return m_PlayerIndex; }
 };
 
 #endif

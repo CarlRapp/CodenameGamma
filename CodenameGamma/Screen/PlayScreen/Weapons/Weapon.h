@@ -21,7 +21,8 @@ typedef pair<int, int>		WeaponClip;
 enum WeaponState
 {
 	Ready,
-	Reloading
+	Reloading,
+	Empty
 };
 
 struct WeaponAnimations
@@ -57,7 +58,7 @@ protected:
 	WeaponCooldown		gCooldown;
 	WeaponClip			gClip;
 	WeaponReloadTime	gReloadTime;
-
+	int					gAmmo;
 	string				gReloadSound;
 
 	virtual	void	LowerCooldown(float DeltaTime);
@@ -94,6 +95,7 @@ public:
 	{
 		WeaponCooldown		Cooldown;
 		WeaponClip			Magazine;
+		int					Ammo;
 		WeaponReloadTime	ReloadTime;
 
 		WeaponInfo( Weapon* Instance )
@@ -101,6 +103,7 @@ public:
 			Cooldown	=	Instance->gCooldown;
 			Magazine	=	Instance->gClip;
 			ReloadTime	=	Instance->gReloadTime;
+			Ammo		=	Instance->gAmmo;
 		}
 	};
 	WeaponInfo	GetInfo()

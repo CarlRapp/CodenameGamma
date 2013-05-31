@@ -195,6 +195,8 @@ public:
 
 		return allDead;
 	}
+
+	Wave::WaveGUIInfo	GetWaveInfo(){ return gWave->GetGUIInfo(); }
 };
 
 #endif

@@ -121,6 +121,9 @@ void Player::Update(float deltaTime)
 
 		if ( IsButtonState( XDrop, PRESSED ) || IsButtonState( KDrop, PRESSED ) )
 			m_Unit->DropWeapon();
+
+		if ( IsButtonState( XChangeWeapon, PRESSED ) || IsButtonState( KChangeWeapon, PRESSED ) )
+			m_Unit->ChangeWeapon();
 	}
 }
 

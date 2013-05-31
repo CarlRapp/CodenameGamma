@@ -26,7 +26,8 @@ void Projectile::Update(float DeltaTime, Terrain* terrain)
 
 bool Projectile::Intersects(GameObject* B, vector<CollisionData>& CD)
 {
-	if (IsEnemy(B))	{
+	if (IsEnemy(B))
+	{
 		
 		if ( IsOfType<Unit>(B) )
 			return	BoxVsBone(this, B, CD, false);
@@ -43,7 +44,7 @@ void Projectile::CollideWith(GameObject* Instance, vector<CollisionData> CD)
 	if( !IsAlive() )
 		return;
 
-	if ( IsOfType<Unit>(Instance) )
+	if ( IsOfType<Unit>(Instance) && IsEnemy( Instance ) )
 	{
 		Unit*	tUnit	=	((Unit*)Instance);
 

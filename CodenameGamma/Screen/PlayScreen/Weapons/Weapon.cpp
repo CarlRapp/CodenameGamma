@@ -9,6 +9,8 @@ Weapon::Weapon(void)
 	gState		=	Ready;
 
 	gReloadSound = "";
+
+	gAmmo		=	0;
 }
 
 Weapon::~Weapon(void)
@@ -34,12 +36,21 @@ void Weapon::ReloadCountdown(float DeltaTime)
 
 		if ( gReloadTime.first <= 0 )
 		{
-			gClip.first			=	gClip.second;
+			//	Check so the gun has enough
+			//	ammo
+			if( gAmmo - gClip.second >= 0 || gAmmo == -1 )
+			{
+				gClip.first	=	gClip.second;
+				gAmmo		-=	( gAmmo == -1 ) ? 0 : gClip.first;
+			}
+			else
+			{
+				gClip.first	=	gAmmo;
+				gAmmo	=	0;
+			}
+
 			gState				=	Ready;
 			gReloadTime.first	=	0;
-
-			if (gReloadSound != "")
-				SoundManager::GetInstance()->Play(gReloadSound, SFX);
 		}
 	}
 }
@@ -58,12 +69,21 @@ bool Weapon::Fire( GameObject* Owner, GameObject* Target, float DamageMul  )
 
 bool Weapon::Reload()
 {
-	if ( gState == Reloading )
+	if ( gState == Reloading || gState == Empty || gAmmo == 0 )
 		return false;
+
+	if( gClip.second == 0 )
+	{
+		gState	=	Empty;
+		return false;
+	}
 	
 	gClip.first			=	0;
 	gReloadTime.first	=	gReloadTime.second;
 	gState				=	Reloading;
+
+	if (gReloadSound != "")
+		SoundManager::GetInstance()->Play(gReloadSound, SFX);
 	return true;
 }
 

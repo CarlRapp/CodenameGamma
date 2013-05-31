@@ -8,6 +8,7 @@ Pistol::Pistol()
 	gCooldown	=	WeaponCooldown(0.0f, 0.2f);
 	gClip		=	WeaponClip(9, 9);
 	gReloadTime	=	WeaponReloadTime(0.0f, 2.5f);
+	gAmmo		=	-1;
 
 	gWeaponAnimations.Aim				= "PistolAim";
 	gWeaponAnimations.Draw				= "PistolDraw";
@@ -19,7 +20,7 @@ Pistol::Pistol()
 	gWeaponAnimations.UpperRun			= "PistolUpperRun";
 	gWeaponAnimations.UpperStand		= "PistolUpperStand";
 
-	gReloadSound = "Reload";
+	gReloadSound = "Pistol_Reload";
 }
 
 Pistol::~Pistol()
@@ -50,10 +51,10 @@ bool Pistol::Fire( GameObject* Owner, GameObject* Target, float DamageMul )
 			tBullet->MoveTo( GetFloat3Value( Position ) );
 
 		tBullet->SetVelocity( tVelocity );
-		tBullet->SetTeam( GetTeam() );
+		tBullet->SetTeam( Owner->GetTeam() );
 		tBullet->SetOwner( Owner );
 
-		SoundManager::GetInstance()->Play("Pistol", SFX);
+		SoundManager::GetInstance()->Play("Pistol_Fire", SFX);
 
 		gCooldown.first	=	gCooldown.second;
 		--gClip.first;
@@ -64,7 +65,7 @@ bool Pistol::Fire( GameObject* Owner, GameObject* Target, float DamageMul )
 	}
 	else if ( gClip.first == 0 && gCooldown.first <= 0)
 	{
-		SoundManager::GetInstance()->Play("EmptyClip", SFX);
+		
 		gCooldown.first	=	gCooldown.second;
 	}
 

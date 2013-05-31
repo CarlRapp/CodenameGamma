@@ -76,7 +76,26 @@ void OptionScreen::Update(float DeltaTime)
 				--gMenu[gMenuIndex].second.second;
 			if( RIGHT  && gMenu[gMenuIndex].second.second < 10 )
 				++gMenu[gMenuIndex].second.second;
-			break;
+
+			if( LEFT ||RIGHT )
+				switch( gMenuIndex )
+				{
+				case 3:
+					UpdateVolume( Master,	gMenu[gMenuIndex].second.second );
+					SoundManager::GetInstance()->Play( "MenuChange", SFX );
+					break;
+
+				case 4:
+					UpdateVolume( Song,	gMenu[gMenuIndex].second.second );
+					break;
+
+				case 5:
+					UpdateVolume( SFX,	gMenu[gMenuIndex].second.second );
+					SoundManager::GetInstance()->Play( "MenuChange", SFX );
+					break;
+				}
+
+		break;
 
 		case Checkbox:
 			if( LEFT && gMenu[gMenuIndex].second.second == 1 )

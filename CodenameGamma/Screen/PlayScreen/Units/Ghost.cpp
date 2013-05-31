@@ -11,7 +11,8 @@ Ghost::Ghost()
 
 	gDeathTime = 5.0f;
 
-	SetWeapon( new GhostAttack() );
+	gCurrentWeapon	=	new GhostAttack();
+	gPrimaryWeapon	=	gCurrentWeapon;
 }
 
 Ghost::~Ghost()

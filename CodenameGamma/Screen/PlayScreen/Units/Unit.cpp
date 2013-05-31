@@ -11,6 +11,8 @@ Unit::Unit(void)
 	gHealth	=	UnitHealth(10.0f, 10.0f);
 
 	gCurrentWeapon	=	NULL;
+	gPrimaryWeapon	=	NULL;
+	gSecondaryWeapon=	NULL;
 
 	gWalkSpeed = 1.0f;
 	gRunSpeed  = 1.0f;
@@ -26,6 +28,8 @@ void Unit::DropWeapon()
 	{
 		if( !gCurrentWeapon->IsDropable() )
 			return;
+		if( gCurrentWeapon->GetState() == Reloading )
+			return;
 
 		WeaponOnGround*	tWoG	=	new WeaponOnGround( gCurrentWeapon );
 		tWoG->MoveTo( gCurrentWeapon->GetFloat3Value( Position ) );
@@ -35,30 +39,12 @@ void Unit::DropWeapon()
 		AddGameObject( tWoG );
 		tWoG->Update(0, 0);
 
-		gCurrentWeapon	=	0;
+		gSecondaryWeapon=	0;
+		gCurrentWeapon	=	gPrimaryWeapon;
+		gCurrentWeapon->SetState( Alive );
+		AddGameObject( gCurrentWeapon );
 	}
 }
-
-void Unit::SetWeapon(Weapon* Weapon)
-{
-	if ( !Weapon )
-		return;
-
-	if ( gCurrentWeapon )
-		DropWeapon();
-
-	gCurrentWeapon = Weapon;
-	SetWeaponState(gWeaponState);
-
-	if (gCurrentWeapon) 
-		gCurrentWeapon->SetTeam(GetTeam());
-
-	if ( !Weapon->CanFire() )
-	{
-		ReloadWeapon();
-	}
-}
-
 
 UnitHealth Unit::GetHealth()
 {
@@ -477,4 +463,32 @@ void Unit::Heal( float Value )
 {
 	gHealth.first	+=	Value;
 	gHealth.first	=	( gHealth.first >= gHealth.second ) ? gHealth.second : gHealth.first;
+}
+
+void Unit::ChangeWeapon( )
+{
+	if( gCurrentWeapon->GetReloadTime() > 0 || gSecondaryWeapon == 0 )
+		return;
+
+	if( gCurrentWeapon == gPrimaryWeapon )
+	{
+		gPrimaryWeapon->SetState( Hidden );
+		gCurrentWeapon	=	gSecondaryWeapon;
+		AddGameObject( gCurrentWeapon );
+	}
+	else
+	{
+		gSecondaryWeapon->SetState( Hidden );
+		gCurrentWeapon	=	gPrimaryWeapon;
+		AddGameObject( gCurrentWeapon );
+	}
+}
+
+void Unit::PickupWeapon( Weapon* Instance )
+{
+	//	Pick up the weapon and change
+	//	to it
+	gCurrentWeapon->SetState( Hidden );
+	gSecondaryWeapon	=	Instance;
+	gCurrentWeapon		=	gSecondaryWeapon;
 }
