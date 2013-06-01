@@ -198,7 +198,8 @@ EntityData LevelParser::ParseLevelEntities(LevelData Data)
 {
 	vector<GameObjectData*>	gameObjectData =	vector<GameObjectData*>();;
 	vector<Light*>		Lights			=	vector<Light*>();
-	vector<string>		GameObjectNames	=	vector<string>();
+
+	vector<GO_Name>		GameObjectNames	=	vector<GO_Name>();
 	vector<PatrolNode*>	PatrolNodes		=	vector<PatrolNode*>();
 	NodeMap*			NodeMapInstance	=	new NodeMap();
 
@@ -222,7 +223,29 @@ EntityData LevelParser::ParseLevelEntities(LevelData Data)
 
 		//	A new GameObject name
 		if( tLine[0] == '-' )
-			GameObjectNames.push_back( tLine.substr( 1 ) );
+		{
+			tLine	=	tLine.substr( 1 );
+			int test	=	tLine.find( '-' );
+			string	tVeg, tText;
+
+			if( tLine.find( '-' ) != -1 )
+				tVeg	=	tLine.substr( tLine.find( '-' ) + 1 );
+			if( tLine.find( '.' ) != -1 )
+				tText	=	tLine.substr( tLine.find( '.' ) + 1 );
+
+			string	tGOName	=	tLine;
+			if( tVeg != "" )
+				tGOName	=	tLine.substr( 0, tLine.find( '-' ) );
+			else if( tText != "" )
+				tGOName	=	tLine.substr( 0, tLine.find( '.' ) );
+
+			GO_Name	tEntry	=	GO_Name();
+			tEntry.Name				=	tGOName;
+			tEntry.HasVegetation	=	tVeg != "";
+			tEntry.TextureIndex		=	( tText == "" ) ? 0 : atoi( tText.c_str() );
+
+			GameObjectNames.push_back( tEntry );
+		}
 
 		if ( tLine[0] == '#' )
 		{
@@ -242,8 +265,6 @@ EntityData LevelParser::ParseLevelEntities(LevelData Data)
 				tLight->GetGPULight()->HasShadow	= false;
 				Lights.push_back( tLight );
 			}
-			else if (IsOfType<Structure>(tObject->gameObject))
-				tObject->vegetation = true;
 
 			if( tObject != 0 )
 			{
@@ -473,6 +494,7 @@ GameObject* LevelParser::GetGameObject( string GameObjectName )
 	}
 	else
 	{
+		DebugScreen::GetInstance()->AddLogMessage( GameObjectName + " was not found, loading Unit Cube.", Red );
 		ModelManager::GetInstance()->LoadModel("UnitCube", "UnitCube.obj", "DATA/Models/UnitCube/");
 		Result	=	new UnitCube();
 	}
@@ -481,10 +503,10 @@ GameObject* LevelParser::GetGameObject( string GameObjectName )
 
 	return Result;
 }
-GameObjectData* LevelParser::ParseGameObject( string Line, string GameObjectName, LevelData Data )
+GameObjectData* LevelParser::ParseGameObject( string Line, GO_Name GOData, LevelData Data )
 {
 	GameObjectData*	Result = new GameObjectData();
-	Result->gameObject	=	GetGameObject( GameObjectName );
+	Result->gameObject	=	GetGameObject( GOData.Name );
 	if( Result->gameObject == 0 )
 		return Result;
 
@@ -507,6 +529,8 @@ GameObjectData* LevelParser::ParseGameObject( string Line, string GameObjectName
 
 	Result->gameObject->MoveTo( XMFLOAT3( PosX, PosY, PosZ ) );
 
+	Result->textureIndex	=	GOData.TextureIndex;
+	Result->vegetation		=	GOData.HasVegetation;
 	XMVECTOR QuatV = XMQuaternionRotationRollPitchYaw(RotationX, RotationY, RotationZ);
 	XMFLOAT4 Quat;
 
