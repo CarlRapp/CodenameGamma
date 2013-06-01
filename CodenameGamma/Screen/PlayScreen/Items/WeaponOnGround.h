@@ -20,6 +20,7 @@ public:
 	~WeaponOnGround(void);
 
 	void	Update(float DeltaTime, Terrain* terrain);
+	//void	SetRotation(XMFLOAT4 Rotation);
 };
 
 #endif
