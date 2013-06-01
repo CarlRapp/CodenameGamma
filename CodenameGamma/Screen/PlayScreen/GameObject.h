@@ -64,7 +64,7 @@ enum GOTeam
 enum GOFloat3Value
 {
 	Position, Velocity,
-	Acceleration, Rotations,
+	Acceleration,
 	Direction
 };
 enum GOFloat4x4Value
@@ -82,7 +82,7 @@ class GameObject
 	GOTeam		gTeam;
 	XMFLOAT3	gPosition;
 	XMFLOAT3	gVelocity, gAcceleration;
-	XMFLOAT3	gRotationInFloat;
+	XMFLOAT4	gQuaternation;
 	float		gScaleInFloat;
 
 	XMFLOAT4X4	gRotation, gTranslation, gScale, 
@@ -125,6 +125,8 @@ public:
 	XMFLOAT3	GetFloat3Value(GOFloat3Value Value);
 	XMFLOAT4X4	GetFloat4x4Value(GOFloat4x4Value Value);
 
+	XMFLOAT4	GetQuaternation() { return gQuaternation; }
+	
 	void		SetWorld(XMFLOAT4X4 translation, XMFLOAT4X4 scale, XMFLOAT4X4 rotation);
 
 	vector<BoundingOrientedBox> GetBoundingBoxes()
@@ -167,9 +169,10 @@ public:
 	void	SetSetCallbackFunctions(GameObjectCallback callback) { SetCallbackFunctions = callback; }
 	void	SetAddGameObject(GameObjectCallback callback) { AddGameObject = callback; }
 
-	void	AddRotation(XMFLOAT3 Delta);
-	void	SetRotation(XMFLOAT3 Rotation);
-	void	LookAt(XMFLOAT3 Position);
+	void	AddRotation(XMFLOAT4 Delta);
+	virtual void	SetRotation(XMFLOAT4 Rotation);
+	void			LookAtXZ(XMFLOAT3 Position);
+	//void			LookAt(XMFLOAT3 Position);
 
 	void	SetScale(float Scale);
 
@@ -187,8 +190,10 @@ public:
 	bool	PlayAnimationAfter(string current, string next);
 	void	StopAnimation(string name);
 	void	StopAllAnimations();
-
+	
 	bool	GetJointPosition(string name, XMFLOAT3& pos);
+	bool	GetJointDirection(string name, XMFLOAT3& dir);
+	bool	GetJointRotation(string name, XMFLOAT4& rot);
 
 	bool	SetAnimationSpeed(string name, float speed);
 	bool	SetAnimationProgress(string name, float progress);
