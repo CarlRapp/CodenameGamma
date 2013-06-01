@@ -87,7 +87,15 @@ void Level::LoadLevel(string Levelname)
 	ModelManager::GetInstance()->LoadModel("Tank", "Tank.dae", "DATA/Models/Tank/");
 
 	ModelManager::GetInstance()->LoadModel("Glock", "Glock.dae", "DATA/Models/Glock/");
-	ModelManager::GetInstance()->LoadModel("Shotgun", "Shotgun.obj", "DATA/Models/Shotgun/");
+	ModelManager::GetInstance()->LoadModel("Shotgun", "Shotgun.dae", "DATA/Models/Shotgun/");
+	ModelManager::GetInstance()->LoadModel("SniperRifle", "SniperRifle.dae", "DATA/Models/SniperRifle/");
+	ModelManager::GetInstance()->LoadModel("AutomaticRifle", "AutomaticRifle.dae", "DATA/Models/AutomaticRifle/");
+
+	ModelManager::GetInstance()->LoadModel("Shotgun-WOG", "Shotgun.obj", "DATA/Models/Shotgun/");
+	ModelManager::GetInstance()->LoadModel("SniperRifle-WOG", "SniperRifle.obj", "DATA/Models/SniperRifle/");
+	ModelManager::GetInstance()->LoadModel("AutomaticRifle-WOG", "AutomaticRifle.obj", "DATA/Models/AutomaticRifle/");
+	//ModelManager::GetInstance()->LoadModel("SniperRifle-WOG", "SniperRifle.dae", "DATA/Models/SniperRifle/");
+	//ModelManager::GetInstance()->LoadModel("AutomaticRifle-WOG", "AutomaticRifle.dae", "DATA/Models/AutomaticRifle/");
 
 	ModelManager::GetInstance()->LoadModel("CannedFood", "CannedFood.obj", "DATA/Models/CannedFood/");
 	ModelManager::GetInstance()->LoadModel("Canister", "Canister.obj", "DATA/Models/Canister/");
@@ -163,7 +171,7 @@ void Level::LoadLevel(string Levelname)
 		AddGameObject(tGO);
 	}
 
-	for (int i = 0; i < 100; ++i)
+	for (int i = 0; i < 0; ++i)
 	{
 		float x = MathHelper::RandF(100, 3900);
 		float y = 10;
@@ -618,10 +626,18 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 		AddGameObject( pUnit );
 		AddGameObject( pUnit->GetWeapon() );
 	}
-	WeaponOnGround*	shotgun	=	new WeaponOnGround( new Shotgun() );
 
-	shotgun->MoveTo( XMFLOAT3(Pos.x + 33, 0, Pos.y) );
+	WeaponOnGround*	shotgun	=	new WeaponOnGround( new Shotgun() );
+	shotgun->MoveTo( XMFLOAT3(Pos.x + 50, 0, Pos.y) );
 	AddGameObject(shotgun);
+
+	WeaponOnGround*	sniperRifle	=	new WeaponOnGround( new SniperRifle() );
+	sniperRifle->MoveTo( XMFLOAT3(Pos.x - 50, 0, Pos.y) );
+	AddGameObject(sniperRifle);
+
+	WeaponOnGround*	automaticRifle	=	new WeaponOnGround( new AutomaticRifle() );
+	automaticRifle->MoveTo( XMFLOAT3(Pos.x, 0, Pos.y - 50) );
+	AddGameObject(automaticRifle);
 
 }
 #pragma endregion
