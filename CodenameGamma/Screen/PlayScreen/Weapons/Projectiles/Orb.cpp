@@ -5,6 +5,8 @@ Orb::Orb()
 	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "EnergyOrb" ) );
 	gDamage	=	10.0f;
 
+	//SetScale(4.0f);
+
 	gLifeSpan	=	3.5f;
 }
 Orb::~Orb()
@@ -32,8 +34,13 @@ void Orb::Update(float deltaTime, Terrain* terrain)
 		XMStoreFloat3( &newVelocity, newVel);
 
 		SetVelocity( newVelocity );
+
+		XMFLOAT3 lookAt;
+		XMStoreFloat3( &lookAt, orbPos + newVel);
+
+		LookAtXZ( lookAt );
 	}
-	
+
 	Projectile::Update(deltaTime, terrain);
 }
 
