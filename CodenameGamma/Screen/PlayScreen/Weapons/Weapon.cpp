@@ -11,6 +11,7 @@ Weapon::Weapon(void)
 	gReloadSound = "";
 
 	gAmmo		=	0;
+	gWOGModel	=	0;
 }
 
 Weapon::~Weapon(void)
