@@ -4,6 +4,7 @@
 Shotgun::Shotgun()
 {
 	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "Shotgun" ) );
+	SetWOGModelInstance( ModelManager::GetInstance()->CreateModelInstance( "Shotgun-WOG" ) );
 
 	gCooldown	=	WeaponCooldown(0.0f, 1.0f);
 	gClip		=	WeaponClip(8, 8);
@@ -11,7 +12,7 @@ Shotgun::Shotgun()
 
 	gReloadTime	=	WeaponReloadTime(0.0f, 4.0f);
 
-	gWeaponAnimations.Aim				= "WeaponAim";
+	gWeaponAnimations.Aim				= "ShotgunAim";
 	gWeaponAnimations.Draw				= "WeaponDraw";
 	gWeaponAnimations.DrawReloadPutAway = "ShotgunDrawReloadPutAway";
 	gWeaponAnimations.PutAway			= "WeaponPutAway";
@@ -41,17 +42,15 @@ bool Shotgun::Fire( GameObject* Owner, GameObject* Target, float DamageMul )
 		Bullet*	tBullet	=	new Bullet();
 		tBullet->MultiplyDamage( DamageMul );
 
-		float	tRotationY	=	GetFloat3Value( Rotations ).y;
+		XMVECTOR	tVelocityV	= tBullet->GetSpeed() * XMVector3Normalize( XMLoadFloat3( &GetFloat3Value(Direction) ) );
+		XMFLOAT3	tVelocity	=	GetFloat3Value( Direction );
+		XMStoreFloat3(&tVelocity, tVelocityV);
 
-		XMFLOAT3	tVelocity	=	XMFLOAT3(0, 0, 0);
-		tVelocity.x	=	-tBullet->GetSpeed() * cos( tRotationY - PI * 0.5f );
-		tVelocity.z	=	tBullet->GetSpeed() * sin( tRotationY - PI * 0.5f );
-
-		tBullet->SetRotation( XMFLOAT3( 0, tRotationY, 0 ) );
+		tBullet->SetRotation( GetQuaternation() );
 
 		XMFLOAT3 pipePos;
 
-		if (GetJointPosition("ShotgunPipe2", pipePos))
+		if (GetJointPosition("Pipe", pipePos))
 			tBullet->MoveTo( pipePos );
 		else
 			tBullet->MoveTo( GetFloat3Value( Position ) );
