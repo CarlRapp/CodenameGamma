@@ -506,7 +506,12 @@ GameObjectData* LevelParser::ParseGameObject( string Line, string GameObjectName
 	RotationZ	=	atof( Line.substr( 0, Line.find( ';' ) ).c_str() );
 
 	Result->gameObject->MoveTo( XMFLOAT3( PosX, PosY, PosZ ) );
-	Result->gameObject->SetRotation( XMFLOAT3( RotationX, RotationY, RotationZ ) );
+
+	XMVECTOR QuatV = XMQuaternionRotationRollPitchYaw(RotationX, RotationY, RotationZ);
+	XMFLOAT4 Quat;
+
+	XMStoreFloat4(&Quat, QuatV);
+	Result->gameObject->SetRotation( Quat );
 
 	return Result;
 }
