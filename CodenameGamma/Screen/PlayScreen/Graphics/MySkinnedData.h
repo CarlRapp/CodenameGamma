@@ -321,6 +321,26 @@ public:
 			bone = -1;
 	}
 
+	bool HasJoint(std::string name)
+	{
+		return mJoints.find(name) != mJoints.end();
+	}
+
+	int GetBoneIndex(std::string name)
+	{
+		int bone = -1;
+		if (mJoints.find(name) != mJoints.end())
+		{
+			Joint joint = mJoints[name];
+
+			if (mNameToBoneIndex.find(name) != mNameToBoneIndex.end())
+				bone = mNameToBoneIndex[name];
+			else
+				bone =  joint.parent;
+		}
+		return bone;
+	}
+
 	XMFLOAT4X4 mGlobalInverseTransform;
 
 

@@ -1,10 +1,10 @@
-#include "Shotgun.h"
+#include "AutomaticRifle.h"
 #include "../../ScreenEnums.h"
 
-Shotgun::Shotgun()
+AutomaticRifle::AutomaticRifle()
 {
-	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "Shotgun" ) );
-	SetWOGModelInstance( ModelManager::GetInstance()->CreateModelInstance( "Shotgun-WOG" ) );
+	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "AutomaticRifle" ) );
+	SetWOGModelInstance( ModelManager::GetInstance()->CreateModelInstance( "AutomaticRifle-WOG" ) );
 
 	gCooldown	=	WeaponCooldown(0.0f, 1.0f);
 	gClip		=	WeaponClip(8, 8);
@@ -12,12 +12,12 @@ Shotgun::Shotgun()
 
 	gReloadTime	=	WeaponReloadTime(0.0f, 4.0f);
 
-	gWeaponAnimations.Aim				= "ShotgunAim";
+	gWeaponAnimations.Aim				= "RifleAim";
 	gWeaponAnimations.Draw				= "WeaponDraw";
-	gWeaponAnimations.DrawReloadPutAway = "ShotgunDrawReloadPutAway";
+	gWeaponAnimations.DrawReloadPutAway = "RifleDrawReloadPutAway";
 	gWeaponAnimations.PutAway			= "WeaponPutAway";
-	gWeaponAnimations.Shoot				= "ShotgunShoot";
-	gWeaponAnimations.Reload			= "ShotgunReload";
+	gWeaponAnimations.Shoot				= "RifleShoot";
+	gWeaponAnimations.Reload			= "RifleReload";
 	gWeaponAnimations.UpperWalk			= "WeaponUpperWalk";
 	gWeaponAnimations.UpperRun			= "WeaponUpperRun";
 	gWeaponAnimations.UpperStand		= "WeaponUpperStand";
@@ -25,17 +25,17 @@ Shotgun::Shotgun()
 	gReloadSound = "Shotgun_Reload";
 }
 
-Shotgun::~Shotgun()
+AutomaticRifle::~AutomaticRifle()
 {
 
 }
 
-bool Shotgun::CanFire()
+bool AutomaticRifle::CanFire()
 {
 	return (gClip.first > 0 && gCooldown.first <= 0);
 }
 
-bool Shotgun::Fire( GameObject* Owner, GameObject* Target, float DamageMul )
+bool AutomaticRifle::Fire( GameObject* Owner, GameObject* Target, float DamageMul )
 {
 	if ( CanFire() )
 	{

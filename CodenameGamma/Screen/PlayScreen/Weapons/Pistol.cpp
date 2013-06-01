@@ -35,13 +35,11 @@ bool Pistol::Fire( GameObject* Owner, GameObject* Target, float DamageMul )
 		Bullet*	tBullet	=	new Bullet();
 		tBullet->MultiplyDamage( DamageMul );
 
-		float	tRotationY	=	GetFloat3Value( Rotations ).y;
+		XMVECTOR	tVelocityV	= tBullet->GetSpeed() * XMVector3Normalize( XMLoadFloat3( &GetFloat3Value(Direction) ) );
+		XMFLOAT3	tVelocity	=	GetFloat3Value( Direction );
+		XMStoreFloat3(&tVelocity, tVelocityV);
 
-		XMFLOAT3	tVelocity	=	XMFLOAT3(0, 0, 0);
-		tVelocity.x	=	-tBullet->GetSpeed() * cos( tRotationY - PI * 0.5f );
-		tVelocity.z	=	tBullet->GetSpeed() * sin( tRotationY - PI * 0.5f );
-
-		tBullet->SetRotation( XMFLOAT3( 0, tRotationY, 0 ) );
+		tBullet->SetRotation( GetQuaternation() );
 
 		XMFLOAT3 pipePos;
 

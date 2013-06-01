@@ -9,7 +9,8 @@ GameObject::GameObject(void)
 	gPosition			=	XMFLOAT3(0, 0, 0);
 	gVelocity			=	XMFLOAT3(0, 0, 0);
 	gAcceleration		=	XMFLOAT3(0, 0, 0); 
-	gRotationInFloat	=	XMFLOAT3(0, 0, 0);
+
+	XMStoreFloat4(&gQuaternation, XMQuaternionIdentity());
 
 	gMoveDirection		=	None;
 
@@ -24,11 +25,7 @@ GameObject::GameObject(void)
 	);
 	XMStoreFloat4x4(
 		&gRotation, 
-		XMMatrixRotationRollPitchYaw(
-			gRotationInFloat.y, 
-			gRotationInFloat.x, 
-			gRotationInFloat.z
-		)
+		XMMatrixRotationQuaternion(	XMLoadFloat4(&gQuaternation) )
 	);
 
 	SetScale(1.0f);
@@ -152,9 +149,6 @@ XMFLOAT3 GameObject::GetFloat3Value(GOFloat3Value Value)
 		return gAcceleration;
 		break;
 
-	case Rotations:
-		return gRotationInFloat;
-		break;
 	case Direction:
 		XMFLOAT3 result;
 		XMVECTOR direction = XMLoadFloat3(&XMFLOAT3(0,0,-1));
@@ -209,42 +203,58 @@ void GameObject::SetWorld(XMFLOAT4X4 translation, XMFLOAT4X4 scale, XMFLOAT4X4 r
 }
 
 #pragma region Rotation Methods
+/*
 //	Will rotate the object
 //	to Rotations value
 void GameObject::SetRotation(XMFLOAT3 Rotation)
 {
 	XMStoreFloat4x4(&gRotation, XMMatrixRotationRollPitchYaw(Rotation.x, Rotation.y, Rotation.z));
-	gRotationInFloat.x	=	Rotation.x;
-	gRotationInFloat.y	=	Rotation.y;
-	gRotationInFloat.z	=	Rotation.z;
+
+	UpdateWorld(true);
+}
+*/
+
+//	Will rotate the object
+//	to Rotations value
+void GameObject::SetRotation(XMFLOAT4 Rotation)
+{
+	gQuaternation = Rotation;
+	XMStoreFloat4x4(&gRotation, XMMatrixRotationQuaternion( XMLoadFloat4(&Rotation) ));
 
 	UpdateWorld(true);
 }
 
 //	Will add Delta to
 //	current rotation
-void GameObject::AddRotation(XMFLOAT3 Delta)
+void GameObject::AddRotation(XMFLOAT4 Delta)
 {
-	SetRotation(
-		XMFLOAT3(
-			Delta.x + gRotationInFloat.x,
-			Delta.y + gRotationInFloat.y,
-			Delta.z + gRotationInFloat.z
-		)
-	);
+	XMVECTOR start		= XMLoadFloat4(&gQuaternation);
+	XMVECTOR add		= XMLoadFloat4(&Delta);
+	XMVECTOR resultV	= XMQuaternionMultiply(start, add);
+
+	XMFLOAT4 result;
+
+	XMStoreFloat4(&result, resultV);
+
+	GameObject::SetRotation(result);
 }
 
 //	Will turn towards
 //	the position, y-axis
-void GameObject::LookAt(XMFLOAT3 Position)
+void GameObject::LookAtXZ(XMFLOAT3 Position)
 {
 	float	dX	=	(gPosition.x - Position.x);
 	float	dZ	=	(Position.z - gPosition.z);
 
 	float dAngle	=	atan2(dZ, dX);
 
-	SetRotation(XMFLOAT3(0, dAngle + PI * 0.5f, 0));
+	XMVECTOR QuatV = XMQuaternionRotationRollPitchYaw(0, dAngle + PI * 0.5f, 0);
+	XMFLOAT4 Quat;
+
+	XMStoreFloat4(&Quat, QuatV);
+	SetRotation( Quat );
 }
+
 #pragma endregion
 
 #pragma region Scale Methods
@@ -419,6 +429,24 @@ bool GameObject::GetJointPosition(string name, XMFLOAT3& pos)
 	if (m_ModelInstance)
 	{
 		return m_ModelInstance->GetJointPosition(name, pos);
+	}
+	return false;
+}
+
+bool GameObject::GetJointDirection(string name, XMFLOAT3& dir)
+{
+	if (m_ModelInstance)
+	{
+		return m_ModelInstance->GetJointDirection(name, dir);
+	}
+	return false;
+}
+
+bool GameObject::GetJointRotation(string name, XMFLOAT4& rot)
+{
+	if (m_ModelInstance)
+	{
+		return m_ModelInstance->GetJointRotation(name, rot);
 	}
 	return false;
 }

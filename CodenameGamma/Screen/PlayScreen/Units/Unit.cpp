@@ -38,7 +38,7 @@ void Unit::DropWeapon()
 		WeaponOnGround*	tWoG	=	new WeaponOnGround( gCurrentWeapon );
 		tWoG->MoveTo( gCurrentWeapon->GetFloat3Value( Position ) );
 
-		tWoG->SetRotation( GetFloat3Value( Rotations ) );
+		//tWoG->SetRotation( GetQuaternation() );
 
 		AddGameObject( tWoG );
 		tWoG->Update(0, 0);
@@ -155,15 +155,18 @@ void Unit::Update(float DeltaTime, Terrain* TerrainInstance)
 	if ( gCurrentWeapon )
 	{
 		XMFLOAT3 handPos;
+		XMFLOAT4 handRot;
 		
 		XMVECTOR pos = XMLoadFloat3(&GetFloat3Value( Position ));
 		XMVECTOR dir = XMLoadFloat3(&GetFloat3Value( Direction ));
 		XMVECTOR lv = XMVector3Length(dir);
 
 		bool gotJointPos = false;
+		bool gotJointRot = false;
 		if (m_ModelInstance)
 		{
 			gotJointPos = GetJointPosition("RightHand", handPos);
+			gotJointRot = GetJointRotation("RightHand", handRot);
 		}
 
 		if (!gotJointPos)
@@ -187,7 +190,13 @@ void Unit::Update(float DeltaTime, Terrain* TerrainInstance)
 			XMStoreFloat3(&handPos, XMLoadFloat3(&handPos) + (XMLoadFloat3(&handPos) - XMLoadFloat3(&weaponPos)));
 			gCurrentWeapon->MoveTo( handPos );
 		}
-		gCurrentWeapon->SetRotation( GetFloat3Value( Rotations ) );
+		
+		if (gotJointRot)
+		{
+			gCurrentWeapon->SetRotation( handRot );
+		}
+		else
+			gCurrentWeapon->SetRotation( GetQuaternation() );
 	}
 	/*
 	else

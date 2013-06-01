@@ -250,6 +250,79 @@ public:
 		return bone >= 0;
 	}
 
+	bool GetJointDirection(string name, XMFLOAT3& dir)
+	{
+		int bone = -1;
+		XMFLOAT3 jointPos = XMFLOAT3(0, 0, 0);
+		m_Model->SkinnedData.GetJointData(name, bone, jointPos);
+		dir = XMFLOAT3(0,1,0);
+
+		if (bone != -1)
+		{
+			XMFLOAT4X4 boneTransf = FinalTransforms[bone];
+			float yaw	=	-atan2(boneTransf._31, boneTransf._32);
+			float pitch	=	-acos(boneTransf._33);
+			float roll	=	atan2(boneTransf._13, boneTransf._23);
+
+			XMMATRIX boneRotM = XMMatrixRotationRollPitchYaw(yaw, pitch, roll);
+
+			XMMATRIX worldRotM = XMMatrixRotationQuaternion( XMLoadFloat4(&m_Rotation) );
+
+			XMMATRIX finalTransfM = boneRotM * worldRotM;
+
+			XMVECTOR temp  = XMLoadFloat3(&dir);
+			temp = XMVector3TransformCoord(temp, finalTransfM);
+			/*
+			XMVECTOR jointPosV = XMLoadFloat3(&jointPos);
+			XMVECTOR temp  = jointPosV + XMLoadFloat3(&dir);
+			
+			XMMATRIX transf = XMLoadFloat4x4(&FinalTransforms[bone]);
+
+			temp = XMVector3TransformCoord(temp, transf);
+
+			XMMATRIX world = XMLoadFloat4x4(&m_World);
+			temp = XMVector3TransformCoord(temp, world);
+
+			XMFLOAT3 pos = XMFLOAT3(0, 0, 0);
+			GetJointPosition(name, pos);
+
+			XMVECTOR posJ = XMLoadFloat3(&pos);
+
+			temp = temp - posJ;
+			*/
+			XMStoreFloat3(&dir, temp);
+		}
+
+		return bone >= 0;
+	}
+
+	bool GetJointRotation(string name, XMFLOAT4& rot)
+	{
+		int bone = m_Model->SkinnedData.GetBoneIndex(name);		
+
+		XMStoreFloat4(&rot, XMQuaternionIdentity());
+
+		if (bone != -1)
+		{
+			XMMATRIX boneTransf = XMLoadFloat4x4(&FinalTransforms[bone]);
+
+			XMVECTOR Offset = XMQuaternionRotationRollPitchYaw(-PI/2, 0, 0);
+			XMVECTOR Offset2 = XMQuaternionRotationRollPitchYaw(0, 0, -PI/2);
+
+			Offset = XMQuaternionMultiply(Offset, Offset2);
+
+			XMVECTOR Quat = XMQuaternionRotationMatrix(boneTransf);
+
+			Quat = XMQuaternionMultiply(Offset, Quat);
+
+			Quat = XMQuaternionMultiply(Quat, XMLoadFloat4(&m_Rotation));
+
+			XMStoreFloat4(&rot, Quat);
+		}
+
+		return bone >= 0;
+	}
+
 	string GetBoneName(UINT index)
 	{
 		return m_Model->SkinnedData.GetBoneName(index);
@@ -260,6 +333,11 @@ public:
 		else
 			return "body";
 			*/
+	}
+
+	bool HasJoint(std::string name)
+	{
+		return m_Model->SkinnedData.HasJoint(name);
 	}
 };
 

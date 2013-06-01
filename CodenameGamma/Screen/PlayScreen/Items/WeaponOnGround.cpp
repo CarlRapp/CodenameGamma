@@ -21,7 +21,7 @@ WeaponOnGround::WeaponOnGround( Weapon* Instance )
 
 	//	Set the current modelinstance
 	//	and scale it to look better
-	SetModelInstance( Instance->GetModelInstance() );
+	SetModelInstance( Instance->GetWOGModelInstance() );
 	SetScale( 2 );
 
 	//	Update the instance
@@ -32,7 +32,12 @@ WeaponOnGround::WeaponOnGround( Weapon* Instance )
 
 
 	//	Give it a random rotation
-	SetRotation( XMFLOAT3( 0, MathHelper::RandF( -PI, PI ), 0 ) );
+
+	XMVECTOR QuatV = XMQuaternionRotationRollPitchYaw(0, MathHelper::RandF( -PI, PI ), 0);
+	XMFLOAT4 Quat;
+
+	XMStoreFloat4(&Quat, QuatV);
+	SetRotation( Quat );
 }
 
 WeaponOnGround::~WeaponOnGround()
@@ -64,7 +69,13 @@ void WeaponOnGround::Update(float DeltaTime, Terrain* terrain)
 
 	gWeapon->MoveTo( newPos );
 	MoveTo( newPos );
-	AddRotation( XMFLOAT3( 0, DeltaTime, 0 ) );
+
+
+	XMVECTOR QuatV = XMQuaternionRotationRollPitchYaw(0, DeltaTime, 0);
+	XMFLOAT4 Quat;
+
+	XMStoreFloat4(&Quat, QuatV);
+	AddRotation( Quat );
 
 	newPos.y	-=	1.0f;
 
@@ -80,6 +91,41 @@ void WeaponOnGround::Update(float DeltaTime, Terrain* terrain)
 	Item::Update( DeltaTime, terrain );
 }
 
+
+/*
+void WeaponOnGround::SetRotation(XMFLOAT4 Rotation)
+{
+
+	XMVECTOR rotationV	= XMLoadFloat4( &Rotation );
+	XMVECTOR offsetV	= XMQuaternionIdentity();
+	
+	if (gWeapon)
+	{
+		XMFLOAT3 handPos;
+		XMFLOAT3 pipePos;
+
+		if (gWeapon->GetJointPosition("RightHand", handPos) && gWeapon->GetJointPosition("Pipe", pipePos))
+		{
+			XMVECTOR V1 = XMLoadFloat3(&XMFLOAT3(0,0,1));
+			XMVECTOR V2 = XMVector3Normalize( XMLoadFloat3(&pipePos) - XMLoadFloat3(&handPos) );
+			
+			if (!XMVector3Equal(V1, V2))
+			{
+
+
+				XMVECTOR axis = XMVector3Cross(V1, V2);
+				float angle = -XMVectorGetX( XMVector3AngleBetweenNormals(V1, V2) );
+
+				offsetV = XMQuaternionRotationAxis( axis, angle );
+			}
+		}
+	}
+	
+	rotationV = XMQuaternionMultiply(offsetV, rotationV);
+	XMStoreFloat4(&Rotation, rotationV);
+	GameObject::SetRotation(Rotation);
+}
+*/
 
 void WeaponOnGround::OnPickUp(Unit* Instance)
 {
