@@ -44,8 +44,18 @@ private:
 
 	static	string	GetToken(string Line, bool IncludeDigits);
 
+	struct	GO_Name
+	{
+		GO_Name(){}
+
+		string	Name;
+		bool	HasVegetation;
+		int		TextureIndex;
+
+	};
+
 	static	GameObject*	GetGameObject( string GameObjectName );
-	static	GameObjectData*	ParseGameObject( string Line, string GameObjectName, LevelData Data );
+	static	GameObjectData*	ParseGameObject( string Line, GO_Name GOData, LevelData Data );
 	static	SpotLight*	ParseSpotLight( string Line, LevelData Data );
 	static	PointLight*	ParsePointLight( string Line, LevelData Data );
 	static	PatrolNode*	ParsePatrolNode( string Line, LevelData Data );
