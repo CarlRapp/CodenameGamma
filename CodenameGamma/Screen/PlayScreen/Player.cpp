@@ -48,7 +48,14 @@ void Player::Update(float deltaTime)
 		{
 			float walkSpeed = m_Unit->GetWalkSpeed();
 			float runSpeed = m_Unit->GetRunSpeed();
-			lStickLength				*=	1.0f + ( (runSpeed - walkSpeed) / walkSpeed) * m_Controller->GetTriggerValue( RIGHT );
+
+			float rightTriggerValue = m_Controller->GetTriggerValue( RIGHT );
+			lStickLength				*=	1.0f + ( (runSpeed - walkSpeed) / walkSpeed) * rightTriggerValue;
+
+			if (rightTriggerValue > 0.3f || m_Unit->IsRunning())
+			{
+				m_Unit->LookAtXZ(XMFLOAT3(tPosition.x + lStickDir.x, 0, tPosition.z + lStickDir.y));
+			}
 		}
 
 		newVel	=	XMFLOAT3(lStickDir.x * lStickLength, 0, lStickDir.y * lStickLength);
