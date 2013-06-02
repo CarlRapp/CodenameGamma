@@ -52,6 +52,28 @@ public:
 	// Returns the polar angle of the point (x,y) in [0, 2*PI).
 	static float AngleFromXY(float x, float y);
 
+	static XMFLOAT4 GetRotationQuaternion(XMFLOAT3 v1, XMFLOAT3 v2)
+	{
+		XMVECTOR quat = XMQuaternionIdentity();
+
+		XMVECTOR V1 = XMLoadFloat3(&v1);
+		XMVECTOR V2 = XMLoadFloat3(&v2);
+
+		XMVECTOR angleV = XMVector3AngleBetweenVectors(V1, V2);
+		float angle;
+		XMStoreFloat(&angle, angleV);
+
+		if (angle != 0)
+		{
+			XMVECTOR axis = XMVector3Cross(V1, V2);
+			quat = XMQuaternionRotationAxis(axis, angle);
+		}
+
+		XMFLOAT4 result;
+		XMStoreFloat4(&result, quat);
+
+		return result;
+	}
 
 	static BoundingFrustum GenerateBoundingFrustum(CXMMATRIX View, CXMMATRIX Proj)
 	{

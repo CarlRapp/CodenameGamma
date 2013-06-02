@@ -25,14 +25,14 @@ XMFLOAT4 Weapon::GetWeaponOffsetRotation()
 
 	XMFLOAT3 direction = GetFloat3Value( Direction );
 
-	XMFLOAT3 handPos;
+	XMFLOAT3 aimPos;
 	XMFLOAT3 pipePos;
 
-	if (GetJointPosition("RightHand", handPos) && GetJointPosition("Pipe", pipePos))
+	if (GetJointPosition("PipeAim", aimPos) && GetJointPosition("Pipe", pipePos))
 	{
-		handPos.y = pipePos.y;
+		//handPos.y = pipePos.y;
 		XMVECTOR directionV	= XMLoadFloat3(&direction);
-		XMVECTOR handPosV	= XMLoadFloat3(&handPos);
+		XMVECTOR handPosV	= XMLoadFloat3(&aimPos);
 		XMVECTOR pipePosV	= XMLoadFloat3(&pipePos);
 
 		XMVECTOR offsetDirectionV = pipePosV - handPosV;
