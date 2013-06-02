@@ -100,6 +100,7 @@ void Level::LoadLevel(string Levelname)
 	ModelManager::GetInstance()->LoadModel("CannedFood", "CannedFood.obj", "DATA/Models/CannedFood/");
 	ModelManager::GetInstance()->LoadModel("Canister", "Canister.obj", "DATA/Models/Canister/");
 	ModelManager::GetInstance()->LoadModel("MediPack", "MediPack.obj", "DATA/Models/MediPack/");
+	ModelManager::GetInstance()->LoadModel("AmmoBox", "AmmoBox.obj", "DATA/Models/AmmoBox/");
 
 	ModelManager::GetInstance()->LoadModel("Bullet", "PistolBullet.obj", "DATA/Models/PistolBullet/");
 	ModelManager::GetInstance()->LoadModel("EnergyOrb", "EnergyOrb.obj", "DATA/Models/EnergyOrb/");
