@@ -10,6 +10,8 @@
 
 //	Rifles
 #include "Shotgun.h"
+#include "SniperRifle.h"
+#include "AutomaticRifle.h"
 
 //	Projectiles
 #include "Projectiles/Bullet.h"

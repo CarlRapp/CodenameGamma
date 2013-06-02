@@ -35,13 +35,21 @@ bool Pistol::Fire( GameObject* Owner, GameObject* Target, float DamageMul )
 		Bullet*	tBullet	=	new Bullet();
 		tBullet->MultiplyDamage( DamageMul );
 
-		float	tRotationY	=	GetFloat3Value( Rotations ).y;
+		XMFLOAT4 quat = GetQuaternation();
+		XMFLOAT4 offsetQuat		= GetWeaponOffsetRotation();
+		XMVECTOR quatV			= XMLoadFloat4(&quat);
+		XMVECTOR offsetQuatV	= XMLoadFloat4(&offsetQuat);
+		quatV = XMQuaternionMultiply(quatV, offsetQuatV);
+		XMStoreFloat4(&quat, quatV);
+		tBullet->SetRotation( quat );
 
-		XMFLOAT3	tVelocity	=	XMFLOAT3(0, 0, 0);
-		tVelocity.x	=	-tBullet->GetSpeed() * cos( tRotationY - PI * 0.5f );
-		tVelocity.z	=	tBullet->GetSpeed() * sin( tRotationY - PI * 0.5f );
+		XMMATRIX	offsetRotation = XMMatrixRotationQuaternion( offsetQuatV );
+		XMVECTOR	tVelocityV	= tBullet->GetSpeed() * XMVector3Normalize( XMLoadFloat3( &GetFloat3Value(Direction) ) );
 
-		tBullet->SetRotation( XMFLOAT3( 0, tRotationY, 0 ) );
+		tVelocityV = XMVector3TransformCoord(tVelocityV, offsetRotation);
+
+		XMFLOAT3	tVelocity;
+		XMStoreFloat3(&tVelocity, tVelocityV);
 
 		XMFLOAT3 pipePos;
 
@@ -60,6 +68,9 @@ bool Pistol::Fire( GameObject* Owner, GameObject* Target, float DamageMul )
 		--gClip.first;
 
 		AddGameObject( tBullet );
+
+		WeaponFire* fire = new WeaponFire(0.1f, 2.0f, this);
+		AddGameObject(fire);
 
 		return true;
 	}

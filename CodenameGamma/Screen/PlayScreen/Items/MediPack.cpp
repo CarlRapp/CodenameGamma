@@ -31,7 +31,13 @@ void MediPack::Update(float DeltaTime, Terrain* terrain)
 	}
 
 	gTimeSpan	+=	DeltaTime;
-	AddRotation( XMFLOAT3(0, DeltaTime, 0 ) );
+
+
+	XMVECTOR QuatV = XMQuaternionRotationRollPitchYaw(0, DeltaTime, 0);
+	XMFLOAT4 Quat;
+
+	XMStoreFloat4(&Quat, QuatV);
+	AddRotation( Quat );
 	newPos.y	=	gOffset.y + ( gOffset.y - 2 ) * sin( 8 * gTimeSpan );
 	MoveTo( newPos );
 	newPos.y	-=	1.0f;

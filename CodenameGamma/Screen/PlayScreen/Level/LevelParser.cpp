@@ -533,9 +533,14 @@ GameObjectData* LevelParser::ParseGameObject( string Line, GO_Name GOData, Level
 	RotationZ	=	atof( Line.substr( 0, Line.find( ';' ) ).c_str() );
 
 	Result->gameObject->MoveTo( XMFLOAT3( PosX, PosY, PosZ ) );
-	Result->gameObject->SetRotation( XMFLOAT3( RotationX, RotationY, RotationZ ) );
+
 	Result->textureIndex	=	GOData.TextureIndex;
 	Result->vegetation		=	GOData.HasVegetation;
+	XMVECTOR QuatV = XMQuaternionRotationRollPitchYaw(RotationX, RotationY, RotationZ);
+	XMFLOAT4 Quat;
+
+	XMStoreFloat4(&Quat, QuatV);
+	Result->gameObject->SetRotation( Quat );
 
 	return Result;
 }

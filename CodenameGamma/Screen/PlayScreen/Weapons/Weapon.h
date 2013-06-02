@@ -3,6 +3,7 @@
 #define WEAPON_H
 
 #include "../GameObject.h"
+#include "WeaponFire.h"
 #include "Projectiles/Projectile.h"
 
 using namespace DirectX;
@@ -62,6 +63,8 @@ protected:
 	string				gReloadSound;
 	int					gReloadSoundIndex;
 
+	ModelInstance*		gWOGModel;
+
 	virtual	void	LowerCooldown(float DeltaTime);
 	virtual	void	ReloadCountdown(float DeltaTime);
 public:
@@ -83,6 +86,16 @@ public:
 
 	virtual bool	Intersects(GameObject* B, vector<CollisionData>& CD);
 	virtual	bool	IsDropable();
+
+	void			SetWOGModelInstance(ModelInstance* modelInstance) 
+	{ 
+		SAFE_DELETE(gWOGModel);
+		gWOGModel = modelInstance; 		
+	}
+
+	ModelInstance*	GetWOGModelInstance() { return gWOGModel; }
+
+	XMFLOAT4		GetWeaponOffsetRotation();
 
 	float			GetReloadTime() { return gReloadTime.second; }
 	void			CancelReload()

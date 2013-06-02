@@ -142,7 +142,7 @@ void EnemyUnit::FollowPath()
 
 	SetVelocity( newVelocity );
 
-	LookAt(gTargetPos);
+	LookAtXZ(gTargetPos);
 }
 
 void EnemyUnit::UpdateHunt(float deltaTime, Terrain* terrain)
@@ -200,7 +200,7 @@ void EnemyUnit::UpdateHunt(float deltaTime, Terrain* terrain)
 		return;
 	}
 
-	LookAt( target );
+	LookAtXZ( target );
 
 	if (Attacking)
 		return;

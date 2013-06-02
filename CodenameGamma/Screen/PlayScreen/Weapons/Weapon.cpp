@@ -11,11 +11,46 @@ Weapon::Weapon(void)
 	gReloadSound = "";
 
 	gAmmo		=	0;
+	gWOGModel	=	0;
 }
 
 Weapon::~Weapon(void)
 {
 
+}
+
+XMFLOAT4 Weapon::GetWeaponOffsetRotation()
+{
+	XMVECTOR quat = XMQuaternionIdentity();
+
+	XMFLOAT3 direction = GetFloat3Value( Direction );
+
+	XMFLOAT3 handPos;
+	XMFLOAT3 pipePos;
+
+	if (GetJointPosition("RightHand", handPos) && GetJointPosition("Pipe", pipePos))
+	{
+		XMVECTOR directionV	= XMLoadFloat3(&direction);
+		XMVECTOR handPosV	= XMLoadFloat3(&handPos);
+		XMVECTOR pipePosV	= XMLoadFloat3(&pipePos);
+
+		XMVECTOR offsetDirectionV = pipePosV - handPosV;
+
+		XMVECTOR angleV = XMVector3AngleBetweenVectors(directionV, offsetDirectionV);
+		float angle;
+		XMStoreFloat(&angle, angleV);
+
+		if (angle != 0)
+		{
+			XMVECTOR axis = XMVector3Cross(directionV, offsetDirectionV);
+			quat = XMQuaternionRotationAxis(axis, angle);
+		}
+	}
+
+	XMFLOAT4 result;
+	XMStoreFloat4(&result, quat);
+
+	return result;
 }
 
 void Weapon::LowerCooldown(float DeltaTime)
