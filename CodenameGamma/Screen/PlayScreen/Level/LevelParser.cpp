@@ -385,7 +385,7 @@ GameObject* LevelParser::GetGameObject( string GameObjectName )
 	}
 	else if( GameObjectName == "Utility Pole" )
 	{
-		ModelManager::GetInstance()->LoadModel("UtilityPole", "UtilityPole.obj", "DATA/Models/UtilityPole/");
+		ModelManager::GetInstance()->LoadModel("UtilityPole", "UtilityPole.dae", "DATA/Models/UtilityPole/");
 		ModelManager::GetInstance()->LoadModel("UtilityPole_VEG", "UtilityPole_VEG.obj", "DATA/Models/Vegetation/UtilityPole/");
 		Result	=	new UtilityPole();
 	}
