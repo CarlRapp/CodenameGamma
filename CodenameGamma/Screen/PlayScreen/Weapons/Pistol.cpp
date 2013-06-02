@@ -60,7 +60,6 @@ bool Pistol::Fire( GameObject* Owner, GameObject* Target, float DamageMul )
 		AddGameObject( tBullet );
 
 		WeaponFire* fire = new WeaponFire(0.1f, 2.0f, this);
-
 		AddGameObject(fire);
 
 		return true;
