@@ -86,11 +86,30 @@ void EnemyUnit::GetNewPath(Terrain* terrain)
 	XMFLOAT2 temp;
 	XMFLOAT3 endPos;
 
+	XMVECTOR startPosV = XMLoadFloat3( &startPos );
+	XMFLOAT3 targetPos;
+	XMVECTOR targetPosV;
+	float closesDistance;
+
 	bool foundPath = false;
 	switch (gBehaviourState)
 	{
 	case Roaming:		
+
 		temp	= gNodeMap->GetRandomNode()->Position;
+
+		closesDistance = INFINITE;
+		for (int i = 0; i < gTargets.size(); ++i)
+		{
+			targetPos	= gTargets[i]->GetFloat3Value( Position );
+			targetPosV	= XMLoadFloat3( &targetPos );
+
+			float distance = XMVectorGetX( XMVector3Length(XMLoadFloat3( &targetPos ) - startPosV) );
+
+			if ( distance < closesDistance )
+				temp = XMFLOAT2(targetPos.x, targetPos.z);
+		}
+		
 		endPos = XMFLOAT3(temp.x, 0, temp.y);
 		foundPath = gNodeMap->BuildPath(startPos, endPos, gPath);		
 		break;
@@ -147,6 +166,13 @@ void EnemyUnit::FollowPath()
 
 void EnemyUnit::UpdateHunt(float deltaTime, Terrain* terrain)
 {
+	if (!gTargetPlayer->IsAlive())
+	{
+		HasVisionOnTarget = false;
+		gBehaviourState	= Returning;
+		return;
+	}
+
 	updateHuntTimer += deltaTime;
 	if (updateHuntTimer < UpdateHuntTime)
 		return;
