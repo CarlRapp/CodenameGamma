@@ -103,6 +103,8 @@ public:
 	bool CanRun() { return gMoveDirection == Forward; }
 	bool Crouching() { return gMoveState == Crouch || PlayingAnimation("StandUp"); }
 
+	bool IsAiming() { return gWeaponState == Aim; }
+
 	void SwitchCrouchStand() { if (gMoveState == Crouch) SetMoveState(Stand); else SetMoveState(Crouch); }
 
 	virtual	void	Hurt(float Damage);

@@ -28,7 +28,7 @@ Unit::~Unit(void)
 
 void Unit::DropWeapon()
 {
-	if ( gCurrentWeapon )
+	if ( gCurrentWeapon && gWeaponState == Hold )
 	{
 		if( !gCurrentWeapon->IsDropable() )
 			return;
@@ -64,6 +64,7 @@ void Unit::Update(float DeltaTime, Terrain* TerrainInstance)
 {
 	if ( IsAlive() && gHealth.first <= 0 )
 	{
+		SetWeaponState( Hold );
 		DropWeapon();
 		Kill();
 		StopAllAnimations();
