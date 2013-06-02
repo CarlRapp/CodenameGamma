@@ -87,6 +87,8 @@ public:
 	virtual bool	Intersects(GameObject* B, vector<CollisionData>& CD);
 	virtual	bool	IsDropable();
 
+	bool			IsReloading() { return gState == Reloading; }
+
 	void			SetWOGModelInstance(ModelInstance* modelInstance) 
 	{ 
 		SAFE_DELETE(gWOGModel);

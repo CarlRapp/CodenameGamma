@@ -30,7 +30,7 @@ void Unit::DropWeapon()
 {
 	if ( gCurrentWeapon && gWeaponState == Hold )
 	{
-		if( !gCurrentWeapon->IsDropable() )
+		if( !gCurrentWeapon->IsDropable() || gCurrentWeapon->IsReloading() )
 			return;
 		if( gCurrentWeapon->GetState() == Reloading )
 			gCurrentWeapon->CancelReload();
