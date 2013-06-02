@@ -195,7 +195,7 @@ void OptionScreen::Render()
 
 void OptionScreen::UpdateVolume( SoundType VolumeType, int Value )
 {
-	Value	=	MathHelper::Clamp( 0, Value, 10 );
+	Value	=	MathHelper::Clamp( Value, 0, 10 );
 
 	SoundManager::GetInstance()->SetVolume( VolumeType, 0.1f * Value );
 }
