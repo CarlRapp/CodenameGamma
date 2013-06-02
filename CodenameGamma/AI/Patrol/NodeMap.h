@@ -9,15 +9,18 @@ struct PatrolNode
 {
 	XMFLOAT2			Position;
 	vector<PatrolNode*>	AdjacentNodes;
+	vector<float>		AdjacentNodeDistances;
 
 	PatrolNode()
 	{
-		AdjacentNodes	=	vector<PatrolNode*>();
+		AdjacentNodes			=	vector<PatrolNode*>();
+		AdjacentNodeDistances	= 	vector<float>();
 	}
 	PatrolNode( XMFLOAT2 Pos )
 	{
 		Position		=	Pos;
 		AdjacentNodes	=	vector<PatrolNode*>();
+		AdjacentNodeDistances	= 	vector<float>();
 	}
 
 	PatrolNode*	GetRandomNode( )
