@@ -300,12 +300,21 @@ void EnemyUnit::ScanForEnemies(Terrain* terrain)
 	}
 }
 
+void EnemyUnit::Hunt(PlayerUnit* target)
+{
+	hasTargetPos	= false;
+	gTargetPlayer	= target;
+	gBehaviourState	= Hunting;
+}
 
 bool EnemyUnit::Intersects(GameObject* B, vector<CollisionData>& CD)
 {
+	return false;
+	/*
 	if ( IsOfType<EnemyUnit>(B) )
 		return BoxVsBox(this, B, CD, false);
 	return false;
+	*/
 }
 
 void EnemyUnit::CollideWith(GameObject* Instance, vector<CollisionData> CD)

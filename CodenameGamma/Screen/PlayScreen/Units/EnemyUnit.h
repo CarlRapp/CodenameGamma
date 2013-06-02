@@ -73,6 +73,10 @@ public:
 		gNodeMap	=	Instance;
 	}
 
+	bool	IsHunting() { return gBehaviourState == Hunting; }
+
+	void	Hunt(PlayerUnit* target);
+
 	void	SetTargets( vector<PlayerUnit*> Targets )
 	{
 		gTargets = Targets;
