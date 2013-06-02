@@ -110,7 +110,6 @@ public:
 		box.Center.y = 0;
 		//box.Center.x /= m_Width;
 		//box.Center.z /= m_Height;
-
 		m_PathMap->BlockPath(box);
 	}
 

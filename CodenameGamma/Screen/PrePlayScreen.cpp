@@ -13,7 +13,6 @@ PrePlayScreen::PrePlayScreen(ScreenData* Setup)
 	gMenuEntries[2]	=	MenuEntry("Three",		PLAY_SCREEN);
 	gMenuEntries[3]	=	MenuEntry("Four",		PLAY_SCREEN);
 	gTextSize		=	32.0f;
-
 }
 bool PrePlayScreen::Load()
 {
@@ -23,20 +22,33 @@ bool PrePlayScreen::Load()
 	pFW1Factory->Release();
 
 	D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, "DATA/MAIN_MENU.png", 0, 0, &gBackground, 0 );
+
+	Reset();
 	return true;
 }
 bool PrePlayScreen::Unload()
 {
 	SAFE_RELEASE( gBackground );
 	SAFE_RELEASE( gTextInstance );
+
 	return false;
 }
 void PrePlayScreen::Reset()
 {
+	gConfirmNext	=	false;
 }
 
 void PrePlayScreen::Update(float DeltaTime)
 {
+	if( gConfirmNext )
+	{
+		MenuEntry	tMenuEntry	=	gMenuEntries[gCurrentIndex];
+
+		gGotoNextFrame	=	tMenuEntry.second;
+		return;
+	}
+
+
 	gTextSizeActiveTicker	+=	DeltaTime;
 
 	Controller*	tC	=	InputManager::GetInstance()->GetController(0);
@@ -66,11 +78,8 @@ void PrePlayScreen::Update(float DeltaTime)
 	if( CONFIRM )
 	{
 		gScreenData->NUMBER_OF_PLAYERS	=	gCurrentIndex + 1;
-
-		MenuEntry	tMenuEntry	=	gMenuEntries[gCurrentIndex];
-
-		gGotoNextFrame	=	tMenuEntry.second;
 		SoundManager::GetInstance()->Play("MenuPick", SFX);
+		gConfirmNext	=	true;
 	}
 
 	if( BACK )
@@ -85,25 +94,36 @@ void PrePlayScreen::Render()
 {
 	gGraphicsManager->RenderQuad( gFullscreenVP, gBackground, Effects::CombineFinalFX->AlphaTransparencyColorTech );
 
-	XMFLOAT2	tPos	=	XMFLOAT2(gScreenWidth * 0.05f, gScreenHeight * 0.05f);
-	
-	DrawString(*gTextInstance, "Select number of players", tPos.x, tPos.y, 72, White, WhiteTrans, 2, FW1_LEFT);
-	tPos.y	+=	1.5f * 72;
-
-	int	i	=	0;
-	for ( gMenuIterator = gMenuEntries.begin(); gMenuIterator != gMenuEntries.end(); gMenuIterator++ )
+	if( !gConfirmNext )
 	{
-		MenuEntry	tMenuEntry	=	gMenuIterator->second;
-		bool		isActive	=	(i == gCurrentIndex);
-		TextColor	tTColor		=	isActive ? Orange : WhiteTrans;
-		TextColor	tBColor		=	isActive ? OrangeTrans : BlackTrans;
-		string		tText		=	isActive ? ((char)235) + tMenuEntry.first + ((char)233) : tMenuEntry.first;
+		XMFLOAT2	tPos	=	XMFLOAT2(gScreenWidth * 0.05f, gScreenHeight * 0.05f);
+	
+		DrawString(*gTextInstance, "Select number of players", tPos.x, tPos.y, 72, White, WhiteTrans, 2, FW1_LEFT);
+		tPos.y	+=	1.5f * 72;
 
-		float		tTextSize	=	(i == gCurrentIndex) ? gTextSizeActive : gTextSize;
+		int	i	=	0;
+		for ( gMenuIterator = gMenuEntries.begin(); gMenuIterator != gMenuEntries.end(); gMenuIterator++ )
+		{
+			MenuEntry	tMenuEntry	=	gMenuIterator->second;
+			bool		isActive	=	(i == gCurrentIndex);
+			TextColor	tTColor		=	isActive ? Orange : WhiteTrans;
+			TextColor	tBColor		=	isActive ? OrangeTrans : BlackTrans;
+			string		tText		=	isActive ? ((char)235) + tMenuEntry.first + ((char)233) : tMenuEntry.first;
 
-		DrawString(*gTextInstance, tText, tPos.x, tPos.y + i * 1.5f * gTextSize , tTextSize, tTColor, tBColor, 2, FW1_LEFT);
-		i++;
+			float		tTextSize	=	(i == gCurrentIndex) ? gTextSizeActive : gTextSize;
+
+			DrawString(*gTextInstance, tText, tPos.x, tPos.y + i * 1.5f * gTextSize , tTextSize, tTColor, tBColor, 2, FW1_LEFT);
+			i++;
+		}
+
+		return;
 	}
+
+	XMFLOAT2	tPos	=	XMFLOAT2(gScreenWidth * 0.5f, gScreenHeight * 0.45f);
+	
+	DrawString(*gTextInstance, "Loading...", tPos.x, tPos.y, 72, White, WhiteTrans, 2, FW1_CENTER | FW1_VCENTER);
+	tPos.y	+=	1.0f * 72;
+	DrawString(*gTextInstance, "It can take a while, so don't worry.", tPos.x, tPos.y, 18, White, WhiteTrans, 2, FW1_CENTER | FW1_VCENTER);
 }
 
 ScreenType PrePlayScreen::GetScreenType()

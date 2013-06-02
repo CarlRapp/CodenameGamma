@@ -79,7 +79,7 @@ void LevelSelectScreen::Update(float DeltaTime)
 
 	gStartIndex	=	( gStartIndex < gCurrentIndex - gListLimit ) ? gCurrentIndex - gListLimit : gStartIndex;
 	gStartIndex	=	( gStartIndex > gCurrentIndex ) ? gCurrentIndex : gStartIndex;
-	gStartIndex	=	MathHelper::Clamp( 0, gStartIndex, (int)gMapMenu.size() - gListLimit );
+	gStartIndex	=	MathHelper::Clamp( gStartIndex, 0, (int)gMapMenu.size() - gListLimit );
 }
 
 
@@ -171,7 +171,7 @@ void LevelSelectScreen::CreateMapMenu()
 			//	Roughly estimate the number
 			//	of players for the map. ( 100x100m ~1 player )
 			int	tArea	=	levelEntry.Width * levelEntry.Height;
-			levelEntry.PlayerCount	=	(int)( MathHelper::Clamp(1.0f, tArea * 0.0001f, 4.0f) );
+			levelEntry.PlayerCount	=	(int)( MathHelper::Clamp(tArea * 0.0001f, 1.0f, 4.0f) );
 
 			gMapMenu.push_back( MapMenuEntry( tName, levelEntry ) );
 		}

@@ -72,6 +72,7 @@ void Level::LoadLevel(string Levelname)
 	if ( LData.IsLoaded() )
 		gTerrain->LoadTerrain(LData);
 
+
 	SAFE_DELETE(gQuadTree);
 	XMFLOAT2 halfWorldSize = gTerrain->GetDimensions();
 	halfWorldSize.x /= 2.0f;
@@ -79,7 +80,6 @@ void Level::LoadLevel(string Levelname)
 	BoundingBox world = BoundingBox(XMFLOAT3(halfWorldSize.x, 0, halfWorldSize.y), XMFLOAT3(halfWorldSize.x + 1000, 2000, halfWorldSize.y + 1000));
 	gQuadTree = new QuadTree(world, 500 * 500, 4);
 	gGraphicsManager->SetQuadTree(gQuadTree);
-	
 
 	ModelManager::GetInstance()->LoadModel("CrazyBitch", "CrazyBitch.dae", "DATA/Models/CrazyBitch/");
 	ModelManager::GetInstance()->LoadModel("Rat", "Rat.dae", "DATA/Models/Rat/");
@@ -100,16 +100,13 @@ void Level::LoadLevel(string Levelname)
 	ModelManager::GetInstance()->LoadModel("CannedFood", "CannedFood.obj", "DATA/Models/CannedFood/");
 	ModelManager::GetInstance()->LoadModel("Canister", "Canister.obj", "DATA/Models/Canister/");
 	ModelManager::GetInstance()->LoadModel("MediPack", "MediPack.obj", "DATA/Models/MediPack/");
+	ModelManager::GetInstance()->LoadModel("AmmoBox", "AmmoBox.obj", "DATA/Models/AmmoBox/");
 
 	ModelManager::GetInstance()->LoadModel("Bullet", "PistolBullet.obj", "DATA/Models/PistolBullet/");
 	ModelManager::GetInstance()->LoadModel("EnergyOrb", "EnergyOrb.obj", "DATA/Models/EnergyOrb/");
-	
-
-	
-
-	Model*	model	=	ModelManager::GetInstance()->GetModel("CrazyBitch");
 
 	EntityData	Result	=	LevelParser::ParseLevelEntities(LData);
+
 	//	Structures from the level
 	for each( GameObjectData* GOD in Result.gameObjectData )
 	{
@@ -122,37 +119,19 @@ void Level::LoadLevel(string Levelname)
 			((Structure*)GOD->gameObject)->SetOvergrown(true);
 
 	}
+
 	for each( Light* LIGHT in Result.Lights )
 		AddLight( LIGHT );
+
+
 	gNodeMap	=	Result.NodeMapInstance;
 
 	//	Create the Wave system
 	gWave		=	new Wave( gNodeMap );
 	gWave->LoadWaveData( tLevelRootPath + Levelname + "/");
 	gWave->SetAddGameObject(std::bind(&Level::AddGameObject, this, std::placeholders::_1));
-
-
 	
 	GameObject*	tGO;
-
-	for (int i = 0; i < 0; ++i)
-	{	
-		tGO	=	new CrazyBitch();
-
-		float x = MathHelper::RandF(100, 3900);
-		float y = 0;
-		float z = MathHelper::RandF(100, 3900);
-		tGO->MoveTo( XMFLOAT3( x, y, z ) );
-
-		float speed = 160;
-		if (MathHelper::RandF(0, 1) > 0.0f)
-			tGO->SetVelocity(DirectX::XMFLOAT3(MathHelper::RandF(-speed, speed), 0, MathHelper::RandF(-speed, speed)));
-
-		int a = (int)(MathHelper::RandF(0, 1) * 4) + 1;
-		tGO->SetTeam((GOTeam)a);
-
-		AddGameObject(tGO);
-	}
 
 	for (int i = 0; i < 100; ++i)
 	{
@@ -160,7 +139,14 @@ void Level::LoadLevel(string Levelname)
 		float y = 10;
 		float z = MathHelper::RandF(100, 3900);
 
-		tGO	=	new CannedFood();
+		if( i % 2 == 0 )
+			tGO	=	new MediPack();
+		else if( i % 3 == 0 )
+			tGO	=	new AmmoBox();
+		else if( i % 4 == 0 )
+			tGO	=	new CannedFood();
+		else
+			tGO	=	new Canister();
 
 
 		//Hur man sätter callbackmetoden.
@@ -532,7 +518,7 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 		if( p->GetUnit() != 0 )
 			continue;
 		
-		Pos	=	gNodeMap->GetRandomNode()->Position;
+		Pos	=	XMFLOAT2( 1000, 1000 );
 
 		PlayerUnit*	pUnit	=	new CrazyBitch();
 		pUnit->MoveTo( XMFLOAT3( Pos.x, 0, Pos.y ) );

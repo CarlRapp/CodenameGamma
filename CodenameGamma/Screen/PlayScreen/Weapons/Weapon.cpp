@@ -105,10 +105,10 @@ bool Weapon::Fire( GameObject* Owner, GameObject* Target, float DamageMul  )
 
 bool Weapon::Reload()
 {
-	if ( gState == Reloading || gState == Empty )
+	if ( gState == Reloading || ( gAmmo == 0 && gState == Empty ) )
 		return false;
 
-	if( gClip.second == 0 )
+	if( gAmmo == 0 )
 	{
 		gState	=	Empty;
 		return false;

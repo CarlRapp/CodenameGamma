@@ -10,6 +10,8 @@ private:
 	ScreenData*	gScreenData;
 
 	ID3D11ShaderResourceView*	gBackground;
+	
+	bool	gConfirmNext;
 
 	bool	Load();
 	bool	Unload();

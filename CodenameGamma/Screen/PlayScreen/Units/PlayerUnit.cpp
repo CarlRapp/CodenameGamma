@@ -3,7 +3,7 @@
 
 PlayerUnit::PlayerUnit()
 {
-	gHealth	=	UnitHealth( 98.0f, 100.0f );
+	gHealth	=	UnitHealth( 100.0f, 100.0f );
 	gHunger	=	UnitHunger( 100.0f, 100.0f );
 	gThirst	=	UnitThirst( 100.0f, 100.0f );
 

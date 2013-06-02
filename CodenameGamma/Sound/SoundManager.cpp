@@ -359,7 +359,7 @@ void SoundManager::SetListenerPosition(float X, float Y, float Z)
 
 void SoundManager::SetVolume(SoundType VolumeType, float Value)
 {
-	Value	=	MathHelper::Clamp(0.0f, Value, 1.0f);
+	Value	=	MathHelper::Clamp(Value, 0.0f, 1.0f);
 
 	switch(VolumeType)
 	{

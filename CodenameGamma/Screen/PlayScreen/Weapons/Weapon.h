@@ -108,6 +108,11 @@ public:
 		gState				=	Ready;
 	}
 
+	void	AddAmmo( int Amount )
+	{
+		gAmmo	+=	Amount;	
+	}
+
 	/*
 	To make it easier for the GUI
 	to get info about a weapon, this
