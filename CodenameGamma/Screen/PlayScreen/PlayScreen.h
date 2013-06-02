@@ -28,12 +28,18 @@ private:
 	ID3D11ShaderResourceView*	gHungerBar[6];
 	ID3D11ShaderResourceView*	gThirstBar[6];
 	ID3D11ShaderResourceView*	gBackground;
+	ID3D11ShaderResourceView*	gBulletGUI;
+	ID3D11ShaderResourceView*	gWaveBackground;
+
+	ID3D11ShaderResourceView*	gWeapons[4];
+	D3D11_VIEWPORT				gWeaponsVP[4];
 	IFW1FontWrapper*			gWaveTextWrapper;
 
 	void	RenderGUI( Player* P );
 	void	RenderGUISprite( D3D11_VIEWPORT VP, ID3D11ShaderResourceView* Sprite );
 	void	RenderGUIText( XMFLOAT2 Position, string Text, float TextSize, TextColor Color );
 	void	RenderGUIText( IFW1FontWrapper* FontWrapper, XMFLOAT2 Position, string Text, float TextSize, TextColor Color );
+	void	RenderGUISplitter();
 
 protected:
 	bool	Load();

@@ -110,6 +110,9 @@ public:
 
 	void	AddAmmo( int Amount )
 	{
+		if( gAmmo == -1 )
+			return;
+		
 		gAmmo	+=	Amount;	
 	}
 
