@@ -42,11 +42,21 @@ bool Shotgun::Fire( GameObject* Owner, GameObject* Target, float DamageMul )
 		Bullet*	tBullet	=	new Bullet();
 		tBullet->MultiplyDamage( DamageMul );
 
-		XMVECTOR	tVelocityV	= tBullet->GetSpeed() * XMVector3Normalize( XMLoadFloat3( &GetFloat3Value(Direction) ) );
-		XMFLOAT3	tVelocity	=	GetFloat3Value( Direction );
-		XMStoreFloat3(&tVelocity, tVelocityV);
+		XMFLOAT4 quat = GetQuaternation();
+		XMFLOAT4 offsetQuat		= GetWeaponOffsetRotation();
+		XMVECTOR quatV			= XMLoadFloat4(&quat);
+		XMVECTOR offsetQuatV	= XMLoadFloat4(&offsetQuat);
+		quatV = XMQuaternionMultiply(quatV, offsetQuatV);
+		XMStoreFloat4(&quat, quatV);
+		tBullet->SetRotation( quat );
 
-		tBullet->SetRotation( GetQuaternation() );
+		XMMATRIX	offsetRotation = XMMatrixRotationQuaternion( offsetQuatV );
+		XMVECTOR	tVelocityV	= tBullet->GetSpeed() * XMVector3Normalize( XMLoadFloat3( &GetFloat3Value(Direction) ) );
+
+		tVelocityV = XMVector3TransformCoord(tVelocityV, offsetRotation);
+
+		XMFLOAT3	tVelocity;
+		XMStoreFloat3(&tVelocity, tVelocityV);
 
 		XMFLOAT3 pipePos;
 
