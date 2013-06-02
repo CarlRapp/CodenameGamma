@@ -1,5 +1,6 @@
 #include "PlayScreen.h"
 #include "Weapons/Weapon.h"
+#include "Weapons/WeaponList.h"
 
 PlayScreen::PlayScreen(ScreenData* Setup)
 {
@@ -38,6 +39,32 @@ bool PlayScreen::Load()
 	}
 	D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, "DATA/GUI/BlackTrans.png", 0, 0, &gBackground, 0 );
 	D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, "DATA/GUI/Shell.png", 0, 0, &gBulletGUI, 0 );
+	D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, "DATA/GUI/WaveBackground.png", 0, 0, &gWaveBackground, 0 );
+
+	D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, "DATA/GUI/Weapons/Glock.png", 0, 0, &gWeapons[0], 0 );
+	D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, "DATA/GUI/Weapons/Shotgun.png", 0, 0, &gWeapons[1], 0 );
+	D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, "DATA/GUI/Weapons/AutomaticRifle.png", 0, 0, &gWeapons[2], 0 );
+	D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, "DATA/GUI/Weapons/SniperRifle.png", 0, 0, &gWeapons[3], 0 );
+	D3D11_VIEWPORT	tVP	=	D3D11_VIEWPORT();
+	tVP.MinDepth	=	0.0f;
+	tVP.MaxDepth	=	1.0f;
+
+	tVP.Width	=	54;
+	tVP.Height	=	35;
+	gWeaponsVP[0]	=	tVP;
+
+	tVP.Width	=	272;
+	tVP.Height	=	49;
+	gWeaponsVP[1]	=	tVP;
+
+	tVP.Width	=	272;
+	tVP.Height	=	57;
+	gWeaponsVP[2]	=	tVP;
+
+	tVP.Width	=	272;
+	tVP.Height	=	59;
+	gWeaponsVP[3]	=	tVP;
+
 	gLevel	=	0;
 
 	SoundManager::GetInstance()->Load("Pistol_Fire", "DATA/Sounds/Weapons/Pistol_Fire.wav", FMOD_SOFTWARE | FMOD_2D);
@@ -64,11 +91,15 @@ bool PlayScreen::Unload()
 			gHungerBar[n]->Release();
 			gThirstBar[n]->Release();
 		}
+
+		if( n <= 3 )
+			gWeapons[n]->Release();
 	}
 	SAFE_RELEASE( gWaveTextWrapper );
 	SAFE_RELEASE( gTextInstance );
 	SAFE_RELEASE( gBackground );
 	SAFE_RELEASE( gBulletGUI );
+	SAFE_RELEASE( gWaveBackground );
 		
 	return true;
 }
@@ -81,7 +112,7 @@ void PlayScreen::Update(float DeltaTime)
 	bool	UP		=	tC->GetButtonState( D_UP ) == PRESSED		|| tK->GetKeyState( VK_UP ) == PRESSED		|| tK->GetKeyState( 'W' ) == PRESSED;
 	bool	DOWN	=	tC->GetButtonState( D_DOWN ) == PRESSED		|| tK->GetKeyState( VK_DOWN ) == PRESSED	|| tK->GetKeyState( 'S' ) == PRESSED;
 	bool	CONFIRM	=	tC->GetButtonState( A ) == PRESSED			|| tK->GetKeyState( VK_RETURN ) == PRESSED;
-	bool	PAUSE	=	tC->GetButtonState( START ) == PRESSED			|| tK->GetKeyState( VK_ESCAPE ) == PRESSED;
+	bool	PAUSE	=	tC->GetButtonState( START ) == PRESSED		|| tK->GetKeyState( VK_ESCAPE ) == PRESSED;
 
 	if(	PAUSE )
 		isPaused	=	!isPaused;
@@ -131,12 +162,14 @@ void PlayScreen::Render()
 {
 	gLevel->Render();
 
-
+	RenderGUISplitter();
 	for each( Player* p in gLevel->GetPlayers() )
 		RenderGUI( p );
 
+	
 	if( isPaused )
 		RenderPauseScreen();
+
 }
 
 ScreenType PlayScreen::GetScreenType()
@@ -188,6 +221,8 @@ void PlayScreen::RenderGUI( Player* P )
 	tVP.MaxDepth	=	1.0f;
 	tVP.Width		=	pVP.Height * 0.11f;
 	tVP.Height		=	pVP.Height * 0.09f;
+
+	float	tTextSize	=	( pVP.Height ) / ( 72 - 10 * gLevel->GetPlayers().size() );
 
 	if( fixVP )
 		tVP.TopLeftX	=	pVP.TopLeftX + pVP.Width - pVP.Height * 0.014f - tVP.Width - EdgeOffset.x;
@@ -265,12 +300,13 @@ void PlayScreen::RenderGUI( Player* P )
 
 		if( fixVP )
 		{
-			tVP.TopLeftX	=	pVP.TopLeftX + pVP.Width - pVP.Height * 0.014f - EdgeOffset.x - pVP.Height * 0.11f - 11 * tWidth;
-			ClipZero.x		=	pVP.TopLeftX + pVP.Width - pVP.Height * 0.014f - EdgeOffset.x - pVP.Height * 0.11f - 11 * tWidth;
+			tVP.TopLeftX	=	pVP.TopLeftX + pVP.Width - pVP.Height * 0.014f - EdgeOffset.x - pVP.Height * 0.11f - tWidth;
+			ClipZero.x		=	pVP.TopLeftX + pVP.Width - pVP.Height * 0.014f - EdgeOffset.x - pVP.Height * 0.11f;
 		}
 
 		int	tCurrentAmmo	=	tInfo.Magazine.first;
 		int	i	=	0;
+		int	dir	=	fixVP ? -1 : 1;
 		while(true)
 		{
 			bool	isEven	=	i % 2 == 0;
@@ -280,12 +316,15 @@ void PlayScreen::RenderGUI( Player* P )
 			else
 				tN	=	( tCurrentAmmo - 8 >= 0 ) ? 8 : tCurrentAmmo;
 
-			tVP.TopLeftX	=	isEven ? ClipZero.x : ( ClipZero.x + 0.5f * tWidth );
-			tVP.TopLeftY	=	(i + 1) * tHeight;
+			if( fixVP )
+				tVP.TopLeftX	=	isEven ? ClipZero.x - tWidth : ( ClipZero.x + dir * 0.5f * tWidth ) - tWidth;
+			else
+				tVP.TopLeftX	=	isEven ? ClipZero.x : ( ClipZero.x + dir * 0.5f * tWidth );
+			tVP.TopLeftY	=	ClipZero.y + i * tHeight;
 
 			for( int n = 0; n < tN; ++n )
 			{
-				tVP.TopLeftX	+=	tWidth;
+				tVP.TopLeftX	+=	dir * tWidth;
 				RenderGUISprite( tVP, gBulletGUI );
 			}
 
@@ -294,25 +333,66 @@ void PlayScreen::RenderGUI( Player* P )
 			if( tCurrentAmmo <= 0 || i == 5 )
 				break;
 		}
-		tClipPos.x	=	ClipZero.x + 4.5f * tWidth;
+		Weapon*	tWeapon	=	P->GetUnit()->GetWeapon();
+		float	tWeaponWidth, tWeaponHeight;
+		int		tWeaponIndex	=	0;
+
+		if( IsOfType<Pistol>( tWeapon ) )
+		{
+			tWeaponWidth	=	gWeaponsVP[0].Width;
+			tWeaponHeight	=	gWeaponsVP[0].Height;
+		}
+		else if( IsOfType<Shotgun>( tWeapon ) )
+		{
+			tWeaponWidth	=	gWeaponsVP[1].Width;
+			tWeaponHeight	=	gWeaponsVP[1].Height;
+			tWeaponIndex	=	1;
+		}
+		else if( IsOfType<AutomaticRifle>( tWeapon ) )
+		{
+			tWeaponWidth	=	gWeaponsVP[2].Width;
+			tWeaponHeight	=	gWeaponsVP[2].Height;
+			tWeaponIndex	=	2;
+		}
+		else
+		{
+			tWeaponWidth	=	gWeaponsVP[3].Width;
+			tWeaponHeight	=	gWeaponsVP[3].Height;
+			tWeaponIndex	=	3;
+		}
+
+		tVP.TopLeftX	=	ClipZero.x + dir * 11 * tWidth;
+		tVP.TopLeftY	=	ClipZero.y;
+		tVP.Width		=	tWeaponWidth * pVP.Height * 0.001f;
+		tVP.Height		=	tWeaponHeight * pVP.Height * 0.001f;
+		RenderGUISprite( tVP, gWeapons[tWeaponIndex] );
+
+		tClipPos.x	=	ClipZero.x + (float)dir * 5.5f * tWidth;
 		tClipPos.y	=	ClipZero.y + tHeight * ( 1 + ceil( tInfo.Magazine.second * 0.1f ) );
 
 		//	Render the text
 		gDeviceContext->RSSetViewports( 1, &gFullscreenVP );
 		if( tInfo.Ammo != -1 )
-			RenderGUIText( tClipPos, to_string( (long double)tInfo.Ammo ) + " clips left.", 18, White );
+			RenderGUIText( gWaveTextWrapper, tClipPos, to_string( (long double)( tInfo.Ammo / tInfo.Magazine.second ) ) + " clips left.", tTextSize, White );
 		else
-			RenderGUIText( tClipPos, "Infinite clips.", 18, White );
+			RenderGUIText( gWaveTextWrapper, tClipPos, "infinite clips.", tTextSize, White );
 	}
+	tVP.Width	=	150;
+	tVP.Height	=	100;
+	tVP.TopLeftX=	gScreenWidth * 0.5f - tVP.Width * 0.5f;
+	tVP.TopLeftY=	0;
+
+	RenderGUISprite( tVP, gWaveBackground );
+
 	//	Render the text
 	gDeviceContext->RSSetViewports( 1, &gFullscreenVP );
-	RenderGUIText( tHealthPos, to_string( (long double)( (int)(100.0f * ( uHealth.first / uHealth.second ) ) ) ), 18, White );
+	RenderGUIText( gWaveTextWrapper, tHealthPos, to_string( (long double)( (int)(100.0f * ( uHealth.first / uHealth.second ) ) ) ), tTextSize, White );
 
 	//	Wave info
 	Wave::WaveGUIInfo	tWave	=	gLevel->GetWaveInfo();
 	float	tWaveSize	=	26;
-	tWavePos	=	XMFLOAT2( gScreenWidth * 0.5f, gScreenHeight * 0.025f );
-	RenderGUIText( gWaveTextWrapper, tWavePos, "Wave: " + to_string( (long double)tWave.Wave ), tWaveSize, White );
+	tWavePos	=	XMFLOAT2( gScreenWidth * 0.5f, gScreenHeight * 0.02f );
+	RenderGUIText( gWaveTextWrapper, tWavePos, "Wave:" + to_string( (long double)tWave.Wave ), tWaveSize, White );
 	tWavePos.y	+=	tWaveSize;
 	RenderGUIText( gWaveTextWrapper, tWavePos, to_string( (long double)ceil( tWave.Timer.first ) ), tWaveSize, White );
 	tWavePos.y	+=	tWaveSize;
@@ -366,4 +446,54 @@ void PlayScreen::RenderPauseScreen()
 		++i;
 	}
 
+}
+
+void PlayScreen::RenderGUISplitter()
+{
+	D3D11_VIEWPORT	tFrame;
+	tFrame.TopLeftX	=	0;
+	tFrame.TopLeftY	=	0;
+	tFrame.MinDepth	=	0.0f;
+	tFrame.MaxDepth	=	1.0f;
+	tFrame.Width	=	3;
+	tFrame.Height	=	0;
+	switch( gLevel->GetPlayers().size() )
+	{
+	case 2:
+		tFrame.TopLeftX	=	gScreenWidth * 0.5f;
+		tFrame.TopLeftY	=	0;
+		tFrame.Height	=	gScreenHeight;
+		gGraphicsManager->RenderQuad( tFrame, gBackground, Effects::CombineFinalFX->AlphaTransparencyColorTech );
+		break;
+
+	case 3:
+		tFrame.TopLeftX	=	0;
+		tFrame.TopLeftY	=	gScreenHeight * 0.5f;
+		tFrame.Height	=	3;
+		tFrame.Width	=	gScreenWidth;
+		gGraphicsManager->RenderQuad( tFrame, gBackground, Effects::CombineFinalFX->AlphaTransparencyColorTech );
+
+		tFrame.TopLeftX	=	gScreenWidth * 0.5f;
+		tFrame.TopLeftY	=	gScreenHeight * 0.5f;
+		tFrame.Height	=	gScreenHeight * 0.5f;
+		tFrame.Width	=	3;
+		gGraphicsManager->RenderQuad( tFrame, gBackground, Effects::CombineFinalFX->AlphaTransparencyColorTech );
+		break;
+
+	case 4:
+		tFrame.TopLeftX	=	0;
+		tFrame.TopLeftY	=	gScreenHeight * 0.5f;
+		tFrame.Height	=	3;
+		tFrame.Width	=	gScreenWidth;
+		gGraphicsManager->RenderQuad( tFrame, gBackground, Effects::CombineFinalFX->AlphaTransparencyColorTech );
+
+		tFrame.TopLeftX	=	gScreenWidth * 0.5f;
+		tFrame.TopLeftY	=	0;
+		tFrame.Height	=	gScreenHeight;
+		tFrame.Width	=	3;
+		gGraphicsManager->RenderQuad( tFrame, gBackground, Effects::CombineFinalFX->AlphaTransparencyColorTech );
+		break;
+	}
+
+	gDeviceContext->RSSetViewports( 1, &gFullscreenVP );
 }
