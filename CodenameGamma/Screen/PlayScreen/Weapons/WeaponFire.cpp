@@ -11,11 +11,12 @@ WeaponFire::WeaponFire(void)
 	gOwner = 0;
 }
 
-WeaponFire::WeaponFire(float timer, float maxScale, GameObject* owner)
+WeaponFire::WeaponFire(float timer, float minScale, float maxScale, GameObject* owner)
 {
 	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "Fire" ) );
 	gTimer = 0.0f;
 	gTimerStop = timer;
+	gMinScale = minScale;
 	gMaxScale = maxScale;
 	gOwner = owner;
 }
@@ -63,7 +64,8 @@ void WeaponFire::Update(float deltaTime, Terrain* terrain)
 	}
 
 	float progress = gTimer / gTimerStop;
-	float scale = progress * gMaxScale;
+	float diff = gMaxScale - gMinScale;
+	float scale = gMinScale + progress * diff;
 
 	SetScale(scale);
 }
