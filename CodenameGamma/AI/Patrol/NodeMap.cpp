@@ -32,11 +32,25 @@ void NodeMap::SetNodeAdjacent( PatrolNode* NodeA, PatrolNode* NodeB )
 	//	See if NodeA already has
 	//	NodeB added to its Adjacent list
 	if( !NodeA->CanReach( NodeB ) )
+	{
 		NodeA->AdjacentNodes.push_back( NodeB );
+
+		XMVECTOR V1 = XMLoadFloat2(&NodeA->Position);
+		XMVECTOR V2 = XMLoadFloat2(&NodeB->Position);
+		float distance = XMVectorGetX( XMVector2Length(V2 - V1) );
+		NodeA->AdjacentNodeDistances.push_back(distance);
+	}
 
 	//	Do the same for NodeB
 	if( !NodeB->CanReach( NodeA ) )
+	{
 		NodeB->AdjacentNodes.push_back( NodeA );
+
+		XMVECTOR V1 = XMLoadFloat2(&NodeA->Position);
+		XMVECTOR V2 = XMLoadFloat2(&NodeB->Position);
+		float distance = XMVectorGetX( XMVector2Length(V2 - V1) );
+		NodeB->AdjacentNodeDistances.push_back(distance);
+	}
 }
 
 PatrolNode*	NodeMap::GetClosestNode( XMFLOAT3 Position )

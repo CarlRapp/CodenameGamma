@@ -224,6 +224,9 @@ void Unit::SetMoveState(MoveState newMoveState)
 			PlayAnimation("StandUp");
 			LoopAnimationAfter("StandUp", "Pose");
 			SetAnimationProgress("StandUp", progress);
+
+			if (PlayingAnimation(GetAnimation("PutAway")))
+				LoopAnimationAfter(GetAnimation("PutAway"), GetAnimation("UpperStand"));
 		}
 
 		if (gMoveState != Stand)
@@ -237,6 +240,9 @@ void Unit::SetMoveState(MoveState newMoveState)
 				StopAnimation(GetAnimation("UpperRun"));
 				LoopAnimation(GetAnimation("UpperStand"));
 			}
+
+			if (PlayingAnimation(GetAnimation("PutAway")))
+				LoopAnimationAfter(GetAnimation("PutAway"), GetAnimation("UpperStand"));
 		}
 		break;
 	case Walk:
@@ -263,6 +269,9 @@ void Unit::SetMoveState(MoveState newMoveState)
 			StopAnimation(GetAnimation("UpperRun"));
 			LoopAnimation(GetAnimation("UpperWalk"));
 		}
+
+		if (PlayingAnimation(GetAnimation("PutAway")))
+				LoopAnimationAfter(GetAnimation("PutAway"), GetAnimation("UpperWalk"));
 
 		break;
 	
@@ -299,6 +308,9 @@ void Unit::SetMoveState(MoveState newMoveState)
 						BodyInSync = true;
 				}
 			}
+
+			if (PlayingAnimation(GetAnimation("PutAway")))
+				LoopAnimationAfter(GetAnimation("PutAway"), GetAnimation("UpperRun"));
 		}
 
 		else
@@ -385,15 +397,27 @@ void Unit::SetWeaponState(WeaponState newWeaponState)
 			if (PlayingAnimation(GetAnimation("Reload")))
 				PlayAnimationAfter(GetAnimation("Reload"), GetAnimation("PutAway"));
 
-			else if (PlayingAnimation(GetAnimation("DrawReloadPutAway")))
-				PlayAnimationAfter(GetAnimation("DrawReloadPutAway"), GetAnimation("PutAway"));
+			//else if (PlayingAnimation(GetAnimation("DrawReloadPutAway")))
+			//	PlayAnimationAfter(GetAnimation("DrawReloadPutAway"), GetAnimation("PutAway"));
 
 			else
 			{
 				PlayAnimation(GetAnimation("PutAway"));
 				SetAnimationProgress(GetAnimation("PutAway"), progress);
 			}
-			LoopAnimationAfter(GetAnimation("PutAway"), GetAnimation("UpperWalk"));
+
+			switch (gMoveState)
+			{
+			case Stand:
+			case Crouch:
+				LoopAnimationAfter(GetAnimation("PutAway"), GetAnimation("UpperStand"));
+				break;
+			case Walk:
+				LoopAnimationAfter(GetAnimation("PutAway"), GetAnimation("UpperWalk"));
+			case Run:
+				LoopAnimationAfter(GetAnimation("PutAway"), GetAnimation("UpperRun"));
+			}
+
 			break;
 		}
 		break;
@@ -425,10 +449,18 @@ void Unit::ReloadWeapon()
 			case Hold:
 				animation = GetAnimation("DrawReloadPutAway");
 
-				if ( gMoveState == Run )
-					animationAfter = GetAnimation("UpperRun");
-				else
+
+				switch (gMoveState)
+				{
+				case Stand:
+				case Crouch:
+					animationAfter = GetAnimation("UpperStand");
+					break;
+				case Walk:
 					animationAfter = GetAnimation("UpperWalk");
+				case Run:
+					animationAfter = GetAnimation("UpperRun");
+				}
 
 				if (PlayingAnimation(GetAnimation("PutAway")))
 					PlayAnimationAfter(GetAnimation("PutAway"), animation);

@@ -100,6 +100,24 @@ public:
 	
 	void BlockPath(BoundingOrientedBox box)
 	{
+		XMFLOAT3 corners[BoundingOrientedBox::CORNER_COUNT];
+		box.GetCorners(&corners[0]);
+
+		float limitY = 2.0 * UnitsPerMeter;
+
+		bool blockPath = false;
+		for (int i = 0; i < BoundingOrientedBox::CORNER_COUNT; ++i)
+		{
+			if (corners[i].y < limitY)
+			{
+				blockPath = true;
+				break;
+			}
+		}
+
+		if (!blockPath)
+			return;
+
 		XMMATRIX scale;
 		scale = XMMatrixScaling(1.0f / m_Width, 1.0f, 1.0f / m_Height);
 

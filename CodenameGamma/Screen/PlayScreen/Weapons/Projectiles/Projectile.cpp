@@ -1,6 +1,7 @@
 #include "Projectile.h"
 #include "../../Units/Unit.h"
 #include "../../Units/PlayerUnit.h"
+#include "../../Units/EnemyUnit.h"
 #include "../../Structures/StructureList.h"
 
 Projectile::Projectile(void)
@@ -49,6 +50,17 @@ void Projectile::CollideWith(GameObject* Instance, vector<CollisionData> CD)
 
 		tUnit->Hurt( gDamage );
 		
+		if ( IsOfType<EnemyUnit>( Instance ) )
+		{
+			if (!((EnemyUnit*)Instance)->IsHunting())
+			{
+				if( IsOfType<PlayerUnit>( gOwner ) )
+				{
+					((EnemyUnit*)Instance)->Hunt(((PlayerUnit*)gOwner));
+				}
+			}
+		}
+
 		if( IsOfType<PlayerUnit>( gOwner ) )
 		{
 			((PlayerUnit*)gOwner)->GetPlayerScore()->PlayScore	+=	10 * gDamage;
@@ -56,7 +68,7 @@ void Projectile::CollideWith(GameObject* Instance, vector<CollisionData> CD)
 			if( !tUnit->GetHealth().first <= 0 )
 				((PlayerUnit*)gOwner)->GetPlayerScore()->PlayKillCount	+=	1;
 		}
-
+		
 		SetState(Dead);	
 	}
 
