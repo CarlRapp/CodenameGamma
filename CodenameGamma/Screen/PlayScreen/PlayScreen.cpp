@@ -37,6 +37,7 @@ bool PlayScreen::Load()
 		D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, tPath.c_str(), 0, 0, &gThirstBar[n], 0 );
 	}
 	D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, "DATA/GUI/BlackTrans.png", 0, 0, &gBackground, 0 );
+	D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, "DATA/GUI/Shell.png", 0, 0, &gBulletGUI, 0 );
 	gLevel	=	0;
 
 	SoundManager::GetInstance()->Load("Pistol_Fire", "DATA/Sounds/Weapons/Pistol_Fire.wav", FMOD_SOFTWARE | FMOD_2D);
@@ -67,6 +68,7 @@ bool PlayScreen::Unload()
 	SAFE_RELEASE( gWaveTextWrapper );
 	SAFE_RELEASE( gTextInstance );
 	SAFE_RELEASE( gBackground );
+	SAFE_RELEASE( gBulletGUI );
 		
 	return true;
 }
@@ -244,25 +246,67 @@ void PlayScreen::RenderGUI( Player* P )
 	tThirstPos.y	=	tVP.TopLeftY + tVP.Height * 0.5f;
 
 
-	//	Render the text
-	gDeviceContext->RSSetViewports( 1, &gFullscreenVP );
-	RenderGUIText( tHealthPos, to_string( (long double)( (int)(100.0f * ( uHealth.first / uHealth.second ) ) ) ), 18, White );
-
-
-	//	Weapon info
+	//	Weapon bullet printing
 	if( P->GetUnit()->GetWeapon() )
 	{
 		Weapon::WeaponInfo	tInfo	=	P->GetUnit()->GetWeapon()->GetInfo();
-		string	tClipInfo;
-		tClipInfo	+=	to_string( (long double)tInfo.Magazine.first ) + "/";
-		if( tInfo.Ammo == -1 )
-			tClipInfo	+=	"#";
+
+		tVP.TopLeftX	=	pVP.TopLeftX + pVP.Height * 0.014f + EdgeOffset.x + pVP.Height * 0.11f;
+		tVP.TopLeftY	=	pVP.TopLeftY + pVP.Height * 0.014f + EdgeOffset.y;
+		tVP.Width		=	pVP.Height * 0.02f;
+		tVP.Height		=	pVP.Height * 0.02f;
+
+		float	tWidth	=	tVP.Width + tVP.Width * 0.05f;
+		float	tHeight	=	tVP.Height + tVP.Height * 0.05f;
+
+		XMFLOAT2	ClipZero;
+		ClipZero.x	=	pVP.TopLeftX + pVP.Height * 0.014f + EdgeOffset.x + pVP.Height * 0.11f;
+		ClipZero.y	=	pVP.TopLeftY + pVP.Height * 0.014f + EdgeOffset.y;
+
+		if( fixVP )
+		{
+			tVP.TopLeftX	=	pVP.TopLeftX + pVP.Width - pVP.Height * 0.014f - EdgeOffset.x - pVP.Height * 0.11f - 11 * tWidth;
+			ClipZero.x		=	pVP.TopLeftX + pVP.Width - pVP.Height * 0.014f - EdgeOffset.x - pVP.Height * 0.11f - 11 * tWidth;
+		}
+
+		int	tCurrentAmmo	=	tInfo.Magazine.first;
+		int	i	=	0;
+		while(true)
+		{
+			bool	isEven	=	i % 2 == 0;
+			int	tN;
+			if( isEven )
+				tN	=	( tCurrentAmmo - 9 >= 0 ) ? 9 : tCurrentAmmo;
+			else
+				tN	=	( tCurrentAmmo - 8 >= 0 ) ? 8 : tCurrentAmmo;
+
+			tVP.TopLeftX	=	isEven ? ClipZero.x : ( ClipZero.x + 0.5f * tWidth );
+			tVP.TopLeftY	=	(i + 1) * tHeight;
+
+			for( int n = 0; n < tN; ++n )
+			{
+				tVP.TopLeftX	+=	tWidth;
+				RenderGUISprite( tVP, gBulletGUI );
+			}
+
+			++i;
+			tCurrentAmmo	-=	tN;
+			if( tCurrentAmmo <= 0 || i == 5 )
+				break;
+		}
+		tClipPos.x	=	ClipZero.x + 4.5f * tWidth;
+		tClipPos.y	=	ClipZero.y + tHeight * ( 1 + ceil( tInfo.Magazine.second * 0.1f ) );
+
+		//	Render the text
+		gDeviceContext->RSSetViewports( 1, &gFullscreenVP );
+		if( tInfo.Ammo != -1 )
+			RenderGUIText( tClipPos, to_string( (long double)tInfo.Ammo ) + " clips left.", 18, White );
 		else
-			tClipInfo	+=	to_string( (long double)tInfo.Ammo );
-		tClipPos.x	=	tHealthPos.x;
-		tClipPos.y	=	tVP.TopLeftY + tVP.Height * 1.10f;
-		RenderGUIText( tClipPos, tClipInfo, 18, White );
+			RenderGUIText( tClipPos, "Infinite clips.", 18, White );
 	}
+	//	Render the text
+	gDeviceContext->RSSetViewports( 1, &gFullscreenVP );
+	RenderGUIText( tHealthPos, to_string( (long double)( (int)(100.0f * ( uHealth.first / uHealth.second ) ) ) ), 18, White );
 
 	//	Wave info
 	Wave::WaveGUIInfo	tWave	=	gLevel->GetWaveInfo();
