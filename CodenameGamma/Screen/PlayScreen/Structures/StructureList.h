@@ -33,6 +33,7 @@
 #include "UtilityPole.h"
 #include "OilBarrel.h"
 #include "Fence.h"
+#include "BarbedWire.h"
 
 //	Misc
 #include "UnitCube.h"

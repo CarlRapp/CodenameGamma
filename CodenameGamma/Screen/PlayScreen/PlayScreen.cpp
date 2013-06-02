@@ -174,7 +174,9 @@ void PlayScreen::RenderGUI( Player* P )
 	XMFLOAT2	tHealthPos, tHungerPos, tThirstPos, tClipPos, tWavePos;
 	D3D11_VIEWPORT		pVP		=	P->GetCamera()->GetViewPort();
 
-	bool	fixVP	=	( ( P->GetIndex() == 1 ||  P->GetIndex() == 3 ) && gLevel->GetPlayers().size() == 4 );
+	bool	fixVP	=	( ( P->GetIndex() == 1 ||  P->GetIndex() == 3 ) && gLevel->GetPlayers().size() == 4 )
+					||	( P->GetIndex() == 1 && gLevel->GetPlayers().size() == 2 )
+					||	( P->GetIndex() == 2 && gLevel->GetPlayers().size() == 3 );
 	XMFLOAT2	EdgeOffset	=	XMFLOAT2( gFullscreenVP.Width * 0.01f, gFullscreenVP.Height * 0.01f );
 
 	D3D11_VIEWPORT	tVP;
@@ -197,9 +199,9 @@ void PlayScreen::RenderGUI( Player* P )
 	
 	//	Health
 	tPercent	=	(int)ceil( 100.f * ( uHealth.first / uHealth.second ) );
-	tPercent	=	MathHelper::Clamp(0, tPercent, 100);
+	tPercent	=	MathHelper::Clamp(tPercent, 0, 100);
 	tIndex		=	(int)( (float)0.1f * (float)tPercent );
-	tIndex		=	MathHelper::Clamp(0, tIndex, 9);
+	tIndex		=	MathHelper::Clamp(tIndex, 0, 9);
 	RenderGUISprite( tVP, gHealthBar[tIndex] );
 	tHealthPos.x	=	tVP.TopLeftX + tVP.Width * 0.5f;
 	tHealthPos.y	=	tVP.TopLeftY + tVP.Height * 0.5f;
@@ -216,9 +218,9 @@ void PlayScreen::RenderGUI( Player* P )
 
 	//	Hunger
 	tPercent	=	(int)ceil( 100.f * ( uHunger.first / uHunger.second ) );
-	tPercent	=	MathHelper::Clamp(0, tPercent, 100);
+	tPercent	=	MathHelper::Clamp(tPercent, 0, 100);
 	tIndex		=	(int)( 0.05f * tPercent );
-	tIndex		=	MathHelper::Clamp(0, tIndex, 5);
+	tIndex		=	MathHelper::Clamp(tIndex, 0, 5);
 	RenderGUISprite( tVP, gHungerBar[tIndex] );
 	tHungerPos.x	=	tVP.TopLeftX + tVP.Width * 0.5f;
 	tHungerPos.y	=	tVP.TopLeftY + tVP.Height * 0.5f;
@@ -234,9 +236,9 @@ void PlayScreen::RenderGUI( Player* P )
 
 	//	Thirst
 	tPercent	=	(int)ceil( 100.f * ( uThirst.first / uThirst.second ) );
-	tPercent	=	MathHelper::Clamp(0, tPercent, 100);
+	tPercent	=	MathHelper::Clamp(tPercent, 0, 100);
 	tIndex		=	(int)( 0.05f * tPercent );
-	tIndex		=	MathHelper::Clamp(0, tIndex, 5);
+	tIndex		=	MathHelper::Clamp(tIndex, 0, 5);
 	RenderGUISprite( tVP, gThirstBar[tIndex] );
 	tThirstPos.x	=	tVP.TopLeftX + tVP.Width * 0.5f;
 	tThirstPos.y	=	tVP.TopLeftY + tVP.Height * 0.5f;

@@ -9,7 +9,7 @@ PostPlayScreen::PostPlayScreen(ScreenData* Setup)
 
 bool PostPlayScreen::Load()
 {
-	D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, "DATA/MAIN_MENU.png", 0, 0, &gBackground, 0 );
+	D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, "DATA/POST_PLAY_SCREEN.png", 0, 0, &gBackground, 0 );
 
 	IFW1Factory				*pFW1Factory = 0;
 	FW1CreateFactory(FW1_VERSION, &pFW1Factory);
@@ -46,6 +46,8 @@ void PostPlayScreen::Update(float DeltaTime)
 
 void PostPlayScreen::Render()
 {
+	gGraphicsManager->RenderQuad( gFullscreenVP, gBackground, Effects::CombineFinalFX->AlphaTransparencyColorTech );
+
 	XMFLOAT2	tPos	=	XMFLOAT2(gScreenWidth * 0.5f, gScreenHeight * 0.1f);
 	DrawString(*gTextInstance, "Game Over!", tPos.x, tPos.y, 72, White, WhiteTrans, 2, FW1_CENTER);
 

@@ -32,7 +32,6 @@ void Map::BlockPath(BoundingOrientedBox box)
 	box.Center.y = 0;
 	//box.Center.x *= m_Width;
 	//box.Center.z *= m_Height;
-
 	
 	XMFLOAT3 corners[BoundingOrientedBox::CORNER_COUNT];
 	box.GetCorners(&corners[0]);
@@ -50,18 +49,15 @@ void Map::BlockPath(BoundingOrientedBox box)
 	XMStoreFloat3(&min, minV);
 	XMStoreFloat3(&max, maxV);
 
-	/*
-	for (int y = 0; y < m_Height; y++)
-	{
-		for (int x = 0; x < m_Width; x++)
-		{*/
-
 	int stopX = min(ceil(max.x), m_Width);
 	int stopY = min(ceil(max.z), m_Height);
 
-	for (int y = floor(min.z); y < stopY; y++)
+	int startX = max(floor(min.x), 0);
+	int startY = max(floor(min.z), 0);
+
+	for (int y = startY; y < stopY; y++)
 	{
-		for (int x = floor(min.x); x < stopX; x++)
+		for (int x = startX; x < stopX; x++)
 		{
 			XMFLOAT2 min = XMFLOAT2(x, y);
 			XMFLOAT2 max = XMFLOAT2(x + 1, y + 1);
