@@ -1,4 +1,5 @@
 #include "WeaponFire.h"
+#include "Weapon.h"
 
 
 WeaponFire::WeaponFire(void)
@@ -44,6 +45,20 @@ void WeaponFire::Update(float deltaTime, Terrain* terrain)
 		}
 
 		XMFLOAT4 quat = gOwner->GetQuaternation();
+
+		if (IsOfType<Weapon>(gOwner))
+		{
+			XMFLOAT4 offsetQuat = ((Weapon*)gOwner)->GetWeaponOffsetRotation();
+
+			XMVECTOR quatV			= XMLoadFloat4(&quat);
+			XMVECTOR offsetQuatV	= XMLoadFloat4(&offsetQuat);
+
+			quatV = XMQuaternionMultiply(quatV, offsetQuatV);
+
+			XMStoreFloat4(&quat, quatV);
+
+		}
+
 		SetRotation(quat);
 	}
 
