@@ -137,6 +137,10 @@ void WeaponOnGround::OnPickUp(Unit* Instance)
 
 	
 	PlayerUnit*	pUnit	=	(PlayerUnit*)Instance;
+
+	if (pUnit->IsAiming())
+		return;
+
 	if (!pUnit->HasSecondaryWeapon())
 	{
 		SetScale( 1 );
