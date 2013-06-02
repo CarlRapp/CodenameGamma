@@ -94,8 +94,8 @@ void Level::LoadLevel(string Levelname)
 	ModelManager::GetInstance()->LoadModel("Shotgun-WOG", "Shotgun.obj", "DATA/Models/Shotgun/");
 	ModelManager::GetInstance()->LoadModel("SniperRifle-WOG", "SniperRifle.obj", "DATA/Models/SniperRifle/");
 	ModelManager::GetInstance()->LoadModel("AutomaticRifle-WOG", "AutomaticRifle.obj", "DATA/Models/AutomaticRifle/");
-	//ModelManager::GetInstance()->LoadModel("SniperRifle-WOG", "SniperRifle.dae", "DATA/Models/SniperRifle/");
-	//ModelManager::GetInstance()->LoadModel("AutomaticRifle-WOG", "AutomaticRifle.dae", "DATA/Models/AutomaticRifle/");
+	
+	ModelManager::GetInstance()->LoadModel("Fire", "Fire.obj", "DATA/Models/Fire/");
 
 	ModelManager::GetInstance()->LoadModel("CannedFood", "CannedFood.obj", "DATA/Models/CannedFood/");
 	ModelManager::GetInstance()->LoadModel("Canister", "Canister.obj", "DATA/Models/Canister/");

@@ -3,6 +3,7 @@
 #define WEAPON_H
 
 #include "../GameObject.h"
+#include "WeaponFire.h"
 #include "Projectiles/Projectile.h"
 
 using namespace DirectX;
