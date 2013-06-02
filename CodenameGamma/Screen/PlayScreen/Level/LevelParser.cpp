@@ -411,7 +411,6 @@ GameObject* LevelParser::GetGameObject( string GameObjectName )
 	else if( GameObjectName == "Sand Bag" )
 	{
 		ModelManager::GetInstance()->LoadModel("SandBag", "SandBag.obj", "DATA/Models/SandBag/");
-		ModelManager::GetInstance()->LoadModel("SandBag_VEG", "SandBag_VEG.obj", "DATA/Models/Vegetation/SandBag/");
 		Result	=	new SandBag();
 	}
 	else if( GameObjectName == "Pickup Truck" )
@@ -489,7 +488,13 @@ GameObject* LevelParser::GetGameObject( string GameObjectName )
 	else if( GameObjectName == "Aston Martin" )
 	{
 		ModelManager::GetInstance()->LoadModel("AstonMartin", "AstroMartinCar.obj", "DATA/Models/AstroMartinCar/");
-		ModelManager::GetInstance()->LoadModel("AstroMartinCar_VEG", "AstroMartinCar_VEG.obj", "DATA/Models/Vegetation/AstroMartinCar/");
+		ModelManager::GetInstance()->LoadModel("AstonMartin_VEG", "AstroMartinCar_VEG.obj", "DATA/Models/Vegetation/AstroMartinCar/");
+		Result	=	new AstonMartin();
+	}
+	else if( GameObjectName == "Barbed Wire" )
+	{
+		ModelManager::GetInstance()->LoadModel("BarbedWire", "BarbedWire.obj", "DATA/Models/BarbedWire/");
+		ModelManager::GetInstance()->LoadModel("BarbedWire_VEG", "BarbedWire_VEG.obj", "DATA/Models/Vegetation/BarbedWire/");
 		Result	=	new AstonMartin();
 	}
 	else
