@@ -6,7 +6,7 @@ Pistol::Pistol()
 	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "Glock" ) );
 
 	gCooldown	=	WeaponCooldown(0.0f, 0.2f);
-	gClip		=	WeaponClip(9, 9);
+	gClip		=	WeaponClip(12, 12);
 	gReloadTime	=	WeaponReloadTime(0.0f, 2.5f);
 	gAmmo		=	-1;
 
