@@ -117,6 +117,7 @@ public:
 
 	void	CollideWith(GameObject* Instance);
 
+	bool	IsRunning() { return gMoveState == Run; }
 
 	float	GetSpeed()
 	{
