@@ -22,6 +22,8 @@ class EnemyUnit : public Unit
 	bool Attacking;
 	float updateHuntTimer;
 
+	bool roamingInNodes;
+
 protected:
 	NodeMap*			gNodeMap;
 

@@ -86,38 +86,72 @@ void EnemyUnit::GetNewPath(Terrain* terrain)
 	XMFLOAT2 temp;
 	XMFLOAT3 endPos;
 
-	XMVECTOR startPosV = XMLoadFloat3( &startPos );
-	XMFLOAT3 targetPos;
-	XMVECTOR targetPosV;
-	float closesDistance;
-
 	bool foundPath = false;
-	switch (gBehaviourState)
+
+	if (gBehaviourState == Roaming)
 	{
-	case Roaming:		
+		if (gTargets.empty())
+			temp	= gNodeMap->GetRandomNode()->Position;
 
-		temp	= gNodeMap->GetRandomNode()->Position;
+		XMVECTOR startPosV = XMLoadFloat3( &startPos );
 
-		closesDistance = INFINITE;
+		float closesDistance = INFINITE;
 		for (int i = 0; i < gTargets.size(); ++i)
 		{
-			targetPos	= gTargets[i]->GetFloat3Value( Position );
-			targetPosV	= XMLoadFloat3( &targetPos );
+			XMFLOAT3 targetPos	= gTargets[i]->GetFloat3Value( Position );
+			XMVECTOR targetPosV	= XMLoadFloat3( &targetPos );
 
-			float distance = XMVectorGetX( XMVector3Length(XMLoadFloat3( &targetPos ) - startPosV) );
+			float distance = XMVectorGetX( XMVector3Length(targetPosV - startPosV) );
 
 			if ( distance < closesDistance )
+			{
+				closesDistance = distance;
 				temp = XMFLOAT2(targetPos.x, targetPos.z);
+			}
 		}
 		
 		endPos = XMFLOAT3(temp.x, 0, temp.y);
-		foundPath = gNodeMap->BuildPath(startPos, endPos, gPath);		
-		break;
-	case Returning:		
+
+
+		PatrolNode* CA = gNodeMap->GetClosestNode(startPos);
+		PatrolNode* CB = gNodeMap->GetClosestNode(endPos);
+
+		XMVECTOR A = XMLoadFloat2( &CA->Position );
+		XMVECTOR B = XMLoadFloat2( &CB->Position );
+
+		if (XMVector2Equal(A, B))
+		{
+			foundPath = terrain->FindPath(startPos, endPos, gPath);
+			roamingInNodes = false;
+		}
+		else if (roamingInNodes)
+		{
+			foundPath = gNodeMap->BuildPath(startPos, endPos, gPath);
+		}
+		else
+		{
+			XMVECTOR target = XMLoadFloat2(&temp);
+
+			float targetToNodeDist = XMVectorGetX( XMVector2Length(B - target) );
+
+			if (closesDistance < targetToNodeDist)
+				foundPath = terrain->FindPath(startPos, endPos, gPath);
+
+			else
+			{
+				endPos = XMFLOAT3(CA->Position.x, 0, CA->Position.y);
+				foundPath = terrain->FindPath(startPos, endPos, gPath);
+				roamingInNodes = true;
+			}
+		}
+	}
+
+	else if (gBehaviourState == Returning)
+	{
 		temp	= gNodeMap->GetClosestNode(startPos)->Position;
 		endPos = XMFLOAT3(temp.x, 0, temp.y);
 		foundPath = terrain->FindPath(startPos, endPos, gPath);
-		break;
+		roamingInNodes = true;
 	}
 
 	if (foundPath && !gPath.empty())
