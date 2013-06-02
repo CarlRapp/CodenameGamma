@@ -47,6 +47,7 @@ bool Pistol::Fire( GameObject* Owner, GameObject* Target, float DamageMul )
 		XMVECTOR	tVelocityV	= tBullet->GetSpeed() * XMVector3Normalize( XMLoadFloat3( &GetFloat3Value(Direction) ) );
 
 		tVelocityV = XMVector3TransformCoord(tVelocityV, offsetRotation);
+		tVelocityV = XMVectorSetY(tVelocityV, 0);
 
 		XMFLOAT3	tVelocity;
 		XMStoreFloat3(&tVelocity, tVelocityV);
@@ -69,7 +70,7 @@ bool Pistol::Fire( GameObject* Owner, GameObject* Target, float DamageMul )
 
 		AddGameObject( tBullet );
 
-		WeaponFire* fire = new WeaponFire(0.1f, 2.0f, this);
+		WeaponFire* fire = new WeaponFire(0.1f, 0.5f, 1.0f, this);
 		AddGameObject(fire);
 
 		return true;
