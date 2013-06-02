@@ -95,6 +95,8 @@ public:
 
 	ModelInstance*	GetWOGModelInstance() { return gWOGModel; }
 
+	XMFLOAT4		GetWeaponOffsetRotation();
+
 	float			GetReloadTime() { return gReloadTime.second; }
 	void			CancelReload()
 	{
