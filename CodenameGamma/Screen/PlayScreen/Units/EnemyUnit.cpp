@@ -98,15 +98,18 @@ void EnemyUnit::GetNewPath(Terrain* terrain)
 		float closesDistance = INFINITE;
 		for (int i = 0; i < gTargets.size(); ++i)
 		{
-			XMFLOAT3 targetPos	= gTargets[i]->GetFloat3Value( Position );
-			XMVECTOR targetPosV	= XMLoadFloat3( &targetPos );
-
-			float distance = XMVectorGetX( XMVector3Length(targetPosV - startPosV) );
-
-			if ( distance < closesDistance )
+			if (gTargets[i]->IsAlive())
 			{
-				closesDistance = distance;
-				temp = XMFLOAT2(targetPos.x, targetPos.z);
+				XMFLOAT3 targetPos	= gTargets[i]->GetFloat3Value( Position );
+				XMVECTOR targetPosV	= XMLoadFloat3( &targetPos );
+
+				float distance = XMVectorGetX( XMVector3Length(targetPosV - startPosV) );
+
+				if ( distance < closesDistance )
+				{
+					closesDistance = distance;
+					temp = XMFLOAT2(targetPos.x, targetPos.z);
+				}
 			}
 		}
 		

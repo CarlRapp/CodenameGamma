@@ -46,6 +46,13 @@ public:
 	{ 
 		return gPlayerScore; 
 	}
+
+	bool IsAlive() 
+	{ 
+		if (m_Unit) 
+			return m_Unit->IsAlive();
+		return false;
+	}
 	
 	int	GetIndex(){ return m_PlayerIndex; }
 };

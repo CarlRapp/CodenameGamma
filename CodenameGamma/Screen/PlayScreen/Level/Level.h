@@ -17,7 +17,20 @@
 #include "../Units/EnemyUnit.h"
 #include "../Player.h"
 #include "Wave.h"
+#include "../Items/Item.h"
 #include <functional>
+
+static const float AutomaticRifleSpawnTimerStop = 50.0f;
+static const float  ShotgunSpawnTimerStop = 85.0f;
+static const float  SniperRifleSpawnTimerStop = 120.f;
+
+static const float  FoodSpawnTimerStop = 10.0f;
+static const float  WaterSpawnTimerStop = 10.0f;
+static const float 	AmmoBoxSpawnTimerStop = 20.0f;
+static const float  MedicPackSpawnTimerStop = 50.0f;
+
+static const float  StandardArea = 100 * 100 * UnitsPerMeter * UnitsPerMeter;
+
 struct SystemData
 {
 	SystemData(){}
@@ -77,12 +90,6 @@ private:
 	vector<GameObject*>		gGameObjects;
 	QuadTree				*gQuadTree;
 
-
-	void	AddDirectionalLight(bool hasShadow);
-	void	AddPointLight(bool hasShadow, XMFLOAT3 pos);
-	void	AddSpotLight(bool hasShadow,  XMFLOAT3 pos);
-	void	AddInstance(float x, float y, float z, Model *model);
-
 	void BlockPathWithObject(GameObject* go)
 	{
 		vector<BoundingOrientedBox> boxes = go->GetBoundingBoxes();
@@ -121,16 +128,6 @@ private:
 		}
 	}
 
-	/*
-	void AddLight(DirectionalLight* light) { gDirLights.push_back(light); }
-	void AddLight(PointLight* light) { gPointLights.push_back(light); }
-	void AddLight(SpotLight* light) { gSpotLights.push_back(light); }
-	
-	void RemoveLight(DirectionalLight* light) { gDirLights.erase(remove(gDirLights.begin(), gDirLights.end(), light), gDirLights.end()); delete light; }
-	void RemoveLight(PointLight* light) { gPointLights.erase(remove(gPointLights.begin(), gPointLights.end(), light), gPointLights.end()); delete light; }
-	void RemoveLight(SpotLight* light) { gSpotLights.erase(remove(gSpotLights.begin(), gSpotLights.end(), light), gSpotLights.end()); delete light; }
-	*/
-	
 	void AddLight(Light* light)
 	{
 		
@@ -166,6 +163,15 @@ private:
 		RemoveLight( light );
 		SAFE_DELETE( light );
 	}
+
+	float AutomaticRifleSpawnTimer;
+	float ShotgunSpawnTimer;
+	float SniperRifleSpawnTimer;
+
+	float FoodSpawnTimer;
+	float WaterSpawnTimer;
+	float AmmoBoxSpawnTimer;
+	float MedicPackSpawnTimer;
 	
 	void RunCollisionTest();
 
@@ -195,6 +201,9 @@ public:
 
 		return allDead;
 	}
+
+	void	SpawnItem(Item* item);
+	void	SpawnItems(float deltaTime);
 
 	Wave::WaveGUIInfo	GetWaveInfo(){ return gWave->GetGUIInfo(); }
 };

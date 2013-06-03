@@ -12,7 +12,7 @@ public:
 	Bullet(void);
 	~Bullet(void);
 
-	float	GetSpeed();
+	float	GetSpeed() { return 700.0f; }
 };
 
 #endif
