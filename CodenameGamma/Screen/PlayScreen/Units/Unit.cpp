@@ -499,6 +499,10 @@ void Unit::ReloadWeapon()
 
 bool Unit::FireWeapon(GameObject* Target)
 {
+
+	if (!IsAlive())
+		return false;
+
 	if ( gCurrentWeapon )
 	{
 		if (gWeaponState == Aim && !PlayingAnimation(GetAnimation("Draw")))
