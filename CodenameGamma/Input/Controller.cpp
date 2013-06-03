@@ -23,7 +23,7 @@ Controller::~Controller()
 	gNewButtonState	=	0;
 }
 
-void Controller::Update()
+void Controller::Update(float DeltaTime)
 {
 	ZeroMemory( &gInputState, sizeof(XINPUT_STATE) );
 	gIsConnected	=	XInputGetState( gIndex, &gInputState );
@@ -55,6 +55,17 @@ void Controller::Update()
 
 	gNewButtonState[LEFT_TRIGGER]	=	GetTriggerValue( LEFT ) > 0.45f ? true : false;
 	gNewButtonState[RIGHT_TRIGGER]	=	GetTriggerValue( RIGHT ) > 0.45f ? true : false;
+
+	if( gVibrateTimer > 0 )
+	{
+		gVibrateTimer	-=	DeltaTime;
+
+		if( gVibrateTimer <= 0 )
+		{
+			gVibrateTimer	=	0;
+			Vibrate(0, 0, 0);
+		}
+	}
 }
 
 float Controller::GetTriggerValue(Xbox_Direction Trigger)
@@ -102,8 +113,13 @@ InputState Controller::GetButtonState(Xbox_Button Button)
 	return	UP;
 }
 
-void Controller::Vibrate(float Left, float Right)
+void Controller::Vibrate(float Left, float Right, float Time)
 {
+	if( Time < gVibrateTimer )
+		return;
+
+	gVibrateTimer	=	Time;
+
 	//	Clamp the values from 0 to 1
 	Left	=	max(min(Left, 1), 0);
 	Right	=	max(min(Right, 1), 0);

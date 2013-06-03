@@ -6,9 +6,9 @@ AutomaticRifle::AutomaticRifle()
 	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "AutomaticRifle" ) );
 	SetWOGModelInstance( ModelManager::GetInstance()->CreateModelInstance( "AutomaticRifle-WOG" ) );
 
-	gCooldown	=	WeaponCooldown(0.0f, 1.0f);
-	gClip		=	WeaponClip(8, 8);
-	gAmmo		=	16;
+	gCooldown	=	WeaponCooldown(0.0f, 0.333f);
+	gClip		=	WeaponClip(30, 30);
+	gAmmo		=	30;
 
 	gReloadTime	=	WeaponReloadTime(0.0f, 4.0f);
 
@@ -70,7 +70,7 @@ bool AutomaticRifle::Fire( GameObject* Owner, GameObject* Target, float DamageMu
 		tBullet->SetTeam( Owner->GetTeam() );
 		tBullet->SetOwner( Owner );
 
-		SoundManager::GetInstance()->Play("Shotgun_Fire", SFX);
+		SoundManager::GetInstance()->Play("Rifle_Fire", SFX);
 
 		gCooldown.first	=	gCooldown.second;
 		--gClip.first;

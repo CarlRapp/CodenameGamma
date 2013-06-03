@@ -20,6 +20,8 @@ Rat::Rat()
 
 	AttackRange = 1.5f;
 	AttackMaxRange = 2.0f;
+
+	gDeathSound	=	"Rat_Death";
 }
 
 Rat::~Rat()

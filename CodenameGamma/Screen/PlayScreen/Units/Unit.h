@@ -27,6 +27,8 @@ protected:
 	Weapon*	gSecondaryWeapon;
 	Weapon*	gCurrentWeapon;
 
+	string	gDeathSound;
+
 	float gWalkSpeed;
 	float gRunSpeed;
 

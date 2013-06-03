@@ -89,7 +89,7 @@ bool Shotgun::Fire( GameObject* Owner, GameObject* Target, float DamageMul )
 
 			XMVECTOR	velocityV	= tVelocityV * tBullet->GetSpeed();
 			
-			XMVECTOR	up			= XMLoadFloat3(&XMFLOAT3(3,1,0));
+			XMVECTOR	up			= XMLoadFloat3(&XMFLOAT3(0,1,0));
 			
 			XMVECTOR	axis		= XMVector3Cross(velocityV, up);
 			float angle				= MathHelper::RandF(0, PI * 2);

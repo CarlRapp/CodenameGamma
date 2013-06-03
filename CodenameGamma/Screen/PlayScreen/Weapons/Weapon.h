@@ -118,7 +118,7 @@ public:
 
 	bool	HasMaxAmmo()
 	{
-		return ( gAmmo / gClip.second ) > 8;
+		return ( gAmmo / gClip.second ) > 8 || gAmmo == -1;
 	}
 
 	/*

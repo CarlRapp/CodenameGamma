@@ -49,7 +49,7 @@ InputManager::~InputManager()
 }
 
 
-void InputManager::Update()
+void InputManager::Update(float DeltaTime)
 {
 	//	Only update input if the
 	//	game is the active window
@@ -58,7 +58,7 @@ void InputManager::Update()
 
 	//	Update controllers
 	for each(Controller* tController in *gControllers)
-		tController->Update();
+		tController->Update( DeltaTime );
 
 	//	Update keyboard input
 	gKeyboard->Update();
