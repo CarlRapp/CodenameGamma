@@ -152,7 +152,7 @@ void Level::Update(float DeltaTime)
 		p->Update(DeltaTime);
 
 		PlayerUnit*	tUnit	=	p->GetUnit();
-		if( gWave->IsLimitReached() && tUnit )
+		if ( gWave->IsLimitReached() && tUnit )
 		{
 			if( !tUnit->IsAlive() )
 				continue;
@@ -161,6 +161,20 @@ void Level::Update(float DeltaTime)
 			tUnit->Eat( -1.0f * DeltaTime );
 			tUnit->Hurt( 1.0f * DeltaTime );
 		}
+
+		if (p->IsDead())
+		{
+			for each (Player *p2 in gPlayers)
+			{
+				if (!p2->IsDead())
+				{
+					p->Spectate(p2);
+					break;
+				}
+			}
+		}
+
+		UpdateSpectator(p);
 	}
 
 	//for ( int i = gGameObjects.size() - 1; i >= 0; --i )
@@ -201,6 +215,87 @@ void Level::Update(float DeltaTime)
 	gWave->Update( DeltaTime );
 
 	SpawnItems(DeltaTime);
+}
+
+void Level::UpdateSpectator(Player* p)
+{
+	if (p->IsSpectating())
+	{
+		bool goPrev = p->GetController()->GetButtonState(Xbox_Button::LEFT_BUMPER) == PRESSED;
+		bool goNext = p->GetController()->GetButtonState(Xbox_Button::RIGHT_BUMPER) == PRESSED;
+
+		if (goPrev || goNext && goPrev != goNext)
+		{
+			vector<Player*> tempPlayers;
+
+			for each (Player *p2 in gPlayers)
+			{
+				if (!p2->IsDead() && !p2->IsSpectating())
+					tempPlayers.push_back(p2);
+			}
+
+			Player* first = 0;
+			Player* last = 0;
+			Player* next = 0;
+			Player* prev = 0;
+			int current = (int)p->GetSpectateIndex();
+			for each (Player *p2 in tempPlayers)
+			{
+				int temp = p2->GetIndex();
+
+				if (temp < current)
+				{
+					if (prev)
+					{
+						if (temp > prev->GetIndex())
+							prev = p2;
+
+						if (temp < first->GetIndex())
+							first = p2;
+					}
+					else
+					{
+						prev = p2;
+						first = p2;
+					}
+				}
+
+				else if (temp > current)
+				{
+					if (next)
+					{
+						if (temp < next->GetIndex())
+							next = p2;
+
+						if (temp > last->GetIndex())
+							last = p2;
+					}
+					else
+					{
+						next = p2;
+						last = p2;
+					}
+				}
+			}
+
+			if (goPrev)
+			{
+				if (prev)
+					p->Spectate(prev);
+				else if (last)
+					p->Spectate(last);
+
+			}
+
+			else if (goNext)
+			{
+				if (next)
+					p->Spectate(next);
+				else if (first)
+					p->Spectate(first);
+			}
+		}
+	}
 }
 
 void Level::Render()

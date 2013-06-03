@@ -183,6 +183,9 @@ public:
 	void	LoadLevel(string Levelname);
 
 	void	Update(float DeltaTime);
+
+	void	UpdateSpectator(Player* p);
+
 	void	Render();
 	void	SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight);
 
