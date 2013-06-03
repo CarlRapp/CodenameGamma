@@ -100,7 +100,7 @@ bool Shotgun::Fire( GameObject* Owner, GameObject* Target, float DamageMul )
 
 			axis	= XMVector3TransformCoord(axis, tRot);
 
-			angle	= MathHelper::RandF(0, MaxSpread);
+			angle	= XMConvertToRadians( MathHelper::RandF(0, MaxSpread) );
 			tQuat	= XMQuaternionRotationAxis(axis, angle);
 			tRot	= XMMatrixRotationQuaternion(tQuat);
 
