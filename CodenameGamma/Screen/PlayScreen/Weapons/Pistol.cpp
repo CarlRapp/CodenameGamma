@@ -5,7 +5,7 @@ Pistol::Pistol()
 {
 	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "Glock" ) );
 
-	gCooldown	=	WeaponCooldown(0.0f, 0.2f);
+	gCooldown	=	WeaponCooldown(0.0f, 0.45f);
 	gClip		=	WeaponClip(12, 12);
 	gReloadTime	=	WeaponReloadTime(0.0f, 2.5f);
 	gAmmo		=	-1;
@@ -67,6 +67,8 @@ bool Pistol::Fire( GameObject* Owner, GameObject* Target, float DamageMul )
 
 		gCooldown.first	=	gCooldown.second;
 		--gClip.first;
+
+		tBullet->SetDamage(10.0f);
 
 		AddGameObject( tBullet );
 

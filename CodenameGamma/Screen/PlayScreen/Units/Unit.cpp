@@ -218,6 +218,9 @@ void Unit::UpdateAnimation()
 bool BodyInSync;
 void Unit::SetMoveState(MoveState newMoveState)
 {
+	if (!IsAlive())
+		return;
+
 	switch (newMoveState)
 	{
 	case Stand:
@@ -499,7 +502,6 @@ void Unit::ReloadWeapon()
 
 bool Unit::FireWeapon(GameObject* Target)
 {
-
 	if (!IsAlive())
 		return false;
 
@@ -537,6 +539,9 @@ void Unit::Heal( float Value )
 
 void Unit::ChangeWeapon( )
 {
+	if (!IsAlive())
+		return;
+
 	if( !gSecondaryWeapon || !gCurrentWeapon )
 		return;
 	if( gWeaponState != Hold )

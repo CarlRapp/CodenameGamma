@@ -73,7 +73,7 @@ void Projectile::CollideWith(GameObject* Instance, vector<CollisionData> CD)
 		{
 			((PlayerUnit*)gOwner)->GetPlayerScore()->PlayScore	+=	10 * gDamage;
 
-			if( !tUnit->GetHealth().first <= 0 )
+			if( tUnit->GetHealth().first <= 0 )
 				((PlayerUnit*)gOwner)->GetPlayerScore()->PlayKillCount	+=	1;
 		}
 		

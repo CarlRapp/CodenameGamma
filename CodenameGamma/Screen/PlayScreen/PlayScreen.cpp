@@ -72,6 +72,7 @@ bool PlayScreen::Load()
 	SoundManager::GetInstance()->Load("Pistol_Reload", "DATA/Sounds/Weapons/Pistol_Reload.wav", FMOD_SOFTWARE | FMOD_2D);
 	SoundManager::GetInstance()->Load("Pistol_Empty", "DATA/Sounds/Weapons/Pistol_Empty.wav", FMOD_SOFTWARE | FMOD_2D);
 
+	SoundManager::GetInstance()->Load("Shotgun_Reload", "DATA/Sounds/Weapons/Shotgun_Reload.wav", FMOD_SOFTWARE | FMOD_2D);
 	SoundManager::GetInstance()->Load("Shotgun_Fire", "DATA/Sounds/Weapons/Shotgun_Fire.wav", FMOD_SOFTWARE | FMOD_2D);
 
 	SoundManager::GetInstance()->Load("Rifle_Fire", "DATA/Sounds/Weapons/Rifle_Fire.wav", FMOD_SOFTWARE | FMOD_2D);

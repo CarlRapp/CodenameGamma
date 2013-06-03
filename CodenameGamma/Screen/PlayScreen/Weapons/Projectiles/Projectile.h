@@ -32,6 +32,9 @@ public:
 
 	void			SetHP( int HP ) { gHP = HP; }
 
+	void			SetDamage(float damage) { gDamage = damage; }
+	void			SetLifeSpan(float lifeSpan) { gLifeSpan = lifeSpan; }
+
 	virtual void	MultiplyDamage( float Amount )
 	{
 		gDamage	*=	Amount;

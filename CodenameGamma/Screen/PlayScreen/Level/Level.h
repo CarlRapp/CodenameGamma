@@ -24,9 +24,9 @@ static const float	AutomaticRifleSpawnTimerStop = 50.0f;
 static const float  ShotgunSpawnTimerStop = 85.0f;
 static const float  SniperRifleSpawnTimerStop = 120.0f;
 
-static const float  FoodSpawnTimerStop = 10.0f;
-static const float  WaterSpawnTimerStop = 10.0f;
-static const float 	AmmoBoxSpawnTimerStop = 20.0f;
+static const float  FoodSpawnTimerStop = 30.0f;
+static const float  WaterSpawnTimerStop = 30.0f;
+static const float 	AmmoBoxSpawnTimerStop = 25.0f;
 static const float  MedicPackSpawnTimerStop = 50.0f;
 
 static const float  StandardArea = 100 * 100 * UnitsPerMeter * UnitsPerMeter;

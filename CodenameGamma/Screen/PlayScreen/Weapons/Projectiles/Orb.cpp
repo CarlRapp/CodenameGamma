@@ -46,5 +46,5 @@ void Orb::Update(float deltaTime, Terrain* terrain)
 
 float Orb::GetSpeed()
 {
-	return 100.0f;
+	return 150.0f;
 }
