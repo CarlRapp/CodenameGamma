@@ -20,7 +20,7 @@
 #include "../Items/Item.h"
 #include <functional>
 
-static const float AutomaticRifleSpawnTimerStop = 50.0f;
+static const float	AutomaticRifleSpawnTimerStop = 50.0f;
 static const float  ShotgunSpawnTimerStop = 85.0f;
 static const float  SniperRifleSpawnTimerStop = 120.0f;
 
