@@ -75,6 +75,8 @@ bool SniperRifle::Fire( GameObject* Owner, GameObject* Target, float DamageMul )
 		gCooldown.first	=	gCooldown.second;
 		--gClip.first;
 
+		tBullet->SetHP( 3 );
+
 		AddGameObject( tBullet );
 
 		WeaponFire* fire = new WeaponFire(0.1f, 1.0f, 2.0f, this);

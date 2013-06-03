@@ -7,6 +7,9 @@
 
 using namespace DirectX;
 
+#define NumBullets 10
+#define MaxSpread 20.0f
+
 class Shotgun : public Weapon
 {
 public:
