@@ -345,6 +345,9 @@ void Unit::SetMoveState(MoveState newMoveState)
 
 void Unit::SetWeaponState(WeaponState newWeaponState)
 {
+	if (!IsAlive())
+		return;
+
 	switch (gWeaponState)
 	{
 	case Hold:
@@ -439,6 +442,9 @@ void Unit::Hurt(float Damage)
 
 void Unit::ReloadWeapon()
 {
+	if (!IsAlive())
+		return;
+
 	if ( gCurrentWeapon )
 	{
 		if (gCurrentWeapon->Reload())
