@@ -213,9 +213,9 @@ private:
 
 		if (dist < -700)
 			return SHADOWMAP_4096;
-		else if (dist < -500)
+		else if (dist < -100)
 			return SHADOWMAP_2048;
-		else if (dist < -300)
+		else if (dist < 100)
 			return SHADOWMAP_1024;
 		else
 			return SHADOWMAP_512;		

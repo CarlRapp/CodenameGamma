@@ -22,7 +22,7 @@ AutomaticRifle::AutomaticRifle()
 	gWeaponAnimations.UpperRun			= "WeaponUpperRun";
 	gWeaponAnimations.UpperStand		= "WeaponUpperStand";
 
-	gReloadSound = "Shotgun_Reload";
+	gReloadSound = "Pistol_Reload";
 }
 
 AutomaticRifle::~AutomaticRifle()
