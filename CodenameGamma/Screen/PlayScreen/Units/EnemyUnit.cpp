@@ -207,7 +207,7 @@ void EnemyUnit::UpdateHunt(float deltaTime, Terrain* terrain)
 	{
 		HasVisionOnTarget = false;
 		gBehaviourState	= Roaming;
-		roamingInNodes = true;
+		roamingInNodes = false;
 		return;
 	}
 
