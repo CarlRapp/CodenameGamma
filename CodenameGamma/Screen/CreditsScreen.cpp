@@ -39,14 +39,8 @@ void CreditsScreen::Update(float DeltaTime)
 	bool	CONFIRM	=	tC->GetButtonState( A ) == PRESSED			|| tK->GetKeyState( VK_RETURN ) == PRESSED;
 	bool	BACK	=	tC->GetButtonState( B ) == PRESSED			|| tK->GetKeyState( VK_ESCAPE ) == PRESSED;
 
-	if( CONFIRM )
-	{
-	}
-
-	if( BACK )
-	{
+	if( BACK || CONFIRM )
 		gGotoNextFrame	=	MAIN_MENU_SCREEN;
-	}
 }
 
 void CreditsScreen::Render()

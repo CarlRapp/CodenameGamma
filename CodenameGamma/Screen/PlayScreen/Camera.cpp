@@ -25,7 +25,8 @@ Camera::Camera(float fovy, float aspectRatio, float nearZ, float farZ)
 	m_ViewPort.MinDepth = 0.0f;
 	m_ViewPort.MaxDepth = 1.0f;
 
-	m_Fovy			= fovy;
+
+	m_Fovy			= 2 * atan( tan( 0.5f * fovy ) * aspectRatio );
 	m_AspectRatio	= aspectRatio;
 	m_NearZ			= nearZ;
 	m_FarZ			= farZ;	
