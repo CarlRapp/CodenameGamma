@@ -361,10 +361,14 @@ void PlayScreen::RenderGUI( Player* P )
 			tWeaponIndex	=	3;
 		}
 
-		tVP.TopLeftX	=	ClipZero.x + dir * 11 * tWidth;
-		tVP.TopLeftY	=	ClipZero.y;
 		tVP.Width		=	tWeaponWidth * pVP.Height * 0.001f;
 		tVP.Height		=	tWeaponHeight * pVP.Height * 0.001f;
+		if( fixVP )
+			tVP.TopLeftX	=	ClipZero.x + dir * 11 * tWidth - tVP.Width;
+		else
+			tVP.TopLeftX	=	ClipZero.x + dir * 11 * tWidth;
+		tVP.TopLeftY	=	ClipZero.y;
+
 		RenderGUISprite( tVP, gWeapons[tWeaponIndex] );
 
 		tClipPos.x	=	ClipZero.x + (float)dir * 5.5f * tWidth;

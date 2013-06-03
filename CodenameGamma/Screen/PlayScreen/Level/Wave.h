@@ -37,6 +37,7 @@ private:
 	NodeMap*	gNodeMap;
 	WaveTimer	gWaveTimer;
 	float		gHealthMultiplier, gSpeedMultiplier, gDamageMultiplier;
+	float		gWaveFinishMultipliers[3];
 	WaveUnits	gUnitsSpawned;
 
 	vector<WaveInfo>	gWaves;

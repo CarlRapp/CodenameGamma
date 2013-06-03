@@ -61,9 +61,9 @@ void Wave::NewWave()
 		{
 			tUnit	=	new Ghost();
 			tUnit->SetMultipliers(
-				tInfo.GhostInfo[0],
-				tInfo.GhostInfo[1],
-				tInfo.GhostInfo[2]
+				tInfo.GhostInfo[0] * gHealthMultiplier,
+				tInfo.GhostInfo[1] * gDamageMultiplier,
+				tInfo.GhostInfo[2] * gSpeedMultiplier
 			);
 			tUnit->Boost( 1 );
 			tUnit->SetNodeMap( gNodeMap );
@@ -80,9 +80,9 @@ void Wave::NewWave()
 		{
 			tUnit	=	new Tank();
 			tUnit->SetMultipliers(
-				tInfo.TankInfo[0],
-				tInfo.TankInfo[1],
-				tInfo.TankInfo[2]
+				tInfo.TankInfo[0] * gHealthMultiplier,
+				tInfo.TankInfo[1] * gDamageMultiplier,
+				tInfo.TankInfo[2] * gSpeedMultiplier
 			);
 			tUnit->Boost( 1 );
 			tUnit->SetNodeMap( gNodeMap );
@@ -99,9 +99,9 @@ void Wave::NewWave()
 		{
 			tUnit	=	new Rat();
 			tUnit->SetMultipliers(
-				tInfo.RatInfo[0],
-				tInfo.RatInfo[1],
-				tInfo.RatInfo[2]
+				tInfo.RatInfo[0] * gHealthMultiplier,
+				tInfo.RatInfo[1] * gDamageMultiplier,
+				tInfo.RatInfo[2] * gSpeedMultiplier
 			);
 			tUnit->Boost( 1 );
 			tUnit->SetNodeMap( gNodeMap );
@@ -118,11 +118,15 @@ void Wave::NewWave()
 			break;
 	}
 
-
-
 	gWaveTimer.first	=	gWaveTimer.second;
 	++gCurrentWave;
-	int a=2;
+
+	if( gCurrentWave % gWaves.size() == 0)
+	{
+		gHealthMultiplier	*=	gWaveFinishMultipliers[0];
+		gDamageMultiplier	*=	gWaveFinishMultipliers[1];
+		gSpeedMultiplier	*=	gWaveFinishMultipliers[2];
+	}
 }
 
 void Wave::MoveUnit( GameObject* Instance )
@@ -155,13 +159,13 @@ void Wave::LoadWaveData( string LevelPath )
 
 		if( tToken == "!" )
 		{
-			gHealthMultiplier	=	atof( tLine.substr( 0, tLine.find( ',' ) ).c_str() );
+			gWaveFinishMultipliers[0]	=	atof( tLine.substr( 0, tLine.find( ',' ) ).c_str() );
+			
 			tLine	=	tLine.substr( tLine.find( ',' ) + 1 );
+			gWaveFinishMultipliers[1]	=	atof( tLine.substr( 0, tLine.find( ',' ) ).c_str() );
 
-			gDamageMultiplier	=	atof( tLine.substr( 0, tLine.find( ',' ) ).c_str() );
 			tLine	=	tLine.substr( tLine.find( ',' ) + 1 );
-
-			gSpeedMultiplier	=	atof( tLine.substr( 0, tLine.find( ',' ) ).c_str() );
+			gWaveFinishMultipliers[2]	=	atof( tLine.substr( 0, tLine.find( ',' ) ).c_str() );
 		}
 		else if( tToken == "#" )
 			gWaves.push_back( ReadWaveLine( tLine ) );
@@ -171,8 +175,6 @@ void Wave::LoadWaveData( string LevelPath )
 			gWaveTimer.first	=	gWaveTimer.second;
 		}
 	}
-
-
 	tFileStream.close();
 }
 
