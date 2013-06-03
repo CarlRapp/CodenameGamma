@@ -30,7 +30,7 @@ public:
 	static	void			Initialize(HINSTANCE* HInstance, HWND* Hwnd, int ScreenWidth, int ScreenHeight);
 
 
-	void	Update();
+	void	Update( float DeltaTime );
 
 	Controller*	GetController(int Index);
 	Keyboard*	GetKeyboard();

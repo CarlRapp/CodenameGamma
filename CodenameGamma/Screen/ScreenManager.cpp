@@ -47,7 +47,7 @@ void ScreenManager::Update(float DeltaTime)
 
 	gFpsCounter->Title	=	to_string((long double)((int)(1/DeltaTime)));
 	SoundManager::GetInstance()->Update(DeltaTime);
-	InputManager::GetInstance()->Update();
+	InputManager::GetInstance()->Update(DeltaTime);
 
 	if ( InputManager::GetInstance()->GetKeyboard()->GetKeyState(VK_F1) == PRESSED )
 		ToggleDebug();
