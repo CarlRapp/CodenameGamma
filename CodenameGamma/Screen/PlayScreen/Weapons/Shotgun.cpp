@@ -7,7 +7,7 @@ Shotgun::Shotgun()
 	SetWOGModelInstance( ModelManager::GetInstance()->CreateModelInstance( "Shotgun-WOG" ) );
 
 	gCooldown	=	WeaponCooldown(0.0f, 1.0f);
-	gClip		=	WeaponClip(8, 8);
+	gClip		=	WeaponClip(5, 5);
 	gAmmo		=	16;
 
 	gReloadTime	=	WeaponReloadTime(0.0f, 4.0f);

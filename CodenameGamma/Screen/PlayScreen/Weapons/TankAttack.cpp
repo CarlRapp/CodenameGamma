@@ -23,7 +23,7 @@ bool TankAttack::Fire( GameObject* Owner, GameObject* Target, float DamageMul )
 		gClip.first	=	0;
 
 		if ( IsOfType<Unit>(Target) )
-			((Unit*)Target)->Hurt( 1.5f * DamageMul );
+			((Unit*)Target)->Hurt( 5.0f * DamageMul );
 		return true;
 	}
 

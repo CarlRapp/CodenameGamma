@@ -6,10 +6,10 @@ Tank::Tank()
 	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "Tank" ) );
 	SetWeaponState(Hold);
 
-	SetHealth( UnitHealth( 50.0f, 50.0f ) );
+	SetHealth( UnitHealth( 150.0f, 150.0f ) );
 
-	gWalkSpeed = 1.5f;
-	gRunSpeed  = 3.0f;
+	gWalkSpeed = 1.8f;
+	gRunSpeed  = 3.6f;
 
 	SetScale(1.5f);
 
