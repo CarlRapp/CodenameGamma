@@ -16,8 +16,11 @@ private:
 	Camera		*m_Camera;
 	Controller	*m_Controller;
 	UINT		m_PlayerIndex;
+	UINT		m_SpectateIndex;
 
 	void	UpdateCamera(float deltaTime);
+
+	bool	gMasterOfUnit;
 
 	bool	IsButtonState( XboxBinds Key, InputState State );
 	bool	IsButtonState( KeyboardBinds Key, InputState State );
@@ -41,6 +44,7 @@ public:
 	PlayerUnit*	GetUnit()		{ return m_Unit; }
 
 	void		SetUnit(PlayerUnit* Instance);
+	void		Spectate(Player* player);
 
 	PlayerScore*	GetPlayerScore()
 	{ 
@@ -53,8 +57,19 @@ public:
 			return m_Unit->IsAlive();
 		return false;
 	}
+
+	bool IsDead() 
+	{ 
+		if (m_Unit) 
+			return m_Unit->GetState() == Dead;
+		return true;
+	}
+
+	bool IsSpectating() { return m_Unit && !gMasterOfUnit; }
 	
 	int	GetIndex(){ return m_PlayerIndex; }
+
+	int	GetSpectateIndex(){ return m_SpectateIndex; }
 };
 
 #endif
