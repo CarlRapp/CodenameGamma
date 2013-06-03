@@ -22,7 +22,7 @@ void MediPack::Update(float DeltaTime, Terrain* terrain)
 	if ( !gPointLight )
 	{
 		gPointLight	=	new PointLight();
-		gPointLight->GetGPULight()->Color		=	XMFLOAT4( 1.0f, 1.0f, 1.5f, 0.0f );
+		gPointLight->GetGPULight()->Color		=	XMFLOAT4( 1.0f, 0.0f, 0.0f, 0.0f );
 		gPointLight->GetGPULight()->Position	=	newPos;
 		gPointLight->GetGPULight()->Range		=	33.333f * 0.40f;
 		gPointLight->GetGPULight()->HasShadow	=	false;
