@@ -206,7 +206,8 @@ void EnemyUnit::UpdateHunt(float deltaTime, Terrain* terrain)
 	if (!gTargetPlayer->IsAlive())
 	{
 		HasVisionOnTarget = false;
-		gBehaviourState	= Returning;
+		gBehaviourState	= Roaming;
+		roamingInNodes = true;
 		return;
 	}
 
@@ -296,6 +297,7 @@ void EnemyUnit::ScanForEnemies(Terrain* terrain)
 					hasTargetPos	= false;
 					gTargetPlayer	= target;
 					gBehaviourState	= Hunting;
+					gPath.clear();
 					return;
 				}
 			}			
@@ -308,6 +310,7 @@ void EnemyUnit::Hunt(PlayerUnit* target)
 	hasTargetPos	= false;
 	gTargetPlayer	= target;
 	gBehaviourState	= Hunting;
+	gPath.clear();
 }
 
 bool EnemyUnit::Intersects(GameObject* B, vector<CollisionData>& CD)

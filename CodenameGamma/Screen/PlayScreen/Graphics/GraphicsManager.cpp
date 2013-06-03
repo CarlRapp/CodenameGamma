@@ -1600,7 +1600,7 @@ void GraphicsManager::CombineFinal()
 	//Effects::CombineFinalFX->SetOpacity(0.8f);
 	//RenderQuad(shadowVP, m_ShadowMapSRV, Effects::CombineFinalFX->BlendMonoTech);
 	
-	if (InputManager::GetInstance()->GetController(0)->GetButtonState(LEFT_BUMPER) == InputState::DOWN)
+	if (InputManager::GetInstance()->GetController(0)->GetButtonState(Xbox_Button::BACK) == InputState::DOWN)
 	{
 		RenderQuad(shadowVP, m_ShadowMapSRV0, Effects::CombineFinalFX->MonoTech);
 
