@@ -319,7 +319,7 @@ void Level::SpawnItem(Item* item)
 	XMFLOAT3 pos;
 	bool foundFreePos = false;
 
-	float border = 30;
+	float border = 30 * UnitsPerMeter;
 	XMFLOAT2 dim = gTerrain->GetDimensions();
 	XMFLOAT2 min = XMFLOAT2(border, border);
 	XMFLOAT2 max = XMFLOAT2(dim.x - border, dim.y - border);
