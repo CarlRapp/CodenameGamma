@@ -11,7 +11,7 @@ Rat::Rat()
 	SetScale(2.5f);
 
 	gWalkSpeed = 3.0f;
-	gRunSpeed  = 5.0f;
+	gRunSpeed  = 5.5f;
 
 	gDeathTime = 3.5f;
 

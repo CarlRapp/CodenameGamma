@@ -6,7 +6,7 @@ Ghost::Ghost()
 	SetModelInstance( ModelManager::GetInstance()->CreateModelInstance( "Ghost" ) );
 	SetWeaponState(Hold);
 
-	SetHealth( UnitHealth( 50.0f, 50.0f ) );
+	SetHealth( UnitHealth( 30.0f, 30.0f ) );
 
 	gWalkSpeed = 3.0f;
 	gRunSpeed  = 5.0f;

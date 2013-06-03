@@ -55,7 +55,7 @@ void CannedFood::OnPickUp(Unit* Instance)
 		return;
 
 	PlayerUnit*	pUnit	=	(PlayerUnit*)Instance;
-	pUnit->Eat( 15 );
+	pUnit->Eat( 30 );
 	
 	SetState( Dead );
 

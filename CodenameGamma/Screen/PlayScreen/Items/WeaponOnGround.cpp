@@ -150,6 +150,6 @@ void WeaponOnGround::OnPickUp(Unit* Instance)
 		RemoveLight( gPointLight );
 
 		gWeapon->SetState( Alive );
-		AddGameObject( gWeapon );
+		//AddGameObject( gWeapon );
 	}
 }

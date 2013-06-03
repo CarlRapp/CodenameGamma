@@ -147,6 +147,33 @@ void Level::Update(float DeltaTime)
 	vector<GameObject*> trash;
 	vector<GameObject*>	tempGameObjects	=	gGameObjects;
 
+	if (!gPlayers.empty())
+	{
+		if (gPlayers[0]->GetController()->GetButtonState(Xbox_Button::D_LEFT) == PRESSED)
+		{
+			PlayerUnit* pUnit = gPlayers[0]->GetUnit();
+
+			if (pUnit)
+			{
+				XMFLOAT3 pos = pUnit->GetFloat3Value( Position );
+
+				WeaponOnGround* SG = new WeaponOnGround( new Shotgun );
+				WeaponOnGround* AR = new WeaponOnGround( new SniperRifle );
+				WeaponOnGround* SR = new WeaponOnGround( new AutomaticRifle );
+
+				SG->MoveTo( XMFLOAT3(pos.x - 50, 10, pos.z) );
+				SR->MoveTo( XMFLOAT3(pos.x, 10, pos.z - 50) );
+				AR->MoveTo( XMFLOAT3(pos.x + 50, 10, pos.z) );
+
+
+				AddGameObject(SG);
+				AddGameObject(AR);
+				AddGameObject(SR);
+
+			}
+		}
+	}
+
 	for each (Player *p in gPlayers)
 	{
 		p->Update(DeltaTime);
@@ -157,9 +184,9 @@ void Level::Update(float DeltaTime)
 			if( !tUnit->IsAlive() )
 				continue;
 
-			tUnit->Drink( -1.0f * DeltaTime );
-			tUnit->Eat( -1.0f * DeltaTime );
-			tUnit->Hurt( 1.0f * DeltaTime );
+			tUnit->Drink( -0.5f * DeltaTime );
+			tUnit->Eat( -0.5f * DeltaTime );
+			tUnit->Hurt( 0.5f * DeltaTime );
 		}
 
 		if (p->IsDead())
@@ -215,6 +242,9 @@ void Level::Update(float DeltaTime)
 	gWave->Update( DeltaTime );
 
 	SpawnItems(DeltaTime);
+
+	
+
 }
 
 void Level::UpdateSpectator(Player* p)

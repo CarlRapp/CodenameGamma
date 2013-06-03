@@ -91,7 +91,7 @@ void EnemyUnit::GetNewPath(Terrain* terrain)
 	if (gBehaviourState == Roaming)
 	{
 		if (gTargets.empty())
-			temp	= gNodeMap->GetRandomNode()->Position;
+			temp	= gNodeMap->GetClosestNode( startPos )->Position;
 
 		XMVECTOR startPosV = XMLoadFloat3( &startPos );
 
@@ -125,7 +125,7 @@ void EnemyUnit::GetNewPath(Terrain* terrain)
 		if (XMVector2Equal(A, B))
 		{
 			foundPath = terrain->FindPath(startPos, endPos, gPath);
-			roamingInNodes = false;
+			roamingInNodes = gTargets.empty();
 		}
 		else if (roamingInNodes)
 		{

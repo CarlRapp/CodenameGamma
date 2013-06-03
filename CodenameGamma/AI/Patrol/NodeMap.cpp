@@ -24,7 +24,7 @@ PatrolNode*	NodeMap::GetRandomNode()
 	if( gNodes.size() == 0)
 		return 0;
 
-	return gNodes[ (int)MathHelper::RandF( 0, gNodes.size() ) ];
+	return gNodes[ (int)MathHelper::RandF( 0, gNodes.size() - 1 ) ];
 }
 
 void NodeMap::SetNodeAdjacent( PatrolNode* NodeA, PatrolNode* NodeB )

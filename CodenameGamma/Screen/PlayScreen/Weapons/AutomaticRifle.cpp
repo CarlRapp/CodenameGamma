@@ -8,7 +8,7 @@ AutomaticRifle::AutomaticRifle()
 
 	gCooldown	=	WeaponCooldown(0.0f, 0.333f);
 	gClip		=	WeaponClip(30, 30);
-	gAmmo		=	30;
+	gAmmo		=	60;
 
 	gReloadTime	=	WeaponReloadTime(0.0f, 4.0f);
 
@@ -74,6 +74,8 @@ bool AutomaticRifle::Fire( GameObject* Owner, GameObject* Target, float DamageMu
 
 		gCooldown.first	=	gCooldown.second;
 		--gClip.first;
+
+		tBullet->SetDamage( 20.0f );
 
 		AddGameObject( tBullet );
 

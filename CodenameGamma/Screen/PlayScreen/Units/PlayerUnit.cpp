@@ -42,15 +42,12 @@ void PlayerUnit::UpdateMeters(float DeltaTime)
 	float	hungerPercent	=	gHunger.first / gHunger.second;
 	float	thirstPercent	=	gThirst.first / gThirst.second;
 
-	if ( hungerPercent > 0.85f && thirstPercent > 0.85f )
-		Heal( 0 * ( hungerPercent + thirstPercent ) );
+	if ( hungerPercent > 0.70f && thirstPercent > 0.70f )
+		Heal( 0.5 * ( hungerPercent + thirstPercent )  * DeltaTime );
 	else
 	{
 		if ( gHunger.first == 0 )
-			Hurt( 1.0f * DeltaTime );
-
-		if ( gThirst.first == 0 )
-			Hurt( 1.0f * DeltaTime );
+			Hurt( 0.5f * DeltaTime );
 	}
 		
 }
@@ -86,8 +83,6 @@ void PlayerUnit::UpdateTrail(float deltaTime)
 void PlayerUnit::Hurt(float Damage)
 {
 	float	tDamage	=	Damage * ( 2 - gHunger.first * 0.01f );
-
-	gHealth.first	-=	tDamage;
 
 	Unit::Hurt( Damage );
 }

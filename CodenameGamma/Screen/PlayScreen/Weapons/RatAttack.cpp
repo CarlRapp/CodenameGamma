@@ -5,7 +5,7 @@ RatAttack::RatAttack()
 {
 	gCooldown	=	WeaponCooldown(0.0f, 0.2f);
 	gClip		=	WeaponClip(1, 1);
-	gReloadTime	=	WeaponReloadTime(0.0f, 4.0f);
+	gReloadTime	=	WeaponReloadTime(0.0f, 2.0f);
 	gAmmo		=	-1;
 	gWeaponAnimations.Aim				= "Aim";
 	gWeaponAnimations.Shoot				= "Shoot";
@@ -23,7 +23,7 @@ bool RatAttack::Fire( GameObject* Owner, GameObject* Target, float DamageMul )
 		gClip.first	=	0;
 
 		if ( IsOfType<Unit>(Target) )
-			((Unit*)Target)->Hurt( 1.5f * DamageMul );
+			((Unit*)Target)->Hurt( 2.5f * DamageMul );
 
 		SoundManager::GetInstance()->Play( "Rat_Attack", SFX, false );
 		return true;
