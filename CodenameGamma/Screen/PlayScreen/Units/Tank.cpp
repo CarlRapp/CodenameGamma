@@ -11,6 +11,8 @@ Tank::Tank()
 	gWalkSpeed = 1.5f;
 	gRunSpeed  = 3.0f;
 
+	SetScale(1.5f);
+
 	gDeathTime = 5.0f;
 
 	AttackRange = 1.5f;

@@ -8,10 +8,14 @@ using namespace DirectX;
 
 class Projectile : public GameObject
 {
+	vector<GameObject*> gUnitsHit;
+
 protected:
 	GameObject*	gOwner;
 	float		gLifeSpan;
 	float		gDamage;
+
+	int			gHP;
 
 public:
 	Projectile(void);
@@ -25,6 +29,8 @@ public:
 	virtual	float	GetSpeed(){	return 0.0f; }
 
 	virtual	void	SetOwner( GameObject* Instance );
+
+	void			SetHP( int HP ) { gHP = HP; }
 
 	virtual void	MultiplyDamage( float Amount )
 	{
