@@ -235,8 +235,6 @@ void PlayScreen::RenderGUI( Player* P )
 {
 	if( !P->GetUnit() )
 		return;
-	if( !P->GetUnit()->IsAlive() )
-		return;
 
 	XMFLOAT2	tHealthPos, tHungerPos, tThirstPos, tClipPos;
 	D3D11_VIEWPORT		pVP		=	P->GetCamera()->GetViewPort();
@@ -267,11 +265,13 @@ void PlayScreen::RenderGUI( Player* P )
 	int	tIndex;
 	
 	//	Health
-	tPercent	=	(int)ceil( 100.f * ( uHealth.first / uHealth.second ) );
+	float HP	=	MathHelper::Clamp<float>(uHealth.first, 0, uHealth.second);
+	tPercent	=	(int)ceil( 100.f * ( HP / uHealth.second ) );
 	tPercent	=	MathHelper::Clamp(tPercent, 0, 100);
 	tIndex		=	(int)( (float)0.1f * (float)tPercent );
 	tIndex		=	MathHelper::Clamp(tIndex, 0, 9);
-	RenderGUISprite( tVP, gHealthBar[tIndex] );
+	if (HP > 0)
+		RenderGUISprite( tVP, gHealthBar[tIndex] );
 	tHealthPos.x	=	tVP.TopLeftX + tVP.Width * 0.5f;
 	tHealthPos.y	=	tVP.TopLeftY + tVP.Height * 0.5f;
 	
@@ -416,7 +416,7 @@ void PlayScreen::RenderGUI( Player* P )
 
 	//	Render the text
 	gDeviceContext->RSSetViewports( 1, &gFullscreenVP );
-	RenderGUIText( gWaveTextWrapper, tHealthPos, to_string( (long double)( (int)(100.0f * ( uHealth.first / uHealth.second ) ) ) ), tTextSize, White );
+	RenderGUIText( gWaveTextWrapper, tHealthPos, to_string( (long double)( (int)(100.0f * ( HP / uHealth.second ) ) ) ), tTextSize, White );
 
 	if( P->IsSpectating() )
 		RenderGUISprite( P->GetCamera()->GetViewPort(), gBackground );
