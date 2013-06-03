@@ -112,8 +112,13 @@ public:
 	{
 		if( gAmmo == -1 )
 			return;
-		
+
 		gAmmo	+=	Amount;	
+	}
+
+	bool	HasMaxAmmo()
+	{
+		return ( gAmmo / gClip.second ) > 8;
 	}
 
 	/*

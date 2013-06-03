@@ -54,6 +54,10 @@ void MediPack::OnPickUp(Unit* Instance)
 		return;
 
 	PlayerUnit*	pUnit	=	(PlayerUnit*)Instance;
+
+	if( pUnit->GetHealth().first == pUnit->GetHealth().second )
+		return;
+
 	pUnit->Heal( 10 );
 	
 	SetState( Dead );

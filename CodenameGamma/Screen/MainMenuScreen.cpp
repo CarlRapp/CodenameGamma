@@ -17,7 +17,7 @@ MainMenuScreen::MainMenuScreen(ScreenData* Setup)
 	
 	gMenuEntries[0]	=	MenuEntry("Play Game",		LEVEL_SELECT_SCREEN);
 	gMenuEntries[1]	=	MenuEntry("Options",		OPTIONS_SCREEN);
-	gMenuEntries[2]	=	MenuEntry("Credits",		UNDEFINED_SCREEN);
+	gMenuEntries[2]	=	MenuEntry("Credits",		CREDITS_SCREEN);
 	gMenuEntries[3]	=	MenuEntry("Quit",			EXIT_SCREEN); 
 
 	gTextSize				=	62;

@@ -3,6 +3,7 @@
 #include "PostPlayScreen.h"
 #include "LevelSelectScreen.h"
 #include "OptionScreen.h"
+#include "CreditsScreen.h"
 
 ScreenManager::ScreenManager()
 {
@@ -161,7 +162,7 @@ Screen* ScreenManager::LoadScreen(ScreenType Type)
 
 	//	Credits
 	else if(Type == CREDITS_SCREEN)
-		return	NULL;
+		return	new CreditsScreen( gScreenData );
 
 	else if(Type == PRE_PLAY_SCREEN)
 		return	new PrePlayScreen(gScreenData);
