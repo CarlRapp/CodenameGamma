@@ -8,6 +8,8 @@ Player::Player(void)
 	m_Unit			=	NULL;
 	m_PlayerIndex	=	0;
 	gPlayerScore	=	new PlayerScore();
+
+	gMasterOfUnit	=	false;
 }
 
 Player::Player(int index)
@@ -30,7 +32,7 @@ void Player::Update(float deltaTime)
 {
 	UpdateCamera(deltaTime);
 
-	if ( m_Unit != 0 )
+	if ( m_Unit != 0 && gMasterOfUnit)
 	{
 		//XBOX-CONTROL
 		XMFLOAT3	newVel	=	XMFLOAT3(0, 0, 0);
@@ -94,9 +96,6 @@ void Player::Update(float deltaTime)
 		else
 			m_Unit->SetVelocity(newVel);
 		
-		m_Camera->SetPosition(tPosition.x, tPosition.y + 300, tPosition.z - 100);
-		m_Camera->SetLookAt(tPosition);
-
 
 		switch (m_Controller->GetButtonState( (Xbox_Button)XAim ) )
 		{
@@ -135,6 +134,13 @@ void Player::Update(float deltaTime)
 		if ( IsButtonState( XChangeWeapon, PRESSED ) || IsButtonState( KChangeWeapon, PRESSED ) )
 			m_Unit->ChangeWeapon();
 	}
+
+	if ( m_Unit != 0 )
+	{
+		XMFLOAT3 tPosition = m_Unit->GetFloat3Value(Position);
+		m_Camera->SetPosition(tPosition.x, tPosition.y + 300, tPosition.z - 100);
+		m_Camera->SetLookAt(tPosition);
+	}
 }
 
 void Player::UpdateCamera(float deltaTime)
@@ -165,7 +171,17 @@ void Player::UpdateCamera(float deltaTime)
 
 void Player::SetUnit(PlayerUnit* Instance)
 {
-	m_Unit	=	Instance;
+	m_Unit			=	Instance;
+	gMasterOfUnit	= true;
+}
+
+void Player::Spectate(Player* player)
+{
+	if (!player)
+		return;
+	m_Unit			= player->GetUnit();
+	m_SpectateIndex = player->GetIndex();
+	gMasterOfUnit	= false;
 }
 
 #pragma region Player controller methods
