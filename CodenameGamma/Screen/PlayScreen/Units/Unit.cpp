@@ -491,7 +491,7 @@ void Unit::ReloadWeapon()
 	}
 }
 
-void Unit::FireWeapon(GameObject* Target)
+bool Unit::FireWeapon(GameObject* Target)
 {
 	if ( gCurrentWeapon )
 	{
@@ -501,9 +501,12 @@ void Unit::FireWeapon(GameObject* Target)
 			{
 				PlayAnimation(GetAnimation("Shoot"));
 				PlayAnimationAfter(GetAnimation("Shoot"), GetAnimation("Aim"));
+
+				return true;
 			}
 		}
 	}
+	return false;
 }
 
 bool Unit::Intersects(GameObject* B, vector<CollisionData>& CD)
