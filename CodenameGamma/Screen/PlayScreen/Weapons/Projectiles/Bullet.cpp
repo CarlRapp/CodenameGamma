@@ -11,8 +11,3 @@ Bullet::~Bullet()
 {
 
 }
-
-float Bullet::GetSpeed()
-{
-	return 700.0f;
-}

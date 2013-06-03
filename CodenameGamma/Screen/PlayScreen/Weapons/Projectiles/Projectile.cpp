@@ -9,6 +9,8 @@ Projectile::Projectile(void)
 	gDamage		=	0.0f;
 	gLifeSpan	=	0.0f;
 	gOwner		=	0;
+
+	gHP			= 1;
 }
 
 Projectile::~Projectile(void)
@@ -48,6 +50,12 @@ void Projectile::CollideWith(GameObject* Instance, vector<CollisionData> CD)
 	{
 		Unit*	tUnit	=	((Unit*)Instance);
 
+		for each (Unit* t in gUnitsHit)
+			if (t == tUnit)
+				return;
+
+		gUnitsHit.push_back(tUnit);
+
 		tUnit->Hurt( gDamage );
 		
 		if ( IsOfType<EnemyUnit>( Instance ) )
@@ -69,7 +77,10 @@ void Projectile::CollideWith(GameObject* Instance, vector<CollisionData> CD)
 				((PlayerUnit*)gOwner)->GetPlayerScore()->PlayKillCount	+=	1;
 		}
 		
-		SetState(Dead);	
+		--gHP;
+
+		if (gHP <= 0)
+			SetState(Dead);	
 	}
 
 	if ( IsOfType<Structure>(Instance) )
