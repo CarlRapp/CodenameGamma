@@ -67,7 +67,7 @@ float4 PSScene(PSSceneIn input, uniform bool gColor, uniform bool gAlphaClip, un
 			clip(g_Texture.SampleLevel(samLinearClamp, input.Tex, 0).a - 0.1f);
 	}
 	else
-		result = g_Texture.Sample(g_Sampler, input.Tex).x;
+		result = pow(g_Texture.Sample(g_Sampler, input.Tex).x, 500);
 
 	if (gFixedAlpha)
 		result.a = g_Opacity;

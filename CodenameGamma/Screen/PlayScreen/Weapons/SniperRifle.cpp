@@ -22,7 +22,7 @@ SniperRifle::SniperRifle()
 	gWeaponAnimations.UpperRun			= "WeaponUpperRun";
 	gWeaponAnimations.UpperStand		= "WeaponUpperStand";
 
-	gReloadSound = "Shotgun_Reload";
+	gReloadSound = "Pistol_Reload";
 }
 
 SniperRifle::~SniperRifle()
@@ -73,7 +73,7 @@ bool SniperRifle::Fire( GameObject* Owner, GameObject* Target, float DamageMul )
 		tBullet->SetDamage(75.0f);
 		tBullet->SetLifeSpan(2.5f);
 
-		SoundManager::GetInstance()->Play("Shotgun_Fire", SFX);
+		SoundManager::GetInstance()->Play("Rifle_Fire", SFX);
 
 		gCooldown.first	=	gCooldown.second;
 		--gClip.first;

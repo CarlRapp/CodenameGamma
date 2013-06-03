@@ -1588,10 +1588,10 @@ void GraphicsManager::CombineFinal()
 
 	
 	D3D11_VIEWPORT shadowVP;
-	shadowVP.Width	= 400;
+	shadowVP.Width	= 1200;
 	shadowVP.Height	= ((float)m_ShadowHeight / (float)m_ShadowWidth) * shadowVP.Width;
-	shadowVP.TopLeftX = 20;
-	shadowVP.TopLeftY = m_Height - (shadowVP.Height + 300);		
+	shadowVP.TopLeftX = 200;
+	shadowVP.TopLeftY = m_Height - (shadowVP.Height + 200);		
 	shadowVP.MinDepth = 0.0f;
 	shadowVP.MaxDepth = 1.0f;
 
@@ -1603,7 +1603,7 @@ void GraphicsManager::CombineFinal()
 	if (InputManager::GetInstance()->GetController(0)->GetButtonState(Xbox_Button::BACK) == InputState::DOWN)
 	{
 		RenderQuad(shadowVP, m_ShadowMapSRV0, Effects::CombineFinalFX->MonoTech);
-
+		/*
 		shadowVP.TopLeftX = 600;
 
 		RenderQuad(shadowVP, m_ShadowMapSRV1, Effects::CombineFinalFX->MonoTech);
@@ -1615,7 +1615,7 @@ void GraphicsManager::CombineFinal()
 
 		shadowVP.TopLeftX = 600;
 
-		RenderQuad(shadowVP, m_ShadowMapSRV3, Effects::CombineFinalFX->MonoTech);
+		RenderQuad(shadowVP, m_ShadowMapSRV3, Effects::CombineFinalFX->MonoTech);*/
 	}
 
 	m_DeviceContext->RSSetViewports( 1, &m_ViewPort );
