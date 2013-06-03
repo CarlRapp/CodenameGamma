@@ -105,12 +105,8 @@ void Player::Update(float deltaTime)
 		case DOWN:
 			if ( IsButtonState( XShoot, DOWN ) || IsButtonState( MShoot, DOWN ) )
 			{
-				if( m_Unit->GetWeapon()->CanFire() )
-				{
-					m_Unit->FireWeapon(NULL);
+				if( m_Unit->FireWeapon(NULL) )
 					InputManager::GetInstance()->GetController( m_PlayerIndex )->Vibrate( 1.0f, 1.0f, 0.1f );
-				}
-
 			}
 			break;
 		case RELEASED:

@@ -30,6 +30,7 @@ private:
 	ID3D11ShaderResourceView*	gBackground;
 	ID3D11ShaderResourceView*	gBulletGUI;
 	ID3D11ShaderResourceView*	gWaveBackground;
+	ID3D11ShaderResourceView*	gSpectatingBackground;
 
 	ID3D11ShaderResourceView*	gWeapons[4];
 	D3D11_VIEWPORT				gWeaponsVP[4];

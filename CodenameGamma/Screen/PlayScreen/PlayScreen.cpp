@@ -38,6 +38,7 @@ bool PlayScreen::Load()
 		D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, tPath.c_str(), 0, 0, &gThirstBar[n], 0 );
 	}
 	D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, "DATA/GUI/BlackTrans.png", 0, 0, &gBackground, 0 );
+	D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, "DATA/GUI/BlackTrans20.png", 0, 0, &gSpectatingBackground, 0 );
 	D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, "DATA/GUI/Shell.png", 0, 0, &gBulletGUI, 0 );
 	D3DX11CreateShaderResourceViewFromFile( gScreenData->DEVICE, "DATA/GUI/WaveBackground.png", 0, 0, &gWaveBackground, 0 );
 
@@ -101,6 +102,7 @@ bool PlayScreen::Unload()
 		if( n <= 3 )
 			gWeapons[n]->Release();
 	}
+	SAFE_RELEASE( gSpectatingBackground );
 	SAFE_RELEASE( gWaveTextWrapper );
 	SAFE_RELEASE( gTextInstance );
 	SAFE_RELEASE( gBackground );
@@ -418,8 +420,16 @@ void PlayScreen::RenderGUI( Player* P )
 	gDeviceContext->RSSetViewports( 1, &gFullscreenVP );
 	RenderGUIText( gWaveTextWrapper, tHealthPos, to_string( (long double)( (int)(100.0f * ( uHealth.first / uHealth.second ) ) ) ), tTextSize, White );
 
-	if( P->IsSpectating() )
-		RenderGUISprite( P->GetCamera()->GetViewPort(), gBackground );
+	if( !gLevel->IsGameOver() )
+		if( P->IsSpectating() )
+		{
+			RenderGUISprite( P->GetCamera()->GetViewPort(), gSpectatingBackground );
+			gDeviceContext->RSSetViewports( 1, &gFullscreenVP );
+
+			tVP	=	P->GetCamera()->GetViewPort();
+			XMFLOAT2	tPos	=	XMFLOAT2( tVP.TopLeftX + tVP.Width * 0.5f, tVP.TopLeftY + tVP.Height * 0.2f );
+			RenderGUIText( gWaveTextWrapper, tPos, "Spectating", tTextSize, White );
+		}
 }
 
 void PlayScreen::RenderGUISprite( D3D11_VIEWPORT VP, ID3D11ShaderResourceView* Sprite )

@@ -112,7 +112,7 @@ public:
 	virtual	void	Hurt(float Damage);
 
 	void	ReloadWeapon();
-	void	FireWeapon(GameObject* Target);
+	bool	FireWeapon(GameObject* Target);
 	void	ChangeWeapon();
 	void	PickupWeapon( Weapon* Instance );
 	bool	HasSecondaryWeapon() { return gSecondaryWeapon != NULL; }
