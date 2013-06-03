@@ -120,7 +120,7 @@ void Player::Update(float deltaTime)
 			XMVECTOR lStickDirV = XMLoadFloat2(&lStickDir);
 			float length = XMVectorGetX( XMVector2Length(lStickDirV) );
 
-			if (length > 0.05f && m_Controller->GetTriggerValue( RIGHT ) > 0.3f || m_Unit->IsRunning())
+			if (m_Unit->IsAlive() && (length > 0.05f && m_Controller->GetTriggerValue( RIGHT ) > 0.3f || m_Unit->IsRunning()))
 			{
 				m_Unit->LookAtXZ(XMFLOAT3(tPosition.x + lStickDir.x, 0, tPosition.z + lStickDir.y));
 			}
