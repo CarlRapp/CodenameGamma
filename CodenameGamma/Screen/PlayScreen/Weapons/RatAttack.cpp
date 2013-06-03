@@ -24,6 +24,8 @@ bool RatAttack::Fire( GameObject* Owner, GameObject* Target, float DamageMul )
 
 		if ( IsOfType<Unit>(Target) )
 			((Unit*)Target)->Hurt( 1.5f * DamageMul );
+
+		SoundManager::GetInstance()->Play( "Rat_Attack", SFX, false );
 		return true;
 	}
 

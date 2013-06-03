@@ -9,6 +9,7 @@ class Controller
 private:
 	int		gIndex;
 	float	gDeadZone;
+	float	gVibrateTimer;
 
 	DWORD			gIsConnected;
 	XINPUT_STATE	gInputState;
@@ -21,14 +22,14 @@ public:
 	Controller(int Index);
 	~Controller(void);
 
-	void	Update();
+	void	Update(float DeltaTime);
 
 	float			GetTriggerValue(Xbox_Direction Trigger);
 	InputState		GetButtonState(Xbox_Button Button);
 	XMFLOAT2		GetStickDirection(Xbox_Direction Stick);
 	float			GetStickLength(Xbox_Direction Stick);
 
-	void	Vibrate(float Left, float Right);
+	void	Vibrate(float Left, float Right, float Time);
 	void	SetDeadZone(float Value);
 	void	SetIndex(int Index);
 

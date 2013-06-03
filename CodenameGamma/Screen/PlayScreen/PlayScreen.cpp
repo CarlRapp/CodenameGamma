@@ -70,7 +70,13 @@ bool PlayScreen::Load()
 	SoundManager::GetInstance()->Load("Pistol_Fire", "DATA/Sounds/Weapons/Pistol_Fire.wav", FMOD_SOFTWARE | FMOD_2D);
 	SoundManager::GetInstance()->Load("Pistol_Reload", "DATA/Sounds/Weapons/Pistol_Reload.wav", FMOD_SOFTWARE | FMOD_2D);
 	SoundManager::GetInstance()->Load("Pistol_Empty", "DATA/Sounds/Weapons/Pistol_Empty.wav", FMOD_SOFTWARE | FMOD_2D);
+
 	SoundManager::GetInstance()->Load("Shotgun_Fire", "DATA/Sounds/Weapons/Shotgun_Fire.wav", FMOD_SOFTWARE | FMOD_2D);
+
+	SoundManager::GetInstance()->Load("Rifle_Fire", "DATA/Sounds/Weapons/Rifle_Fire.wav", FMOD_SOFTWARE | FMOD_2D);
+
+	SoundManager::GetInstance()->Load("Rat_Death", "DATA/Sounds/Units/Rat_Death.wav", FMOD_SOFTWARE | FMOD_2D);
+	SoundManager::GetInstance()->Load("Rat_Attack", "DATA/Sounds/Units/Rat_Attack.wav", FMOD_SOFTWARE | FMOD_2D);
 
 	Reset();
 
@@ -166,6 +172,32 @@ void PlayScreen::Render()
 	for each( Player* p in gLevel->GetPlayers() )
 		RenderGUI( p );
 
+	//	Wave info
+	D3D11_VIEWPORT	tVP;
+	tVP.MinDepth	=	0.0f;
+	tVP.MaxDepth	=	1.0f;
+	tVP.Width	=	150;
+	tVP.Height	=	100;
+	tVP.TopLeftX=	gScreenWidth * 0.5f - tVP.Width * 0.5f;
+	tVP.TopLeftY=	0;
+
+	RenderGUISprite( tVP, gWaveBackground );
+	gDeviceContext->RSSetViewports( 1, &gFullscreenVP );
+
+	XMFLOAT2	tWavePos;
+	Wave::WaveGUIInfo	tWave	=	gLevel->GetWaveInfo();
+	float	tWaveSize	=	26;
+	tWavePos	=	XMFLOAT2( gScreenWidth * 0.5f, gScreenHeight * 0.02f );
+	RenderGUIText( gWaveTextWrapper, tWavePos, "Wave:" + to_string( (long double)tWave.Wave ), tWaveSize, White );
+	tWavePos.y	+=	tWaveSize;
+	RenderGUIText( gWaveTextWrapper, tWavePos, to_string( (long double)ceil( tWave.Timer.first ) ), tWaveSize, White );
+	tWavePos.y	+=	tWaveSize;
+
+	if( tWave.Units.first == tWave.Units.second )
+		RenderGUIText( gWaveTextWrapper, tWavePos, to_string( (long double)tWave.Units.first ) + "/" + to_string( (long double)tWave.Units.second ), tWaveSize, Red );
+	else
+		RenderGUIText( gWaveTextWrapper, tWavePos, to_string( (long double)tWave.Units.first ) + "/" + to_string( (long double)tWave.Units.second ), tWaveSize, White );
+
 	
 	if( isPaused )
 		RenderPauseScreen();
@@ -206,7 +238,7 @@ void PlayScreen::RenderGUI( Player* P )
 	if( !P->GetUnit()->IsAlive() )
 		return;
 
-	XMFLOAT2	tHealthPos, tHungerPos, tThirstPos, tClipPos, tWavePos;
+	XMFLOAT2	tHealthPos, tHungerPos, tThirstPos, tClipPos;
 	D3D11_VIEWPORT		pVP		=	P->GetCamera()->GetViewPort();
 
 	bool	fixVP	=	( ( P->GetIndex() == 1 ||  P->GetIndex() == 3 ) && gLevel->GetPlayers().size() == 4 )
@@ -372,7 +404,7 @@ void PlayScreen::RenderGUI( Player* P )
 		RenderGUISprite( tVP, gWeapons[tWeaponIndex] );
 
 		tClipPos.x	=	ClipZero.x + (float)dir * 5.5f * tWidth;
-		tClipPos.y	=	ClipZero.y + tHeight * ( 1 + ceil( tInfo.Magazine.second * 0.1f ) );
+		tClipPos.y	=	ClipZero.y + tHeight * ( 1.5f + ceil( tInfo.Magazine.second * 0.1f ) );
 
 		//	Render the text
 		gDeviceContext->RSSetViewports( 1, &gFullscreenVP );
@@ -381,30 +413,13 @@ void PlayScreen::RenderGUI( Player* P )
 		else
 			RenderGUIText( gWaveTextWrapper, tClipPos, "infinite clips.", tTextSize, White );
 	}
-	tVP.Width	=	150;
-	tVP.Height	=	100;
-	tVP.TopLeftX=	gScreenWidth * 0.5f - tVP.Width * 0.5f;
-	tVP.TopLeftY=	0;
-
-	RenderGUISprite( tVP, gWaveBackground );
 
 	//	Render the text
 	gDeviceContext->RSSetViewports( 1, &gFullscreenVP );
 	RenderGUIText( gWaveTextWrapper, tHealthPos, to_string( (long double)( (int)(100.0f * ( uHealth.first / uHealth.second ) ) ) ), tTextSize, White );
 
-	//	Wave info
-	Wave::WaveGUIInfo	tWave	=	gLevel->GetWaveInfo();
-	float	tWaveSize	=	26;
-	tWavePos	=	XMFLOAT2( gScreenWidth * 0.5f, gScreenHeight * 0.02f );
-	RenderGUIText( gWaveTextWrapper, tWavePos, "Wave:" + to_string( (long double)tWave.Wave ), tWaveSize, White );
-	tWavePos.y	+=	tWaveSize;
-	RenderGUIText( gWaveTextWrapper, tWavePos, to_string( (long double)ceil( tWave.Timer.first ) ), tWaveSize, White );
-	tWavePos.y	+=	tWaveSize;
-
-	if( tWave.Units.first == tWave.Units.second )
-		RenderGUIText( gWaveTextWrapper, tWavePos, to_string( (long double)tWave.Units.first ) + "/" + to_string( (long double)tWave.Units.second ), tWaveSize, Red );
-	else
-		RenderGUIText( gWaveTextWrapper, tWavePos, to_string( (long double)tWave.Units.first ) + "/" + to_string( (long double)tWave.Units.second ), tWaveSize, White );
+	if( P->IsSpectating() )
+		RenderGUISprite( P->GetCamera()->GetViewPort(), gBackground );
 }
 
 void PlayScreen::RenderGUISprite( D3D11_VIEWPORT VP, ID3D11ShaderResourceView* Sprite )

@@ -20,6 +20,8 @@ Unit::Unit(void)
 	gMultipliers[0]	=	1.0f;
 	gMultipliers[1]	=	1.0f;
 	gMultipliers[2]	=	1.0f;
+
+	gDeathSound	=	"";
 }
 
 Unit::~Unit(void)
@@ -70,6 +72,7 @@ void Unit::Update(float DeltaTime, Terrain* TerrainInstance)
 		StopAllAnimations();
 		PlayAnimation("Death");
 		PlayAnimationAfter("Death", "Dead");
+		SoundManager::GetInstance()->Play( gDeathSound, SFX, false );
 
 		if (!PlayingAnimation("Death"))
 		{

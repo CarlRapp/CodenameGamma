@@ -537,18 +537,42 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 	}
 
 	int team = 0;
-	XMFLOAT2	Pos;
+	XMFLOAT2	Pos	=	gNodeMap->GetRandomNode()->Position;
 	for (int i = 0; i < gPlayers.size(); ++i)
-	//for each( Player* p in gPlayers )
 	{
 		Player* p = gPlayers[i];
 		if( p->GetUnit() != 0 )
 			continue;
+
+		XMFLOAT2	tPos	=	Pos;
+
+		switch( i )
+		{
+		case 0:
+			tPos.x	-=	UnitsPerMeter;
+			tPos.y	-=	UnitsPerMeter;
+			break;
+
+		case 1:
+			tPos.x	+=	UnitsPerMeter;
+			tPos.y	+=	UnitsPerMeter;
+			break;
+
+		case 2:
+			tPos.x	-=	UnitsPerMeter;
+			tPos.y	+=	UnitsPerMeter;
+			break;
+
+		case 3:
+			tPos.x	+=	UnitsPerMeter;
+			tPos.y	-=	UnitsPerMeter;
+			break;
+		}
 		
-		Pos	=	XMFLOAT2( 1000, 1000 );
+
 
 		PlayerUnit*	pUnit	=	new CrazyBitch();
-		pUnit->MoveTo( XMFLOAT3( Pos.x, 0, Pos.y ) );
+		pUnit->MoveTo( XMFLOAT3( tPos.x, 0, tPos.y ) );
 		pUnit->SetPlayerScore( p->GetPlayerScore() );
 		pUnit->SetTeam( (GOTeam)team );
 		pUnit->LoopAnimation( "StartPose" );
@@ -558,19 +582,6 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 		AddGameObject( pUnit );
 		AddGameObject( pUnit->GetWeapon() );
 	}
-	/*
-	WeaponOnGround*	shotgun	=	new WeaponOnGround( new Shotgun() );
-	shotgun->MoveTo( XMFLOAT3(Pos.x + 50, 0, Pos.y) );
-	AddGameObject(shotgun);
-
-	WeaponOnGround*	sniperRifle	=	new WeaponOnGround( new SniperRifle() );
-	sniperRifle->MoveTo( XMFLOAT3(Pos.x - 50, 0, Pos.y) );
-	AddGameObject(sniperRifle);
-
-	WeaponOnGround*	automaticRifle	=	new WeaponOnGround( new AutomaticRifle() );
-	automaticRifle->MoveTo( XMFLOAT3(Pos.x, 0, Pos.y - 50) );
-	AddGameObject(automaticRifle);
-	*/
 }
 #pragma endregion
 
