@@ -53,6 +53,10 @@ void AmmoBox::OnPickUp(Unit* Instance)
 		return;
 
 	PlayerUnit*	pUnit	=	(PlayerUnit*)Instance;
+
+	if( pUnit->GetWeapon()->HasMaxAmmo() )
+		return;
+
 	pUnit->GetWeapon()->AddAmmo( 2 * pUnit->GetWeapon()->GetInfo().Magazine.second );
 	
 	SetState( Dead );

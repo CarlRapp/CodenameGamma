@@ -113,6 +113,9 @@ bool Weapon::Reload()
 		gState	=	Empty;
 		return false;
 	}
+
+	if( gClip.first == gClip.second )
+		return false;
 	
 	gClip.first			=	0;
 	gReloadTime.first	=	gReloadTime.second;
