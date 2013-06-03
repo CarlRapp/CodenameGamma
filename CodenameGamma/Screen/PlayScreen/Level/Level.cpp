@@ -22,6 +22,15 @@ Level::Level(SystemData LData, GraphicsManager* Instance)
 	gGraphicsManager->SetLights(&gDirLights, &gPointLights, &gSpotLights, &gGlobalLight);
 
 	gQuadTree = NULL;
+
+	AutomaticRifleSpawnTimer = 0.0f;
+	ShotgunSpawnTimer = 0.0f;
+	SniperRifleSpawnTimer = 0.0f;
+
+	FoodSpawnTimer = 0.0f;
+	WaterSpawnTimer = 0.0f;
+	AmmoBoxSpawnTimer = 0.0f;
+	MedicPackSpawnTimer = 0.0f;
 }
 
 Level::~Level()
@@ -130,183 +139,6 @@ void Level::LoadLevel(string Levelname)
 	gWave		=	new Wave( gNodeMap );
 	gWave->LoadWaveData( tLevelRootPath + Levelname + "/");
 	gWave->SetAddGameObject(std::bind(&Level::AddGameObject, this, std::placeholders::_1));
-	
-	GameObject*	tGO;
-
-	for (int i = 0; i < 100; ++i)
-	{
-		float x = MathHelper::RandF(100, 3900);
-		float y = 10;
-		float z = MathHelper::RandF(100, 3900);
-
-		if( i % 2 == 0 )
-			tGO	=	new MediPack();
-		else if( i % 3 == 0 )
-			tGO	=	new AmmoBox();
-		else if( i % 4 == 0 )
-			tGO	=	new CannedFood();
-		else
-			tGO	=	new Canister();
-
-
-		//Hur man sätter callbackmetoden.
-		//tGO->SetAddLight(std::bind(&Level::AddLight, this, std::placeholders::_1));
-		//tGO->SetRemoveLight(std::bind(&Level::RemoveLight, this, std::placeholders::_1));
-
-		tGO->MoveTo( XMFLOAT3( x, y, z ) );
-		AddGameObject(tGO);
-	}
-
-	for (int i = 0; i < 0; ++i)
-	{
-		float x = MathHelper::RandF(100, 3900);
-		float y = 10;
-		float z = MathHelper::RandF(100, 3900);
-
-		//tWeapon->SetAddGameObject(std::bind(&Level::AddGameObject, this, std::placeholders::_1));
-
-		tGO	=	new WeaponOnGround( new Shotgun() );
-
-		tGO->MoveTo( XMFLOAT3( x, y, z ) );
-
-		//Hur man sätter callbackmetoden.
-		//tGO->SetAddLight(std::bind(&Level::AddLight, this, std::placeholders::_1));
-		//tGO->SetRemoveLight(std::bind(&Level::RemoveLight, this, std::placeholders::_1));
-
-		
-		AddGameObject(tGO);
-	}
-}
-
-
-void Level::AddDirectionalLight(bool hasShadow)
-{
-	float x = MathHelper::RandF(-10.0f, 10.0f);
-	float z = MathHelper::RandF(-10.0f, 10.0f);
-	/*
-	float r = MathHelper::RandF(0.0f, 1.0f);
-	float g = MathHelper::RandF(0.0f, 1.0f);
-	float b = MathHelper::RandF(0.0f, 1.0f);
-	*/
-	
-	float r = 1.0f;
-	float g = 1.0f;
-	float b = 1.0f;
-	
-
-	DirectionalLight *dirLight = new DirectionalLight();
-	dirLight->GetGPULight()->Color = XMFLOAT4(r,g,b,1);
-	dirLight->GetGPULight()->Direction = XMFLOAT4(1.0f, -2.0f, 1.0f,0);
-	//dirLight->Direction = XMFLOAT4(x, -1.0f, z,0);
-	dirLight->GetGPULight()->HasShadow = hasShadow;
-	dirLight->GetGPULight()->Resolution = SHADOWMAP_4096;
-	//dirLight->Resolution = SHADOWMAP_2048;
-	//dirLight->Resolution = SHADOWMAP_1024;
-
-	AddLight(dirLight);
-
-	//gDirLights.push_back(dirLight);
-}
-void Level::AddPointLight(bool hasShadow, XMFLOAT3 pos)
-{
-	float x = MathHelper::RandF(0.0f, 4000.0f);
-	float z = MathHelper::RandF(0.0f, 4000.0f);
-		
-	float r = MathHelper::RandF(0.0f, 2.0f);
-	float g = MathHelper::RandF(0.0f, 2.0f);
-	float b = MathHelper::RandF(0.0f, 2.0f);
-	/*
-	float r = 1.0f;
-	float g = 1.0f;
-	float b = 1.0f;
-	*/
-	PointLight *pointLight = new PointLight();
-	pointLight->GetGPULight()->Color		= XMFLOAT4(r, g, b, 0);
-	//pointLight->Position	= XMFLOAT3(x, 0.0f, z);
-	pointLight->GetGPULight()->Position	= pos;
-	pointLight->GetGPULight()->Range		= 300;
-	pointLight->GetGPULight()->HasShadow = hasShadow;
-
-	AddLight(pointLight);
-	//gPointLights.push_back(pointLight);
-
-	float Ox = pointLight->GetGPULight()->Position.x + 300;
-	float Oz = pointLight->GetGPULight()->Position.z + 300;
-
-	rotpos.push_back(XMFLOAT3(Ox, 0.0f, Oz));
-	angle.push_back(MathHelper::RandF(-45.0f, 45.0f));
-}
-void Level::AddSpotLight(bool hasShadow, XMFLOAT3 pos)
-{
-	float x = MathHelper::RandF(0.0f, 4000.0f);
-	float z = MathHelper::RandF(0.0f, 4000.0f);
-	
-	float r = MathHelper::RandF(0.0f, 1.0f);
-	float g = MathHelper::RandF(0.0f, 1.0f);
-	float b = MathHelper::RandF(0.0f, 1.0f);
-	/*
-	float r = 1.0f;
-	float g = 1.0f;
-	float b = 1.0f;
-	*/
-	if (!hasShadow)
-	{
-		g = 0.0f;
-		b = 0.0f;
-	}
-
-	SpotLight *spotLight	= new SpotLight();
-	spotLight->GetGPULight()->Color		= XMFLOAT4(r, g, b, 0.0f);
-	//spotLight->Position		= XMFLOAT3(x, 300.0f, z);
-	spotLight->GetGPULight()->Position		= pos;
-
-	//spotLight->Direction	= XMFLOAT3(MathHelper::RandF(-5.0f, 5.0f), -1, MathHelper::RandF(-5.0f, 5.0f));
-	spotLight->GetGPULight()->Direction	= XMFLOAT3(0, -1, 1);
-
-	spotLight->GetGPULight()->angle		= XMConvertToRadians(45);
-	spotLight->GetGPULight()->Range		= 1000.0f;
-
-	spotLight->GetGPULight()->HasShadow = hasShadow;
-	AddLight(spotLight);
-	//gSpotLights.push_back(spotLight);
-
-
-	float aspeed = MathHelper::RandF(40.0f, 90.0f);
-
-	if (MathHelper::RandF(0.0f, 1.0f) < 0.5f)
-		aspeed *= -1;
-
-	anglespot.push_back(aspeed);
-
-	//float Ox = pointLight->Position.x + MathHelper::RandF(-300.0f, 300.0f);
-	//float Oz = pointLight->Position.z + MathHelper::RandF(-300.0f, 300.0f);
-
-	//rotpos.push_back(XMFLOAT3(Ox, 0.0f, Oz));
-	//angle.push_back(MathHelper::RandF(-45.0f, 45.0f));
-}
-
-void Level::AddInstance(float x, float y, float z, Model *model)
-{
-	ModelInstance *instance = new ModelInstance();
-	instance->SetModel(model);
-	//instance->m_Model = model;
-
-	Unit *go = new Unit();
-	go->MoveTo(DirectX::XMFLOAT3(x, y, z));
-	go->SetScale(TESTSCALE);	
-	go->SetModelInstance(instance);
-	go->LoopAnimation("ALL");
-	float speed = 160;
-
-	if (MathHelper::RandF(0, 1) > 0.0f)
-		go->SetVelocity(DirectX::XMFLOAT3(MathHelper::RandF(-speed, speed), 0, MathHelper::RandF(-speed, speed)));
-
-	int a = (int)(MathHelper::RandF(0, 1) * 4) + 1;
-
-	go->SetTeam((GOTeam)a);
-
-
-	AddGameObject(go);
 }
 
 void Level::Update(float DeltaTime)
@@ -367,6 +199,8 @@ void Level::Update(float DeltaTime)
 	RunCollisionTest();
 
 	gWave->Update( DeltaTime );
+
+	SpawnItems(DeltaTime);
 }
 
 void Level::Render()
@@ -385,6 +219,104 @@ Terrain* Level::GetTerrain()
 	return gTerrain;
 }
 
+void Level::SpawnItem(Item* item)
+{
+	XMFLOAT3 pos;
+	bool foundFreePos = false;
+
+	float border = 30;
+	XMFLOAT2 dim = gTerrain->GetDimensions();
+	XMFLOAT2 min = XMFLOAT2(border, border);
+	XMFLOAT2 max = XMFLOAT2(dim.x - border, dim.y - border);
+	for (int i = 0; i < 20; ++i)
+	{
+		float X = MathHelper::RandF(min.x, max.x);
+		float Z = MathHelper::RandF(min.y, max.y);
+
+
+		if (gTerrain->IsWalkable(X, Z))
+		{
+			foundFreePos = true;
+			pos = XMFLOAT3(X, 10.0f, Z);
+		}
+	}
+
+	if (!foundFreePos)
+	{
+		XMFLOAT2 tPos = gNodeMap->GetRandomNode()->Position;
+		pos = XMFLOAT3(tPos.x, 10.0f, tPos.y);
+	}
+
+	item->MoveTo( pos );
+	AddGameObject(item);
+}
+
+void Level::SpawnItems(float deltaTime)
+{
+	int activePlayers = 0;
+
+	for each (Player* p in gPlayers)
+	{
+		if (p->IsAlive())
+			++activePlayers;
+	}
+
+	XMFLOAT2 dim = gTerrain->GetDimensions();
+	float area = dim.x * dim.y;
+	float areaFactor = area / StandardArea;
+
+	float timerDelta = areaFactor * activePlayers * deltaTime;
+
+	AutomaticRifleSpawnTimer += timerDelta;
+	ShotgunSpawnTimer += timerDelta;
+	SniperRifleSpawnTimer += timerDelta;
+	FoodSpawnTimer += timerDelta;
+	WaterSpawnTimer += timerDelta;
+	AmmoBoxSpawnTimer += timerDelta;
+	MedicPackSpawnTimer += timerDelta;
+
+	if (AutomaticRifleSpawnTimer >= AutomaticRifleSpawnTimerStop)
+	{
+		AutomaticRifleSpawnTimer = 0.0f;
+		SpawnItem(new WeaponOnGround(new AutomaticRifle()));
+	}
+
+	if (ShotgunSpawnTimer >= ShotgunSpawnTimerStop)
+	{
+		ShotgunSpawnTimer = 0.0f;
+		SpawnItem(new WeaponOnGround(new Shotgun()));
+	}
+
+	if (SniperRifleSpawnTimer >= SniperRifleSpawnTimerStop)
+	{
+		SniperRifleSpawnTimer = 0.0f;
+		SpawnItem(new WeaponOnGround(new SniperRifle()));
+	}
+
+	if (FoodSpawnTimer >= FoodSpawnTimerStop)
+	{
+		FoodSpawnTimer = 0.0f;
+		SpawnItem(new CannedFood());
+	}
+
+	if (WaterSpawnTimer >= WaterSpawnTimerStop)
+	{
+		WaterSpawnTimer = 0.0f;
+		SpawnItem(new Canister());
+	}
+
+	if (AmmoBoxSpawnTimer >= AmmoBoxSpawnTimerStop)
+	{
+		AmmoBoxSpawnTimer = 0.0f;
+		SpawnItem(new AmmoBox());
+	}
+
+	if (MedicPackSpawnTimer >= MedicPackSpawnTimerStop)
+	{
+		MedicPackSpawnTimer = 0.0f;
+		SpawnItem(new MediPack());
+	}
+}
 
 
 //	Will run after every
@@ -531,7 +463,7 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 		AddGameObject( pUnit );
 		AddGameObject( pUnit->GetWeapon() );
 	}
-
+	/*
 	WeaponOnGround*	shotgun	=	new WeaponOnGround( new Shotgun() );
 	shotgun->MoveTo( XMFLOAT3(Pos.x + 50, 0, Pos.y) );
 	AddGameObject(shotgun);
@@ -543,7 +475,7 @@ void Level::SetNumberOfPlayers(int noPlayers, int screenWidth, int screenHeight)
 	WeaponOnGround*	automaticRifle	=	new WeaponOnGround( new AutomaticRifle() );
 	automaticRifle->MoveTo( XMFLOAT3(Pos.x, 0, Pos.y - 50) );
 	AddGameObject(automaticRifle);
-
+	*/
 }
 #pragma endregion
 
