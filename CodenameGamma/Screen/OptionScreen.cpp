@@ -81,7 +81,7 @@ void OptionScreen::Update(float DeltaTime)
 				switch( gMenuIndex )
 				{
 				case 3:
-					UpdateVolume( Master,	gMenu[gMenuIndex].second.second );
+					UpdateVolume( Master, gMenu[gMenuIndex].second.second );
 					SoundManager::GetInstance()->Play( "MenuChange", SFX );
 					break;
 
