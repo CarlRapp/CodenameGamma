@@ -82,16 +82,15 @@ void CreditsScreen::Render()
 	DrawString(*gWaveTextWrapper, "Lead Game Designer, Artist, Structures / Vehicles / Rat", tPos.x, tPos.y, 18, White, WhiteTrans, 1, FW1_CENTER);
 
 
-	tPos	=	XMFLOAT2( gScreenWidth * 0.5f, tPos.y + 36 * 2.5f);
+	tPos	=	XMFLOAT2( gScreenWidth * 0.35f, tPos.y + 36 * 2.5f);
 	DrawString(*gTextInstance, "Linus Thorell", tPos.x, tPos.y, 36, Yellow, RedTrans, 2, FW1_CENTER);
 	tPos.y	+=	36 * 1.5f;
 	DrawString(*gWaveTextWrapper, "Musician, Main Theme", tPos.x, tPos.y, 18, White, WhiteTrans, 1, FW1_CENTER);
-	tPos.y	+=	36 * 2.0f;
 
+	tPos	=	XMFLOAT2( gScreenWidth * 0.65f, tPos.y - 36 * 1.5f);
 	DrawString(*gTextInstance, "Michael Mostrom", tPos.x, tPos.y, 36, Yellow, RedTrans, 2, FW1_CENTER);
 	tPos.y	+=	36 * 1.5f;
 	DrawString(*gWaveTextWrapper, "Musician, Sound Effects", tPos.x, tPos.y, 18, White, WhiteTrans, 1, FW1_CENTER);
-	tPos.y	+=	36 * 2.5f;
 
 
 
