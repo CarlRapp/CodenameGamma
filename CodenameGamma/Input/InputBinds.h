@@ -12,7 +12,7 @@ enum XboxBinds
 	XDrop			=	B,
 	XReload			=	X,
 	XChangeWeapon	=	Y,
-	XCrouch			=	LEFT_STICK
+	XCrouch			=	A
 };
 
 enum KeyboardBinds
