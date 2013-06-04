@@ -1600,23 +1600,6 @@ void GraphicsManager::CombineFinal()
 	//Effects::CombineFinalFX->SetOpacity(0.8f);
 	//RenderQuad(shadowVP, m_ShadowMapSRV, Effects::CombineFinalFX->BlendMonoTech);
 	
-	if (InputManager::GetInstance()->GetController(0)->GetButtonState(Xbox_Button::BACK) == InputState::DOWN)
-	{
-		RenderQuad(shadowVP, m_ShadowMapSRV0, Effects::CombineFinalFX->MonoTech);
-		/*
-		shadowVP.TopLeftX = 600;
-
-		RenderQuad(shadowVP, m_ShadowMapSRV1, Effects::CombineFinalFX->MonoTech);
-
-		shadowVP.TopLeftY = m_Height - (shadowVP.Height + 20);
-		shadowVP.TopLeftX = 20;
-
-		RenderQuad(shadowVP, m_ShadowMapSRV2, Effects::CombineFinalFX->MonoTech);
-
-		shadowVP.TopLeftX = 600;
-
-		RenderQuad(shadowVP, m_ShadowMapSRV3, Effects::CombineFinalFX->MonoTech);*/
-	}
 
 	m_DeviceContext->RSSetViewports( 1, &m_ViewPort );
 }
