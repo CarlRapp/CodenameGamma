@@ -53,8 +53,13 @@ void InputManager::Update(float DeltaTime)
 {
 	//	Only update input if the
 	//	game is the active window
-	if(GetActiveWindow() != *gWindow)
-		return;
+	//if(GetActiveWindow() != *gWindow)
+	//	return;
+	/*
+		Av någon anledning buggar denna så
+		vi skiter i att använda den, den plockade
+		input även om fönstret inte var aktivt...
+	*/
 
 	//	Update controllers
 	for each(Controller* tController in *gControllers)
