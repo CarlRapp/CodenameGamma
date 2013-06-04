@@ -56,41 +56,6 @@ void Player::Update(float deltaTime)
 
 		newVel	=	XMFLOAT3(lStickDir.x * lStickLength, 0, lStickDir.y * lStickLength);
 
-		//KEYBOARD AND MOUSE
-		if (m_PlayerIndex == 0)
-		{			
-			//if (InputManager::GetInstance()->GetKeyboard()->GetKeyState(VK_SPACE) == DOWN)
-			if ( IsButtonState( MLook, DOWN ) )
-			{
-				D3D11_VIEWPORT vp	= m_Camera->GetViewPort();
-				XMVECTOR center		= XMLoadFloat2(&XMFLOAT2((float)(vp.TopLeftX + vp.Width / 2), (float)(vp.TopLeftY + vp.Height / 2)));
-				XMVECTOR mousePos	= XMLoadFloat2(&InputManager::GetInstance()->GetMouse()->GetPosition(true));			
-
-				XMFLOAT2 mouseDir;
-				XMStoreFloat2(&mouseDir, mousePos - center);
-				m_Unit->LookAtXZ(XMFLOAT3(tPosition.x + mouseDir.x, 0, tPosition.z - mouseDir.y));
-			}
-
-
-			XMFLOAT2 walkdir = XMFLOAT2(0,0);
-			float speed = 160;
-
-			if ( IsButtonState( KWalkUp, DOWN ) )
-				walkdir.y += 1;
-			if ( IsButtonState( KWalkDown, DOWN ) )
-				walkdir.y -= 1;
-			if ( IsButtonState( KWalkLeft, DOWN ) )
-				walkdir.x -= 1;
-			if ( IsButtonState( KWalkRight, DOWN ) )
-				walkdir.x += 1;
-
-			if ( IsButtonState( KRun, DOWN ) )
-				speed	*=	2;
-
-			if (walkdir.x != 0 || walkdir.y != 0)
-				newVel	=	XMFLOAT3(walkdir.x * speed, 0, walkdir.y * speed);
-		}
-
 		if (m_Unit->Crouching())
 			m_Unit->SetVelocity(XMFLOAT3(0, 0, 0));
 		else
@@ -103,7 +68,7 @@ void Player::Update(float deltaTime)
 			m_Unit->SetWeaponState(Unit::Aim);
 			break;
 		case DOWN:
-			if ( IsButtonState( XShoot, DOWN ) || IsButtonState( MShoot, DOWN ) )
+			if ( IsButtonState( XShoot, DOWN ) )
 			{
 				if( m_Unit->FireWeapon(NULL) )
 					InputManager::GetInstance()->GetController( m_PlayerIndex )->Vibrate( 1.0f, 1.0f, 0.1f );
@@ -124,17 +89,15 @@ void Player::Update(float deltaTime)
 		}
 
 		if ( IsButtonState( XCrouch, PRESSED) )
-		{
 			m_Unit->SwitchCrouchStand();
-		}
 
-		if ( IsButtonState( XReload, PRESSED ) || IsButtonState( KReload, PRESSED ) )
+		if ( IsButtonState( XReload, PRESSED ) )
 			m_Unit->ReloadWeapon();
 
-		if ( IsButtonState( XDrop, PRESSED ) || IsButtonState( KDrop, PRESSED ) )
+		if ( IsButtonState( XDrop, PRESSED ) )
 			m_Unit->DropWeapon();
 
-		if ( IsButtonState( XChangeWeapon, PRESSED ) || IsButtonState( KChangeWeapon, PRESSED ) )
+		if ( IsButtonState( XChangeWeapon, PRESSED ) )
 			m_Unit->ChangeWeapon();
 	}
 

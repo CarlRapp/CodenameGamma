@@ -381,7 +381,7 @@ void SoundManager::SetVolume(SoundType VolumeType, float Value)
 		PlayingSound*	tSound	=	gPlayingSounds->at( i );
 		PSEntry			tEntry	=	tSound->second;
 
-		if( tEntry.first == VolumeType )
+		if( tEntry.first == VolumeType || VolumeType == Master )
 		{
 			float	newVolume	=	gMasterVolume;
 			if( VolumeType == SFX )
